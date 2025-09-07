@@ -32,40 +32,38 @@ const services = [
 const plans = [
   {
     name: "Esencial",
-    price: "2,900 MXN",
-    description: "Presencia básica para iniciar en internet.",
+    price: "6,499 MXN",
+    description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
     features: [
-      "Página de inicio",
-      "Blog y FAQs",
+      "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
+      "Contenido clave: 3 secciones principales (Inicio, Servicios, Contacto), con un blog y 3 servicios listados.",
       "Módulo de contacto",
-      "Reservas básicas",
-      "Optimización móvil",
-      "Contenido de ejemplo cargado",
+      "Conexión directa: Formulario de contacto, integración con redes sociales y botón de WhatsApp.",
+      'Detalles profesionales: Correo corporativo y una sección de "Conócenos" para generar confianza.',
     ],
     highlight: false,
   },
   {
     name: "Profesional",
-    price: "4,900 MXN",
-    description: "El plan más popular para negocios en crecimiento.",
+    price: "9,499 MXN",
+    description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
     features: [
-      "Todo lo del plan Esencial",
-      "Tienda online (hasta 20 productos)",
-      "Personalización de colores y logo",
-      "Formularios conectados a correo/WhatsApp",
+      "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
+      "Automatiza tu agenda: Sistema de reservas en línea para que tus clientes agenden fácilmente.",
+      "Mejora tu contenido: Blog optimizado y un banner principal personalizado para destacar tu marca.",
+      "Organización profesional: Gestión de entregables y documentos de forma estructurada.",
     ],
     highlight: true,
   },
   {
     name: "Premium",
-    price: "7,900 MXN",
-    description: "Para negocios que buscan escalar y automatizar.",
+    price: "15,499 MXN",
+    description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
     features: [
-      "Todo lo del plan Profesional",
-      "Reservas avanzadas con calendario",
-      "Pagos en línea (Stripe, PayPal, MercadoPago)",
-      "SEO básico en blog",
-      "Secciones personalizadas (galería, testimonios)",
+      "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
+      "Pagos seguros: Integración con Stripe para recibir pagos en línea.",
+      "Marketing avanzado: Herramientas de comunicación y marketing digital para atraer y retener clientes.",
+      "Análisis y crecimiento: Reportes de actividad web y una sección de servicios premium para monetizar más tu oferta.",
     ],
     highlight: false,
   },
@@ -80,7 +78,7 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
   const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
 
   const priceValue = parseInt(plan.price.replace(/\D/g, ""));
-  const oldPrice = priceValue ? `${(priceValue * 1.15).toLocaleString()} MXN` : null;
+  const oldPrice = priceValue ? `${(priceValue * 1.30).toLocaleString()} MXN` : null;
 
   return (
     <AnimatedSection delay={0.1}>
@@ -103,9 +101,12 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
         <p className="text-gray-500 mb-4 text-center">{plan.description}</p>
 
         <div className="text-center mb-6">
-          {oldPrice && <span className="text-gray-400 line-through mr-2 text-lg">{oldPrice}</span>}
-          <span className="text-4xl font-extrabold text-blue-600">{plan.price}</span>
+          {oldPrice && <span className="text-gray-400 line-through mr-2 text-lg">${oldPrice}</span>}
+          <br />  
+          <span className="text-4xl font-extrabold text-blue-600">${plan.price}</span>
         </div>
+
+      
 
         <ul className="space-y-3 flex-1">
           {plan.features.map((feature, i) => (

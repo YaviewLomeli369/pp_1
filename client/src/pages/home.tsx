@@ -19,40 +19,38 @@ import type { SiteConfig, Section, Testimonial } from "@shared/schema";
 const plans = [
   {
     name: "Esencial",
-    price: "2,900 MXN",
-    description: "Presencia básica para iniciar en internet.",
+    price: "6,499 MXN",
+    description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
     features: [
-      "Página de inicio",
-      "Blog y FAQs",
+      "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
+      "Contenido clave: 3 secciones principales (Inicio, Servicios, Contacto), con un blog y 3 servicios listados.",
       "Módulo de contacto",
-      "Reservas básicas",
-      "Optimización móvil",
-      "Contenido de ejemplo cargado",
+      "Conexión directa: Formulario de contacto, integración con redes sociales y botón de WhatsApp.",
+      'Detalles profesionales: Correo corporativo y una sección de "Conócenos" para generar confianza.',
     ],
     highlight: false,
   },
   {
     name: "Profesional",
-    price: "4,900 MXN",
-    description: "El plan más popular para negocios en crecimiento.",
+    price: "9,499 MXN",
+    description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
     features: [
-      "Todo lo del plan Esencial",
-      "Tienda online (hasta 20 productos)",
-      "Personalización de colores y logo",
-      "Formularios conectados a correo/WhatsApp",
+      "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
+      "Automatiza tu agenda: Sistema de reservas en línea para que tus clientes agenden fácilmente.",
+      "Mejora tu contenido: Blog optimizado y un banner principal personalizado para destacar tu marca.",
+      "Organización profesional: Gestión de entregables y documentos de forma estructurada.",
     ],
     highlight: true,
   },
   {
     name: "Premium",
-    price: "7,900 MXN",
-    description: "Para negocios que buscan escalar y automatizar.",
+    price: "15,499 MXN",
+    description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
     features: [
-      "Todo lo del plan Profesional",
-      "Reservas avanzadas con calendario",
-      "Pagos en línea (Stripe, PayPal, MercadoPago)",
-      "SEO básico en blog",
-      "Secciones personalizadas (galería, testimonios)",
+      "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
+      "Pagos seguros: Integración con Stripe para recibir pagos en línea.",
+      "Marketing avanzado: Herramientas de comunicación y marketing digital para atraer y retener clientes.",
+      "Análisis y crecimiento: Reportes de actividad web y una sección de servicios premium para monetizar más tu oferta.",
     ],
     highlight: false,
   },
@@ -60,49 +58,51 @@ const plans = [
 
 const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
   const WHATSAPP_NUMBER = "525512345678";
-  const message = encodeURIComponent(`Hola, me interesa más información sobre sus servicios.`);
-  const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}&app_absent=0`;
+  const message = encodeURIComponent(
+    `Hola, me interesa más información sobre sus servicios.`
+  );
+
+  const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
 
   const priceValue = parseInt(plan.price.replace(/\D/g, ""));
-  const oldPrice = priceValue ? `${(priceValue * 1.15).toLocaleString()} MXN` : null;
+  const oldPrice = priceValue ? `${(priceValue * 1.30).toLocaleString()} MXN` : null;
 
   return (
-    <AnimatedSection>
+    <AnimatedSection delay={0.1}>
       <div
-        className={`relative rounded-2xl shadow-xl p-8 flex flex-col transform transition duration-300 hover:scale-105 ${
+        className={`relative rounded-2xl shadow-lg p-8 flex flex-col transition-transform duration-300 hover:scale-105 navbar-fixed-body ${
           plan.highlight
-            ? "bg-white border-2 border-blue-600 shadow-blue-100"
+            ? "bg-white border-2 border-blue-600 shadow-blue-200"
             : "bg-white border border-gray-200"
         }`}
       >
         {plan.highlight && (
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2">
             <span className="flex items-center gap-1 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium shadow-md">
               <Star className="h-4 w-4" /> Más vendido
             </span>
           </div>
         )}
 
-        <h3 className="text-2xl font-bold mb-2 text-gray-800 text-center">{plan.name}</h3>
+        <h3 className="text-2xl font-bold mb-2 text-center text-gray-800">{plan.name}</h3>
         <p className="text-gray-500 mb-4 text-center">{plan.description}</p>
 
         <div className="text-center mb-6">
-          {oldPrice && <span className="text-gray-400 line-through mr-2 text-lg">{oldPrice}</span>}
-          <span className="text-4xl font-extrabold text-blue-600">{plan.price}</span>
+          {oldPrice && <span className="text-gray-400 line-through mr-2 text-lg">${oldPrice}</span>}
+          <br />  
+          <span className="text-4xl font-extrabold text-blue-600">${plan.price}</span>
         </div>
+
+
 
         <ul className="space-y-3 flex-1">
           {plan.features.map((feature, i) => (
             <li key={i} className="flex items-start">
-              <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+              <Check className="h-5 w-5 text-green-500 mr-2" />
               <span className="text-gray-700">{feature}</span>
             </li>
           ))}
         </ul>
-
-        <p className="mt-4 text-sm text-gray-500 text-center">
-          Todos nuestros planes incluyen soporte prioritario y actualizaciones continuas.
-        </p>
 
         <a
           href={whatsappLink}
@@ -114,7 +114,7 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
               : "bg-green-100 text-green-700 hover:bg-green-200"
           }`}
         >
-          Solicitar más información
+          Solicitar información
         </a>
       </div>
     </AnimatedSection>
@@ -215,6 +215,27 @@ function Home() {
                   <Link href="/store">Ver Tienda</Link>
                 </Button>
               )}
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+
+      {/* Planes */}
+      <AnimatedSection delay={0.2}>
+        <section className="py-20 bg-gradient-to-b from-white to-gray-100">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6">
+              Planes a tu Medida
+            </h2>
+            <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+              Escoge el plan que mejor se adapte a tus objetivos. Todos incluyen soporte y
+              optimización básica.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {plans.map((plan, i) => (
+                <PlanCard key={i} plan={plan} />
+              ))}
             </div>
           </div>
         </section>
