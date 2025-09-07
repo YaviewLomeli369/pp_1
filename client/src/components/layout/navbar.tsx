@@ -145,9 +145,9 @@ export function Navbar() {
                 className="h-10 w-auto object-contain"
               />
             </div>
-            <span className="hidden sm:block text-xl font-bold text-gray-900">
+            {/* <span className="hidden sm:block text-xl font-bold text-gray-900">
               {appearance.brandName || "Sistema Modular"}
-            </span>
+            </span> */}
           </NavLink>
 
           {/* Desktop Menu */}
