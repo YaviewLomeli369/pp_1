@@ -44,6 +44,7 @@ function Conocenos() {
             backgroundRepeat: "no-repeat",
           }}
         >
+          
           {/* Overlay */}
           <div className="absolute inset-0 bg-black/50"></div>
 
