@@ -143,15 +143,16 @@ function AdminStoreContent() {
 
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      let body;
+      let body: string | FormData;
       let headers: any = {};
 
       // Si el producto tiene una imagen, usar FormData
       if (data.image instanceof File) {
-        body = new FormData();
+        const formData = new FormData();
         Object.keys(data).forEach((key) => {
-          body.append(key, data[key]);
+          formData.append(key, data[key]);
         });
+        body = formData;
         // Con FormData no agregues Content-Type, fetch lo hace solo
       } else {
         body = JSON.stringify(data);
@@ -977,7 +978,7 @@ function AdminStoreContent() {
                   </SelectTrigger>
                   <SelectContent>
                     {categories?.length
-                      ? categories.map((cat) => (
+                      ? categories.map((cat: any) => (
                           <SelectItem key={cat.id} value={cat.id}>
                             {cat.name}
                           </SelectItem>
