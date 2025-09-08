@@ -329,22 +329,22 @@ function AdminStoreContent() {
       let finalURL = null;
 
       // Check file.response.url first (most reliable from our backend)
-      if (file?.response?.url) {
+      if (file?.response?.url && typeof file.response.url === 'string' && file.response.url.trim().length > 0) {
         finalURL = file.response.url;
         console.log("COMPLETE-6A. Using file.response.url:", finalURL);
       } 
       // Then check file.response.location (S3 style)
-      else if (file?.response?.location) {
+      else if (file?.response?.location && typeof file.response.location === 'string' && file.response.location.trim().length > 0) {
         finalURL = file.response.location;
         console.log("COMPLETE-6B. Using file.response.location:", finalURL);
       }
       // Then check file.uploadURL
-      else if (file?.uploadURL) {
+      else if (file?.uploadURL && typeof file.uploadURL === 'string' && file.uploadURL.trim().length > 0) {
         finalURL = file.uploadURL;
         console.log("COMPLETE-6C. Using file.uploadURL:", finalURL);
       }
       // Finally check file.response.uploadURL
-      else if (file?.response?.uploadURL) {
+      else if (file?.response?.uploadURL && typeof file.response.uploadURL === 'string' && file.response.uploadURL.trim().length > 0) {
         finalURL = file.response.uploadURL;
         console.log("COMPLETE-6D. Using file.response.uploadURL:", finalURL);
       }
@@ -362,13 +362,21 @@ function AdminStoreContent() {
           try {
             // More defensive URL validation
             if (!trimmedURL.startsWith('http://') && !trimmedURL.startsWith('https://')) {
+              console.error("COMPLETE-8A. ❌ URL doesn't start with http:// or https://:", trimmedURL);
               throw new Error("URL must start with http:// or https://");
+            }
+            
+            // Additional check for common invalid patterns
+            if (trimmedURL.includes('undefined') || trimmedURL.includes('null') || trimmedURL === 'http://' || trimmedURL === 'https://') {
+              console.error("COMPLETE-8B. ❌ URL contains invalid patterns:", trimmedURL);
+              throw new Error("URL contains invalid data");
             }
             
             const urlObj = new URL(trimmedURL);
             
             // Additional validation to ensure it's a proper URL
             if (!urlObj.hostname || urlObj.hostname.length === 0) {
+              console.error("COMPLETE-8C. ❌ URL has no hostname:", trimmedURL);
               throw new Error("URL must have a valid hostname");
             }
             

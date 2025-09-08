@@ -88,13 +88,30 @@ export function ObjectUploader({
 
             // Validate that we have a proper URL before proceeding
             if (responseData && responseData.url && typeof responseData.url === 'string') {
-              try {
-                // Test URL validity without throwing
-                new URL(responseData.url);
-                console.log("✅ Valid URL confirmed:", responseData.url);
-              } catch (urlError) {
-                console.error("❌ Invalid URL detected:", responseData.url, urlError);
-                responseData.error = "Invalid URL received from server";
+              const urlToValidate = responseData.url.trim();
+              if (urlToValidate && urlToValidate.length > 0) {
+                try {
+                  // Test URL validity - must start with http:// or https://
+                  if (!urlToValidate.startsWith('http://') && !urlToValidate.startsWith('https://')) {
+                    throw new Error("URL must start with http:// or https://");
+                  }
+                  
+                  const urlObj = new URL(urlToValidate);
+                  
+                  if (!urlObj.hostname || urlObj.hostname.length === 0) {
+                    throw new Error("URL must have a valid hostname");
+                  }
+                  
+                  console.log("✅ Valid URL confirmed:", urlToValidate);
+                } catch (urlError) {
+                  console.error("❌ Invalid URL detected:", urlToValidate, urlError);
+                  responseData.error = `Invalid URL received from server: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`;
+                  responseData.url = null; // Clear the invalid URL
+                }
+              } else {
+                console.error("❌ Empty URL detected");
+                responseData.error = "Empty URL received from server";
+                responseData.url = null;
               }
             }
 
