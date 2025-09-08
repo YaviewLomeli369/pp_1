@@ -74,12 +74,29 @@ export function ObjectUploader({
             let responseData;
 
             if (typeof responseText === 'string' && responseText.trim() !== '') {
-              responseData = JSON.parse(responseText);
+              try {
+                responseData = JSON.parse(responseText);
+              } catch (parseError) {
+                console.error("Failed to parse response text:", parseError);
+                responseData = { success: false, error: "Invalid response format" };
+              }
             } else {
               responseData = response;
             }
 
             console.log("Parsed response data:", responseData);
+
+            // Validate that we have a proper URL before proceeding
+            if (responseData && responseData.url && typeof responseData.url === 'string') {
+              try {
+                // Test URL validity without throwing
+                new URL(responseData.url);
+                console.log("✅ Valid URL confirmed:", responseData.url);
+              } catch (urlError) {
+                console.error("❌ Invalid URL detected:", responseData.url, urlError);
+                responseData.error = "Invalid URL received from server";
+              }
+            }
 
             // Return clean structure that handleUploadComplete expects
             return {
@@ -88,7 +105,7 @@ export function ObjectUploader({
             };
           } catch (error) {
             console.error("Error parsing Uppy response:", error);
-            return response;
+            return { success: false, error: "Failed to process response" };
           }
         },
       })
