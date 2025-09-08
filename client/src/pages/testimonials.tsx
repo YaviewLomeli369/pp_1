@@ -61,16 +61,14 @@ export default function Testimonials() {
     },
   });
 
-  const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({
+  const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
   });
 
-  const { appearance, frontpage, modules } = useMemo(() => {
+  const { appearance } = useMemo(() => {
     const configData = config?.config as any;
     return {
       appearance: configData?.appearance || {},
-      frontpage: configData?.frontpage || {},
-      modules: configData?.frontpage?.modulos || {},
     };
   }, [config]);
 
@@ -93,42 +91,39 @@ export default function Testimonials() {
       }}
     >
       <Navbar />
-      
+
       <AnimatedSection>
-        {/* <div className="container mx-auto px-4 py-16" > */}
-        {/* Header */}
-          <section
-            className="relative w-full min-h-[40vh] md:min-h-[50vh] flex items-center justify-center text-white navbar-fixed-body"
-            style={{
-              backgroundImage: `url("/imgs/bg.png")`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            {/* Overlay oscuro */}
-            <div className="absolute inset-0 bg-black/60"></div>
+        {/* Hero/Header */}
+        <section
+          className="relative w-full min-h-[40vh] md:min-h-[50vh] flex items-center justify-center text-white navbar-fixed-body"
+          style={{
+            backgroundImage: `url("/imgs/bg.png")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <div className="absolute inset-0 bg-black/60"></div>
+          <div className="relative max-w-4xl mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+              Testimonios de Nuestros Clientes
+            </h1>
+            <p className="text-xl mb-8 text-gray-200">
+              Conoce las experiencias de quienes confían en nosotros
+            </p>
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="shadow-lg"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Compartir tu Experiencia
+            </Button>
+          </div>
+        </section>
 
-            {/* Contenido centrado */}
-            <div className="relative max-w-4xl mx-auto px-4 text-center">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-                Testimonios de Nuestros Clientes
-              </h1>
-              <p className="text-xl mb-8 text-gray-200">
-                Conoce las experiencias de quienes confían en nosotros
-              </p>
-              <Button 
-                size="lg" 
-                variant="secondary" 
-                className="shadow-lg"
-                onClick={() => setIsCreateOpen(true)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Compartir tu Experiencia
-              </Button>
-            </div>
-          </section>
-
+        {/* Loading Spinner */}
         {isLoading ? (
           <div className="flex flex-col items-center space-y-4 py-16">
             <Spinner size="lg" className="text-primary" />
@@ -140,14 +135,15 @@ export default function Testimonials() {
             </div>
           </div>
         ) : (
-          <div className="space-y-12">
+          <div className="max-w-7xl mx-auto px-4 py-16 space-y-16"> {/* Padding general y espacio entre secciones */}
+
             {/* Featured Testimonials */}
             {featuredTestimonials.length > 0 && (
-              <section>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
+              <section className="space-y-8">
+                <h2 className="text-2xl font-semibold text-gray-900 text-center">
                   Testimonios Destacados
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {featuredTestimonials.map((testimonial) => 
                     isSuperuser ? (
                       <TestimonialCardEditable key={testimonial.id} testimonial={testimonial} featured />
@@ -159,25 +155,28 @@ export default function Testimonials() {
               </section>
             )}
 
-            {/* All Testimonials */}
-            <section>
-              {featuredTestimonials.length > 0 && (
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
-                  Más Testimonios
-                </h2>
-              )}
-              
-              {regularTestimonials.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {regularTestimonials.map((testimonial) => 
-                    isSuperuser ? (
-                      <TestimonialCardEditable key={testimonial.id} testimonial={testimonial} />
-                    ) : (
-                      <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-                    )
+            {/* Regular Testimonials */}
+            <section className="space-y-8">
+              {regularTestimonials.length > 0 && (
+                <>
+                  {featuredTestimonials.length > 0 && (
+                    <h2 className="text-2xl font-semibold text-gray-900 text-center">
+                      Más Testimonios
+                    </h2>
                   )}
-                </div>
-              ) : approvedTestimonials.length === 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {regularTestimonials.map((testimonial) => 
+                      isSuperuser ? (
+                        <TestimonialCardEditable key={testimonial.id} testimonial={testimonial} />
+                      ) : (
+                        <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+                      )
+                    )}
+                  </div>
+                </>
+              )}
+
+              {approvedTestimonials.length === 0 && (
                 <Card className="text-center py-16">
                   <CardContent>
                     <MessageSquare className="h-16 w-16 mx-auto text-gray-300 mb-4" />
@@ -193,7 +192,7 @@ export default function Testimonials() {
                     </Button>
                   </CardContent>
                 </Card>
-              ) : null}
+              )}
             </section>
           </div>
         )}
@@ -278,7 +277,6 @@ export default function Testimonials() {
             </form>
           </DialogContent>
         </Dialog>
-        {/* </div> */}
       </AnimatedSection>
 
       <Footer />
