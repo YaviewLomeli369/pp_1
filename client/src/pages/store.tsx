@@ -530,11 +530,28 @@ export default function Store() {
                   <div className="relative">
                     {product.images?.[0] && (
                       <img
-                        src={product.images[0].startsWith('/') ? product.images[0] : `/${product.images[0]}`}
+                        src={(() => {
+                          const imgUrl = product.images[0];
+                          // Convert upload URLs to serving URLs
+                          if (imgUrl.includes('/api/objects/direct-upload/')) {
+                            const objectId = imgUrl.split('/api/objects/direct-upload/')[1];
+                            return `/objects/${objectId}`;
+                          }
+                          // Handle normal object URLs
+                          if (imgUrl.startsWith('/objects/')) {
+                            return imgUrl;
+                          }
+                          // Handle relative paths
+                          if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+                            return `/objects/${imgUrl}`;
+                          }
+                          return imgUrl;
+                        })()}
                         alt={product.name}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           console.error('Image failed to load:', product.images[0]);
+                          console.error('Attempted URL:', e.currentTarget.src);
                           e.currentTarget.style.display = 'none';
                         }}
                       />
@@ -605,9 +622,25 @@ export default function Store() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-4">
                   {selectedProduct.images?.map((img, idx) => (
-                    <img key={idx} src={img.startsWith('/') ? img : `/${img}`} alt={`${selectedProduct.name} ${idx + 1}`} className="w-full h-64 object-cover rounded-lg" 
+                    <img key={idx} src={(() => {
+                      // Convert upload URLs to serving URLs
+                      if (img.includes('/api/objects/direct-upload/')) {
+                        const objectId = img.split('/api/objects/direct-upload/')[1];
+                        return `/objects/${objectId}`;
+                      }
+                      // Handle normal object URLs
+                      if (img.startsWith('/objects/')) {
+                        return img;
+                      }
+                      // Handle relative paths
+                      if (!img.startsWith('http') && !img.startsWith('/')) {
+                        return `/objects/${img}`;
+                      }
+                      return img;
+                    })()} alt={`${selectedProduct.name} ${idx + 1}`} className="w-full h-64 object-cover rounded-lg" 
                       onError={(e) => {
-                        console.error('Image failed to load:', img);
+                        console.error('❌ Image preview failed to load:', img);
+                        console.error('Attempted URL:', e.currentTarget.src);
                         e.currentTarget.style.display = 'none';
                       }}
                     />

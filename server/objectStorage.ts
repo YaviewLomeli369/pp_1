@@ -165,8 +165,40 @@ export class ObjectStorageService {
 
   // Normalize object path for public access
   normalizeObjectEntityPath(path: string): string {
-    // Remove any leading slashes and return clean path
-    return path.replace(/^\/+/, '');
+    // Handle upload URLs by converting them to serving URLs
+    if (path.includes('/api/objects/direct-upload/')) {
+      const objectId = path.split('/api/objects/direct-upload/')[1];
+      return `/objects/${objectId}`;
+    }
+    
+    // Handle full URLs by extracting the path
+    if (path.startsWith('http')) {
+      try {
+        const url = new URL(path);
+        if (url.pathname.startsWith('/objects/')) {
+          return url.pathname;
+        }
+        if (url.pathname.includes('/api/objects/direct-upload/')) {
+          const objectId = url.pathname.split('/api/objects/direct-upload/')[1];
+          return `/objects/${objectId}`;
+        }
+      } catch (e) {
+        // Fall through to other logic
+      }
+    }
+    
+    // Handle normal object URLs
+    if (path.startsWith('/objects/')) {
+      return path;
+    }
+    
+    // Handle relative paths - prepend /objects/ if needed
+    const cleanPath = path.replace(/^\/+/, '');
+    if (!cleanPath.startsWith('objects/')) {
+      return `/objects/${cleanPath}`;
+    }
+    
+    return `/${cleanPath}`;
   }
 
   // Get object entity file (for backwards compatibility)

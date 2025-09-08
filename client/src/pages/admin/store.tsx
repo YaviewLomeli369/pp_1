@@ -1,4 +1,4 @@
-import React, { useState , useEffect  } from "react";
+import React, { useState , useEffect, useMemo  } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
 import { apiRequest } from "@/lib/queryClient";
@@ -38,6 +38,28 @@ import {
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 
+// Define Product type for better type safety
+interface Product {
+  id: string;
+  name: string;
+  description?: string | null;
+  shortDescription?: string | null;
+  price: number;
+  currency: string;
+  comparePrice?: number | null;
+  categoryId: string;
+  stock: number;
+  lowStockThreshold: number;
+  sku: string;
+  weight: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  tags?: string[];
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  images?: string[]; // Array of image URLs
+}
+
 export default function AdminStore() {
   return (
     <AdminLayout>
@@ -50,7 +72,7 @@ function AdminStoreContent() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
@@ -66,10 +88,39 @@ function AdminStoreContent() {
   });
 
   // Fetch products
-  const { data: products = [], isLoading: productsLoading } = useQuery({
+  const { data: rawProducts, isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ["/api/store/products"],
-    queryFn: () => apiRequest("/api/store/products", { method: "GET" }),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   });
+
+  // Normalize image URLs for all products
+  const products = useMemo(() => {
+    if (!rawProducts) return undefined;
+
+    return rawProducts.map(product => ({
+      ...product,
+      images: Array.isArray(product.images) 
+        ? product.images.map(imgUrl => {
+            // Convert upload URLs to serving URLs
+            if (imgUrl.includes('/api/objects/direct-upload/')) {
+              const objectId = imgUrl.split('/api/objects/direct-upload/')[1];
+              return `/objects/${objectId}`;
+            }
+            // Handle normal object URLs
+            if (imgUrl.startsWith('/objects/')) {
+              return imgUrl;
+            }
+            // Handle relative paths
+            if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+              return `/objects/${imgUrl}`;
+            }
+            return imgUrl;
+          })
+        : product.images
+    }));
+  }, [rawProducts]);
+
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -693,7 +744,7 @@ function AdminStoreContent() {
                 <div className="text-center py-4">Cargando productos...</div>
               ) : (
                 <div className="space-y-4">
-                  {products.map((product: any) => (
+                  {products && products.map((product: Product) => (
                     <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
@@ -1444,7 +1495,6 @@ function AdminStoreContent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pending">Pendiente</SelectItem>
-                    <SelectItem value="confirmed">Confirmado</SelectItem>
                     <SelectItem value="processing">Procesando</SelectItem>
                     <SelectItem value="shipped">Enviado</SelectItem>
                     <SelectItem value="delivered">Entregado</SelectItem>
