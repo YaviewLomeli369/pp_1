@@ -26,30 +26,6 @@ interface ObjectUploaderProps {
 /**
  * A file upload component that renders as a button and provides a modal interface for
  * file management.
- * 
- * Features:
- * - Renders as a customizable button that opens a file upload modal
- * - Provides a modal interface for:
- *   - File selection
- *   - File preview
- *   - Upload progress tracking
- *   - Upload status display
- * 
- * The component uses Uppy under the hood to handle all file upload functionality.
- * All file management features are automatically handled by the Uppy dashboard modal.
- * 
- * @param props - Component props
- * @param props.maxNumberOfFiles - Maximum number of files allowed to be uploaded
- *   (default: 1)
- * @param props.maxFileSize - Maximum file size in bytes (default: 10MB)
- * @param props.onGetUploadParameters - Function to get upload parameters (method and URL).
- *   Typically used to fetch a presigned URL from the backend server for direct-to-S3
- *   uploads.
- * @param props.onComplete - Callback function called when upload is complete. Typically
- *   used to make post-upload API calls to update server state and set object ACL
- *   policies.
- * @param props.buttonClassName - Optional CSS class name for the button
- * @param props.children - Content to be rendered inside the button
  */
 export function ObjectUploader({
   maxNumberOfFiles = 1,
@@ -72,7 +48,7 @@ export function ObjectUploader({
     })
       .use(AwsS3, {
         shouldUseMultipart: false,
-        getUploadParameters: async (file) => {
+        getUploadParameters: async (file: any) => {
           try {
             console.log("Getting upload parameters for file:", file.name);
             const params = await onGetUploadParameters();
@@ -81,7 +57,7 @@ export function ObjectUploader({
             return {
               ...params,
               headers: {
-                'x-original-filename': file.name,
+                'x-filename': file.name,
                 'content-type': file.type || 'application/octet-stream',
               },
             };
@@ -90,36 +66,57 @@ export function ObjectUploader({
             throw error;
           }
         },
+        // Override response handling to work with our custom backend
+        getResponseData: (response: any, request: any) => {
+          console.log("Processing S3 response:", response);
+          console.log("Request details:", request);
+          
+          try {
+            // Parse the response data
+            const responseData = typeof response.responseText === 'string' ? 
+              JSON.parse(response.responseText) : response.responseText;
+            
+            console.log("Parsed response data:", responseData);
+            
+            // Return the URL in the format Uppy expects
+            return {
+              location: responseData.url,
+              ...responseData
+            };
+          } catch (error) {
+            console.error("Error parsing response data:", error);
+            // Fallback: return the response as-is
+            return response;
+          }
+        },
       })
-      .on("upload-error", (file, error, response) => {
+      .on("upload-error", (file: any, error: any, response: any) => {
         console.error("Upload error:", { file: file?.name, error, response });
       })
-      .on("upload-success", (file, response) => {
+      .on("upload-success", (file: any, response: any) => {
         console.log("Upload success - file:", file?.name);
         console.log("Upload success - response:", response);
         
         // Process the response and store it in the file object
         if (response && file) {
-          if (response.body) {
-            try {
-              // Parse response body if it's a string
-              const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
-              console.log("Parsed response body:", parsedBody);
-              
-              // Store the parsed response for later use
-              file.response = parsedBody;
-            } catch (error) {
-              console.error("Error parsing response body:", error);
-              // If parsing fails, store the raw response
-              file.response = response;
-            }
-          } else {
-            // Store the raw response if no body
+          try {
+            // Store the parsed response for later use
             file.response = response;
+            
+            // Set uploadURL to the location from S3 response
+            if (response.location) {
+              file.uploadURL = response.location;
+            } else if (response.url) {
+              file.uploadURL = response.url;
+            }
+            
+            console.log("Stored uploadURL:", file.uploadURL);
+          } catch (error) {
+            console.error("Error processing upload success:", error);
           }
         }
       })
-      .on("complete", (result) => {
+      .on("complete", (result: any) => {
         console.log("Upload complete result:", result);
         onComplete?.(result);
         setShowModal(false);

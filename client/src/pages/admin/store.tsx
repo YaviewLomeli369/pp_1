@@ -357,7 +357,7 @@ function AdminStoreContent() {
       console.log("Final imageURL selected:", imageURL);
       
       // Step 4: Validate URL format before using
-      if (imageURL && typeof imageURL === 'string') {
+      if (imageURL && typeof imageURL === 'string' && imageURL.trim() !== '') {
         // Validate that URL has correct format
         if (!imageURL.includes('://') && !imageURL.startsWith('/')) {
           console.error("Invalid URL format - not absolute or relative:", imageURL);
