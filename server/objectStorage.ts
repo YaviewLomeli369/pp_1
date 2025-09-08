@@ -103,16 +103,58 @@ export class ObjectStorageService {
   // Download a file from local storage
   async downloadObject(objectName: string, res: Response): Promise<void> {
     try {
-      const fileName = objectName.replace('uploads/', '');
+      // Handle different object name formats
+      let fileName = objectName;
+      
+      // Remove 'uploads/' prefix if present
+      if (fileName.startsWith('uploads/')) {
+        fileName = fileName.replace('uploads/', '');
+      }
+      
+      // If we have just an object ID, find the actual file in uploads directory
+      if (!fileName.includes('-') || !fileName.includes('.')) {
+        // This is likely just an object ID, find the actual file
+        const files = fs.readdirSync(UPLOADS_DIR);
+        const matchingFile = files.find(file => file.startsWith(fileName));
+        
+        if (matchingFile) {
+          fileName = matchingFile;
+        } else {
+          console.error(`No file found for object ID: ${fileName}`);
+          console.error(`Available files: ${files.join(', ')}`);
+          throw new ObjectNotFoundError();
+        }
+      }
+
       const fullPath = path.join(UPLOADS_DIR, fileName);
+      console.log(`Attempting to serve file: ${fullPath}`);
 
       if (!fs.existsSync(fullPath)) {
+        console.error(`File not found at path: ${fullPath}`);
         throw new ObjectNotFoundError();
       }
 
       const data = fs.readFileSync(fullPath);
-      res.setHeader('Content-Type', 'application/octet-stream');
+      
+      // Set appropriate content type based on file extension
+      const ext = path.extname(fileName).toLowerCase();
+      const contentTypes: { [key: string]: string } = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.avif': 'image/avif',
+        '.svg': 'image/svg+xml',
+        '.ico': 'image/x-icon'
+      };
+      
+      const contentType = contentTypes[ext] || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
       res.send(data);
+      
+      console.log(`Successfully served file: ${fileName}, type: ${contentType}`);
     } catch (error) {
       console.error("Error downloading object:", error);
       throw new ObjectNotFoundError();
@@ -122,7 +164,28 @@ export class ObjectStorageService {
   // Get a file as bytes
   async getObjectBytes(objectName: string): Promise<Uint8Array> {
     try {
-      const fileName = objectName.replace('uploads/', '');
+      // Handle different object name formats
+      let fileName = objectName;
+      
+      // Remove 'uploads/' prefix if present
+      if (fileName.startsWith('uploads/')) {
+        fileName = fileName.replace('uploads/', '');
+      }
+      
+      // If we have just an object ID, find the actual file in uploads directory
+      if (!fileName.includes('-') || !fileName.includes('.')) {
+        // This is likely just an object ID, find the actual file
+        const files = fs.readdirSync(UPLOADS_DIR);
+        const matchingFile = files.find(file => file.startsWith(fileName));
+        
+        if (matchingFile) {
+          fileName = matchingFile;
+        } else {
+          console.error(`No file found for object ID: ${fileName}`);
+          throw new ObjectNotFoundError();
+        }
+      }
+
       const fullPath = path.join(UPLOADS_DIR, fileName);
 
       if (!fs.existsSync(fullPath)) {
@@ -203,11 +266,16 @@ export class ObjectStorageService {
 
   // Get object entity file (for backwards compatibility)
   async getObjectEntityFile(path: string): Promise<{ name: string; data: Uint8Array }> {
-    const cleanPath = this.normalizeObjectEntityPath(path.replace('/objects/', ''));
     try {
-      const data = await this.getObjectBytes(cleanPath);
+      // Extract object name from path
+      let objectName = path;
+      if (objectName.startsWith('/objects/')) {
+        objectName = objectName.replace('/objects/', '');
+      }
+      
+      const data = await this.getObjectBytes(objectName);
       return {
-        name: cleanPath,
+        name: objectName,
         data
       };
     } catch (error) {
