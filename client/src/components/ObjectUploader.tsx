@@ -96,9 +96,31 @@ export function ObjectUploader({
       })
       .on("upload-success", (file, response) => {
         console.log("Upload success:", { file: file?.name, response });
+        
+        // Ensure response is properly formatted for handleUploadComplete
+        if (response && typeof response === 'object') {
+          const responseData = response as any;
+          // Make sure we have the URL in the response
+          if (!responseData.url && responseData.uploadURL) {
+            responseData.url = responseData.uploadURL;
+          }
+        }
       })
       .on("complete", (result) => {
         console.log("Upload complete:", result);
+        
+        // Ensure all successful uploads have proper URL format
+        if (result.successful) {
+          result.successful.forEach(file => {
+            if (file.response && typeof file.response === 'object') {
+              const response = file.response as any;
+              if (!response.url && response.uploadURL) {
+                response.url = response.uploadURL;
+              }
+            }
+          });
+        }
+        
         onComplete?.(result);
         setShowModal(false);
       })

@@ -2162,13 +2162,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
           
-          // Return the response that Uppy expects
+          // Return the response that Uppy expects with consistent URL format
+          const objectURL = `/objects/${objectName}`;
           const responseData = {
             success: true,
             objectName,
-            url: `/objects/${objectName}`,
-            // Include the URL in the format that handleUploadComplete expects
-            uploadURL: `/objects/${objectName}`
+            url: objectURL,
+            uploadURL: objectURL,
+            // Add additional fields that might be expected
+            name: objectName,
+            type: req.headers['content-type'] || 'application/octet-stream'
           };
           
           console.log("Upload successful, returning:", responseData);

@@ -311,49 +311,76 @@ function AdminStoreContent() {
       const uploadedFile = result.successful[0];
       console.log("Uploaded file details:", uploadedFile);
       
-      // Try multiple ways to get the image URL
       let imageURL: string | null = null;
       
-      // Method 1: Check response.url
+      // Method 1: Check if response has the URL directly
       if (uploadedFile.response && typeof uploadedFile.response === 'object') {
         const response = uploadedFile.response as any;
-        imageURL = response.url || response.uploadURL;
-      }
-      
-      // Method 2: Use uploadURL if available
-      if (!imageURL && uploadedFile.uploadURL) {
-        // Extract the object path from the uploadURL
-        const urlMatch = uploadedFile.uploadURL.match(/\/api\/objects\/direct-upload\/(.+)/);
-        if (urlMatch) {
-          const objectId = urlMatch[1];
-          imageURL = `/objects/${objectId}-${uploadedFile.name}`;
+        if (response.url && typeof response.url === 'string') {
+          imageURL = response.url;
+        } else if (response.uploadURL && typeof response.uploadURL === 'string') {
+          imageURL = response.uploadURL;
         }
       }
       
-      // Method 3: Construct URL from file name and meta
+      // Method 2: If we have uploadURL, use it directly (it should be a local path)
+      if (!imageURL && uploadedFile.uploadURL && typeof uploadedFile.uploadURL === 'string') {
+        // Check if it's already a local path
+        if (uploadedFile.uploadURL.startsWith('/objects/')) {
+          imageURL = uploadedFile.uploadURL;
+        } else {
+          // Try to extract object name from upload URL
+          try {
+            const url = new URL(uploadedFile.uploadURL, window.location.origin);
+            if (url.pathname.includes('/api/objects/direct-upload/')) {
+              const pathParts = url.pathname.split('/');
+              const objectId = pathParts[pathParts.length - 1];
+              if (objectId && uploadedFile.name) {
+                const sanitizedName = uploadedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                imageURL = `/objects/${objectId}-${sanitizedName}`;
+              }
+            }
+          } catch (urlError) {
+            console.warn("Error parsing uploadURL:", urlError);
+          }
+        }
+      }
+      
+      // Method 3: Fallback - construct from name and timestamp
       if (!imageURL && uploadedFile.name) {
-        // Get the object ID from the meta or generate path
-        const meta = uploadedFile.meta || {};
-        const objectId = meta.objectId || Date.now();
-        imageURL = `/objects/${objectId}-${uploadedFile.name}`;
+        const sanitizedName = uploadedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const timestamp = Date.now();
+        imageURL = `/objects/${timestamp}-${sanitizedName}`;
       }
       
       console.log("Final extracted image URL:", imageURL);
 
-      if (imageURL) {
-        if (selectedProduct?.id) {
-          // Update existing product
-          updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
-        } else {
-          // Store temporarily for new product
-          setTempImageUrl(imageURL);
+      if (imageURL && typeof imageURL === 'string') {
+        try {
+          // Validate that we can construct a URL (for testing purposes)
+          new URL(imageURL, window.location.origin);
+          
+          if (selectedProduct?.id) {
+            // Update existing product
+            updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
+          } else {
+            // Store temporarily for new product
+            setTempImageUrl(imageURL);
+            toast({ 
+              title: "Imagen subida exitosamente", 
+              description: "Se aplicará al guardar el producto" 
+            });
+          }
+        } catch (urlError) {
+          console.error("Invalid URL constructed:", imageURL, urlError);
           toast({ 
-            title: "Imagen subida exitosamente", 
-            description: "Se aplicará al guardar el producto" 
+            title: "Error", 
+            description: "URL de imagen inválida",
+            variant: "destructive"
           });
         }
       } else {
-        console.error("Could not determine image URL from upload result");
+        console.error("Could not determine valid image URL from upload result");
         toast({ 
           title: "Error", 
           description: "No se pudo obtener la URL de la imagen",
