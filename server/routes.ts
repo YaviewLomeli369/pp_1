@@ -2148,23 +2148,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get the file data from the request body
       const chunks: Buffer[] = [];
-      req.on('data', (chunk) => chunks.push(chunk));
+      
+      req.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+      
       req.on('end', async () => {
         try {
           const fileBuffer = Buffer.concat(chunks);
-          const fileName = req.headers['x-filename'] as string || 'upload';
+          const fileName = req.headers['x-original-filename'] as string || req.headers['x-filename'] as string || `upload-${Date.now()}`;
+
+          console.log(`Processing direct upload: ${objectId}, fileName: ${fileName}, size: ${fileBuffer.length} bytes`);
 
           const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
-          res.json({
+          
+          // Return the response that Uppy expects
+          const responseData = {
             success: true,
             objectName,
-            url: `/objects/${objectName}`
-          });
+            url: `/objects/${objectName}`,
+            // Include the URL in the format that handleUploadComplete expects
+            uploadURL: `/objects/${objectName}`
+          };
+          
+          console.log("Upload successful, returning:", responseData);
+          res.json(responseData);
         } catch (error) {
-          console.error("Error in direct upload:", error);
-          res.status(500).json({ error: "Upload failed" });
+          console.error("Error in direct upload processing:", error);
+          res.status(500).json({ 
+            error: "Upload failed",
+            message: error instanceof Error ? error.message : "Unknown error"
+          });
         }
       });
+
+      req.on('error', (error) => {
+        console.error("Error receiving upload data:", error);
+        res.status(500).json({ error: "Failed to receive upload data" });
+      });
+
     } catch (error) {
       console.error("Error setting up direct upload:", error);
       res.status(500).json({ error: "Internal server error" });

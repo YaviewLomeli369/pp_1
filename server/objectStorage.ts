@@ -59,12 +59,29 @@ export class ObjectStorageService {
   // Handle direct upload from the frontend
   async handleDirectUpload(objectId: string, fileBuffer: Buffer, originalName: string): Promise<string> {
     try {
-      const objectName = `${objectId}-${originalName}`;
+      // Sanitize filename
+      const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const objectName = `${objectId}-${sanitizedName}`;
       const fullPath = path.join(UPLOADS_DIR, objectName);
+      
+      console.log(`Writing file to: ${fullPath}, size: ${fileBuffer.length} bytes`);
+      
+      // Ensure the uploads directory exists
+      if (!fs.existsSync(UPLOADS_DIR)) {
+        fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+      }
       
       fs.writeFileSync(fullPath, fileBuffer);
       
-      return `uploads/${objectName}`;
+      // Verify the file was written successfully
+      if (!fs.existsSync(fullPath)) {
+        throw new Error("File was not written successfully");
+      }
+      
+      const savedSize = fs.statSync(fullPath).size;
+      console.log(`File saved successfully: ${objectName}, size: ${savedSize} bytes`);
+      
+      return objectName;
     } catch (error) {
       console.error("Error in direct upload:", error);
       throw error;

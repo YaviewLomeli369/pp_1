@@ -306,12 +306,39 @@ function AdminStoreContent() {
 
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     console.log("Upload complete result:", result);
+    
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
-      const response = uploadedFile.response as any;
-      const imageURL = response?.url || `/objects/${uploadedFile.name}`;
-
-      console.log("Extracted image URL:", imageURL);
+      console.log("Uploaded file details:", uploadedFile);
+      
+      // Try multiple ways to get the image URL
+      let imageURL: string | null = null;
+      
+      // Method 1: Check response.url
+      if (uploadedFile.response && typeof uploadedFile.response === 'object') {
+        const response = uploadedFile.response as any;
+        imageURL = response.url || response.uploadURL;
+      }
+      
+      // Method 2: Use uploadURL if available
+      if (!imageURL && uploadedFile.uploadURL) {
+        // Extract the object path from the uploadURL
+        const urlMatch = uploadedFile.uploadURL.match(/\/api\/objects\/direct-upload\/(.+)/);
+        if (urlMatch) {
+          const objectId = urlMatch[1];
+          imageURL = `/objects/${objectId}-${uploadedFile.name}`;
+        }
+      }
+      
+      // Method 3: Construct URL from file name and meta
+      if (!imageURL && uploadedFile.name) {
+        // Get the object ID from the meta or generate path
+        const meta = uploadedFile.meta || {};
+        const objectId = meta.objectId || Date.now();
+        imageURL = `/objects/${objectId}-${uploadedFile.name}`;
+      }
+      
+      console.log("Final extracted image URL:", imageURL);
 
       if (imageURL) {
         if (selectedProduct?.id) {
@@ -320,9 +347,13 @@ function AdminStoreContent() {
         } else {
           // Store temporarily for new product
           setTempImageUrl(imageURL);
-          toast({ title: "Imagen subida exitosamente", description: "Se aplicará al guardar el producto" });
+          toast({ 
+            title: "Imagen subida exitosamente", 
+            description: "Se aplicará al guardar el producto" 
+          });
         }
       } else {
+        console.error("Could not determine image URL from upload result");
         toast({ 
           title: "Error", 
           description: "No se pudo obtener la URL de la imagen",
@@ -330,9 +361,16 @@ function AdminStoreContent() {
         });
       }
     } else {
+      console.error("Upload failed or no successful uploads:", result);
+      
+      // Check for specific error messages
+      const errorMessage = result.failed && result.failed.length > 0 
+        ? result.failed[0].error 
+        : "La subida falló. Intenta nuevamente.";
+      
       toast({ 
         title: "Error al subir imagen", 
-        description: "La subida falló. Intenta nuevamente.",
+        description: typeof errorMessage === 'string' ? errorMessage : "La subida falló. Intenta nuevamente.",
         variant: "destructive"
       });
     }
