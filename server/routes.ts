@@ -2141,8 +2141,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Handle direct file uploads
-  app.put("/api/objects/direct-upload/:objectId", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+  // Handle direct file uploads (no auth needed since URL is pre-signed)
+  app.put("/api/objects/direct-upload/:objectId", async (req, res) => {
     try {
       const { objectId } = req.params;
       const objectStorageService = new ObjectStorageService();
