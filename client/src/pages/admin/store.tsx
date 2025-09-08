@@ -325,21 +325,34 @@ function AdminStoreContent() {
           return;
         }
         
-        // Use the URL directly from the backend response
+        // Use the URL directly from the backend response - NO intentar construir una nueva URL
         const imageURL = response.url;
         
         if (imageURL && typeof imageURL === 'string') {
-          console.log("Using URL from backend:", imageURL);
+          console.log("Using exact URL from backend:", imageURL);
           
-          if (selectedProduct?.id) {
-            // Update existing product
-            updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
-          } else {
-            // Store temporarily for new product
-            setTempImageUrl(imageURL);
+          // Verificar que la URL sea válida antes de usarla
+          try {
+            new URL(imageURL);
+            console.log("URL validation passed");
+            
+            if (selectedProduct?.id) {
+              // Update existing product
+              updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
+            } else {
+              // Store temporarily for new product
+              setTempImageUrl(imageURL);
+              toast({ 
+                title: "Imagen subida exitosamente", 
+                description: "Se aplicará al guardar el producto" 
+              });
+            }
+          } catch (urlError) {
+            console.error("Invalid URL received from backend:", imageURL, urlError);
             toast({ 
-              title: "Imagen subida exitosamente", 
-              description: "Se aplicará al guardar el producto" 
+              title: "Error", 
+              description: "URL inválida recibida del servidor",
+              variant: "destructive"
             });
           }
         } else {
