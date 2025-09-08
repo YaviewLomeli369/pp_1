@@ -305,200 +305,119 @@ function AdminStoreContent() {
   };
 
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    console.log("=== COMPREHENSIVE UPLOAD DIAGNOSTIC START ===");
-    console.log("1. Raw upload result object:", JSON.stringify(result, null, 2));
-    console.log("2. Result.successful exists:", !!result.successful);
-    console.log("3. Result.successful length:", result.successful?.length);
-    console.log("4. Result.failed exists:", !!result.failed);
-    console.log("5. Result.failed length:", result.failed?.length);
+    console.log("=== UPLOAD COMPLETE START ===");
+    console.log("Raw result:", result);
     
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
-      console.log("=== DETAILED FILE OBJECT ANALYSIS ===");
-      console.log("6. Uploaded file keys:", Object.keys(uploadedFile));
-      console.log("7. uploadedFile.response exists:", !!uploadedFile.response);
-      console.log("8. uploadedFile.response type:", typeof uploadedFile.response);
-      console.log("9. uploadedFile.uploadURL exists:", !!uploadedFile.uploadURL);
-      console.log("10. uploadedFile.uploadURL value:", uploadedFile.uploadURL);
-      console.log("11. uploadedFile.uploadURL type:", typeof uploadedFile.uploadURL);
-      console.log("12. Full uploadedFile object:", JSON.stringify(uploadedFile, null, 2));
+      console.log("Upload successful, processing file:", uploadedFile);
       
       let imageURL: string | null = null;
       
-      // STEP-BY-STEP URL EXTRACTION WITH DETAILED LOGGING
-      console.log("=== URL EXTRACTION ANALYSIS ===");
-      
-      // Step 1: Check uploadedFile.response.url
-      console.log("13. uploadedFile.response exists:", !!uploadedFile.response);
-      if (uploadedFile.response) {
-        console.log("14. uploadedFile.response.url exists:", !!uploadedFile.response.url);
-        console.log("15. uploadedFile.response.url value:", uploadedFile.response.url);
-        console.log("16. uploadedFile.response.url type:", typeof uploadedFile.response.url);
-        console.log("17. uploadedFile.response object:", JSON.stringify(uploadedFile.response, null, 2));
+      // Priority 1: Check response.url (most reliable)
+      if (uploadedFile.response && (uploadedFile.response as any).url) {
+        imageURL = (uploadedFile.response as any).url;
+        console.log("✅ Found response.url:", imageURL);
       }
-      
-      if (uploadedFile.response && uploadedFile.response.url) {
-        console.log("18. ✅ FOUND response.url, using it:", uploadedFile.response.url);
-        imageURL = uploadedFile.response.url;
-      } 
-      // Step 2: Check uploadURL if it's absolute
-      else if (uploadedFile.uploadURL && uploadedFile.uploadURL.includes('://')) {
-        console.log("19. ✅ FOUND absolute uploadURL, using it:", uploadedFile.uploadURL);
-        imageURL = uploadedFile.uploadURL;
-      }
-      // Step 3: Parse response body
-      else if (uploadedFile.response && uploadedFile.response.body) {
+      // Priority 2: Check response body for url field
+      else if (uploadedFile.response) {
         try {
-          console.log("20. Attempting to parse response.body");
-          console.log("21. response.body exists:", !!uploadedFile.response.body);
-          console.log("22. response.body type:", typeof uploadedFile.response.body);
-          console.log("23. response.body value:", uploadedFile.response.body);
-          
           const response = uploadedFile.response as any;
-          const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
-          console.log("24. Parsed body result:", JSON.stringify(parsedBody, null, 2));
+          let responseData;
           
-          if (parsedBody.success === false) {
-            console.error("Backend reported upload failure:", parsedBody);
+          if (typeof response.body === 'string') {
+            responseData = JSON.parse(response.body);
+          } else if (response.body) {
+            responseData = response.body;
+          } else {
+            responseData = response;
+          }
+          
+          console.log("Parsed response data:", responseData);
+          
+          if (responseData.success === false) {
+            console.error("Backend reported failure:", responseData);
             toast({ 
               title: "Error al subir imagen", 
-              description: parsedBody.message || "Error en el servidor",
+              description: responseData.message || "Error en el servidor",
               variant: "destructive"
             });
             return;
           }
           
-          // Look for URL in different possible keys
-          console.log("25. parsedBody.url:", parsedBody.url);
-          console.log("26. parsedBody.uploadURL:", parsedBody.uploadURL);
-          console.log("27. parsedBody.Location:", parsedBody.Location);
-          console.log("28. parsedBody.location:", parsedBody.location);
-          
-          imageURL = parsedBody.url || parsedBody.uploadURL || parsedBody.Location || parsedBody.location || null;
-          console.log("29. ✅ URL extracted from parsed body:", imageURL);
+          // Look for URL in response data
+          imageURL = responseData.url || responseData.uploadURL || responseData.location || null;
+          console.log("✅ Found URL in response data:", imageURL);
         } catch (error) {
-          console.error("30. ❌ Error parsing response body:", error);
-          console.error("31. Raw response body that failed to parse:", uploadedFile.response.body);
+          console.error("Error parsing response:", error);
         }
       }
       
-      console.log("=== FINAL URL DECISION SUMMARY ===");
-      console.log("32. Available uploadedFile.response?.url:", uploadedFile.response?.url);
-      console.log("33. Available uploadedFile.uploadURL:", uploadedFile.uploadURL);
-      console.log("34. 🎯 FINAL imageURL selected:", imageURL);
-      console.log("35. Final imageURL type:", typeof imageURL);
-      console.log("36. Final imageURL length:", imageURL?.length);
+      // Validate URL
+      if (!imageURL || typeof imageURL !== 'string' || imageURL.trim() === '') {
+        console.error("❌ No valid URL found");
+        toast({ 
+          title: "Error al subir imagen", 
+          description: "No se pudo obtener la URL de la imagen",
+          variant: "destructive"
+        });
+        return;
+      }
       
-      // STEP 4: COMPREHENSIVE URL VALIDATION
-      console.log("=== URL VALIDATION PHASE ===");
-      console.log("37. imageURL exists:", !!imageURL);
-      console.log("38. imageURL is string:", typeof imageURL === 'string');
-      console.log("39. imageURL after trim:", imageURL?.trim());
-      console.log("40. imageURL is not empty after trim:", imageURL?.trim() !== '');
+      // URL format validation
+      const trimmedURL = imageURL.trim();
+      const isValidFormat = trimmedURL.includes('://') || trimmedURL.startsWith('/');
       
-      if (imageURL && typeof imageURL === 'string' && imageURL.trim() !== '') {
-        console.log("41. Testing URL format...");
-        console.log("42. Contains '://':", imageURL.includes('://'));
-        console.log("43. Starts with '/':", imageURL.startsWith('/'));
-        
-        // Validate that URL has correct format
-        if (!imageURL.includes('://') && !imageURL.startsWith('/')) {
-          console.error("44. ❌ INVALID URL FORMAT - not absolute or relative:", imageURL);
-          console.error("45. Full uploaded file object for debug:", JSON.stringify(uploadedFile, null, 2));
+      if (!isValidFormat) {
+        console.error("❌ Invalid URL format:", trimmedURL);
+        toast({ 
+          title: "Error al subir imagen", 
+          description: "Formato de URL inválido: " + trimmedURL,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Test absolute URL construction
+      if (trimmedURL.includes('://')) {
+        try {
+          new URL(trimmedURL);
+          console.log("✅ URL validation passed");
+        } catch (urlError) {
+          console.error("❌ URL construction failed:", urlError);
           toast({ 
             title: "Error al subir imagen", 
-            description: "Formato de URL inválido: " + imageURL,
+            description: "URL inválida: " + trimmedURL,
             variant: "destructive"
           });
           return;
         }
-        
-        // Additional URL validation - try to construct URL if absolute
-        if (imageURL.includes('://')) {
-          try {
-            new URL(imageURL);
-            console.log("46. ✅ ABSOLUTE URL validation passed - can construct URL object");
-          } catch (urlError) {
-            console.error("47. ❌ ABSOLUTE URL validation FAILED:", urlError);
-            console.error("48. Failed URL:", imageURL);
-            toast({ 
-              title: "Error al subir imagen", 
-              description: "URL absoluta inválida: " + urlError,
-              variant: "destructive"
-            });
-            return;
-          }
-        }
-        
-        console.log("49. ✅ ALL URL VALIDATIONS PASSED for:", imageURL);
-        
-        console.log("=== URL USAGE DECISION ===");
-        console.log("50. selectedProduct exists:", !!selectedProduct);
-        console.log("51. selectedProduct.id:", selectedProduct?.id);
-        
-        if (selectedProduct?.id) {
-          // Update existing product with validated URL
-          console.log("52. 🔄 UPDATING EXISTING PRODUCT with image URL:", imageURL);
-          console.log("53. Calling updateProductImageMutation with:", { id: selectedProduct.id, imageURL });
-          updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
-        } else {
-          // Store temporarily for new product
-          console.log("54. 💾 STORING tempImageUrl for new product:", imageURL);
-          console.log("55. Previous tempImageUrl value:", tempImageUrl);
-          setTempImageUrl(imageURL);
-          console.log("56. ✅ tempImageUrl should now be set to:", imageURL);
-          
-          // Verify tempImageUrl was set correctly after state update
-          setTimeout(() => {
-            console.log("57. 🔍 VERIFICATION - tempImageUrl after setState:", tempImageUrl);
-          }, 100);
-          
-          toast({ 
-            title: "Imagen subida exitosamente", 
-            description: "Se aplicará al guardar el producto. URL: " + imageURL
-          });
-        }
+      }
+      
+      console.log("🎯 Final validated URL:", trimmedURL);
+      
+      if (selectedProduct?.id) {
+        // Update existing product
+        console.log("Updating existing product with image:", trimmedURL);
+        updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL: trimmedURL });
       } else {
-        console.error("=== ❌ NO VALID URL FOUND ERROR ANALYSIS ===");
-        console.error("58. imageURL value:", imageURL);
-        console.error("59. imageURL type:", typeof imageURL);
-        console.error("60. imageURL truthiness:", !!imageURL);
-        console.error("61. imageURL === null:", imageURL === null);
-        console.error("62. imageURL === undefined:", imageURL === undefined);
-        console.error("63. imageURL === '':", imageURL === '');
-        console.error("64. Full uploaded file keys:", Object.keys(uploadedFile));
-        console.error("65. Full uploaded file object:", JSON.stringify(uploadedFile, null, 2));
-        console.error("66. uploadedFile.response:", uploadedFile.response);
-        console.error("67. uploadedFile.uploadURL:", uploadedFile.uploadURL);
-        
+        // Store for new product
+        console.log("Setting tempImageUrl for new product:", trimmedURL);
+        setTempImageUrl(trimmedURL);
         toast({ 
-          title: "Error al subir imagen", 
-          description: `No se pudo obtener la URL de la imagen. Tipo: ${typeof imageURL}, Valor: ${imageURL}`,
-          variant: "destructive"
+          title: "Imagen subida exitosamente", 
+          description: "Se aplicará al guardar el producto"
         });
       }
     } else {
-      console.error("❌ Upload failed or no successful uploads:", result);
+      console.error("❌ Upload failed:", result);
       
-      let errorMessage = "La subida falló. Intenta nuevamente.";
+      let errorMessage = "Error al subir la imagen";
       
       if (result.failed && result.failed.length > 0) {
         const failedFile = result.failed[0];
-        console.error("Failed file details:", failedFile);
-        
-        if (failedFile.error && typeof failedFile.error === 'string') {
-          errorMessage = failedFile.error;
-        } else if (failedFile.response) {
-          const response = failedFile.response as any;
-          console.error("Failed response body:", response.body);
-          if (response.body) {
-            try {
-              const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
-              errorMessage = parsedBody.message || parsedBody.error || errorMessage;
-            } catch (error) {
-              errorMessage = response.body || errorMessage;
-            }
-          }
+        if (failedFile.error) {
+          errorMessage = typeof failedFile.error === 'string' ? failedFile.error : "Error desconocido";
         }
       }
       
@@ -509,7 +428,7 @@ function AdminStoreContent() {
       });
     }
     
-    console.log("=== 🏁 COMPREHENSIVE UPLOAD DIAGNOSTIC END ===");
+    console.log("=== UPLOAD COMPLETE END ===");
   };
 
   const handleCloseProductForm = () => {
@@ -1009,61 +928,21 @@ function AdminStoreContent() {
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                 <div className="flex items-center gap-2 justify-center">
                   {/* Preview de imagen */}
-                  {(() => {
-                    console.log("=== 🖼️ IMAGE PREVIEW RENDER START ===");
-                    console.log("PREVIEW-1. tempImageUrl value:", tempImageUrl);
-                    console.log("PREVIEW-2. tempImageUrl type:", typeof tempImageUrl);
-                    console.log("PREVIEW-3. tempImageUrl truthiness:", !!tempImageUrl);
-                    console.log("PREVIEW-4. selectedProduct?.images?.[0]:", selectedProduct?.images?.[0]);
-                    console.log("PREVIEW-5. Will show image:", !!(tempImageUrl || selectedProduct?.images?.[0]));
-                    
-                    const imageUrl = tempImageUrl || selectedProduct?.images?.[0];
-                    console.log("PREVIEW-6. 🎯 Final image URL for display:", imageUrl);
-                    
-                    if (imageUrl) {
-                      console.log("PREVIEW-7. ✅ Showing image preview with URL:", imageUrl);
-                      try {
-                        // Test if URL is valid
-                        if (imageUrl.includes('://')) {
-                          new URL(imageUrl);
-                          console.log("PREVIEW-8. ✅ URL validation passed for preview");
-                        } else {
-                          console.log("PREVIEW-8. 📍 Relative URL detected:", imageUrl);
-                        }
-                      } catch (urlError) {
-                        console.error("PREVIEW-9. ❌ Invalid URL for preview:", urlError);
-                        console.error("PREVIEW-10. Invalid URL value:", imageUrl);
-                      }
-                    } else {
-                      console.log("PREVIEW-11. 📷 No image URL available, no preview shown");
-                    }
-                    
-                    return null; // This IIFE is just for logging
-                  })()}
                   {(tempImageUrl || selectedProduct?.images?.[0]) && (
                     <img
                       src={tempImageUrl || selectedProduct?.images?.[0]}
                       alt="Producto"
                       className="w-20 h-20 object-cover rounded"
                       onLoad={() => {
-                        console.log("PREVIEW-12. ✅ Image loaded successfully in preview");
-                        console.log("PREVIEW-13. Loaded image URL:", tempImageUrl || selectedProduct?.images?.[0]);
+                        console.log("✅ Image preview loaded:", tempImageUrl || selectedProduct?.images?.[0]);
                       }}
                       onError={(e) => {
-                        console.error("PREVIEW-14. ❌ Image failed to load in preview");
-                        console.error("PREVIEW-15. Failed image URL:", tempImageUrl || selectedProduct?.images?.[0]);
-                        console.error("PREVIEW-16. Error event:", e);
+                        console.error("❌ Image preview failed to load:", tempImageUrl || selectedProduct?.images?.[0]);
                       }}
                     />
                   )}
 
                   <div className="flex-1 text-center">
-                    {(() => {
-                      console.log("PREVIEW-17. Checking status text display...");
-                      console.log("PREVIEW-18. tempImageUrl for status:", tempImageUrl);
-                      console.log("PREVIEW-19. selectedProduct?.images?.[0] for status:", selectedProduct?.images?.[0]);
-                      return null;
-                    })()}
                     {tempImageUrl || selectedProduct?.images?.[0] ? (
                       <p className="text-sm text-gray-600">
                         {tempImageUrl ? "Imagen seleccionada (temporal)" : "Imagen actual del producto"}
@@ -1094,29 +973,13 @@ function AdminStoreContent() {
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleUploadComplete}
                       buttonProps={{ type: "button" }}
-                      buttonClassName={(() => {
-                        console.log("PREVIEW-20. Determining button style...");
-                        console.log("PREVIEW-21. tempImageUrl for button:", tempImageUrl);
-                        console.log("PREVIEW-22. selectedProduct?.images?.[0] for button:", selectedProduct?.images?.[0]);
-                        const hasImage = tempImageUrl || selectedProduct?.images?.[0];
-                        console.log("PREVIEW-23. Button will use style:", hasImage ? "link style" : "primary button style");
-                        
-                        return `${
-                          hasImage
-                            ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
-                            : "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                        }`;
-                      })()}
+                      buttonClassName={`${
+                        (tempImageUrl || selectedProduct?.images?.[0])
+                          ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
+                          : "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                      }`}
                     >
-                      {(() => {
-                        console.log("PREVIEW-24. Determining button text...");
-                        console.log("PREVIEW-25. tempImageUrl for text:", tempImageUrl);
-                        console.log("PREVIEW-26. selectedProduct?.images?.[0] for text:", selectedProduct?.images?.[0]);
-                        const hasImage = tempImageUrl || selectedProduct?.images?.[0];
-                        const buttonText = hasImage ? "Cambiar imagen" : "Subir Imagen";
-                        console.log("PREVIEW-27. Button text will be:", buttonText);
-                        return buttonText;
-                      })()}
+                      {(tempImageUrl || selectedProduct?.images?.[0]) ? "Cambiar imagen" : "Subir Imagen"}
                     </ObjectUploader>
                   </div>
                 </div>

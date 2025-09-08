@@ -53,7 +53,7 @@ export function ObjectUploader({
             console.log("Getting upload parameters for file:", file.name);
             const params = await onGetUploadParameters();
             console.log("Upload parameters received:", params);
-            
+
             return {
               ...params,
               headers: {
@@ -67,46 +67,27 @@ export function ObjectUploader({
           }
         },
         // Override response handling to work with our custom backend
-        getResponseData: (response: any, request: any) => {
-          console.log("=== 🔄 UPPY RESPONSE PROCESSING START ===");
-          console.log("UPPY-1. Raw response object:", response);
-          console.log("UPPY-2. Response type:", typeof response);
-          console.log("UPPY-3. Response keys:", Object.keys(response || {}));
-          console.log("UPPY-4. Response.status:", response?.status);
-          console.log("UPPY-5. Response.statusText:", response?.statusText);
-          console.log("UPPY-6. Response.responseText:", response?.responseText);
-          console.log("UPPY-7. Response.responseText type:", typeof response?.responseText);
-          console.log("UPPY-8. Request object:", request);
-          
+        getResponseData: (responseText: string, response: any) => {
+          console.log("Processing Uppy response:", { responseText, response });
+
           try {
-            // Parse the response data
-            console.log("UPPY-9. Attempting to parse responseText...");
-            const responseData = typeof response.responseText === 'string' ? 
-              JSON.parse(response.responseText) : response.responseText;
-            
-            console.log("UPPY-10. ✅ Successfully parsed response data:", JSON.stringify(responseData, null, 2));
-            console.log("UPPY-11. responseData.url:", responseData?.url);
-            console.log("UPPY-12. responseData.uploadURL:", responseData?.uploadURL);
-            console.log("UPPY-13. responseData.success:", responseData?.success);
-            
-            // Return the URL in the format Uppy expects
-            const processedResponse = {
-              location: responseData.url,
-              url: responseData.url, // Also include direct url property
-              ...responseData
+            let responseData;
+
+            if (typeof responseText === 'string' && responseText.trim() !== '') {
+              responseData = JSON.parse(responseText);
+            } else {
+              responseData = response;
+            }
+
+            console.log("Parsed response data:", responseData);
+
+            // Return clean structure that handleUploadComplete expects
+            return {
+              ...responseData,
+              body: responseData
             };
-            
-            console.log("UPPY-14. 🎯 FINAL processed response for Uppy:", JSON.stringify(processedResponse, null, 2));
-            console.log("UPPY-15. processedResponse.location:", processedResponse.location);
-            console.log("UPPY-16. processedResponse.url:", processedResponse.url);
-            
-            return processedResponse;
           } catch (error) {
-            console.error("UPPY-17. ❌ Error parsing response data:", error);
-            console.error("UPPY-18. Raw responseText that failed:", response?.responseText);
-            console.error("UPPY-19. Falling back to raw response");
-            
-            // Fallback: return the response as-is
+            console.error("Error parsing Uppy response:", error);
             return response;
           }
         },
@@ -130,22 +111,22 @@ export function ObjectUploader({
         console.log("SUCCESS-3. Response object:", JSON.stringify(response, null, 2));
         console.log("SUCCESS-4. Response type:", typeof response);
         console.log("SUCCESS-5. Response keys:", Object.keys(response || {}));
-        
+
         // Process the response and store it in the file object
         if (response && file) {
           try {
             console.log("SUCCESS-6. Processing response for file...");
             console.log("SUCCESS-7. Original file.response:", file.response);
             console.log("SUCCESS-8. Original file.uploadURL:", file.uploadURL);
-            
+
             // Store the parsed response for later use
             file.response = response;
             console.log("SUCCESS-9. ✅ Stored response in file.response");
-            
+
             // Set uploadURL to the location from S3 response
             console.log("SUCCESS-10. Checking response.location:", response.location);
             console.log("SUCCESS-11. Checking response.url:", response.url);
-            
+
             if (response.location) {
               console.log("SUCCESS-12. ✅ Using response.location as uploadURL:", response.location);
               file.uploadURL = response.location;
@@ -155,7 +136,7 @@ export function ObjectUploader({
             } else {
               console.log("SUCCESS-14. ⚠️ No location or url found in response");
             }
-            
+
             console.log("SUCCESS-15. 🎯 FINAL file.uploadURL set to:", file.uploadURL);
             console.log("SUCCESS-16. 🎯 FINAL file.response:", JSON.stringify(file.response, null, 2));
           } catch (error) {
@@ -166,7 +147,7 @@ export function ObjectUploader({
           console.error("SUCCESS-19. response exists:", !!response);
           console.error("SUCCESS-20. file exists:", !!file);
         }
-        
+
         console.log("=== 🏁 UPPY UPLOAD SUCCESS EVENT END ===");
       })
       .on("complete", (result: any) => {
@@ -174,7 +155,7 @@ export function ObjectUploader({
         console.log("COMPLETE-1. Complete result:", JSON.stringify(result, null, 2));
         console.log("COMPLETE-2. Result.successful length:", result.successful?.length);
         console.log("COMPLETE-3. Result.failed length:", result.failed?.length);
-        
+
         if (result.successful && result.successful.length > 0) {
           const file = result.successful[0];
           console.log("COMPLETE-4. First successful file:", file?.name);
@@ -183,7 +164,7 @@ export function ObjectUploader({
           console.log("COMPLETE-7. File.response.url:", file?.response?.url);
           console.log("COMPLETE-8. File.response.location:", file?.response?.location);
         }
-        
+
         console.log("COMPLETE-9. Calling onComplete callback...");
         onComplete?.(result);
         console.log("COMPLETE-10. Closing modal...");
