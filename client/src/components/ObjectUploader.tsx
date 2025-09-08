@@ -98,18 +98,24 @@ export function ObjectUploader({
         console.log("Upload success - file:", file?.name);
         console.log("Upload success - response:", response);
         
-        // Process the response to ensure it has the correct format
-        if (response && response.body) {
-          try {
-            const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
-            console.log("Parsed response body:", parsedBody);
-            
-            // Store the parsed response in the file object for later use
-            if (file) {
+        // Process the response and store it in the file object
+        if (response && file) {
+          if (response.body) {
+            try {
+              // Parse response body if it's a string
+              const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+              console.log("Parsed response body:", parsedBody);
+              
+              // Store the parsed response for later use
               file.response = parsedBody;
+            } catch (error) {
+              console.error("Error parsing response body:", error);
+              // If parsing fails, store the raw response
+              file.response = response;
             }
-          } catch (error) {
-            console.error("Error parsing response body:", error);
+          } else {
+            // Store the raw response if no body
+            file.response = response;
           }
         }
       })

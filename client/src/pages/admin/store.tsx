@@ -311,50 +311,45 @@ function AdminStoreContent() {
       const uploadedFile = result.successful[0];
       console.log("Uploaded file details:", uploadedFile);
       
-      // Extract URL from the response - handle multiple possible response formats
+      // Extract URL directly from the file response which Uppy has already processed
       let imageURL: string | null = null;
       
-      if (uploadedFile.response) {
-        const response = uploadedFile.response as any;
-        console.log("Raw response:", response);
-        
-        // Try different ways to extract the URL
-        if (response.url) {
-          imageURL = response.url;
-        } else if (response.body) {
-          try {
-            const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
-            console.log("Parsed body:", parsedBody);
-            
-            if (parsedBody.success === false) {
-              console.error("Backend reported upload failure:", parsedBody);
-              toast({ 
-                title: "Error al subir imagen", 
-                description: parsedBody.message || "Error en el servidor",
-                variant: "destructive"
-              });
-              return;
-            }
-            
-            imageURL = parsedBody.url || parsedBody.uploadURL;
-          } catch (error) {
-            console.error("Error parsing response body:", error);
+      // First, try to get URL from the file.response that was set during upload-success
+      if (uploadedFile.response && uploadedFile.response.url) {
+        imageURL = uploadedFile.response.url;
+      } 
+      // Fallback to uploadURL if available
+      else if (uploadedFile.uploadURL) {
+        imageURL = uploadedFile.uploadURL;
+      }
+      // Last resort: try to parse from response body
+      else if (uploadedFile.response && uploadedFile.response.body) {
+        try {
+          const response = uploadedFile.response as any;
+          const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+          
+          if (parsedBody.success === false) {
+            console.error("Backend reported upload failure:", parsedBody);
+            toast({ 
+              title: "Error al subir imagen", 
+              description: parsedBody.message || "Error en el servidor",
+              variant: "destructive"
+            });
+            return;
           }
-        }
-        
-        // Fallback: try to construct URL from uploadURL if available
-        if (!imageURL && uploadedFile.uploadURL) {
-          imageURL = uploadedFile.uploadURL;
+          
+          imageURL = parsedBody.url || parsedBody.uploadURL;
+        } catch (error) {
+          console.error("Error parsing response body:", error);
         }
       }
       
-      // Final check and validation
+      // Validate and use the URL
       if (imageURL && typeof imageURL === 'string') {
-        console.log("Final image URL:", imageURL);
+        console.log("Using image URL:", imageURL);
         
-        // Validate URL format
-        try {
-          new URL(imageURL);
+        // Basic validation - check if it's a valid URL string
+        if (imageURL.includes('://') || imageURL.startsWith('/')) {
           console.log("URL validation passed");
           
           if (selectedProduct?.id) {
@@ -368,8 +363,8 @@ function AdminStoreContent() {
               description: "Se aplicará al guardar el producto" 
             });
           }
-        } catch (urlError) {
-          console.error("Invalid URL format:", imageURL, urlError);
+        } else {
+          console.error("Invalid URL format:", imageURL);
           toast({ 
             title: "Error", 
             description: "Formato de URL inválido",
