@@ -2115,19 +2115,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve private objects
   app.get("/objects/:objectPath(*)", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
     try {
-      const objectStorageService = new ObjectStorageService();
       const objectPath = req.params.objectPath;
-      console.log("Serving object:", objectPath);
-      
-      // Try to serve the object
       await objectStorageService.downloadObject(objectPath, res);
     } catch (error) {
-      console.error("Error serving object:", objectPath, error);
+      console.error("Error checking object access:", error);
       if (error instanceof ObjectNotFoundError) {
-        return res.status(404).json({ error: "File not found" });
+        return res.sendStatus(404);
       }
-      return res.status(500).json({ error: "Internal server error" });
+      return res.sendStatus(500);
     }
   });
 
