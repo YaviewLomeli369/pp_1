@@ -2184,16 +2184,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const responseData = {
             success: true,
             objectName,
-            url: absoluteURL, // Use absolute URL for better compatibility
-            uploadURL: absoluteURL,
-            relativePath: relativeURL, // Also provide relative path as fallback
+            url: absoluteURL, // Primary URL
+            uploadURL: absoluteURL, // Backup URL field
+            relativePath: relativeURL, // Relative path for internal use
             name: objectName,
             type: req.headers['content-type'] || 'application/octet-stream',
             size: fileBuffer.length
           };
           
           console.log("Upload successful, returning:", responseData);
-          res.json(responseData);
+          
+          // Set proper headers for the response
+          res.setHeader('Content-Type', 'application/json');
+          res.status(200).json(responseData);
         } catch (error) {
           console.error("Error in direct upload processing:", error);
           res.status(500).json({ 

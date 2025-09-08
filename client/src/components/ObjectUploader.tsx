@@ -95,10 +95,26 @@ export function ObjectUploader({
         console.error("Upload error:", { file: file?.name, error, response });
       })
       .on("upload-success", (file, response) => {
-        console.log("Upload success:", { file: file?.name, response });
+        console.log("Upload success - file:", file?.name);
+        console.log("Upload success - response:", response);
+        
+        // Process the response to ensure it has the correct format
+        if (response && response.body) {
+          try {
+            const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            console.log("Parsed response body:", parsedBody);
+            
+            // Store the parsed response in the file object for later use
+            if (file) {
+              file.response = parsedBody;
+            }
+          } catch (error) {
+            console.error("Error parsing response body:", error);
+          }
+        }
       })
       .on("complete", (result) => {
-        console.log("Upload complete:", result);
+        console.log("Upload complete result:", result);
         onComplete?.(result);
         setShowModal(false);
       })

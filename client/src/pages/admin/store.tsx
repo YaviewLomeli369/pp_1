@@ -311,63 +311,77 @@ function AdminStoreContent() {
       const uploadedFile = result.successful[0];
       console.log("Uploaded file details:", uploadedFile);
       
-      if (uploadedFile.response && typeof uploadedFile.response === 'object') {
+      // Extract URL from the response - handle multiple possible response formats
+      let imageURL: string | null = null;
+      
+      if (uploadedFile.response) {
         const response = uploadedFile.response as any;
+        console.log("Raw response:", response);
         
-        // Check for success flag first
-        if (response.success === false) {
-          console.error("Backend reported upload failure:", response);
-          toast({ 
-            title: "Error al subir imagen", 
-            description: response.message || "Error en el servidor",
-            variant: "destructive"
-          });
-          return;
+        // Try different ways to extract the URL
+        if (response.url) {
+          imageURL = response.url;
+        } else if (response.body) {
+          try {
+            const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            console.log("Parsed body:", parsedBody);
+            
+            if (parsedBody.success === false) {
+              console.error("Backend reported upload failure:", parsedBody);
+              toast({ 
+                title: "Error al subir imagen", 
+                description: parsedBody.message || "Error en el servidor",
+                variant: "destructive"
+              });
+              return;
+            }
+            
+            imageURL = parsedBody.url || parsedBody.uploadURL;
+          } catch (error) {
+            console.error("Error parsing response body:", error);
+          }
         }
         
-        // Use the URL directly from the backend response - NO intentar construir una nueva URL
-        const imageURL = response.url;
+        // Fallback: try to construct URL from uploadURL if available
+        if (!imageURL && uploadedFile.uploadURL) {
+          imageURL = uploadedFile.uploadURL;
+        }
+      }
+      
+      // Final check and validation
+      if (imageURL && typeof imageURL === 'string') {
+        console.log("Final image URL:", imageURL);
         
-        if (imageURL && typeof imageURL === 'string') {
-          console.log("Using exact URL from backend:", imageURL);
+        // Validate URL format
+        try {
+          new URL(imageURL);
+          console.log("URL validation passed");
           
-          // Verificar que la URL sea válida antes de usarla
-          try {
-            new URL(imageURL);
-            console.log("URL validation passed");
-            
-            if (selectedProduct?.id) {
-              // Update existing product
-              updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
-            } else {
-              // Store temporarily for new product
-              setTempImageUrl(imageURL);
-              toast({ 
-                title: "Imagen subida exitosamente", 
-                description: "Se aplicará al guardar el producto" 
-              });
-            }
-          } catch (urlError) {
-            console.error("Invalid URL received from backend:", imageURL, urlError);
+          if (selectedProduct?.id) {
+            // Update existing product
+            updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
+          } else {
+            // Store temporarily for new product
+            setTempImageUrl(imageURL);
             toast({ 
-              title: "Error", 
-              description: "URL inválida recibida del servidor",
-              variant: "destructive"
+              title: "Imagen subida exitosamente", 
+              description: "Se aplicará al guardar el producto" 
             });
           }
-        } else {
-          console.error("No valid URL in backend response:", response);
+        } catch (urlError) {
+          console.error("Invalid URL format:", imageURL, urlError);
           toast({ 
             title: "Error", 
-            description: "No se recibió una URL válida del servidor",
+            description: "Formato de URL inválido",
             variant: "destructive"
           });
         }
       } else {
-        console.error("No response object from backend:", uploadedFile);
+        console.error("No valid URL found in response");
+        console.error("Full uploaded file object:", uploadedFile);
         toast({ 
           title: "Error", 
-          description: "Respuesta inválida del servidor",
+          description: "No se pudo obtener la URL de la imagen",
           variant: "destructive"
         });
       }
@@ -378,11 +392,20 @@ function AdminStoreContent() {
       
       if (result.failed && result.failed.length > 0) {
         const failedFile = result.failed[0];
+        console.error("Failed file details:", failedFile);
+        
         if (failedFile.error && typeof failedFile.error === 'string') {
           errorMessage = failedFile.error;
-        } else if (failedFile.response && typeof failedFile.response === 'object') {
+        } else if (failedFile.response) {
           const response = failedFile.response as any;
-          errorMessage = response.message || response.error || errorMessage;
+          if (response.body) {
+            try {
+              const parsedBody = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+              errorMessage = parsedBody.message || parsedBody.error || errorMessage;
+            } catch (error) {
+              errorMessage = response.body || errorMessage;
+            }
+          }
         }
       }
       
