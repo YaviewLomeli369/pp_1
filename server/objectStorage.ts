@@ -103,16 +103,44 @@ export class ObjectStorageService {
   // Download a file from local storage
   async downloadObject(objectName: string, res: Response): Promise<void> {
     try {
-      const fileName = objectName.replace('uploads/', '');
+      console.log("Attempting to download object:", objectName);
+      
+      // Clean the object name - remove any leading slashes or 'objects/' prefix
+      let fileName = objectName.replace(/^\/+/, '').replace(/^objects\//, '');
+      console.log("Cleaned filename:", fileName);
+      
       const fullPath = path.join(UPLOADS_DIR, fileName);
+      console.log("Full path:", fullPath);
 
       if (!fs.existsSync(fullPath)) {
+        console.error("File not found at path:", fullPath);
         throw new ObjectNotFoundError();
       }
 
       const data = fs.readFileSync(fullPath);
-      res.setHeader('Content-Type', 'application/octet-stream');
+      const stats = fs.statSync(fullPath);
+      
+      // Set proper content type based on file extension
+      const ext = path.extname(fileName).toLowerCase();
+      const contentTypeMap: { [key: string]: string } = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.avif': 'image/avif',
+        '.svg': 'image/svg+xml',
+        '.ico': 'image/x-icon'
+      };
+      
+      const contentType = contentTypeMap[ext] || 'application/octet-stream';
+      
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Length', stats.size);
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
       res.send(data);
+      
+      console.log("Successfully served file:", fileName, "Type:", contentType, "Size:", stats.size);
     } catch (error) {
       console.error("Error downloading object:", error);
       throw new ObjectNotFoundError();
