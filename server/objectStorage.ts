@@ -1,9 +1,15 @@
-import { Client } from "@replit/object-storage";
 import { Response } from "express";
 import { randomUUID } from "crypto";
+import * as fs from 'fs';
+import * as path from 'path';
 
-// Initialize the Replit Object Storage client
-const client = new Client();
+// Simple file storage solution
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+
+// Ensure uploads directory exists
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
 export class ObjectNotFoundError extends Error {
   constructor() {
@@ -13,23 +19,20 @@ export class ObjectNotFoundError extends Error {
   }
 }
 
-// The object storage service using official Replit SDK
+// Simple object storage service using local filesystem
 export class ObjectStorageService {
-  private client: Client;
+  constructor() {}
 
-  constructor() {
-    this.client = client;
-  }
-
-  // Upload a file to object storage
+  // Upload a file to local storage
   async uploadFile(fileName: string, data: Buffer | string): Promise<string> {
     try {
       const objectName = `uploads/${randomUUID()}-${fileName}`;
+      const fullPath = path.join(UPLOADS_DIR, objectName.replace('uploads/', ''));
       
       if (typeof data === 'string') {
-        await this.client.uploadFromText(objectName, data);
+        fs.writeFileSync(fullPath, data, 'utf8');
       } else {
-        await this.client.uploadFromBytes(objectName, data);
+        fs.writeFileSync(fullPath, data);
       }
       
       return objectName;
@@ -44,10 +47,8 @@ export class ObjectStorageService {
     try {
       // Generate a unique object name for the upload
       const objectId = randomUUID();
-      const objectName = `uploads/${objectId}`;
       
-      // For client-side uploads, we'll return a special URL that the client can use
-      // The actual upload will be handled through our API endpoint
+      // Return the direct upload endpoint
       return `/api/objects/direct-upload/${objectId}`;
     } catch (error) {
       console.error("Error generating upload URL:", error);
@@ -58,25 +59,31 @@ export class ObjectStorageService {
   // Handle direct upload from the frontend
   async handleDirectUpload(objectId: string, fileBuffer: Buffer, originalName: string): Promise<string> {
     try {
-      const objectName = `uploads/${objectId}-${originalName}`;
-      await this.client.uploadFromBytes(objectName, fileBuffer);
-      return objectName;
+      const objectName = `${objectId}-${originalName}`;
+      const fullPath = path.join(UPLOADS_DIR, objectName);
+      
+      fs.writeFileSync(fullPath, fileBuffer);
+      
+      return `uploads/${objectName}`;
     } catch (error) {
       console.error("Error in direct upload:", error);
       throw error;
     }
   }
 
-  // Download a file from object storage
+  // Download a file from local storage
   async downloadObject(objectName: string, res: Response): Promise<void> {
     try {
-      const result = await this.client.downloadAsBytes(objectName);
-      if ('isOk' in result && result.isOk && result.value) {
-        res.setHeader('Content-Type', 'application/octet-stream');
-        res.send(result.value[0]);
-      } else {
+      const fileName = objectName.replace('uploads/', '');
+      const fullPath = path.join(UPLOADS_DIR, fileName);
+      
+      if (!fs.existsSync(fullPath)) {
         throw new ObjectNotFoundError();
       }
+      
+      const data = fs.readFileSync(fullPath);
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.send(data);
     } catch (error) {
       console.error("Error downloading object:", error);
       throw new ObjectNotFoundError();
@@ -86,21 +93,30 @@ export class ObjectStorageService {
   // Get a file as bytes
   async getObjectBytes(objectName: string): Promise<Uint8Array> {
     try {
-      const result = await this.client.downloadAsBytes(objectName);
-      if ('isOk' in result && result.isOk && result.value) {
-        return new Uint8Array(result.value[0]);
+      const fileName = objectName.replace('uploads/', '');
+      const fullPath = path.join(UPLOADS_DIR, fileName);
+      
+      if (!fs.existsSync(fullPath)) {
+        throw new ObjectNotFoundError();
       }
-      throw new ObjectNotFoundError();
+      
+      const data = fs.readFileSync(fullPath);
+      return new Uint8Array(data);
     } catch (error) {
       console.error("Error getting object bytes:", error);
       throw new ObjectNotFoundError();
     }
   }
 
-  // Delete a file from object storage
+  // Delete a file from local storage
   async deleteObject(objectName: string): Promise<void> {
     try {
-      await this.client.delete(objectName);
+      const fileName = objectName.replace('uploads/', '');
+      const fullPath = path.join(UPLOADS_DIR, fileName);
+      
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
     } catch (error) {
       console.error("Error deleting object:", error);
       throw error;
@@ -110,11 +126,8 @@ export class ObjectStorageService {
   // List objects in storage
   async listObjects(): Promise<string[]> {
     try {
-      const result = await this.client.list();
-      if ('isOk' in result && result.isOk && result.value) {
-        return result.value.map(obj => obj.name);
-      }
-      return [];
+      const files = fs.readdirSync(UPLOADS_DIR);
+      return files.map(file => `uploads/${file}`);
     } catch (error) {
       console.error("Error listing objects:", error);
       return [];
