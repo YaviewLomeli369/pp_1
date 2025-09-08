@@ -289,6 +289,7 @@ function AdminStoreContent() {
   const handleGetUploadParameters = async () => {
     try {
       const response = await apiRequest("/api/objects/upload", { method: "POST" });
+      console.log("Upload parameters response:", response);
       return {
         method: "PUT" as const,
         url: response.uploadURL
@@ -304,9 +305,10 @@ function AdminStoreContent() {
   };
 
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    console.log("Upload complete result:", result);
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
-      const imageURL = uploadedFile.uploadURL;
+      const imageURL = uploadedFile.response?.url || `/objects/${uploadedFile.name}`;
 
       if (imageURL) {
         try {
@@ -874,6 +876,7 @@ function AdminStoreContent() {
                     <ObjectUploader
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleUploadComplete}
+                      buttonProps={{ type: "button" }}
                       buttonClassName={`${
                         tempImageUrl || selectedProduct?.images?.[0]
                           ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
