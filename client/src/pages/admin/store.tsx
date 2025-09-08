@@ -1009,18 +1009,64 @@ function AdminStoreContent() {
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                 <div className="flex items-center gap-2 justify-center">
                   {/* Preview de imagen */}
+                  {(() => {
+                    console.log("=== 🖼️ IMAGE PREVIEW RENDER START ===");
+                    console.log("PREVIEW-1. tempImageUrl value:", tempImageUrl);
+                    console.log("PREVIEW-2. tempImageUrl type:", typeof tempImageUrl);
+                    console.log("PREVIEW-3. tempImageUrl truthiness:", !!tempImageUrl);
+                    console.log("PREVIEW-4. selectedProduct?.images?.[0]:", selectedProduct?.images?.[0]);
+                    console.log("PREVIEW-5. Will show image:", !!(tempImageUrl || selectedProduct?.images?.[0]));
+                    
+                    const imageUrl = tempImageUrl || selectedProduct?.images?.[0];
+                    console.log("PREVIEW-6. 🎯 Final image URL for display:", imageUrl);
+                    
+                    if (imageUrl) {
+                      console.log("PREVIEW-7. ✅ Showing image preview with URL:", imageUrl);
+                      try {
+                        // Test if URL is valid
+                        if (imageUrl.includes('://')) {
+                          new URL(imageUrl);
+                          console.log("PREVIEW-8. ✅ URL validation passed for preview");
+                        } else {
+                          console.log("PREVIEW-8. 📍 Relative URL detected:", imageUrl);
+                        }
+                      } catch (urlError) {
+                        console.error("PREVIEW-9. ❌ Invalid URL for preview:", urlError);
+                        console.error("PREVIEW-10. Invalid URL value:", imageUrl);
+                      }
+                    } else {
+                      console.log("PREVIEW-11. 📷 No image URL available, no preview shown");
+                    }
+                    
+                    return null; // This IIFE is just for logging
+                  })()}
                   {(tempImageUrl || selectedProduct?.images?.[0]) && (
                     <img
                       src={tempImageUrl || selectedProduct?.images?.[0]}
                       alt="Producto"
                       className="w-20 h-20 object-cover rounded"
+                      onLoad={() => {
+                        console.log("PREVIEW-12. ✅ Image loaded successfully in preview");
+                        console.log("PREVIEW-13. Loaded image URL:", tempImageUrl || selectedProduct?.images?.[0]);
+                      }}
+                      onError={(e) => {
+                        console.error("PREVIEW-14. ❌ Image failed to load in preview");
+                        console.error("PREVIEW-15. Failed image URL:", tempImageUrl || selectedProduct?.images?.[0]);
+                        console.error("PREVIEW-16. Error event:", e);
+                      }}
                     />
                   )}
 
                   <div className="flex-1 text-center">
+                    {(() => {
+                      console.log("PREVIEW-17. Checking status text display...");
+                      console.log("PREVIEW-18. tempImageUrl for status:", tempImageUrl);
+                      console.log("PREVIEW-19. selectedProduct?.images?.[0] for status:", selectedProduct?.images?.[0]);
+                      return null;
+                    })()}
                     {tempImageUrl || selectedProduct?.images?.[0] ? (
                       <p className="text-sm text-gray-600">
-                        {tempImageUrl ? "Imagen seleccionada" : "Imagen actual del producto"}
+                        {tempImageUrl ? "Imagen seleccionada (temporal)" : "Imagen actual del producto"}
                       </p>
                     ) : (
                       <>
@@ -1048,13 +1094,29 @@ function AdminStoreContent() {
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleUploadComplete}
                       buttonProps={{ type: "button" }}
-                      buttonClassName={`${
-                        tempImageUrl || selectedProduct?.images?.[0]
-                          ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
-                          : "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                      }`}
+                      buttonClassName={(() => {
+                        console.log("PREVIEW-20. Determining button style...");
+                        console.log("PREVIEW-21. tempImageUrl for button:", tempImageUrl);
+                        console.log("PREVIEW-22. selectedProduct?.images?.[0] for button:", selectedProduct?.images?.[0]);
+                        const hasImage = tempImageUrl || selectedProduct?.images?.[0];
+                        console.log("PREVIEW-23. Button will use style:", hasImage ? "link style" : "primary button style");
+                        
+                        return `${
+                          hasImage
+                            ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
+                            : "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        }`;
+                      })()}
                     >
-                      {tempImageUrl || selectedProduct?.images?.[0] ? "Cambiar imagen" : "Subir Imagen"}
+                      {(() => {
+                        console.log("PREVIEW-24. Determining button text...");
+                        console.log("PREVIEW-25. tempImageUrl for text:", tempImageUrl);
+                        console.log("PREVIEW-26. selectedProduct?.images?.[0] for text:", selectedProduct?.images?.[0]);
+                        const hasImage = tempImageUrl || selectedProduct?.images?.[0];
+                        const buttonText = hasImage ? "Cambiar imagen" : "Subir Imagen";
+                        console.log("PREVIEW-27. Button text will be:", buttonText);
+                        return buttonText;
+                      })()}
                     </ObjectUploader>
                   </div>
                 </div>
