@@ -2184,15 +2184,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const responseData = {
             success: true,
             objectName,
-            url: absoluteURL, // Primary URL
-            uploadURL: absoluteURL, // Backup URL field
+            url: absoluteURL, // Primary URL - this should be the main one used by frontend
+            uploadURL: absoluteURL, // Backup URL field for compatibility
             relativePath: relativeURL, // Relative path for internal use
             name: objectName,
             type: req.headers['content-type'] || 'application/octet-stream',
             size: fileBuffer.length
           };
           
-          console.log("Upload successful, returning:", responseData);
+          console.log("✅ Upload successful, returning consistent response:", responseData);
+          console.log("✅ Primary URL (response.url):", absoluteURL);
           
           // Set proper headers for the response
           res.setHeader('Content-Type', 'application/json');
