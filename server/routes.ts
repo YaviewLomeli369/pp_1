@@ -2141,6 +2141,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Handle direct file uploads
+  app.put("/api/objects/direct-upload/:objectId", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { objectId } = req.params;
+      const objectStorageService = new ObjectStorageService();
+      
+      // Get the file data from the request body
+      const chunks: Buffer[] = [];
+      req.on('data', (chunk) => chunks.push(chunk));
+      req.on('end', async () => {
+        try {
+          const fileBuffer = Buffer.concat(chunks);
+          const fileName = req.headers['x-filename'] as string || 'upload';
+          
+          const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
+          res.json({ 
+            success: true, 
+            objectName,
+            url: `/objects/${objectName}`
+          });
+        } catch (error) {
+          console.error("Error in direct upload:", error);
+          res.status(500).json({ error: "Upload failed" });
+        }
+      });
+    } catch (error) {
+      console.error("Error setting up direct upload:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Update product with image URL after upload
   app.put("/api/store/products/:id/image", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
