@@ -96,71 +96,9 @@ export function ObjectUploader({
       })
       .on("upload-success", (file, response) => {
         console.log("Upload success:", { file: file?.name, response });
-        
-        // Validate and normalize response
-        if (response && typeof response === 'object') {
-          const responseData = response as any;
-          
-          // Ensure we have a valid URL
-          if (responseData.url) {
-            try {
-              // Test if URL is valid
-              new URL(responseData.url, window.location.origin);
-              console.log("Valid URL confirmed:", responseData.url);
-            } catch (urlError) {
-              console.warn("Invalid URL in response, attempting to fix:", responseData.url);
-              // Try to construct a valid URL from relative path
-              if (responseData.relativePath) {
-                responseData.url = new URL(responseData.relativePath, window.location.origin).href;
-              } else if (responseData.objectName) {
-                responseData.url = new URL(`/objects/${responseData.objectName}`, window.location.origin).href;
-              }
-            }
-          } else if (responseData.uploadURL) {
-            responseData.url = responseData.uploadURL;
-          } else if (responseData.relativePath) {
-            responseData.url = new URL(responseData.relativePath, window.location.origin).href;
-          } else if (responseData.objectName) {
-            responseData.url = new URL(`/objects/${responseData.objectName}`, window.location.origin).href;
-          }
-        }
       })
       .on("complete", (result) => {
         console.log("Upload complete:", result);
-        
-        // Validate all successful uploads have proper URL format
-        if (result.successful) {
-          result.successful.forEach(file => {
-            if (file.response && typeof file.response === 'object') {
-              const response = file.response as any;
-              
-              // Ensure URL exists and is valid
-              if (!response.url) {
-                if (response.uploadURL) {
-                  response.url = response.uploadURL;
-                } else if (response.relativePath) {
-                  response.url = new URL(response.relativePath, window.location.origin).href;
-                } else if (response.objectName) {
-                  response.url = new URL(`/objects/${response.objectName}`, window.location.origin).href;
-                } else {
-                  console.error("No valid URL found in upload response:", response);
-                }
-              }
-              
-              // Final validation
-              if (response.url) {
-                try {
-                  new URL(response.url, window.location.origin);
-                  console.log("Final URL validation successful:", response.url);
-                } catch (urlError) {
-                  console.error("Final URL validation failed:", response.url, urlError);
-                  response.url = null; // Clear invalid URL
-                }
-              }
-            }
-          });
-        }
-        
         onComplete?.(result);
         setShowModal(false);
       })

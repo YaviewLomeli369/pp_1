@@ -311,9 +311,6 @@ function AdminStoreContent() {
       const uploadedFile = result.successful[0];
       console.log("Uploaded file details:", uploadedFile);
       
-      let imageURL: string | null = null;
-      
-      // Method 1: Check response from backend
       if (uploadedFile.response && typeof uploadedFile.response === 'object') {
         const response = uploadedFile.response as any;
         
@@ -328,75 +325,11 @@ function AdminStoreContent() {
           return;
         }
         
-        // Try to get URL from response
-        if (response.url && typeof response.url === 'string') {
-          try {
-            new URL(response.url); // Validate absolute URL
-            imageURL = response.url;
-            console.log("Using absolute URL from response:", imageURL);
-          } catch (urlError) {
-            console.warn("Invalid absolute URL from response:", response.url, urlError);
-            // Try as relative URL
-            try {
-              imageURL = new URL(response.url, window.location.origin).href;
-              console.log("Converted to absolute URL:", imageURL);
-            } catch (relativeError) {
-              console.error("Could not convert to absolute URL:", response.url, relativeError);
-            }
-          }
-        } else if (response.relativePath && typeof response.relativePath === 'string') {
-          try {
-            imageURL = new URL(response.relativePath, window.location.origin).href;
-            console.log("Using relative path from response:", imageURL);
-          } catch (urlError) {
-            console.error("Invalid relative path:", response.relativePath, urlError);
-          }
-        } else if (response.objectName && typeof response.objectName === 'string') {
-          try {
-            imageURL = new URL(`/objects/${response.objectName}`, window.location.origin).href;
-            console.log("Constructed URL from object name:", imageURL);
-          } catch (urlError) {
-            console.error("Could not construct URL from object name:", response.objectName, urlError);
-          }
-        }
-      }
-      
-      // Method 2: Fallback to uploadURL if available
-      if (!imageURL && uploadedFile.uploadURL && typeof uploadedFile.uploadURL === 'string') {
-        try {
-          // Try as absolute URL first
-          new URL(uploadedFile.uploadURL);
-          imageURL = uploadedFile.uploadURL;
-          console.log("Using uploadURL as absolute:", imageURL);
-        } catch (urlError) {
-          // Try as relative URL
-          try {
-            imageURL = new URL(uploadedFile.uploadURL, window.location.origin).href;
-            console.log("Converted uploadURL to absolute:", imageURL);
-          } catch (relativeError) {
-            console.error("Could not process uploadURL:", uploadedFile.uploadURL, relativeError);
-          }
-        }
-      }
-      
-      // Method 3: Last resort fallback
-      if (!imageURL && uploadedFile.name) {
-        const sanitizedName = uploadedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const timestamp = Date.now();
-        try {
-          imageURL = new URL(`/objects/${timestamp}-${sanitizedName}`, window.location.origin).href;
-          console.log("Using fallback URL:", imageURL);
-        } catch (urlError) {
-          console.error("Could not create fallback URL:", urlError);
-        }
-      }
-      
-      console.log("Final extracted image URL:", imageURL);
-
-      if (imageURL && typeof imageURL === 'string') {
-        try {
-          // Final validation
-          new URL(imageURL);
+        // Use the URL directly from the backend response
+        const imageURL = response.url;
+        
+        if (imageURL && typeof imageURL === 'string') {
+          console.log("Using URL from backend:", imageURL);
           
           if (selectedProduct?.id) {
             // Update existing product
@@ -409,27 +342,25 @@ function AdminStoreContent() {
               description: "Se aplicará al guardar el producto" 
             });
           }
-        } catch (urlError) {
-          console.error("Final URL validation failed:", imageURL, urlError);
+        } else {
+          console.error("No valid URL in backend response:", response);
           toast({ 
             title: "Error", 
-            description: "URL de imagen inválida: " + imageURL,
+            description: "No se recibió una URL válida del servidor",
             variant: "destructive"
           });
         }
       } else {
-        console.error("Could not determine valid image URL from upload result");
-        console.error("Upload file object:", uploadedFile);
+        console.error("No response object from backend:", uploadedFile);
         toast({ 
           title: "Error", 
-          description: "No se pudo obtener la URL de la imagen subida",
+          description: "Respuesta inválida del servidor",
           variant: "destructive"
         });
       }
     } else {
       console.error("Upload failed or no successful uploads:", result);
       
-      // Check for specific error messages
       let errorMessage = "La subida falló. Intenta nuevamente.";
       
       if (result.failed && result.failed.length > 0) {
