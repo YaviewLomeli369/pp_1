@@ -43,11 +43,16 @@ export class ObjectStorageService {
   }
 
   // Generate upload URL for client-side uploads
-  async getObjectEntityUploadURL(): Promise<string> {
+  async getObjectEntityUploadURL(baseURL?: string): Promise<string> {
     try {
       // Generate a unique object name for the upload
       const objectId = randomUUID();
 
+      // Build absolute URL for client-side uploads
+      if (baseURL) {
+        return `${baseURL}/api/objects/direct-upload/${objectId}`;
+      }
+      
       // Return the direct upload endpoint
       return `/api/objects/direct-upload/${objectId}`;
     } catch (error) {

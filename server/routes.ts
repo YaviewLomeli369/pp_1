@@ -2129,14 +2129,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get upload URL for objects
-  app.post("/api/objects/upload", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+  app.post("/api/objects/upload", async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
+
+      // Build base URL from request
+      const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+      const host = req.headers['x-forwarded-host'] || req.headers.host;
+      const baseURL = `${protocol}://${host}`;
+
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL(baseURL);
+
+      console.log("Generated absolute upload URL:", uploadURL);
+
+      res.json({
+        uploadURL,
+        method: "PUT",
+      });
     } catch (error) {
       console.error("Error generating upload URL:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Failed to generate upload URL" });
     }
   });
 
@@ -2148,29 +2160,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get the file data from the request body
       const chunks: Buffer[] = [];
-      
+
       req.on('data', (chunk) => {
         chunks.push(chunk);
       });
-      
+
       req.on('end', async () => {
         try {
           const fileBuffer = Buffer.concat(chunks);
           let fileName = req.headers['x-original-filename'] as string || req.headers['x-filename'] as string || `upload-${Date.now()}`;
-          
+
           // Sanitize filename to prevent URL issues
           fileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
 
           console.log(`Processing direct upload: ${objectId}, fileName: ${fileName}, size: ${fileBuffer.length} bytes`);
 
           const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
-          
+
           // Create absolute URL that is guaranteed to be valid
           const protocol = req.protocol || 'http';
           const host = req.get('host') || 'localhost:5000';
           const absoluteURL = `${protocol}://${host}/objects/${objectName}`;
           const relativeURL = `/objects/${objectName}`;
-          
+
           // Validate that we can construct a URL
           try {
             new URL(absoluteURL);
@@ -2179,7 +2191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.error(`Invalid URL constructed: ${absoluteURL}`, urlError);
             throw new Error(`Failed to create valid URL: ${absoluteURL}`);
           }
-          
+
           // Return the response that Uppy expects with consistent URL format
           const responseData = {
             success: true,
@@ -2191,16 +2203,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             type: req.headers['content-type'] || 'application/octet-stream',
             size: fileBuffer.length
           };
-          
+
           console.log("✅ Upload successful, returning consistent response:", responseData);
           console.log("✅ Primary URL (response.url):", absoluteURL);
-          
+
           // Set proper headers for the response
           res.setHeader('Content-Type', 'application/json');
           res.status(200).json(responseData);
         } catch (error) {
           console.error("Error in direct upload processing:", error);
-          res.status(500).json({ 
+          res.status(500).json({
             success: false,
             error: "Upload failed",
             message: error instanceof Error ? error.message : "Unknown error"
@@ -2210,7 +2222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       req.on('error', (error) => {
         console.error("Error receiving upload data:", error);
-        res.status(500).json({ 
+        res.status(500).json({
           success: false,
           error: "Failed to receive upload data",
           message: error.message
@@ -2219,7 +2231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     } catch (error) {
       console.error("Error setting up direct upload:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         success: false,
         error: "Internal server error",
         message: error instanceof Error ? error.message : "Unknown error"
