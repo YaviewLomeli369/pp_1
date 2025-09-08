@@ -28,13 +28,13 @@ export class ObjectStorageService {
     try {
       const objectName = `uploads/${randomUUID()}-${fileName}`;
       const fullPath = path.join(UPLOADS_DIR, objectName.replace('uploads/', ''));
-      
+
       if (typeof data === 'string') {
         fs.writeFileSync(fullPath, data, 'utf8');
       } else {
         fs.writeFileSync(fullPath, data);
       }
-      
+
       return objectName;
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -47,7 +47,7 @@ export class ObjectStorageService {
     try {
       // Generate a unique object name for the upload
       const objectId = randomUUID();
-      
+
       // Return the direct upload endpoint
       return `/api/objects/direct-upload/${objectId}`;
     } catch (error) {
@@ -56,35 +56,42 @@ export class ObjectStorageService {
     }
   }
 
-  // Handle direct upload from the frontend
-  async handleDirectUpload(objectId: string, fileBuffer: Buffer, originalName: string): Promise<string> {
+  async handleDirectUpload(objectId: string, fileBuffer: Buffer, originalFilename: string): Promise<string> {
     try {
-      // Sanitize filename
-      const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const objectName = `${objectId}-${sanitizedName}`;
-      const fullPath = path.join(UPLOADS_DIR, objectName);
-      
-      console.log(`Writing file to: ${fullPath}, size: ${fileBuffer.length} bytes`);
-      
-      // Ensure the uploads directory exists
-      if (!fs.existsSync(UPLOADS_DIR)) {
-        fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+      // Create a safe filename with proper sanitization
+      const extension = originalFilename.split('.').pop() || '';
+      const nameWithoutExt = originalFilename.replace(/\.[^/.]+$/, "");
+      const safeName = nameWithoutExt.replace(/[^a-zA-Z0-9-]/g, '_');
+      const objectName = `${objectId}-${safeName}.${extension}`;
+
+      console.log(`Creating object name: ${objectName} from original: ${originalFilename}`);
+
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+        console.log(`Created uploads directory: ${uploadsDir}`);
       }
-      
-      fs.writeFileSync(fullPath, fileBuffer);
-      
-      // Verify the file was written successfully
-      if (!fs.existsSync(fullPath)) {
-        throw new Error("File was not written successfully");
+
+      // Write file to uploads directory
+      const filePath = path.join(uploadsDir, objectName);
+      console.log(`Writing file to: ${filePath}, size: ${fileBuffer.length} bytes`);
+
+      fs.writeFileSync(filePath, fileBuffer);
+      console.log(`File saved successfully: ${objectName}, size: ${fileBuffer.length} bytes`);
+
+      // Verify file was written
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`File was not created at ${filePath}`);
       }
-      
-      const savedSize = fs.statSync(fullPath).size;
-      console.log(`File saved successfully: ${objectName}, size: ${savedSize} bytes`);
-      
+
+      const stats = fs.statSync(filePath);
+      console.log(`File verified: ${objectName}, actual size: ${stats.size} bytes`);
+
       return objectName;
     } catch (error) {
-      console.error("Error in direct upload:", error);
-      throw error;
+      console.error('Error in handleDirectUpload:', error);
+      throw new Error(`Failed to save uploaded file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -93,11 +100,11 @@ export class ObjectStorageService {
     try {
       const fileName = objectName.replace('uploads/', '');
       const fullPath = path.join(UPLOADS_DIR, fileName);
-      
+
       if (!fs.existsSync(fullPath)) {
         throw new ObjectNotFoundError();
       }
-      
+
       const data = fs.readFileSync(fullPath);
       res.setHeader('Content-Type', 'application/octet-stream');
       res.send(data);
@@ -112,11 +119,11 @@ export class ObjectStorageService {
     try {
       const fileName = objectName.replace('uploads/', '');
       const fullPath = path.join(UPLOADS_DIR, fileName);
-      
+
       if (!fs.existsSync(fullPath)) {
         throw new ObjectNotFoundError();
       }
-      
+
       const data = fs.readFileSync(fullPath);
       return new Uint8Array(data);
     } catch (error) {
@@ -130,7 +137,7 @@ export class ObjectStorageService {
     try {
       const fileName = objectName.replace('uploads/', '');
       const fullPath = path.join(UPLOADS_DIR, fileName);
-      
+
       if (fs.existsSync(fullPath)) {
         fs.unlinkSync(fullPath);
       }

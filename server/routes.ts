@@ -2156,22 +2156,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.on('end', async () => {
         try {
           const fileBuffer = Buffer.concat(chunks);
-          const fileName = req.headers['x-original-filename'] as string || req.headers['x-filename'] as string || `upload-${Date.now()}`;
+          let fileName = req.headers['x-original-filename'] as string || req.headers['x-filename'] as string || `upload-${Date.now()}`;
+          
+          // Sanitize filename to prevent URL issues
+          fileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
 
           console.log(`Processing direct upload: ${objectId}, fileName: ${fileName}, size: ${fileBuffer.length} bytes`);
 
           const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
           
+          // Create absolute URL that is guaranteed to be valid
+          const protocol = req.protocol || 'http';
+          const host = req.get('host') || 'localhost:5000';
+          const absoluteURL = `${protocol}://${host}/objects/${objectName}`;
+          const relativeURL = `/objects/${objectName}`;
+          
+          // Validate that we can construct a URL
+          try {
+            new URL(absoluteURL);
+            console.log(`Valid absolute URL created: ${absoluteURL}`);
+          } catch (urlError) {
+            console.error(`Invalid URL constructed: ${absoluteURL}`, urlError);
+            throw new Error(`Failed to create valid URL: ${absoluteURL}`);
+          }
+          
           // Return the response that Uppy expects with consistent URL format
-          const objectURL = `/objects/${objectName}`;
           const responseData = {
             success: true,
             objectName,
-            url: objectURL,
-            uploadURL: objectURL,
-            // Add additional fields that might be expected
+            url: absoluteURL, // Use absolute URL for better compatibility
+            uploadURL: absoluteURL,
+            relativePath: relativeURL, // Also provide relative path as fallback
             name: objectName,
-            type: req.headers['content-type'] || 'application/octet-stream'
+            type: req.headers['content-type'] || 'application/octet-stream',
+            size: fileBuffer.length
           };
           
           console.log("Upload successful, returning:", responseData);
@@ -2179,6 +2197,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (error) {
           console.error("Error in direct upload processing:", error);
           res.status(500).json({ 
+            success: false,
             error: "Upload failed",
             message: error instanceof Error ? error.message : "Unknown error"
           });
@@ -2187,12 +2206,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       req.on('error', (error) => {
         console.error("Error receiving upload data:", error);
-        res.status(500).json({ error: "Failed to receive upload data" });
+        res.status(500).json({ 
+          success: false,
+          error: "Failed to receive upload data",
+          message: error.message
+        });
       });
 
     } catch (error) {
       console.error("Error setting up direct upload:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ 
+        success: false,
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 

@@ -313,52 +313,90 @@ function AdminStoreContent() {
       
       let imageURL: string | null = null;
       
-      // Method 1: Check if response has the URL directly
+      // Method 1: Check response from backend
       if (uploadedFile.response && typeof uploadedFile.response === 'object') {
         const response = uploadedFile.response as any;
-        if (response.url && typeof response.url === 'string') {
-          imageURL = response.url;
-        } else if (response.uploadURL && typeof response.uploadURL === 'string') {
-          imageURL = response.uploadURL;
+        
+        // Check for success flag first
+        if (response.success === false) {
+          console.error("Backend reported upload failure:", response);
+          toast({ 
+            title: "Error al subir imagen", 
+            description: response.message || "Error en el servidor",
+            variant: "destructive"
+          });
+          return;
         }
-      }
-      
-      // Method 2: If we have uploadURL, use it directly (it should be a local path)
-      if (!imageURL && uploadedFile.uploadURL && typeof uploadedFile.uploadURL === 'string') {
-        // Check if it's already a local path
-        if (uploadedFile.uploadURL.startsWith('/objects/')) {
-          imageURL = uploadedFile.uploadURL;
-        } else {
-          // Try to extract object name from upload URL
+        
+        // Try to get URL from response
+        if (response.url && typeof response.url === 'string') {
           try {
-            const url = new URL(uploadedFile.uploadURL, window.location.origin);
-            if (url.pathname.includes('/api/objects/direct-upload/')) {
-              const pathParts = url.pathname.split('/');
-              const objectId = pathParts[pathParts.length - 1];
-              if (objectId && uploadedFile.name) {
-                const sanitizedName = uploadedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                imageURL = `/objects/${objectId}-${sanitizedName}`;
-              }
-            }
+            new URL(response.url); // Validate absolute URL
+            imageURL = response.url;
+            console.log("Using absolute URL from response:", imageURL);
           } catch (urlError) {
-            console.warn("Error parsing uploadURL:", urlError);
+            console.warn("Invalid absolute URL from response:", response.url, urlError);
+            // Try as relative URL
+            try {
+              imageURL = new URL(response.url, window.location.origin).href;
+              console.log("Converted to absolute URL:", imageURL);
+            } catch (relativeError) {
+              console.error("Could not convert to absolute URL:", response.url, relativeError);
+            }
+          }
+        } else if (response.relativePath && typeof response.relativePath === 'string') {
+          try {
+            imageURL = new URL(response.relativePath, window.location.origin).href;
+            console.log("Using relative path from response:", imageURL);
+          } catch (urlError) {
+            console.error("Invalid relative path:", response.relativePath, urlError);
+          }
+        } else if (response.objectName && typeof response.objectName === 'string') {
+          try {
+            imageURL = new URL(`/objects/${response.objectName}`, window.location.origin).href;
+            console.log("Constructed URL from object name:", imageURL);
+          } catch (urlError) {
+            console.error("Could not construct URL from object name:", response.objectName, urlError);
           }
         }
       }
       
-      // Method 3: Fallback - construct from name and timestamp
+      // Method 2: Fallback to uploadURL if available
+      if (!imageURL && uploadedFile.uploadURL && typeof uploadedFile.uploadURL === 'string') {
+        try {
+          // Try as absolute URL first
+          new URL(uploadedFile.uploadURL);
+          imageURL = uploadedFile.uploadURL;
+          console.log("Using uploadURL as absolute:", imageURL);
+        } catch (urlError) {
+          // Try as relative URL
+          try {
+            imageURL = new URL(uploadedFile.uploadURL, window.location.origin).href;
+            console.log("Converted uploadURL to absolute:", imageURL);
+          } catch (relativeError) {
+            console.error("Could not process uploadURL:", uploadedFile.uploadURL, relativeError);
+          }
+        }
+      }
+      
+      // Method 3: Last resort fallback
       if (!imageURL && uploadedFile.name) {
         const sanitizedName = uploadedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const timestamp = Date.now();
-        imageURL = `/objects/${timestamp}-${sanitizedName}`;
+        try {
+          imageURL = new URL(`/objects/${timestamp}-${sanitizedName}`, window.location.origin).href;
+          console.log("Using fallback URL:", imageURL);
+        } catch (urlError) {
+          console.error("Could not create fallback URL:", urlError);
+        }
       }
       
       console.log("Final extracted image URL:", imageURL);
 
       if (imageURL && typeof imageURL === 'string') {
         try {
-          // Validate that we can construct a URL (for testing purposes)
-          new URL(imageURL, window.location.origin);
+          // Final validation
+          new URL(imageURL);
           
           if (selectedProduct?.id) {
             // Update existing product
@@ -372,18 +410,19 @@ function AdminStoreContent() {
             });
           }
         } catch (urlError) {
-          console.error("Invalid URL constructed:", imageURL, urlError);
+          console.error("Final URL validation failed:", imageURL, urlError);
           toast({ 
             title: "Error", 
-            description: "URL de imagen inválida",
+            description: "URL de imagen inválida: " + imageURL,
             variant: "destructive"
           });
         }
       } else {
         console.error("Could not determine valid image URL from upload result");
+        console.error("Upload file object:", uploadedFile);
         toast({ 
           title: "Error", 
-          description: "No se pudo obtener la URL de la imagen",
+          description: "No se pudo obtener la URL de la imagen subida",
           variant: "destructive"
         });
       }
@@ -391,13 +430,21 @@ function AdminStoreContent() {
       console.error("Upload failed or no successful uploads:", result);
       
       // Check for specific error messages
-      const errorMessage = result.failed && result.failed.length > 0 
-        ? result.failed[0].error 
-        : "La subida falló. Intenta nuevamente.";
+      let errorMessage = "La subida falló. Intenta nuevamente.";
+      
+      if (result.failed && result.failed.length > 0) {
+        const failedFile = result.failed[0];
+        if (failedFile.error && typeof failedFile.error === 'string') {
+          errorMessage = failedFile.error;
+        } else if (failedFile.response && typeof failedFile.response === 'object') {
+          const response = failedFile.response as any;
+          errorMessage = response.message || response.error || errorMessage;
+        }
+      }
       
       toast({ 
         title: "Error al subir imagen", 
-        description: typeof errorMessage === 'string' ? errorMessage : "La subida falló. Intenta nuevamente.",
+        description: errorMessage,
         variant: "destructive"
       });
     }
