@@ -142,19 +142,39 @@ function AdminStoreContent() {
   });
 
   const updateProductMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
-      apiRequest(`/api/store/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      let body;
+      let headers: any = {};
+
+      // Si el producto tiene una imagen, usar FormData
+      if (data.image instanceof File) {
+        body = new FormData();
+        Object.keys(data).forEach((key) => {
+          body.append(key, data[key]);
+        });
+        // Con FormData no agregues Content-Type, fetch lo hace solo
+      } else {
+        body = JSON.stringify(data);
+        headers["Content-Type"] = "application/json";
+      }
+
+      return apiRequest(`/api/store/products/${id}`, {
+        method: "PUT",
+        body,
+        headers,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/store/products"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] }); // Refresh stats
+      queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] });
       handleCloseProductForm();
       toast({ title: "Producto actualizado exitosamente" });
     },
     onError: (error: any) => {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: error.message || "Error al actualizar producto",
-        variant: "destructive" 
+        variant: "destructive",
       });
     },
   });
@@ -761,10 +781,14 @@ function AdminStoreContent() {
               {selectedProduct ? "Editar Producto" : "Nuevo Producto"}
             </DialogTitle>
             <DialogDescription>
-              {selectedProduct ? "Modifica los datos del producto" : "Crea un nuevo producto para tu tienda"}
+              {selectedProduct
+                ? "Modifica los datos del producto"
+                : "Crea un nuevo producto para tu tienda"}
             </DialogDescription>
           </DialogHeader>
+
           <form onSubmit={handleProductSubmit} className="space-y-4">
+            {/* Nombre y SKU */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nombre *</Label>
@@ -786,6 +810,7 @@ function AdminStoreContent() {
               </div>
             </div>
 
+            {/* Descripción corta y larga */}
             <div className="space-y-2">
               <Label htmlFor="shortDescription">Descripción Corta</Label>
               <Input
@@ -794,7 +819,6 @@ function AdminStoreContent() {
                 defaultValue={selectedProduct?.shortDescription}
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="description">Descripción</Label>
               <Textarea
@@ -805,52 +829,66 @@ function AdminStoreContent() {
               />
             </div>
 
-            {/* Image Upload Section */}
+            {/* Sección de subida de imagen */}
             <div className="space-y-2">
               <Label>Imagen del Producto</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                {(selectedProduct?.images && selectedProduct.images.length > 0) || tempImageUrl ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src={selectedProduct?.images?.[0] || tempImageUrl} 
-                        alt="Producto" 
-                        className="w-20 h-20 object-cover rounded"
-                      />
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-600">
-                          {selectedProduct ? "Imagen actual del producto" : "Imagen seleccionada"}
-                        </p>
-                        <ObjectUploader
-                          onGetUploadParameters={handleGetUploadParameters}
-                          onComplete={handleUploadComplete}
-                          buttonClassName="text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
-                        >
-                          Cambiar imagen
-                        </ObjectUploader>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <div className="text-gray-400 mb-2">
-                      <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </div>
-                    <p className="text-gray-600 mb-2">No hay imagen</p>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div className="flex items-center gap-2 justify-center">
+                  {/* Preview de imagen */}
+                  {(tempImageUrl || selectedProduct?.images?.[0]) && (
+                    <img
+                      src={tempImageUrl || selectedProduct?.images?.[0]}
+                      alt="Producto"
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  )}
+
+                  <div className="flex-1 text-center">
+                    {tempImageUrl || selectedProduct?.images?.[0] ? (
+                      <p className="text-sm text-gray-600">
+                        {tempImageUrl ? "Imagen seleccionada" : "Imagen actual del producto"}
+                      </p>
+                    ) : (
+                      <>
+                        <div className="text-gray-400 mb-2">
+                          <svg
+                            className="w-12 h-12 mx-auto"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-gray-600 mb-2">No hay imagen</p>
+                      </>
+                    )}
+
+                    {/* ObjectUploader */}
                     <ObjectUploader
                       onGetUploadParameters={handleGetUploadParameters}
                       onComplete={handleUploadComplete}
-                      buttonClassName="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                      buttonClassName={`${
+                        tempImageUrl || selectedProduct?.images?.[0]
+                          ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
+                          : "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                      }`}
                     >
-                      Subir Imagen
+                      {tempImageUrl || selectedProduct?.images?.[0] ? "Cambiar imagen" : "Subir Imagen"}
                     </ObjectUploader>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
+
+
+            {/* Precios y moneda */}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price">Precio *</Label>
@@ -859,13 +897,18 @@ function AdminStoreContent() {
                   name="price"
                   type="number"
                   step="0.01"
-                  defaultValue={selectedProduct ? (selectedProduct.price / 100).toFixed(2) : ''}
+                  defaultValue={
+                    selectedProduct ? (selectedProduct.price / 100).toFixed(2) : ""
+                  }
                   required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="currency">Moneda</Label>
-                <Select name="currency" defaultValue={selectedProduct?.currency || "MXN"}>
+                <Select
+                  name="currency"
+                  defaultValue={selectedProduct?.currency || "MXN"}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -883,7 +926,11 @@ function AdminStoreContent() {
                   name="comparePrice"
                   type="number"
                   step="0.01"
-                  defaultValue={selectedProduct?.comparePrice ? (selectedProduct.comparePrice / 100).toFixed(2) : ''}
+                  defaultValue={
+                    selectedProduct?.comparePrice
+                      ? (selectedProduct.comparePrice / 100).toFixed(2)
+                      : ""
+                  }
                 />
               </div>
               <div className="space-y-2">
@@ -897,6 +944,7 @@ function AdminStoreContent() {
               </div>
             </div>
 
+            {/* Stock y categoría */}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="stock">Stock *</Label>
@@ -919,26 +967,32 @@ function AdminStoreContent() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="categoryId">Categoría *</Label>
-                <Select name="categoryId" defaultValue={selectedProduct?.categoryId} required>
+                <Select
+                  name="categoryId"
+                  defaultValue={selectedProduct?.categoryId}
+                  required
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar categoría" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories?.map((category: any) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                    {(!categories || categories.length === 0) && (
-                      <SelectItem value="" disabled>
-                        No hay categorías disponibles
-                      </SelectItem>
-                    )}
+                    {categories?.length
+                      ? categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
+                        ))
+                      : (
+                        <SelectItem value="" disabled>
+                          No hay categorías disponibles
+                        </SelectItem>
+                      )}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
+            {/* Tags y SEO */}
             <div className="space-y-2">
               <Label htmlFor="tags">Etiquetas (separadas por comas)</Label>
               <Input
@@ -968,6 +1022,7 @@ function AdminStoreContent() {
               </div>
             </div>
 
+            {/* Switches */}
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Switch
@@ -987,8 +1042,13 @@ function AdminStoreContent() {
               </div>
             </div>
 
+            {/* Footer */}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setShowProductForm(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowProductForm(false)}
+              >
                 Cancelar
               </Button>
               <Button type="submit">

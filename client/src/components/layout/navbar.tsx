@@ -129,8 +129,8 @@ export function Navbar() {
     <nav
       className={`fixed top-0 w-full z-50 transition-all ${
         isScrolled
-          ? "bg-white/60 backdrop-blur-xl shadow-md border-b border-white/30"
-          : "bg-white/40 backdrop-blur-xl"
+          ? "bg-white/80 backdrop-blur-xl shadow-md border-b border-white/30"
+          : "bg-white"
       }`}
       key={navRef.current}
     >
@@ -138,21 +138,16 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo + Brand */}
           <NavLink href="/" className="flex items-center space-x-3">
-            <div className="bg-white/80 backdrop-blur-sm rounded-md p-1">
-              <img
-                src={logoSvg}
-                alt="Logo"
-                className="h-10 w-auto object-contain"
-              />
-            </div>
-            {/* <span className="hidden sm:block text-xl font-bold text-gray-900">
-              {appearance.brandName || "Sistema Modular"}
-            </span> */}
+            <img
+              src={logoSvg}
+              alt="Logo"
+              className="h-10 w-auto object-contain"
+            />
           </NavLink>
 
           {/* Desktop Menu */}
           <div className={`items-center space-x-8 ${isDesktop ? "flex" : "hidden"}`}>
-            {navItems.map((item) => (
+            {navItems.slice(0, 6).map((item) => (
               <NavLink
                 key={`${item.href}-${navRef.current}`}
                 href={item.href}
@@ -161,6 +156,20 @@ export function Navbar() {
                 {item.label}
               </NavLink>
             ))}
+            {navItems.length > 6 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="text-base font-medium hover:text-primary">
+                  Más
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {navItems.slice(6).map((item) => (
+                    <DropdownMenuItem key={item.href} onClick={() => handleNavigation(item.href)}>
+                      {item.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Right Side */}
@@ -168,7 +177,7 @@ export function Navbar() {
             {modules.tienda?.activo && (
               <NavLink
                 href="/store"
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 hover:bg-gray-100/60 backdrop-blur-sm"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 hover:bg-gray-100"
               >
                 <ShoppingCart className="h-5 w-5" />
               </NavLink>
@@ -179,13 +188,13 @@ export function Navbar() {
               {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-white/40 backdrop-blur-sm">
+                    <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-white/40">
                       <AvatarFallback>
                         {user?.username?.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 backdrop-blur-md bg-white/80" align="end">
+                  <DropdownMenuContent className="w-56 bg-white/90 backdrop-blur-md" align="end">
                     <DropdownMenuItem onClick={() => handleNavigation("/profile")}>
                       <User className="mr-2 h-4 w-4" /> Perfil
                     </DropdownMenuItem>
@@ -206,7 +215,7 @@ export function Navbar() {
                   </NavLink>
                   <NavLink
                     href="/register"
-                    className="bg-primary/80 text-white rounded-md px-4 py-2 hover:bg-primary/90 backdrop-blur-sm"
+                    className="border border-primary text-primary rounded-md px-4 py-2 hover:bg-primary hover:text-white transition"
                   >
                     Registrarse
                   </NavLink>
@@ -227,7 +236,7 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-[300px] sm:w-[400px] flex flex-col bg-white/50 backdrop-blur-xl border-l border-white/30"
+                className="w-[300px] sm:w-[400px] flex flex-col bg-white backdrop-blur-xl border-l border-gray-200"
               >
                 <SheetHeader>
                   <SheetTitle>{appearance.brandName || "Sistema Modular"}</SheetTitle>
@@ -248,50 +257,51 @@ export function Navbar() {
                       {item.label}
                     </NavLink>
                   ))}
-                  {/* Auth en Mobile */}
-                  <div className="border-t pt-4">
-                    {isAuthenticated ? (
-                      <div className="space-y-2">
-                        <div className="p-2 bg-white/60 rounded-md backdrop-blur-sm">
-                          <p className="font-medium">{user?.username}</p>
-                          <p className="text-sm text-gray-600">{user?.email}</p>
-                        </div>
-                        <NavLink
-                          href="/profile"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="flex items-center space-x-2 p-2 rounded-md"
-                        >
-                          <User className="h-4 w-4" /> Perfil
-                        </NavLink>
-                        <div
-                          onClick={() => {
-                            logout();
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="flex items-center space-x-2 text-red-600 hover:text-red-700 p-2 rounded-md cursor-pointer"
-                        >
-                          <LogOut className="h-4 w-4" /> Cerrar Sesión
-                        </div>
+                </div>
+
+                {/* Auth en Mobile abajo */}
+                <div className="border-t pt-4">
+                  {isAuthenticated ? (
+                    <div className="space-y-2">
+                      <div className="p-2 bg-gray-50 rounded-md">
+                        <p className="font-medium">{user?.username}</p>
+                        <p className="text-sm text-gray-600">{user?.email}</p>
                       </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <NavLink
-                          href="/login"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block w-full text-center py-2 px-4 bg-gray-100/60 backdrop-blur-sm text-gray-700 rounded-md"
-                        >
-                          Iniciar Sesión
-                        </NavLink>
-                        <NavLink
-                          href="/register"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block w-full text-center py-2 px-4 bg-primary/80 text-white rounded-md hover:bg-primary/90 backdrop-blur-sm"
-                        >
-                          Registrarse
-                        </NavLink>
+                      <NavLink
+                        href="/profile"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100"
+                      >
+                        <User className="h-4 w-4" /> Perfil
+                      </NavLink>
+                      <div
+                        onClick={() => {
+                          logout();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="flex items-center space-x-2 text-red-600 hover:text-red-700 p-2 rounded-md cursor-pointer"
+                      >
+                        <LogOut className="h-4 w-4" /> Cerrar Sesión
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <NavLink
+                        href="/login"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block w-full text-center py-2 px-4 border border-primary text-primary rounded-md hover:bg-primary hover:text-white transition"
+                      >
+                        Iniciar Sesión
+                      </NavLink>
+                      <NavLink
+                        href="/register"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block w-full text-center py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 transition"
+                      >
+                        Registrarse
+                      </NavLink>
+                    </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
