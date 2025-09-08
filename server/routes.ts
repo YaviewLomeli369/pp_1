@@ -2192,13 +2192,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             throw new Error(`Failed to create valid URL: ${servingURL}`);
           }
 
-          // Return the response that Uppy expects with correct serving URL
+          // Return the response that Uppy expects with relative URL for better compatibility
           const responseData = {
             success: true,
             objectName,
-            url: servingURL, // Primary URL for serving the uploaded file
-            uploadURL: servingURL, // Same as url for compatibility
-            location: servingURL, // S3-style location field
+            url: relativeURL, // Use relative URL for better compatibility
+            uploadURL: relativeURL, // Same as url for compatibility
+            location: relativeURL, // Use relative path
             relativePath: relativeURL, // Relative path for internal use
             name: objectName,
             type: req.headers['content-type'] || 'application/octet-stream',

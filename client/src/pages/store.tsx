@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
@@ -30,7 +29,7 @@ export default function Store() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMountedRef = useRef(true);
-  
+
   // Core states
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,29 +68,29 @@ export default function Store() {
       if (!isMountedRef.current || isNavigating) {
         throw new Error("Component unmounted or navigating");
       }
-      
+
       const product = products?.find(p => p.id === productId);
       if (!product) throw new Error("Producto no encontrado");
-      
+
       // Check if product is active
       if (!product.isActive) {
         throw new Error("El producto no está disponible");
       }
-      
+
       // Validate stock if tracking is enabled
       if (product.stock !== null) {
         const currentInCart = cart.find(item => item.product.id === productId)?.quantity || 0;
         const totalRequested = currentInCart + quantity;
-        
+
         if (product.stock === 0) {
           throw new Error("Producto agotado");
         }
-        
+
         if (totalRequested > product.stock) {
           throw new Error(`Stock insuficiente. Disponible: ${product.stock}, En carrito: ${currentInCart}, Máximo que puedes agregar: ${Math.max(0, product.stock - currentInCart)}`);
         }
       }
-      
+
       setCart(prev => {
         const existing = prev.find(item => item.product.id === productId);
         if (existing) {
@@ -128,11 +127,11 @@ export default function Store() {
   // ✅ COMPUTED VALUES - SAFE ACCESS WITH EARLY RETURNS
   const storeConfig = useMemo(() => {
     if (!config) return { isStoreEnabled: false, appearance: {} };
-    
+
     const configData = config?.config as any;
     const modules = configData?.frontpage?.modulos || {};
     const appearance = configData?.appearance || {};
-    
+
     return {
       isStoreEnabled: modules.tienda?.activo,
       appearance,
@@ -141,14 +140,14 @@ export default function Store() {
   }, [config]);
 
   const { appearance } = storeConfig;
-  
+
   const availableCategories = useMemo(() => {
     return ["all", ...(categories?.map(cat => cat.id) || [])];
   }, [categories]);
 
   const filteredProducts = useMemo(() => {
     if (!products || isNavigating) return [];
-    
+
     return products.filter(p => {
       if (!p.isActive) return false;
       const matchesCategory = selectedCategory === "all" || p.categoryId === selectedCategory;
@@ -168,7 +167,7 @@ export default function Store() {
   // ✅ CALLBACK FUNCTIONS
   const performCleanup = useCallback(() => {
     if (!isMountedRef.current) return;
-    
+
     try {
       setSelectedCategory("all");
       setSearchTerm("");
@@ -177,11 +176,11 @@ export default function Store() {
       setProductQuantity(1);
       setFavorites(new Set());
       setIsNavigating(false);
-      
+
       // Clear any body classes that might have been added by modals
       document.body.classList.remove('modal-open', 'overflow-hidden');
       document.body.style.overflow = '';
-      
+
     } catch (error) {
       console.warn('Cleanup error:', error);
     }
@@ -189,11 +188,11 @@ export default function Store() {
 
   const handleNavigation = useCallback((href: string) => {
     if (!isMountedRef.current) return;
-    
+
     try {
       setIsNavigating(true);
       performCleanup();
-      
+
       setTimeout(() => {
         if (isMountedRef.current) {
           setLocation(href);
@@ -207,7 +206,7 @@ export default function Store() {
 
   const toggleFavorite = useCallback((productId: string) => {
     if (!isMountedRef.current || isNavigating) return;
-    
+
     setFavorites(prev => {
       const newFavorites = new Set(prev);
       if (newFavorites.has(productId)) {
@@ -228,19 +227,19 @@ export default function Store() {
 
   const openProductModal = useCallback((product: Product) => {
     if (!isMountedRef.current || isNavigating || document.visibilityState === 'hidden') return;
-    
+
     setSelectedProduct(product);
     setProductQuantity(1);
   }, [isNavigating]);
 
   const addToCartFromModal = useCallback(() => {
     if (!selectedProduct || !isMountedRef.current || isNavigating) return;
-    
+
     // Additional validation before calling mutation
     if (selectedProduct.stock !== null) {
       const currentInCart = cart.find(item => item.product.id === selectedProduct.id)?.quantity || 0;
       const totalRequested = currentInCart + productQuantity;
-      
+
       if (totalRequested > selectedProduct.stock) {
         toast({
           title: "Stock insuficiente",
@@ -250,7 +249,7 @@ export default function Store() {
         return;
       }
     }
-    
+
     addToCartMutation.mutate({ productId: selectedProduct.id, quantity: productQuantity });
     setSelectedProduct(null);
     setProductQuantity(1);
@@ -258,7 +257,7 @@ export default function Store() {
 
   const handleCheckout = useCallback(() => {
     if (cart.length === 0 || !isMountedRef.current || isNavigating) return;
-    
+
     try {
       localStorage.setItem('checkoutItems', JSON.stringify(cart));
       setIsCartOpen(false);
@@ -282,7 +281,7 @@ export default function Store() {
 
   const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
     if (!isMountedRef.current || isNavigating) return;
-    
+
     if (newQuantity <= 0) {
       removeFromCart(productId);
       return;
@@ -316,7 +315,7 @@ export default function Store() {
   // ✅ EFFECTS - MUST BE AFTER ALL HOOKS
   useEffect(() => {
     isMountedRef.current = true;
-    
+
     return () => {
       isMountedRef.current = false;
       performCleanup();
@@ -531,9 +530,13 @@ export default function Store() {
                   <div className="relative">
                     {product.images?.[0] && (
                       <img
-                        src={product.images[0]}
+                        src={product.images[0].startsWith('/') ? product.images[0] : `/${product.images[0]}`}
                         alt={product.name}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          console.error('Image failed to load:', product.images[0]);
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     )}
                     {product.stock !== null && product.stock <= 5 && product.stock > 0 && (
@@ -602,7 +605,12 @@ export default function Store() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-4">
                   {selectedProduct.images?.map((img, idx) => (
-                    <img key={idx} src={img} alt={`${selectedProduct.name} ${idx + 1}`} className="w-full h-64 object-cover rounded-lg" />
+                    <img key={idx} src={img.startsWith('/') ? img : `/${img}`} alt={`${selectedProduct.name} ${idx + 1}`} className="w-full h-64 object-cover rounded-lg" 
+                      onError={(e) => {
+                        console.error('Image failed to load:', img);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
                   ))}
                 </div>
                 <div className="flex flex-col justify-between space-y-4">
