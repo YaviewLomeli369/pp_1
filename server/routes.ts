@@ -2177,27 +2177,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
 
-          // Create absolute URL that is guaranteed to be valid
+          // Create absolute URL that is guaranteed to be valid for serving the file
           const protocol = req.protocol || 'http';
           const host = req.get('host') || 'localhost:5000';
-          const absoluteURL = `${protocol}://${host}/objects/${objectName}`;
+          const servingURL = `${protocol}://${host}/objects/${objectName}`;
           const relativeURL = `/objects/${objectName}`;
 
           // Validate that we can construct a URL
           try {
-            new URL(absoluteURL);
-            console.log(`Valid absolute URL created: ${absoluteURL}`);
+            new URL(servingURL);
+            console.log(`Valid serving URL created: ${servingURL}`);
           } catch (urlError) {
-            console.error(`Invalid URL constructed: ${absoluteURL}`, urlError);
-            throw new Error(`Failed to create valid URL: ${absoluteURL}`);
+            console.error(`Invalid URL constructed: ${servingURL}`, urlError);
+            throw new Error(`Failed to create valid URL: ${servingURL}`);
           }
 
-          // Return the response that Uppy expects with consistent URL format
+          // Return the response that Uppy expects with correct serving URL
           const responseData = {
             success: true,
             objectName,
-            url: absoluteURL, // Primary URL - this should be the main one used by frontend
-            uploadURL: absoluteURL, // Backup URL field for compatibility
+            url: servingURL, // Primary URL for serving the uploaded file
+            uploadURL: servingURL, // Same as url for compatibility
+            location: servingURL, // S3-style location field
             relativePath: relativeURL, // Relative path for internal use
             name: objectName,
             type: req.headers['content-type'] || 'application/octet-stream',
@@ -2205,7 +2206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
 
           console.log("✅ Upload successful, returning consistent response:", responseData);
-          console.log("✅ Primary URL (response.url):", absoluteURL);
+          console.log("✅ Primary serving URL (response.url):", servingURL);
 
           // Set proper headers for the response
           res.setHeader('Content-Type', 'application/json');

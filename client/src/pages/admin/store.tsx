@@ -298,7 +298,7 @@ function AdminStoreContent() {
       toast({
         title: "Error",
         description: "Error al obtener URL de carga",
-        variant: "destructive"
+        variant: "destructive",
       });
       throw error;
     }
@@ -325,29 +325,39 @@ function AdminStoreContent() {
         return;
       }
 
-      // Extract URL from multiple possible locations with comprehensive logging
-      let finalURL = null;
+      // Extract URL from server response with proper priority
+            let finalURL = null;
 
-      // Check file.response.url first (most reliable from our backend)
-      if (file?.response?.url && typeof file.response.url === 'string' && file.response.url.trim().length > 0) {
-        finalURL = file.response.url;
-        console.log("COMPLETE-6A. Using file.response.url:", finalURL);
-      } 
-      // Then check file.response.location (S3 style)
-      else if (file?.response?.location && typeof file.response.location === 'string' && file.response.location.trim().length > 0) {
-        finalURL = file.response.location;
-        console.log("COMPLETE-6B. Using file.response.location:", finalURL);
-      }
-      // Then check file.uploadURL
-      else if (file?.uploadURL && typeof file.uploadURL === 'string' && file.uploadURL.trim().length > 0) {
-        finalURL = file.uploadURL;
-        console.log("COMPLETE-6C. Using file.uploadURL:", finalURL);
-      }
-      // Finally check file.response.uploadURL
-      else if (file?.response?.uploadURL && typeof file.response.uploadURL === 'string' && file.response.uploadURL.trim().length > 0) {
-        finalURL = file.response.uploadURL;
-        console.log("COMPLETE-6D. Using file.response.uploadURL:", finalURL);
-      }
+            // Priority 1: Check the parsed response body (from our custom backend)
+            if (file?.response?.url && typeof file.response.url === 'string' && file.response.url.trim().length > 0) {
+              finalURL = file.response.url;
+              console.log("COMPLETE-6A. Using file.response.url:", finalURL);
+            } 
+            // Priority 2: Check the parsed response uploadURL 
+            else if (file?.response?.uploadURL && typeof file.response.uploadURL === 'string' && file.response.uploadURL.trim().length > 0) {
+              finalURL = file.response.uploadURL;
+              console.log("COMPLETE-6B. Using file.response.uploadURL:", finalURL);
+            }
+            // Priority 3: Check file.uploadURL (but this might be the upload endpoint, not the serving endpoint)
+            else if (file?.uploadURL && typeof file.uploadURL === 'string' && file.uploadURL.trim().length > 0) {
+              // Convert upload endpoint URL to serving URL if needed
+              let urlToUse = file.uploadURL;
+              if (urlToUse.includes('/api/objects/direct-upload/')) {
+                // Extract the object ID and convert to serving URL
+                const objectId = urlToUse.split('/api/objects/direct-upload/')[1];
+                if (objectId) {
+                  urlToUse = urlToUse.replace('/api/objects/direct-upload/', '/objects/');
+                  console.log("COMPLETE-6C-1. Converted upload URL to serving URL:", urlToUse);
+                }
+              }
+              finalURL = urlToUse;
+              console.log("COMPLETE-6C. Using file.uploadURL (converted):", finalURL);
+            }
+            // Priority 4: Check response.location (S3 style)
+            else if (file?.response?.location && typeof file.response.location === 'string' && file.response.location.trim().length > 0) {
+              finalURL = file.response.location;
+              console.log("COMPLETE-6D. Using file.response.location:", finalURL);
+            }
 
       console.log("COMPLETE-7. Final extracted URL:", finalURL);
 
@@ -365,21 +375,21 @@ function AdminStoreContent() {
               console.error("COMPLETE-8A. ❌ URL doesn't start with http:// or https://:", trimmedURL);
               throw new Error("URL must start with http:// or https://");
             }
-            
+
             // Additional check for common invalid patterns
             if (trimmedURL.includes('undefined') || trimmedURL.includes('null') || trimmedURL === 'http://' || trimmedURL === 'https://') {
               console.error("COMPLETE-8B. ❌ URL contains invalid patterns:", trimmedURL);
               throw new Error("URL contains invalid data");
             }
-            
+
             const urlObj = new URL(trimmedURL);
-            
+
             // Additional validation to ensure it's a proper URL
             if (!urlObj.hostname || urlObj.hostname.length === 0) {
               console.error("COMPLETE-8C. ❌ URL has no hostname:", trimmedURL);
               throw new Error("URL must have a valid hostname");
             }
-            
+
             console.log("COMPLETE-9. ✅ URL validation passed:", trimmedURL);
 
             if (selectedProduct?.id) {
@@ -1266,8 +1276,8 @@ function AdminStoreContent() {
                   </CardHeader>
                   <CardContent>
                     <Badge className={getStatusColor(selectedOrder.status)}>
-                      {selectedOrder.status === 'confirmed' ? 'Confirmado' :
-                       selectedOrder.status === 'pending' ? 'Pendiente' :
+                      {selectedOrder.status === 'pending' ? 'Pendiente' :
+                       selectedOrder.status === 'processing' ? 'Procesando' :
                        selectedOrder.status === 'shipped' ? 'Enviado' :
                        selectedOrder.status === 'delivered' ? 'Entregado' :
                        selectedOrder.status === 'cancelled' ? 'Cancelado' :

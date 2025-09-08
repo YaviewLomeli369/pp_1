@@ -76,50 +76,19 @@ export function ObjectUploader({
             if (typeof responseText === 'string' && responseText.trim() !== '') {
               try {
                 responseData = JSON.parse(responseText);
+                console.log("Parsed response from text:", responseData);
               } catch (parseError) {
                 console.error("Failed to parse response text:", parseError);
                 responseData = { success: false, error: "Invalid response format" };
               }
             } else {
               responseData = response;
+              console.log("Using response object directly:", responseData);
             }
 
-            console.log("Parsed response data:", responseData);
-
-            // Validate that we have a proper URL before proceeding
-            if (responseData && responseData.url && typeof responseData.url === 'string') {
-              const urlToValidate = responseData.url.trim();
-              if (urlToValidate && urlToValidate.length > 0) {
-                try {
-                  // Test URL validity - must start with http:// or https://
-                  if (!urlToValidate.startsWith('http://') && !urlToValidate.startsWith('https://')) {
-                    throw new Error("URL must start with http:// or https://");
-                  }
-                  
-                  const urlObj = new URL(urlToValidate);
-                  
-                  if (!urlObj.hostname || urlObj.hostname.length === 0) {
-                    throw new Error("URL must have a valid hostname");
-                  }
-                  
-                  console.log("✅ Valid URL confirmed:", urlToValidate);
-                } catch (urlError) {
-                  console.error("❌ Invalid URL detected:", urlToValidate, urlError);
-                  responseData.error = `Invalid URL received from server: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`;
-                  responseData.url = null; // Clear the invalid URL
-                }
-              } else {
-                console.error("❌ Empty URL detected");
-                responseData.error = "Empty URL received from server";
-                responseData.url = null;
-              }
-            }
-
-            // Return clean structure that handleUploadComplete expects
-            return {
-              ...responseData,
-              body: responseData
-            };
+            // The backend returns the correct URL structure, so we use it directly
+            console.log("Final response data for Uppy:", responseData);
+            return responseData;
           } catch (error) {
             console.error("Error parsing Uppy response:", error);
             return { success: false, error: "Failed to process response" };
