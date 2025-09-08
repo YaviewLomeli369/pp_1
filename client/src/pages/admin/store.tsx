@@ -308,34 +308,19 @@ function AdminStoreContent() {
     console.log("Upload complete result:", result);
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
-      const imageURL = uploadedFile.response?.url || `/objects/${uploadedFile.name}`;
+      const response = uploadedFile.response as any;
+      const imageURL = response?.url || `/objects/${uploadedFile.name}`;
+
+      console.log("Extracted image URL:", imageURL);
 
       if (imageURL) {
-        try {
-          // Normalize the URL to get the proper object path
-          const response = await apiRequest("/api/objects/normalize-url", {
-            method: "POST",
-            body: JSON.stringify({ url: imageURL })
-          });
-
-          const normalizedURL = response.normalizedUrl || imageURL;
-
-          if (selectedProduct?.id) {
-            // Update existing product
-            updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL: normalizedURL });
-          } else {
-            // Store temporarily for new product
-            setTempImageUrl(normalizedURL);
-            toast({ title: "Imagen subida exitosamente", description: "Se aplicará al guardar el producto" });
-          }
-        } catch (error) {
-          // Fallback to original URL if normalization fails
-          if (selectedProduct?.id) {
-            updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
-          } else {
-            setTempImageUrl(imageURL);
-            toast({ title: "Imagen subida exitosamente", description: "Se aplicará al guardar el producto" });
-          }
+        if (selectedProduct?.id) {
+          // Update existing product
+          updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL });
+        } else {
+          // Store temporarily for new product
+          setTempImageUrl(imageURL);
+          toast({ title: "Imagen subida exitosamente", description: "Se aplicará al guardar el producto" });
         }
       } else {
         toast({ 
@@ -344,6 +329,12 @@ function AdminStoreContent() {
           variant: "destructive"
         });
       }
+    } else {
+      toast({ 
+        title: "Error al subir imagen", 
+        description: "La subida falló. Intenta nuevamente.",
+        variant: "destructive"
+      });
     }
   };
 

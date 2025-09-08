@@ -74,7 +74,7 @@ function requireRole(roles: string[]) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Add JSON parsing middleware with better error handling
-  app.use('/api', express.json({ 
+  app.use('/api', express.json({
     limit: '10mb',
     verify: (req: any, res: any, buf: Buffer, encoding: string) => {
       try {
@@ -1426,7 +1426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/store/cart", async (req, res) => {
     try {
       const cartData = insertCartItemSchema.parse(req.body);
-      
+
       // Validate stock availability before adding to cart
       const product = await storage.getProduct(cartData.productId);
       if (!product) {
@@ -1451,10 +1451,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const totalQuantity = currentCartQuantity + requestedQuantity;
 
         if (totalQuantity > product.stock) {
-          return res.status(400).json({ 
+          return res.status(400).json({
             message: `Stock insuficiente. Disponible: ${product.stock}, En carrito: ${currentCartQuantity}, Solicitado: ${requestedQuantity}`,
             availableStock: product.stock,
-            currentInCart: currentCartQuantity,
             maxCanAdd: Math.max(0, product.stock - currentCartQuantity)
           });
         }
@@ -1463,7 +1462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if item already exists in cart
       const existingCartItems = await storage.getCartItems(cartData.userId, cartData.sessionId);
       const existingItem = existingCartItems.find(item => item.productId === cartData.productId);
-      
+
       if (existingItem) {
         // Update existing item quantity
         const newQuantity = existingItem.quantity + (cartData.quantity || 1);
@@ -1491,7 +1490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get cart item to validate stock
       const cartItems = await storage.getAllCartItems();
       const cartItem = cartItems.find(item => item.id === id);
-      
+
       if (!cartItem) {
         return res.status(404).json({ message: "Cart item not found" });
       }
@@ -1508,7 +1507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check stock availability
       if (product.stock !== null && quantity > product.stock) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: `Stock insuficiente. Disponible: ${product.stock}, Solicitado: ${quantity}`,
           availableStock: product.stock,
           maxQuantity: product.stock
@@ -1615,7 +1614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/store/orders/:id/status", requireAuth, requireRole(['admin', 'superuser', 'staff']), async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       console.log('Received order status update request:', {
         orderId: id,
         headers: req.headers,
@@ -1627,7 +1626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate request body exists and is an object
       if (!req.body || typeof req.body !== 'object') {
         console.error('Invalid request body:', req.body);
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: "Invalid request body. Expected JSON object.",
           received: typeof req.body,
           body: req.body
@@ -1635,11 +1634,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { status } = req.body;
-      
+
       // Validate status field exists
       if (!status) {
         console.error('Missing status field in request body:', req.body);
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: "Status field is required",
           received: req.body
         });
@@ -1649,21 +1648,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
       if (!validStatuses.includes(status)) {
         console.error('Invalid status value:', status);
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: "Invalid order status",
           validStatuses,
           received: status
         });
       }
-      
+
       console.log('Updating order status:', { orderId: id, status });
       const updatedOrder = await storage.updateOrderStatus(id, status);
-      
+
       if (!updatedOrder) {
         console.error('Order not found:', id);
         return res.status(404).json({ message: "Order not found" });
       }
-      
+
       console.log('Order status updated successfully:', updatedOrder);
       res.json(updatedOrder);
     } catch (error) {
@@ -1673,8 +1672,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         orderId: req.params.id,
         body: req.body
       });
-      res.status(500).json({ 
-        message: error instanceof Error ? error.message : "Internal server error" 
+      res.status(500).json({
+        message: error instanceof Error ? error.message : "Internal server error"
       });
     }
   });
@@ -1942,7 +1941,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Filter out cancelled orders for revenue calculation
       const validOrders = totalOrders.filter(order => order.status !== 'cancelled');
-      
+
       const stats = {
         totalProducts: totalProducts.length,
         activeProducts: activeProducts.length,
@@ -2146,7 +2145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { objectId } = req.params;
       const objectStorageService = new ObjectStorageService();
-      
+
       // Get the file data from the request body
       const chunks: Buffer[] = [];
       req.on('data', (chunk) => chunks.push(chunk));
@@ -2154,10 +2153,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const fileBuffer = Buffer.concat(chunks);
           const fileName = req.headers['x-filename'] as string || 'upload';
-          
+
           const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
-          res.json({ 
-            success: true, 
+          res.json({
+            success: true,
             objectName,
             url: `/objects/${objectName}`
           });
@@ -2583,14 +2582,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/store/orders/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // Ensure we have valid data
       if (!req.body || typeof req.body !== 'object') {
         return res.status(400).json({ message: "Invalid request body" });
       }
-      
+
       const updateData = req.body;
-      
+
       // Validate status if being updated
       if (updateData.status) {
         const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];

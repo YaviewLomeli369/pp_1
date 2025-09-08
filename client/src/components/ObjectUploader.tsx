@@ -69,7 +69,15 @@ export function ObjectUploader({
     })
       .use(AwsS3, {
         shouldUseMultipart: false,
-        getUploadParameters: onGetUploadParameters,
+        getUploadParameters: async (file) => {
+          const params = await onGetUploadParameters();
+          return {
+            ...params,
+            headers: {
+              'x-original-filename': file.name,
+            },
+          };
+        },
       })
       .on("complete", (result) => {
         onComplete?.(result);
