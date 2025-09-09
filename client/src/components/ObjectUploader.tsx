@@ -1,203 +1,205 @@
-import { useState } from "react";
-import type { ReactNode } from "react";
-import Uppy from "@uppy/core";
-import { DashboardModal } from "@uppy/react";
-import "@uppy/core/dist/style.min.css";
-import "@uppy/dashboard/dist/style.min.css";
-import AwsS3 from "@uppy/aws-s3";
-import type { UploadResult } from "@uppy/core";
-import { Button } from "@/components/ui/button";
+
+import React, { useEffect, useRef, useState } from 'react';
+import Uppy from '@uppy/core';
+import XHRUpload from '@uppy/xhr-upload';
+import Dashboard from '@uppy/dashboard';
+import { Button } from './ui/button';
+import { X } from 'lucide-react';
+
+import '@uppy/core/dist/style.min.css';
+import '@uppy/dashboard/dist/style.min.css';
 
 interface ObjectUploaderProps {
-  maxNumberOfFiles?: number;
+  onUploadSuccess: (result: { successful: any[], failed: any[] }) => void;
+  onUploadError?: (error: any) => void;
+  acceptedFileTypes?: string[];
   maxFileSize?: number;
-  onGetUploadParameters: () => Promise<{
-    method: "PUT";
-    url: string;
-  }>;
-  onComplete?: (
-    result: UploadResult<Record<string, unknown>, Record<string, unknown>>
-  ) => void;
-  buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
-  buttonClassName?: string;
-  children: ReactNode;
+  maxNumberOfFiles?: number;
+  allowMultiple?: boolean;
+  note?: string;
+  className?: string;
 }
 
-/**
- * A file upload component that renders as a button and provides a modal interface for
- * file management.
- */
-export function ObjectUploader({
-  maxNumberOfFiles = 1,
-  maxFileSize = 10485760, // 10MB default
-  onGetUploadParameters,
-  onComplete,
-  buttonProps,
-  buttonClassName,
-  children,
+export default function ObjectUploader({
+  onUploadSuccess,
+  onUploadError,
+  acceptedFileTypes = ['image/*', 'video/*', 'application/pdf'],
+  maxFileSize = 10 * 1024 * 1024, // 10MB
+  maxNumberOfFiles = 10,
+  allowMultiple = true,
+  note = "Tamaño máximo: 10MB por archivo",
+  className = "",
 }: ObjectUploaderProps) {
-  const [showModal, setShowModal] = useState(false);
-  const [uppy] = useState(() =>
-    new Uppy({
-      restrictions: {
-        maxNumberOfFiles,
-        maxFileSize,
-      },
+  const uppyRef = useRef<Uppy | null>(null);
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || uppyRef.current) return;
+
+    // Detectar protocolo y host dinámicamente
+    const protocol = window.location.protocol; // 'http:' o 'https:'
+    const host = window.location.host;         // 'www.nyuxo.com' o 'localhost:5000'
+    const baseUrl = `${protocol}//${host}`;
+    
+    console.log('🌐 Protocol detected:', protocol);
+    console.log('🌐 Host detected:', host);
+    console.log('🌐 Base URL:', baseUrl);
+
+    // Crear instancia de Uppy
+    const uppy = new Uppy({
       autoProceed: false,
-      debug: true,
-    })
-      .use(AwsS3, {
-        shouldUseMultipart: false,
-        getUploadParameters: async (file: any) => {
-          try {
-            console.log("Getting upload parameters for file:", file.name);
-            const params = await onGetUploadParameters();
-            console.log("Upload parameters received:", params);
+      allowMultipleUploadBatches: true,
+      restrictions: {
+        maxFileSize,
+        maxNumberOfFiles: allowMultiple ? maxNumberOfFiles : 1,
+        allowedFileTypes: acceptedFileTypes,
+      },
+      onBeforeUpload: (files) => {
+        console.log('📁 Files ready to upload:', Object.keys(files).length);
+        return true;
+      }
+    });
 
-            return {
-              ...params,
-              headers: {
-                'x-filename': file.name,
-                'content-type': file.type || 'application/octet-stream',
-              },
-            };
-          } catch (error) {
-            console.error("Error getting upload parameters:", error);
-            throw error;
-          }
-        },
-        // Override response handling to work with our custom backend
-        getResponseData: (responseText: string, response: any) => {
-          console.log("Processing Uppy response:", { responseText, response });
+    // Configurar XHRUpload con URL dinámica
+    uppy.use(XHRUpload, {
+      endpoint: `${baseUrl}/api/objects/direct-upload/`,
+      fieldName: 'file',
+      formData: true,
+      headers: {
+        'Accept': 'application/json',
+      },
+      timeout: 60 * 1000, // 60 segundos timeout
+    });
 
-          try {
-            let responseData;
-
-            if (typeof responseText === 'string' && responseText.trim() !== '') {
-              try {
-                responseData = JSON.parse(responseText);
-                console.log("Parsed response from text:", responseData);
-              } catch (parseError) {
-                console.error("Failed to parse response text:", parseError);
-                responseData = { success: false, error: "Invalid response format" };
-              }
-            } else {
-              responseData = response;
-              console.log("Using response object directly:", responseData);
-            }
-
-            // The backend returns the correct URL structure, so we use it directly
-            console.log("Final response data for Uppy:", responseData);
-            return responseData;
-          } catch (error) {
-            console.error("Error parsing Uppy response:", error);
-            return { success: false, error: "Failed to process response" };
-          }
-        },
-      })
-      .on("upload-error", (file: any, error: any, response: any) => {
-        console.error("=== ❌ UPPY UPLOAD ERROR EVENT START ===");
-        console.error("ERROR-1. File name:", file?.name);
-        console.error("ERROR-2. Error object:", error);
-        console.error("ERROR-3. Error type:", typeof error);
-        console.error("ERROR-4. Response object:", response);
-        console.error("ERROR-5. Response type:", typeof response);
-        console.error("ERROR-6. Response status:", response?.status);
-        console.error("ERROR-7. Response statusText:", response?.statusText);
-        console.error("ERROR-8. Response responseText:", response?.responseText);
-        console.error("=== 🏁 UPPY UPLOAD ERROR EVENT END ===");
-      })
-      .on("upload-success", (file: any, response: any) => {
-        console.log("=== 🎉 UPPY UPLOAD SUCCESS EVENT START ===");
-        console.log("SUCCESS-1. File name:", file?.name);
-        console.log("SUCCESS-2. File object keys:", Object.keys(file || {}));
-        console.log("SUCCESS-3. Response object:", JSON.stringify(response, null, 2));
-        console.log("SUCCESS-4. Response type:", typeof response);
-        console.log("SUCCESS-5. Response keys:", Object.keys(response || {}));
-
-        // Store response in file object for later access
-        file.response = response;
-        console.log("SUCCESS-9. ✅ Stored response in file.response");
-
-        // Try to parse response body if it's a string
-        let responseData = response;
-        if (typeof response.body === 'string') {
-          try {
-            responseData = { ...response, body: JSON.parse(response.body) };
-          } catch (e) {
-            console.log("SUCCESS-10. Could not parse response body as JSON");
-          }
+    // Configurar Dashboard
+    uppy.use(Dashboard, {
+      inline: true,
+      target: dashboardRef.current!,
+      showProgressDetails: true,
+      proudlyDisplayPoweredByUppy: false,
+      height: 350,
+      showRemoveButtonAfterComplete: true,
+      showProgressDetails: true,
+      locale: {
+        strings: {
+          dropHereOr: 'Arrastra archivos aquí o %{browse}',
+          browse: 'selecciona',
+          uploadComplete: '¡Subida completada!',
+          uploadFailed: 'Subida fallida',
+          retry: 'Reintentar',
+          cancel: 'Cancelar',
+          remove: 'Eliminar',
         }
+      }
+    });
 
-        // Check multiple possible locations for the serving URL
-        console.log("SUCCESS-11. Checking responseData.body:", responseData.body);
-        console.log("SUCCESS-12. Checking responseData.location:", responseData.location);
-        console.log("SUCCESS-13. Checking responseData.url:", responseData.url);
+    // Event handlers mejorados
+    uppy.on('error', (error) => {
+      console.error('❌ UPPY GENERAL ERROR:', error);
+      onUploadError?.(error);
+    });
 
-        // Extract serving URL from response body or headers
-        let servingURL = null;
+    uppy.on('upload-error', (file, error, response) => {
+      console.log('=== ❌ UPPY UPLOAD ERROR EVENT START ===');
+      console.log('ERROR-1. File name:', file?.name || 'Unknown');
+      console.log('ERROR-2. Error object:', error);
+      console.log('ERROR-3. Error type:', typeof error);
+      console.log('ERROR-4. Response object:', response);
+      console.log('ERROR-5. Response type:', typeof response);
+      console.log('ERROR-6. Response status:', response?.status);
+      console.log('ERROR-7. Response statusText:', response?.statusText);
+      console.log('ERROR-8. Response responseText:', response?.body || response?.responseText);
+      console.log('=== 🏁 UPPY UPLOAD ERROR EVENT END ===');
+      
+      onUploadError?.(error);
+    });
 
-        if (responseData.body && typeof responseData.body === 'object') {
-          servingURL = responseData.body.url || responseData.body.location || responseData.body.relativePath;
-        }
+    uppy.on('upload-success', (file, response) => {
+      console.log('✅ Upload successful:', file?.name, response?.status);
+    });
 
-        if (!servingURL) {
-          servingURL = responseData.location || responseData.url;
-        }
+    uppy.on('complete', (result) => {
+      console.log('=== 🏆 UPPY COMPLETE EVENT START ===');
+      console.log('COMPLETE-1. Complete result:', result);
+      console.log('COMPLETE-2. Result.successful length:', result.successful?.length || 0);
+      console.log('COMPLETE-3. Result.failed length:', result.failed?.length || 0);
+      
+      if (result.failed && result.failed.length > 0) {
+        console.log('COMPLETE-4. Failed files:', result.failed);
+        result.failed.forEach((file, index) => {
+          console.log(`COMPLETE-5.${index}. Failed file:`, file.name, 'Error:', file.error);
+        });
+      }
+      
+      if (result.successful && result.successful.length > 0) {
+        console.log('COMPLETE-6. Successful files:', result.successful);
+      }
 
-        // Set the serving URL
-        if (servingURL) {
-          file.uploadURL = servingURL;
-          console.log("SUCCESS-14. ✅ Set uploadURL from response:", servingURL);
-        } else {
-          console.log("SUCCESS-15. ⚠️ No serving URL found in response");
-        }
+      console.log('COMPLETE-9. Calling onComplete callback...');
+      
+      // Llamar callback de éxito
+      onUploadSuccess(result);
+      
+      console.log('COMPLETE-10. Closing modal...');
+      setTimeout(() => {
+        setIsOpen(false);
+      }, 1000);
+      
+      console.log('=== 🏁 UPPY COMPLETE EVENT END ===');
+    });
 
-        console.log("SUCCESS-16. 🎯 FINAL file.uploadURL set to:", file.uploadURL);
-        console.log("SUCCESS-17. 🎯 FINAL file.response:", file.response);
+    uppyRef.current = uppy;
 
-        console.log("=== 🏁 UPPY UPLOAD SUCCESS EVENT END ===");
-      })
-      .on("complete", (result: any) => {
-        console.log("=== 🏆 UPPY COMPLETE EVENT START ===");
-        console.log("COMPLETE-1. Complete result:", JSON.stringify(result, null, 2));
-        console.log("COMPLETE-2. Result.successful length:", result.successful?.length);
-        console.log("COMPLETE-3. Result.failed length:", result.failed?.length);
+    return () => {
+      if (uppyRef.current) {
+        uppyRef.current.destroy();
+        uppyRef.current = null;
+      }
+    };
+  }, [isOpen, onUploadSuccess, onUploadError, acceptedFileTypes, maxFileSize, maxNumberOfFiles, allowMultiple]);
 
-        if (result.successful && result.successful.length > 0) {
-          const file = result.successful[0];
-          console.log("COMPLETE-4. First successful file:", file?.name);
-          console.log("COMPLETE-5. File.uploadURL:", file?.uploadURL);
-          console.log("COMPLETE-6. File.response:", JSON.stringify(file?.response, null, 2));
-          console.log("COMPLETE-7. File.response.url:", file?.response?.url);
-          console.log("COMPLETE-8. File.response.location:", file?.response?.location);
-        }
+  const handleClose = () => {
+    setIsOpen(false);
+    if (uppyRef.current) {
+      uppyRef.current.destroy();
+      uppyRef.current = null;
+    }
+  };
 
-        console.log("COMPLETE-9. Calling onComplete callback...");
-        onComplete?.(result);
-        console.log("COMPLETE-10. Closing modal...");
-        setShowModal(false);
-        console.log("=== 🏁 UPPY COMPLETE EVENT END ===");
-      })
-  );
+  if (!isOpen) {
+    return (
+      <Button
+        onClick={() => setIsOpen(true)}
+        className={className}
+        type="button"
+      >
+        Subir Archivos
+      </Button>
+    );
+  }
 
   return (
-    <div>
-      <Button 
-        type="button"
-        onClick={() => setShowModal(true)} 
-        className={buttonClassName}
-        {...buttonProps}
-      >
-        {children}
-      </Button>
-
-      <DashboardModal
-        uppy={uppy}
-        open={showModal}
-        onRequestClose={() => setShowModal(false)}
-        proudlyDisplayPoweredByUppy={false}
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold">Subir Archivos</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="p-4">
+          <div ref={dashboardRef} />
+          {note && (
+            <p className="text-sm text-gray-500 mt-2">{note}</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
