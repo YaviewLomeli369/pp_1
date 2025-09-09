@@ -80,7 +80,6 @@ export default function ObjectUploader({
       proudlyDisplayPoweredByUppy: false,
       height: 350,
       showRemoveButtonAfterComplete: true,
-      showProgressDetails: true,
       locale: {
         strings: {
           dropHereOr: 'Arrastra archivos aquí o %{browse}',
