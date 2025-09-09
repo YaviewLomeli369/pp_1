@@ -2,6 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import express from "express";
+import multer from "multer";
+import path from "path";
 import {
   insertUserSchema,
   insertSiteConfigSchema,
@@ -73,6 +75,31 @@ function requireRole(roles: string[]) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure multer for file uploads
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+      // Generate unique filename
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const extension = path.extname(file.originalname);
+      const name = path.basename(file.originalname, extension);
+      cb(null, `${uniqueSuffix}-${name}${extension}`);
+    }
+  });
+
+  const upload = multer({
+    storage: storage,
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      // Accept all file types for now, you can add restrictions here
+      cb(null, true);
+    }
+  });
+
   // Add JSON parsing middleware with better error handling
   app.use('/api', express.json({
     limit: '10mb',
@@ -2149,6 +2176,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error generating upload URL:", error);
       res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
+  // Multer-based file upload endpoint for Uppy
+  app.post("/api/objects/direct-upload/", upload.single('file'), async (req, res) => {
+    try {
+      console.log('📁 Multer upload request received:', {
+        file: req.file,
+        body: req.body,
+        headers: req.headers
+      });
+
+      if (!req.file) {
+        console.error('❌ No file received in multer upload');
+        return res.status(400).json({
+          success: false,
+          error: 'No file uploaded'
+        });
+      }
+
+      // Generate the serving URL
+      const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+      const host = req.headers['x-forwarded-host'] || req.headers.host;
+      const servingURL = `/objects/${req.file.filename}`;
+      const fullServingURL = `${protocol}://${host}${servingURL}`;
+
+      console.log('✅ File uploaded successfully:', {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size,
+        servingURL: servingURL,
+        fullServingURL: fullServingURL
+      });
+
+      // Return the response format that Uppy expects
+      const responseData = {
+        success: true,
+        file: {
+          fieldname: req.file.fieldname,
+          originalname: req.file.originalname,
+          encoding: req.file.encoding,
+          mimetype: req.file.mimetype,
+          size: req.file.size,
+          filename: req.file.filename,
+          path: req.file.path,
+          destination: req.file.destination
+        },
+        // Additional fields for compatibility
+        url: servingURL,
+        uploadURL: fullServingURL,
+        location: servingURL,
+        relativePath: servingURL,
+        name: req.file.filename,
+        type: req.file.mimetype
+      };
+
+      res.status(200).json(responseData);
+    } catch (error) {
+      console.error('❌ Error in multer upload:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Upload failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

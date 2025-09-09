@@ -6,6 +6,15 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeStoreData } from "./store-setup";
 import { initializeSiteConfig } from "./site-config-setup";
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('📁 Created uploads directory:', uploadsDir);
+}
 
 const app = express();
 app.use(express.json());
