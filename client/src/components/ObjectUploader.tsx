@@ -61,15 +61,25 @@ export default function ObjectUploader({
       }
     });
 
-    // Configurar XHRUpload con URL dinámica
+    // Configurar XHRUpload con URL dinámica y objectId
     uppy.use(XHRUpload, {
-      endpoint: `${baseUrl}/api/objects/direct-upload/`,
+      endpoint: (file) => {
+        // Generar un objectId único para cada archivo
+        const objectId = crypto.randomUUID();
+        const endpoint = `${baseUrl}/api/objects/direct-upload/${objectId}`;
+        console.log('📤 Upload endpoint for file:', file.name, '→', endpoint);
+        return endpoint;
+      },
+      method: 'PUT',
       fieldName: 'file',
       formData: true,
-      headers: {
+      headers: (file) => ({
         'Accept': 'application/json',
-      },
+        'Content-Type': file.type || 'application/octet-stream',
+        'x-original-filename': file.name,
+      }),
       timeout: 60 * 1000, // 60 segundos timeout
+      limit: 3, // Máximo 3 subidas simultáneas
     });
 
     // Configurar Dashboard
@@ -152,8 +162,18 @@ export default function ObjectUploader({
 
     return () => {
       if (uppyRef.current) {
-        uppyRef.current.destroy();
-        uppyRef.current = null;
+        try {
+          // Use close() instead of destroy() for newer Uppy versions
+          if (typeof uppyRef.current.close === 'function') {
+            uppyRef.current.close();
+          } else if (typeof uppyRef.current.destroy === 'function') {
+            uppyRef.current.destroy();
+          }
+          uppyRef.current = null;
+        } catch (error) {
+          console.warn('Error cleaning up Uppy instance:', error);
+          uppyRef.current = null;
+        }
       }
     };
   }, [isOpen, onUploadSuccess, onUploadError, acceptedFileTypes, maxFileSize, maxNumberOfFiles, allowMultiple]);
@@ -161,8 +181,18 @@ export default function ObjectUploader({
   const handleClose = () => {
     setIsOpen(false);
     if (uppyRef.current) {
-      uppyRef.current.destroy();
-      uppyRef.current = null;
+      try {
+        // Use close() instead of destroy() for newer Uppy versions
+        if (typeof uppyRef.current.close === 'function') {
+          uppyRef.current.close();
+        } else if (typeof uppyRef.current.destroy === 'function') {
+          uppyRef.current.destroy();
+        }
+        uppyRef.current = null;
+      } catch (error) {
+        console.warn('Error cleaning up Uppy instance:', error);
+        uppyRef.current = null;
+      }
     }
   };
 
