@@ -2152,7 +2152,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Handle direct file uploads (no auth needed since URL is pre-signed)
+  // Handle direct file uploads - simplified endpoint for Uppy
+  app.post("/api/objects/direct-upload/upload", async (req, res) => {
+    try {
+      const objectId = crypto.randomUUID();
+      const objectStorageService = new ObjectStorageService();
+
+      // Get the file data from the request body
+      const chunks: Buffer[] = [];
+
+      req.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+
+      req.on('end', async () => {
+        try {
+          const fileBuffer = Buffer.concat(chunks);
+          let fileName = req.headers['x-original-filename'] as string || req.headers['x-filename'] as string || `upload-${Date.now()}`;
+
+          // Sanitize filename to prevent URL issues
+          fileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+
+          console.log(`Processing upload: ${objectId}, fileName: ${fileName}, size: ${fileBuffer.length} bytes`);
+
+          const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);
+
+          // Create absolute URL that is guaranteed to be valid for serving the file
+          const protocol = req.protocol || 'http';
+          const host = req.get('host') || 'localhost:5000';
+          const servingURL = `${protocol}://${host}/objects/${objectName}`;
+          const relativeURL = `/objects/${objectName}`;
+
+          // Return the response that Uppy expects with serving URL
+          const responseData = {
+            success: true,
+            objectName,
+            url: relativeURL, // Serving URL for images
+            uploadURL: servingURL, // Full serving URL for compatibility
+            location: relativeURL, // Relative serving path
+            relativePath: relativeURL, // Relative path for internal use
+            name: objectName,
+            type: req.headers['content-type'] || 'application/octet-stream',
+            size: fileBuffer.length
+          };
+
+          console.log("✅ Upload successful, returning serving URLs:", responseData);
+
+          // Set proper headers for the response
+          res.setHeader('Content-Type', 'application/json');
+          res.status(200).json(responseData);
+        } catch (error) {
+          console.error("Error in upload processing:", error);
+          res.status(500).json({
+            success: false,
+            error: "Upload failed",
+            message: error instanceof Error ? error.message : "Unknown error"
+          });
+        }
+      });
+
+      req.on('error', (error) => {
+        console.error("Error receiving upload data:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to receive upload data",
+          message: error.message
+        });
+      });
+
+    } catch (error) {
+      console.error("Error setting up upload:", error);
+      res.status(500).json({
+        success: false,
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Keep the old endpoint for backwards compatibility
   app.put("/api/objects/direct-upload/:objectId", async (req, res) => {
     try {
       const { objectId } = req.params;

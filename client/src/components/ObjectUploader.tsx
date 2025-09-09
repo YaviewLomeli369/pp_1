@@ -61,23 +61,15 @@ export default function ObjectUploader({
       }
     });
 
-    // Configurar XHRUpload con URL dinámica y objectId
+    // Configurar XHRUpload con URL estática
     uppy.use(XHRUpload, {
-      endpoint: (file) => {
-        // Generar un objectId único para cada archivo
-        const objectId = crypto.randomUUID();
-        const endpoint = `${baseUrl}/api/objects/direct-upload/${objectId}`;
-        console.log('📤 Upload endpoint for file:', file.name, '→', endpoint);
-        return endpoint;
-      },
-      method: 'PUT',
+      endpoint: `${baseUrl}/api/objects/direct-upload/upload`,
+      method: 'POST',
       fieldName: 'file',
       formData: true,
-      headers: (file) => ({
+      headers: {
         'Accept': 'application/json',
-        'Content-Type': file.type || 'application/octet-stream',
-        'x-original-filename': file.name,
-      }),
+      },
       timeout: 60 * 1000, // 60 segundos timeout
       limit: 3, // Máximo 3 subidas simultáneas
     });
