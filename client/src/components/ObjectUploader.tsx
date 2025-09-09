@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
@@ -40,7 +41,7 @@ export default function ObjectUploader({
     const protocol = window.location.protocol; // 'http:' o 'https:'
     const host = window.location.host;         // 'www.nyuxo.com' o 'localhost:5000'
     const baseUrl = `${protocol}//${host}`;
-
+    
     console.log('🌐 Protocol detected:', protocol);
     console.log('🌐 Host detected:', host);
     console.log('🌐 Base URL:', baseUrl);
@@ -109,20 +110,12 @@ export default function ObjectUploader({
       console.log('ERROR-7. Response statusText:', response?.statusText);
       console.log('ERROR-8. Response responseText:', response?.body || response?.responseText);
       console.log('=== 🏁 UPPY UPLOAD ERROR EVENT END ===');
-
+      
       onUploadError?.(error);
     });
 
     uppy.on('upload-success', (file, response) => {
-      console.log('✅ Upload successful:', file?.name, 'Response:', response);
-
-      // Extract URL from multer response
-      if (response && response.body) {
-        const responseData = response.body;
-        if (responseData.url || responseData.location) {
-          console.log('📂 File available at:', responseData.url || responseData.location);
-        }
-      }
+      console.log('✅ Upload successful:', file?.name, response?.status);
     });
 
     uppy.on('complete', (result) => {
@@ -130,28 +123,28 @@ export default function ObjectUploader({
       console.log('COMPLETE-1. Complete result:', result);
       console.log('COMPLETE-2. Result.successful length:', result.successful?.length || 0);
       console.log('COMPLETE-3. Result.failed length:', result.failed?.length || 0);
-
+      
       if (result.failed && result.failed.length > 0) {
         console.log('COMPLETE-4. Failed files:', result.failed);
         result.failed.forEach((file, index) => {
           console.log(`COMPLETE-5.${index}. Failed file:`, file.name, 'Error:', file.error);
         });
       }
-
+      
       if (result.successful && result.successful.length > 0) {
         console.log('COMPLETE-6. Successful files:', result.successful);
       }
 
       console.log('COMPLETE-9. Calling onComplete callback...');
-
+      
       // Llamar callback de éxito
       onUploadSuccess(result);
-
+      
       console.log('COMPLETE-10. Closing modal...');
       setTimeout(() => {
         setIsOpen(false);
       }, 1000);
-
+      
       console.log('=== 🏁 UPPY COMPLETE EVENT END ===');
     });
 
@@ -159,18 +152,8 @@ export default function ObjectUploader({
 
     return () => {
       if (uppyRef.current) {
-        try {
-          // Use close() instead of destroy() for newer Uppy versions
-          if (typeof uppyRef.current.close === 'function') {
-            uppyRef.current.close();
-          } else if (typeof uppyRef.current.destroy === 'function') {
-            uppyRef.current.destroy();
-          }
-          uppyRef.current = null;
-        } catch (error) {
-          console.warn('Error cleaning up Uppy instance:', error);
-          uppyRef.current = null;
-        }
+        uppyRef.current.destroy();
+        uppyRef.current = null;
       }
     };
   }, [isOpen, onUploadSuccess, onUploadError, acceptedFileTypes, maxFileSize, maxNumberOfFiles, allowMultiple]);
@@ -178,18 +161,8 @@ export default function ObjectUploader({
   const handleClose = () => {
     setIsOpen(false);
     if (uppyRef.current) {
-      try {
-        // Use close() instead of destroy() for newer Uppy versions
-        if (typeof uppyRef.current.close === 'function') {
-          uppyRef.current.close();
-        } else if (typeof uppyRef.current.destroy === 'function') {
-          uppyRef.current.destroy();
-        }
-        uppyRef.current = null;
-      } catch (error) {
-        console.warn('Error cleaning up Uppy instance:', error);
-        uppyRef.current = null;
-      }
+      uppyRef.current.destroy();
+      uppyRef.current = null;
     }
   };
 
@@ -218,7 +191,7 @@ export default function ObjectUploader({
             <X className="h-4 w-4" />
           </Button>
         </div>
-
+        
         <div className="p-4">
           <div ref={dashboardRef} />
           {note && (
