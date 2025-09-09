@@ -35,7 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ObjectUploader } from "@/components/ObjectUploader";
+import ObjectUploader from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 
 // Define Product type for better type safety
@@ -1034,17 +1034,26 @@ function AdminStoreContent() {
 
                     {/* ObjectUploader */}
                     <ObjectUploader
-                      onGetUploadParameters={handleGetUploadParameters}
-                      onComplete={handleUploadComplete}
-                      buttonProps={{ type: "button" }}
-                      buttonClassName={`${
+                      onUploadSuccess={handleUploadComplete}
+                      onUploadError={(error) => {
+                        console.error("Upload error:", error);
+                        toast({
+                          title: "Error al subir imagen",
+                          description: "No se pudo subir la imagen",
+                          variant: "destructive",
+                        });
+                      }}
+                      acceptedFileTypes={['image/*']}
+                      maxFileSize={10 * 1024 * 1024}
+                      maxNumberOfFiles={1}
+                      allowMultiple={false}
+                      note="Formatos soportados: JPG, PNG, GIF. Máximo 10MB"
+                      className={`${
                         (tempImageUrl || selectedProduct?.images?.[0])
                           ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
                           : "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                       }`}
-                    >
-                      {(tempImageUrl || selectedProduct?.images?.[0]) ? "Cambiar imagen" : "Subir Imagen"}
-                    </ObjectUploader>
+                    />
                   </div>
                 </div>
               </div>
