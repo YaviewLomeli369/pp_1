@@ -115,41 +115,46 @@ export function ObjectUploader({
         console.log("SUCCESS-4. Response type:", typeof response);
         console.log("SUCCESS-5. Response keys:", Object.keys(response || {}));
 
-        // Process the response and store it in the file object
-        if (response && file) {
+        // Store response in file object for later access
+        file.response = response;
+        console.log("SUCCESS-9. ✅ Stored response in file.response");
+
+        // Try to parse response body if it's a string
+        let responseData = response;
+        if (typeof response.body === 'string') {
           try {
-            console.log("SUCCESS-6. Processing response for file...");
-            console.log("SUCCESS-7. Original file.response:", file.response);
-            console.log("SUCCESS-8. Original file.uploadURL:", file.uploadURL);
-
-            // Store the parsed response for later use
-            file.response = response;
-            console.log("SUCCESS-9. ✅ Stored response in file.response");
-
-            // Set uploadURL to the location from S3 response
-            console.log("SUCCESS-10. Checking response.location:", response.location);
-            console.log("SUCCESS-11. Checking response.url:", response.url);
-
-            if (response.location) {
-              console.log("SUCCESS-12. ✅ Using response.location as uploadURL:", response.location);
-              file.uploadURL = response.location;
-            } else if (response.url) {
-              console.log("SUCCESS-13. ✅ Using response.url as uploadURL:", response.url);
-              file.uploadURL = response.url;
-            } else {
-              console.log("SUCCESS-14. ⚠️ No location or url found in response");
-            }
-
-            console.log("SUCCESS-15. 🎯 FINAL file.uploadURL set to:", file.uploadURL);
-            console.log("SUCCESS-16. 🎯 FINAL file.response:", JSON.stringify(file.response, null, 2));
-          } catch (error) {
-            console.error("SUCCESS-17. ❌ Error processing upload success:", error);
+            responseData = { ...response, body: JSON.parse(response.body) };
+          } catch (e) {
+            console.log("SUCCESS-10. Could not parse response body as JSON");
           }
-        } else {
-          console.error("SUCCESS-18. ❌ Missing response or file object");
-          console.error("SUCCESS-19. response exists:", !!response);
-          console.error("SUCCESS-20. file exists:", !!file);
         }
+
+        // Check multiple possible locations for the serving URL
+        console.log("SUCCESS-11. Checking responseData.body:", responseData.body);
+        console.log("SUCCESS-12. Checking responseData.location:", responseData.location);
+        console.log("SUCCESS-13. Checking responseData.url:", responseData.url);
+
+        // Extract serving URL from response body or headers
+        let servingURL = null;
+
+        if (responseData.body && typeof responseData.body === 'object') {
+          servingURL = responseData.body.url || responseData.body.location || responseData.body.relativePath;
+        }
+
+        if (!servingURL) {
+          servingURL = responseData.location || responseData.url;
+        }
+
+        // Set the serving URL
+        if (servingURL) {
+          file.uploadURL = servingURL;
+          console.log("SUCCESS-14. ✅ Set uploadURL from response:", servingURL);
+        } else {
+          console.log("SUCCESS-15. ⚠️ No serving URL found in response");
+        }
+
+        console.log("SUCCESS-16. 🎯 FINAL file.uploadURL set to:", file.uploadURL);
+        console.log("SUCCESS-17. 🎯 FINAL file.response:", file.response);
 
         console.log("=== 🏁 UPPY UPLOAD SUCCESS EVENT END ===");
       })

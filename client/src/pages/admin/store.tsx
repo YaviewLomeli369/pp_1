@@ -376,111 +376,98 @@ function AdminStoreContent() {
         return;
       }
 
-      // Extract URL from server response with proper priority
-            let finalURL = null;
+      // Extract URL from the first successful file
+      let imageURL = null;
+      if (result.successful?.[0]) {
+        const file = result.successful[0];
+        console.log("COMPLETE-4. First successful file:", file.name);
+        console.log("COMPLETE-5. File.uploadURL:", file.uploadURL);
+        console.log("COMPLETE-6. File.response:", file.response);
 
-            // Priority 1: Check the parsed response body (from our custom backend)
-            if (file?.response?.url && typeof file.response.url === 'string' && file.response.url.trim().length > 0) {
-              finalURL = file.response.url;
-              console.log("COMPLETE-6A. Using file.response.url:", finalURL);
-            } 
-            // Priority 2: Check the parsed response uploadURL 
-            else if (file?.response?.uploadURL && typeof file.response.uploadURL === 'string' && file.response.uploadURL.trim().length > 0) {
-              finalURL = file.response.uploadURL;
-              console.log("COMPLETE-6B. Using file.response.uploadURL:", finalURL);
-            }
-            // Priority 3: Check file.uploadURL (but this might be the upload endpoint, not the serving endpoint)
-            else if (file?.uploadURL && typeof file.uploadURL === 'string' && file.uploadURL.trim().length > 0) {
-              // Convert upload endpoint URL to serving URL if needed
-              let urlToUse = file.uploadURL;
-              if (urlToUse.includes('/api/objects/direct-upload/')) {
-                // Extract the object ID and convert to serving URL
-                const objectId = urlToUse.split('/api/objects/direct-upload/')[1];
-                if (objectId) {
-                  urlToUse = urlToUse.replace('/api/objects/direct-upload/', '/objects/');
-                  console.log("COMPLETE-6C-1. Converted upload URL to serving URL:", urlToUse);
-                }
-              }
-              finalURL = urlToUse;
-              console.log("COMPLETE-6C. Using file.uploadURL (converted):", finalURL);
-            }
-            // Priority 4: Check response.location (S3 style)
-            else if (file?.response?.location && typeof file.response.location === 'string' && file.response.location.trim().length > 0) {
-              finalURL = file.response.location;
-              console.log("COMPLETE-6D. Using file.response.location:", finalURL);
-            }
-
-      console.log("COMPLETE-7. Final extracted URL:", finalURL);
-
-      if (finalURL && typeof finalURL === 'string') {
-        // Clean the URL and validate it
-        const trimmedURL = finalURL.trim();
-        console.log("COMPLETE-8. Trimmed URL:", trimmedURL);
-
-        // Check if URL is not empty and has valid format
-        if (trimmedURL && trimmedURL.length > 0) {
-          // Validate URL format before using it
-          try {
-            // More defensive URL validation
-            if (!trimmedURL.startsWith('http://') && !trimmedURL.startsWith('https://')) {
-              console.error("COMPLETE-8A. ❌ URL doesn't start with http:// or https://:", trimmedURL);
-              throw new Error("URL must start with http:// or https://");
-            }
-
-            // Additional check for common invalid patterns
-            if (trimmedURL.includes('undefined') || trimmedURL.includes('null') || trimmedURL === 'http://' || trimmedURL === 'https://') {
-              console.error("COMPLETE-8B. ❌ URL contains invalid patterns:", trimmedURL);
-              throw new Error("URL contains invalid data");
-            }
-
-            const urlObj = new URL(trimmedURL);
-
-            // Additional validation to ensure it's a proper URL
-            if (!urlObj.hostname || urlObj.hostname.length === 0) {
-              console.error("COMPLETE-8C. ❌ URL has no hostname:", trimmedURL);
-              throw new Error("URL must have a valid hostname");
-            }
-
-            console.log("COMPLETE-9. ✅ URL validation passed:", trimmedURL);
-
-            if (selectedProduct?.id) {
-              // Update existing product
-              console.log("COMPLETE-10. Updating existing product with image:", trimmedURL);
-              updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL: trimmedURL });
-            } else {
-              // Store for new product
-              console.log("COMPLETE-11. Setting tempImageUrl for new product:", trimmedURL);
-              setTempImageUrl(trimmedURL);
-              toast({ 
-                title: "Imagen subida exitosamente", 
-                description: "Se aplicará al guardar el producto"
-              });
-            }
-          } catch (urlError) {
-            console.error("COMPLETE-12. ❌ URL validation failed:", urlError);
-            console.error("COMPLETE-13. ❌ Problematic URL:", trimmedURL);
-            toast({ 
-              title: "Error al subir imagen", 
-              description: `URL inválida: ${urlError instanceof Error ? urlError.message : 'Formato incorrecto'}`,
-              variant: "destructive"
-            });
-            return;
+        // Try different ways to get the URL, prioritizing serving URLs
+        if (file.response?.body && typeof file.response.body === 'object') {
+          // Try to get serving URL from response body
+          imageURL = file.response.body.url || file.response.body.location || file.response.body.relativePath;
+          if (imageURL) {
+            console.log("COMPLETE-6A. Using file.response.body URL:", imageURL);
           }
-        } else {
-          console.error("COMPLETE-14. ❌ Empty URL received");
-          toast({ 
-            title: "Error al subir imagen", 
-            description: "URL vacía recibida del servidor",
-            variant: "destructive"
-          });
+        }
+
+        if (!imageURL && file.uploadURL) {
+          imageURL = file.uploadURL;
+          console.log("COMPLETE-6B. Using file.uploadURL:", imageURL);
+        } 
+
+        if (!imageURL && file.response?.url) {
+          imageURL = file.response.url;
+          console.log("COMPLETE-6C. Using file.response.url:", imageURL);
+        } 
+
+        if (!imageURL && file.response?.location) {
+          imageURL = file.response.location;
+          console.log("COMPLETE-6D. Using file.response.location:", imageURL);
+        }
+
+        if (!imageURL) {
+          console.error("COMPLETE-6E. ❌ No URL found in response");
+          console.error("COMPLETE-6F. File response structure:", file.response);
           return;
         }
+      }
+
+      console.log("COMPLETE-7. Final extracted URL:", imageURL);
+
+      if (imageURL && typeof imageURL === 'string') {
+        // Clean the URL and validate it
+        const trimmedURL = imageURL.trim();
+        console.log("COMPLETE-8. Trimmed URL:", trimmedURL);
+
+        // Convert upload URL to serving URL if needed
+        if (trimmedURL.includes('/api/objects/direct-upload/')) {
+          const objectId = trimmedURL.split('/api/objects/direct-upload/')[1];
+          imageURL = `/objects/${objectId}`;
+          console.log("COMPLETE-8A. Converted upload URL to serving URL:", imageURL);
+        }
+
+        // Ensure we have a proper serving URL
+        if (imageURL.startsWith('http') && imageURL.includes('/api/objects/direct-upload/')) {
+          // This is still an upload URL, convert it
+          const parts = imageURL.split('/api/objects/direct-upload/');
+          if (parts.length === 2) {
+            const baseUrl = parts[0];
+            const objectId = parts[1];
+            imageURL = `${baseUrl}/objects/${objectId}`;
+            console.log("COMPLETE-8B. Converted full upload URL to serving URL:", imageURL);
+          }
+        }
+
+        // Validate URL format
+        const urlPattern = /^(https?:\/\/|\/)/;
+        if (!urlPattern.test(imageURL)) {
+          console.error("COMPLETE-8C. ❌ Invalid URL format:", imageURL);
+          return;
+        }
+
+        console.log("COMPLETE-9. ✅ URL validation passed:", imageURL);
+
+        if (selectedProduct?.id) {
+          // Update existing product
+          console.log("COMPLETE-10. Updating existing product with image:", imageURL);
+          updateProductImageMutation.mutate({ id: selectedProduct.id, imageURL: imageURL });
+        } else {
+          // Store for new product
+          console.log("COMPLETE-11. Setting tempImageUrl for new product:", imageURL);
+          setTempImageUrl(imageURL);
+          toast({ 
+            title: "Imagen subida exitosamente", 
+            description: "Se aplicará al guardar el producto"
+          });
+        }
       } else {
-        console.error("COMPLETE-15. ❌ No valid URL found in response");
-        console.error("COMPLETE-16. Available response keys:", Object.keys(file?.response || {}));
+        console.error("COMPLETE-12. ❌ Empty or invalid URL received");
         toast({ 
           title: "Error al subir imagen", 
-          description: "No se encontró URL válida en la respuesta del servidor",
+          description: "URL vacía o inválida recibida del servidor",
           variant: "destructive"
         });
         return;
