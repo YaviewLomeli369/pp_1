@@ -152,8 +152,18 @@ export default function ObjectUploader({
 
     return () => {
       if (uppyRef.current) {
-        uppyRef.current.destroy();
-        uppyRef.current = null;
+        try {
+          // Use close() instead of destroy() for newer Uppy versions
+          if (typeof uppyRef.current.close === 'function') {
+            uppyRef.current.close();
+          } else if (typeof uppyRef.current.destroy === 'function') {
+            uppyRef.current.destroy();
+          }
+          uppyRef.current = null;
+        } catch (error) {
+          console.warn('Error cleaning up Uppy instance:', error);
+          uppyRef.current = null;
+        }
       }
     };
   }, [isOpen, onUploadSuccess, onUploadError, acceptedFileTypes, maxFileSize, maxNumberOfFiles, allowMultiple]);
@@ -161,8 +171,18 @@ export default function ObjectUploader({
   const handleClose = () => {
     setIsOpen(false);
     if (uppyRef.current) {
-      uppyRef.current.destroy();
-      uppyRef.current = null;
+      try {
+        // Use close() instead of destroy() for newer Uppy versions
+        if (typeof uppyRef.current.close === 'function') {
+          uppyRef.current.close();
+        } else if (typeof uppyRef.current.destroy === 'function') {
+          uppyRef.current.destroy();
+        }
+        uppyRef.current = null;
+      } catch (error) {
+        console.warn('Error cleaning up Uppy instance:', error);
+        uppyRef.current = null;
+      }
     }
   };
 
