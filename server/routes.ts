@@ -2169,16 +2169,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.on('end', async () => {
         try {
           const fileBuffer = Buffer.concat(chunks);
-          let fileName = req.headers['x-original-filename'] as string || req.headers['x-filename'] as string || `upload-${Date.now()}.png`;
+          let fileName = req.headers['x-original-filename'] as string || req.headers['x-filename'] as string || `upload-${Date.now()}`;
 
-          // Clean and sanitize filename
+          // Sanitize filename to prevent URL issues
           fileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
-          
-          // Ensure the filename has a proper extension
-          if (!fileName.includes('.')) {
-            fileName = `${fileName}.png`;
-          }
-          
+
           console.log(`Processing upload: ${objectId}, fileName: ${fileName}, size: ${fileBuffer.length} bytes`);
 
           const objectName = await objectStorageService.handleDirectUpload(objectId, fileBuffer, fileName);

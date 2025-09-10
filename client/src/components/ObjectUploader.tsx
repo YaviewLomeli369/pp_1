@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
@@ -40,7 +41,7 @@ export default function ObjectUploader({
     const protocol = window.location.protocol; // 'http:' o 'https:'
     const host = window.location.host;         // 'www.nyuxo.com' o 'localhost:5000'
     const baseUrl = `${protocol}//${host}`;
-
+    
     console.log('🌐 Protocol detected:', protocol);
     console.log('🌐 Host detected:', host);
     console.log('🌐 Base URL:', baseUrl);
@@ -55,33 +56,9 @@ export default function ObjectUploader({
         allowedFileTypes: acceptedFileTypes,
       },
       onBeforeUpload: (files) => {
-        console.log('📁 Files ready to upload:', files.length);
-
-        // Ensure proper filename for each file
-        files.forEach(file => {
-          if (file.meta && file.meta.name) {
-            const originalName = file.meta.name;
-            // Clean filename and ensure proper extension
-            const cleanName = originalName.includes('.') ? originalName : `${originalName}.png`;
-            file.meta.name = cleanName;
-            console.log(`📝 Cleaned filename: ${originalName} -> ${cleanName}`);
-          }
-        });
-
-        return Promise.resolve();
-      },
-      onUpload: (file) => {
-        const fileName = file.meta?.name || file.name || 'unknown';
-        console.log('⬆️ Starting upload:', fileName);
-      },
-      onUploadSuccess: (file, response) => {
-        const fileName = file.meta?.name || file.name || 'unknown';
-        console.log('✅ Upload successful:', fileName, response.status);
-      },
-      onUploadError: (file, error, response) => {
-        const fileName = file.meta?.name || file.name || 'unknown';
-        console.error('❌ Upload failed:', fileName, error, response);
-      },
+        console.log('📁 Files ready to upload:', Object.keys(files).length);
+        return true;
+      }
     });
 
     // Configurar XHRUpload con URL estática
@@ -135,7 +112,7 @@ export default function ObjectUploader({
       console.log('ERROR-7. Response statusText:', response?.statusText);
       console.log('ERROR-8. Response responseText:', response?.body || response?.responseText);
       console.log('=== 🏁 UPPY UPLOAD ERROR EVENT END ===');
-
+      
       onUploadError?.(error);
     });
 
@@ -148,28 +125,28 @@ export default function ObjectUploader({
       console.log('COMPLETE-1. Complete result:', result);
       console.log('COMPLETE-2. Result.successful length:', result.successful?.length || 0);
       console.log('COMPLETE-3. Result.failed length:', result.failed?.length || 0);
-
+      
       if (result.failed && result.failed.length > 0) {
         console.log('COMPLETE-4. Failed files:', result.failed);
         result.failed.forEach((file, index) => {
           console.log(`COMPLETE-5.${index}. Failed file:`, file.name, 'Error:', file.error);
         });
       }
-
+      
       if (result.successful && result.successful.length > 0) {
         console.log('COMPLETE-6. Successful files:', result.successful);
       }
 
       console.log('COMPLETE-9. Calling onComplete callback...');
-
+      
       // Llamar callback de éxito
       onUploadSuccess(result);
-
+      
       console.log('COMPLETE-10. Closing modal...');
       setTimeout(() => {
         setIsOpen(false);
       }, 1000);
-
+      
       console.log('=== 🏁 UPPY COMPLETE EVENT END ===');
     });
 
@@ -236,7 +213,7 @@ export default function ObjectUploader({
             <X className="h-4 w-4" />
           </Button>
         </div>
-
+        
         <div className="p-4">
           <div ref={dashboardRef} />
           {note && (

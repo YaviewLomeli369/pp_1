@@ -63,33 +63,12 @@ export class ObjectStorageService {
 
   async handleDirectUpload(objectId: string, fileBuffer: Buffer, originalFilename: string): Promise<string> {
     try {
-      // Clean the original filename and extract extension properly
-      let cleanFilename = originalFilename;
-      
-      // Handle upload-timestamp patterns
-      if (cleanFilename.startsWith('upload-')) {
-        // Try to extract original extension if it exists in the pattern
-        const parts = cleanFilename.split('.');
-        if (parts.length > 1) {
-          cleanFilename = parts[parts.length - 1]; // Get the last part as extension
-        } else {
-          cleanFilename = 'png'; // Default to png if no extension found
-        }
-      }
-      
-      // Extract file extension properly
-      const extension = cleanFilename.includes('.') 
-        ? cleanFilename.split('.').pop()?.toLowerCase() || 'png'
-        : cleanFilename.toLowerCase();
-      
-      // Ensure extension is valid
-      const validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'tiff', 'tif', 'avif', 'ico'];
-      const finalExtension = validExtensions.includes(extension) ? extension : 'png';
-      
+      // Extract file extension and create clean filename
+      const extension = originalFilename.split('.').pop()?.toLowerCase() || '';
       const timestamp = Date.now();
-      const objectName = `${objectId}-${timestamp}.${finalExtension}`;
+      const objectName = `${objectId}-${timestamp}.${extension}`;
 
-      console.log(`Creating object name: ${objectName} from original: ${originalFilename}, detected extension: ${finalExtension}`);
+      console.log(`Creating object name: ${objectName} from original: ${originalFilename}`);
 
       // Create uploads directory if it doesn't exist
       const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -157,15 +136,7 @@ export class ObjectStorageService {
       const data = fs.readFileSync(fullPath);
       
       // Set appropriate content type based on file extension
-      let ext = path.extname(fileName).toLowerCase();
-      
-      // If no extension detected, try to extract from filename pattern
-      if (!ext && fileName.includes('.')) {
-        const parts = fileName.split('.');
-        ext = '.' + parts[parts.length - 1].toLowerCase();
-      }
-      
-      // Enhanced content type mapping
+      const ext = path.extname(fileName).toLowerCase();
       const contentTypes: { [key: string]: string } = {
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
@@ -180,14 +151,7 @@ export class ObjectStorageService {
         '.tif': 'image/tiff'
       };
       
-      // Default to image/png for image files without proper extension
-      let contentType = contentTypes[ext];
-      if (!contentType) {
-        // For files that might be images but don't have proper extensions
-        const imageKeywords = ['upload', 'image', 'photo', 'pic'];
-        const isLikelyImage = imageKeywords.some(keyword => fileName.toLowerCase().includes(keyword));
-        contentType = isLikelyImage ? 'image/png' : 'application/octet-stream';
-      }
+      const contentType = contentTypes[ext] || 'application/octet-stream';
       
       // Set proper headers for images
       res.setHeader('Content-Type', contentType);
