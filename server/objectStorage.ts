@@ -63,11 +63,10 @@ export class ObjectStorageService {
 
   async handleDirectUpload(objectId: string, fileBuffer: Buffer, originalFilename: string): Promise<string> {
     try {
-      // Create a safe filename with proper sanitization
-      const extension = originalFilename.split('.').pop() || '';
-      const nameWithoutExt = originalFilename.replace(/\.[^/.]+$/, "");
-      const safeName = nameWithoutExt.replace(/[^a-zA-Z0-9-]/g, '_');
-      const objectName = `${objectId}-${safeName}.${extension}`;
+      // Extract file extension and create clean filename
+      const extension = originalFilename.split('.').pop()?.toLowerCase() || '';
+      const timestamp = Date.now();
+      const objectName = `${objectId}-${timestamp}.${extension}`;
 
       console.log(`Creating object name: ${objectName} from original: ${originalFilename}`);
 
@@ -146,15 +145,24 @@ export class ObjectStorageService {
         '.webp': 'image/webp',
         '.avif': 'image/avif',
         '.svg': 'image/svg+xml',
-        '.ico': 'image/x-icon'
+        '.ico': 'image/x-icon',
+        '.bmp': 'image/bmp',
+        '.tiff': 'image/tiff',
+        '.tif': 'image/tiff'
       };
       
       const contentType = contentTypes[ext] || 'application/octet-stream';
+      
+      // Set proper headers for images
       res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      res.setHeader('Access-Control-Allow-Origin', '*'); // Allow CORS
+      res.setHeader('Content-Length', data.length);
+      
+      // Send the file data
       res.send(data);
       
-      console.log(`Successfully served file: ${fileName}, type: ${contentType}`);
+      console.log(`Successfully served file: ${fileName}, type: ${contentType}, size: ${data.length} bytes`);
     } catch (error) {
       console.error("Error downloading object:", error);
       throw new ObjectNotFoundError();

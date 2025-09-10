@@ -102,19 +102,30 @@ function AdminStoreContent() {
       ...product,
       images: Array.isArray(product.images) 
         ? product.images.map(imgUrl => {
-            // Convert upload URLs to serving URLs
-            if (imgUrl.includes('/api/objects/direct-upload/')) {
-              const objectId = imgUrl.split('/api/objects/direct-upload/')[1];
-              return `/objects/${objectId}`;
-            }
-            // Handle normal object URLs
+            if (typeof imgUrl !== 'string') return imgUrl;
+            
+            // Handle object URLs that already start with /objects/
             if (imgUrl.startsWith('/objects/')) {
               return imgUrl;
             }
-            // Handle relative paths
-            if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
+            
+            // Handle full URLs by extracting the path
+            if (imgUrl.startsWith('http')) {
+              try {
+                const url = new URL(imgUrl);
+                if (url.pathname.startsWith('/objects/')) {
+                  return url.pathname;
+                }
+              } catch (e) {
+                console.warn('Invalid URL:', imgUrl);
+              }
+            }
+            
+            // Handle relative paths - prepend /objects/ if not present
+            if (!imgUrl.startsWith('/')) {
               return `/objects/${imgUrl}`;
             }
+            
             return imgUrl;
           })
         : product.images
