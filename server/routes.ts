@@ -2113,14 +2113,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve private objects
+  // Serve public objects (no authentication required)
   app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();
     try {
       const objectPath = req.params.objectPath;
+      console.log(`🖼️ Serving public object: ${objectPath}`);
       await objectStorageService.downloadObject(objectPath, res);
     } catch (error) {
-      console.error("Error checking object access:", error);
+      console.error("Error serving object:", error);
       if (error instanceof ObjectNotFoundError) {
         return res.sendStatus(404);
       }
@@ -2392,23 +2393,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting upload URL:", error);
       res.status(500).json({ error: "Failed to get upload URL" });
-    }
-  });
-
-  // Serve private objects (with basic access)
-  app.get("/objects/:objectPath(*)", async (req, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = req.params.objectPath;
-      console.log(`Serving object: ${objectPath}`);
-      
-      await objectStorageService.downloadObject(objectPath, res);
-    } catch (error: any) {
-      console.error("Error serving object:", error);
-      if (error instanceof ObjectNotFoundError) {
-        return res.sendStatus(404);
-      }
-      return res.sendStatus(500);
     }
   });
 
@@ -2776,20 +2760,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Add route to serve private objects (for product images)
-  app.get("/objects/:objectPath(*)", async (req, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      objectStorageService.downloadObject(objectFile, res);
-    } catch (error) {
-      console.error("Error serving object:", error);
-      if (error instanceof ObjectNotFoundError) {
-        return res.sendStatus(404);
-      }
-      return res.sendStatus(500);
-    }
-  });
+  
 
   // Email Configuration endpoints
   app.get("/api/email/config", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
