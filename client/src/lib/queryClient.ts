@@ -1,5 +1,10 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// Helper function to get the authentication token from local storage
+function getAuthToken(): string | null {
+  return localStorage.getItem('auth_token');
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -7,51 +12,48 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-export async function apiRequest(
-  url: string,
-  options: RequestInit = {}
-): Promise<any> {
-  const token = localStorage.getItem('auth_token');
-  const headers: Record<string, string> = {};
+export async function apiRequest(url: string, options: RequestInit = {}): Promise<any> {
+  const token = getAuthToken();
+  console.log('🔍 Retrieved auth token:', token || 'NO TOKEN');
 
-  // Always set Content-Type to application/json for requests with body
-  if (options.body && options.method !== 'GET') {
-    headers["Content-Type"] = "application/json";
-  }
+  const headers: Record<string, string> = {
+    ...Object.fromEntries(new Headers(options.headers || {}).entries())
+  };
 
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
+    console.log('🔐 Added Authorization header with token:', token.substring(0, 10) + '...');
   }
 
-  // Ensure body is properly stringified if it's an object
-  let body = options.body;
-  if (body && typeof body === 'object' && !(body instanceof FormData)) {
-    try {
-      body = JSON.stringify(body);
-    } catch (error) {
-      console.error('Error stringifying request body:', error);
-      throw new Error('Invalid request body format');
-    }
+  // Always set content-type for requests with body
+  if (options.body && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
   }
+
+  const config: RequestInit = {
+    ...options,
+    headers,
+  };
 
   console.log('Making API request:', {
     url,
-    method: options.method || 'GET',
-    headers,
-    bodyType: typeof body,
-    body: body ? (typeof body === 'string' ? body : 'FormData') : undefined
+    method: config.method || 'GET',
+    headers: Object.keys(headers).reduce((acc, key) => {
+      acc[key] = key === 'Authorization' ? headers[key].substring(0, 20) + '...' : headers[key];
+      return acc;
+    }, {} as Record<string, string>),
+    bodyType: typeof config.body,
+    body: config.body
   });
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...headers,
-      ...options.headers,
-    },
-    body,
-  });
+  const response = await fetch(url, config);
 
-  await throwIfResNotOk(response);
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`❌ API Request failed: ${response.status} ${response.statusText}`, errorText);
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+
   return await response.json();
 }
 
@@ -61,7 +63,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const token = localStorage.getItem('auth_token');
+    const token = getAuthToken();
     const headers: Record<string, string> = {};
 
     if (token) {
