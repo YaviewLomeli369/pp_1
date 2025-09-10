@@ -1,0 +1,416 @@
+use-auth.ts:16  GET https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/auth/me 401 (Unauthorized)
+queryFn @ use-auth.ts:16
+fetchFn @ @tanstack_react-query.js?v=30513cb9:812
+run @ @tanstack_react-query.js?v=30513cb9:477
+start @ @tanstack_react-query.js?v=30513cb9:518
+fetch @ @tanstack_react-query.js?v=30513cb9:893
+#executeFetch @ @tanstack_react-query.js?v=30513cb9:1963
+onSubscribe @ @tanstack_react-query.js?v=30513cb9:1840
+subscribe @ @tanstack_react-query.js?v=30513cb9:19
+(anonymous) @ @tanstack_react-query.js?v=30513cb9:2962
+subscribeToStore @ chunk-NXESFFTV.js?v=30513cb9:12032
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=30513cb9:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=30513cb9:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=30513cb9:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=30513cb9:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=30513cb9:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19469
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:18677
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=30513cb9:537
+flush @ @tanstack_react-query.js?v=30513cb9:551
+batch @ @tanstack_react-query.js?v=30513cb9:569
+#dispatch @ @tanstack_react-query.js?v=30513cb9:963
+setData @ @tanstack_react-query.js?v=30513cb9:672
+onSuccess @ @tanstack_react-query.js?v=30513cb9:865
+resolve @ @tanstack_react-query.js?v=30513cb9:442
+Promise.then
+run @ @tanstack_react-query.js?v=30513cb9:481
+start @ @tanstack_react-query.js?v=30513cb9:518
+fetch @ @tanstack_react-query.js?v=30513cb9:893
+#executeFetch @ @tanstack_react-query.js?v=30513cb9:1963
+onSubscribe @ @tanstack_react-query.js?v=30513cb9:1840
+subscribe @ @tanstack_react-query.js?v=30513cb9:19
+(anonymous) @ @tanstack_react-query.js?v=30513cb9:2962
+subscribeToStore @ chunk-NXESFFTV.js?v=30513cb9:12032
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=30513cb9:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=30513cb9:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=30513cb9:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=30513cb9:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=30513cb9:19500
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18921
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19485
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=30513cb9:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18768
+workLoop @ chunk-NXESFFTV.js?v=30513cb9:197
+flushWork @ chunk-NXESFFTV.js?v=30513cb9:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=30513cb9:384Understand this error
+queryClient.ts:37 Making API request: {url: '/api/auth/login', method: 'POST', headers: {…}, bodyType: 'string', body: '{"username":"yaview.lomeli@gmail.com","password":"Losy990209bn7**"}'}
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/categories', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/customers', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705:1  GET https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705 404 (Not Found)
+Image
+commitMount @ chunk-NXESFFTV.js?v=30513cb9:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=30513cb9:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=30513cb9:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19406
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:18677Understand this error
+store.tsx:973 ❌ Image preview failed to load: /objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705
+overrideMethod @ hook.js:608
+onError @ store.tsx:973
+callCallback2 @ chunk-NXESFFTV.js?v=30513cb9:3680
+invokeGuardedCallbackDev @ chunk-NXESFFTV.js?v=30513cb9:3705
+invokeGuardedCallback @ chunk-NXESFFTV.js?v=30513cb9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-NXESFFTV.js?v=30513cb9:3742
+executeDispatch @ chunk-NXESFFTV.js?v=30513cb9:7046
+processDispatchQueueItemsInOrder @ chunk-NXESFFTV.js?v=30513cb9:7066
+processDispatchQueue @ chunk-NXESFFTV.js?v=30513cb9:7075
+dispatchEventsForPlugins @ chunk-NXESFFTV.js?v=30513cb9:7083
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:7206
+batchedUpdates$1 @ chunk-NXESFFTV.js?v=30513cb9:18966
+batchedUpdates @ chunk-NXESFFTV.js?v=30513cb9:3585
+dispatchEventForPluginEventSystem @ chunk-NXESFFTV.js?v=30513cb9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-NXESFFTV.js?v=30513cb9:5484
+dispatchEvent @ chunk-NXESFFTV.js?v=30513cb9:5478Understand this error
+ObjectUploader.tsx:63 🔍 Probando conexión con: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload
+ObjectUploader.tsx:83 ✅ Test de endpoint exitoso: {success: true, objectName: '0f3fbee0-1ccd-4d08-b85d-1e73861195fa-1757537882556.txt', url: '/objects/0f3fbee0-1ccd-4d08-b85d-1e73861195fa-1757537882556.txt', uploadURL: 'http://54265a11-fa04-401e-930c-217e73aeda9a-00-1ke…ee0-1ccd-4d08-b85d-1e73861195fa-1757537882556.txt', location: '/objects/0f3fbee0-1ccd-4d08-b85d-1e73861195fa-1757537882556.txt'}
+ObjectUploader.tsx:136 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:149 ✅ Dashboard ref is ready: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​434:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:151 🌐 Entorno detectado: Replit
+ObjectUploader.tsx:152 🌐 Protocol: https:
+ObjectUploader.tsx:153 🌐 Host: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:154 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:221 🎯 Initializing Dashboard with target: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​434:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:244 ✅ Dashboard initialized successfully
+ObjectUploader.tsx:168 📁 Files ready to upload: 1
+@uppy_xhr-upload.js?v=30513cb9:549  POST https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload net::ERR_CONNECTION_ABORTED
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+fetcher @ @uppy_xhr-upload.js?v=30513cb9:552
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:720
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+@uppy_xhr-upload.js?v=30513cb9:549  POST https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload net::ERR_CONNECTION_ABORTED
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:532
+setTimeout
+xhr.onerror @ @uppy_xhr-upload.js?v=30513cb9:531
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+fetcher @ @uppy_xhr-upload.js?v=30513cb9:552
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:720
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+@uppy_xhr-upload.js?v=30513cb9:549  POST https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload net::ERR_CONNECTION_ABORTED
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:532
+setTimeout
+xhr.onerror @ @uppy_xhr-upload.js?v=30513cb9:531
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:532
+setTimeout
+xhr.onerror @ @uppy_xhr-upload.js?v=30513cb9:531
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+fetcher @ @uppy_xhr-upload.js?v=30513cb9:552
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:720
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+hook.js:608 [Uppy] [14:54:07] This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+overrideMethod @ hook.js:608
+error @ chunk-4WERLP6U.js?v=30513cb9:645
+log @ chunk-4WERLP6U.js?v=30513cb9:1830
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2144
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:764
+await in (anonymous)
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+ObjectUploader.tsx:248 ❌ UPPY GENERAL ERROR: Error: Failed to upload 5.png
+    at Function.<anonymous> (chunk-4WERLP6U.js?v=30513cb9:2145:24)
+    at emitAll (chunk-4WERLP6U.js?v=30513cb9:80:19)
+    at Object.emit (chunk-4WERLP6U.js?v=30513cb9:25:11)
+    at _Uppy.emit (chunk-4WERLP6U.js?v=30513cb9:1089:60)
+    at @uppy_xhr-upload.js?v=30513cb9:764:25
+overrideMethod @ hook.js:608
+(anonymous) @ ObjectUploader.tsx:248
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+_informAndEmit2 @ chunk-4WERLP6U.js?v=30513cb9:1945
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2153
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:764
+await in (anonymous)
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+store.tsx:1008 Upload error: Error: Failed to upload 5.png
+    at Function.<anonymous> (chunk-4WERLP6U.js?v=30513cb9:2145:24)
+    at emitAll (chunk-4WERLP6U.js?v=30513cb9:80:19)
+    at Object.emit (chunk-4WERLP6U.js?v=30513cb9:25:11)
+    at _Uppy.emit (chunk-4WERLP6U.js?v=30513cb9:1089:60)
+    at @uppy_xhr-upload.js?v=30513cb9:764:25
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1008
+(anonymous) @ ObjectUploader.tsx:249
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+_informAndEmit2 @ chunk-4WERLP6U.js?v=30513cb9:1945
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2153
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:764
+await in (anonymous)
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+ObjectUploader.tsx:253 === ❌ UPPY UPLOAD ERROR EVENT START ===
+ObjectUploader.tsx:254 ERROR-1. File name: 5.png
+ObjectUploader.tsx:255 ERROR-2. Error object: NetworkError: This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+    at buildResponseError (@uppy_xhr-upload.js?v=30513cb9:599:13)
+    at @uppy_xhr-upload.js?v=30513cb9:762:33Caused by: NetworkError: This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+    at Object.getResponseError (@uppy_xhr-upload.js?v=30513cb9:632:15)
+    at @uppy_xhr-upload.js?v=30513cb9:762:71Caused by: Error: Upload error
+    at Object.getResponseError (@uppy_xhr-upload.js?v=30513cb9:630:17)
+    at @uppy_xhr-upload.js?v=30513cb9:762:71
+ObjectUploader.tsx:256 ERROR-3. Response object: undefined
+ObjectUploader.tsx:257 ERROR-4. Response status: undefined
+ObjectUploader.tsx:258 ERROR-5. Response statusText: undefined
+ObjectUploader.tsx:259 === 🏁 UPPY UPLOAD ERROR EVENT END ===
+store.tsx:1008 Upload error: NetworkError: This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+    at buildResponseError (@uppy_xhr-upload.js?v=30513cb9:599:13)
+    at @uppy_xhr-upload.js?v=30513cb9:762:33Caused by: NetworkError: This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+    at Object.getResponseError (@uppy_xhr-upload.js?v=30513cb9:632:15)
+    at @uppy_xhr-upload.js?v=30513cb9:762:71Caused by: Error: Upload error
+    at Object.getResponseError (@uppy_xhr-upload.js?v=30513cb9:630:17)
+    at @uppy_xhr-upload.js?v=30513cb9:762:71
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1008
+(anonymous) @ ObjectUploader.tsx:261
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:764
+await in (anonymous)
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+ObjectUploader.tsx:269 === 🏆 UPPY COMPLETE EVENT START ===
+ObjectUploader.tsx:270 COMPLETE-1. Complete result: {successful: Array(0), failed: Array(1), uploadID: 'J8RIjNDOSKR29XYDF3QiO'}
+ObjectUploader.tsx:271 COMPLETE-2. Result.successful length: 0
+ObjectUploader.tsx:272 COMPLETE-3. Result.failed length: 1
+ObjectUploader.tsx:275 COMPLETE-4. Failed files: [{…}]
+ObjectUploader.tsx:277 COMPLETE-5.0. Failed file: 5.png Error: This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+store.tsx:372 === 🏆 UPLOAD COMPLETE START ===
+store.tsx:375 ❌ Upload failed: {successful: Array(0), failed: Array(1), uploadID: 'J8RIjNDOSKR29XYDF3QiO'}
+overrideMethod @ hook.js:608
+handleUploadComplete @ store.tsx:375
+(anonymous) @ ObjectUploader.tsx:325
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2408
+await in _runUpload2
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+store.tsx:385 ❌ Failed file details: {source: 'Dashboard', id: 'uppy-5/png-1e-image/png-580168-1757438976123', name: '5.png', extension: 'png', meta: {…}, …}
+overrideMethod @ hook.js:608
+handleUploadComplete @ store.tsx:385
+(anonymous) @ ObjectUploader.tsx:325
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2408
+await in _runUpload2
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+ObjectUploader.tsx:331 === 🏁 UPPY COMPLETE EVENT END ===
+@uppy_xhr-upload.js?v=30513cb9:549  POST https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload net::ERR_CONNECTION_ABORTED
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:532
+setTimeout
+xhr.onerror @ @uppy_xhr-upload.js?v=30513cb9:531
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:532
+setTimeout
+xhr.onerror @ @uppy_xhr-upload.js?v=30513cb9:531
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:532
+setTimeout
+xhr.onerror @ @uppy_xhr-upload.js?v=30513cb9:531
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:549
+await in (anonymous)
+requestWithRetry @ @uppy_xhr-upload.js?v=30513cb9:504
+fetcher @ @uppy_xhr-upload.js?v=30513cb9:552
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:720
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:872
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:250
+_call2 @ @uppy_xhr-upload.js?v=30513cb9:332
+run @ @uppy_xhr-upload.js?v=30513cb9:214
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:246
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:245
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=30513cb9:888
+(anonymous) @ @uppy_xhr-upload.js?v=30513cb9:964
+_uploadFiles2 @ @uppy_xhr-upload.js?v=30513cb9:945
+value @ @uppy_xhr-upload.js?v=30513cb9:694
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2381
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+ObjectUploader.tsx:63 🔍 Probando conexión con: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload
+ObjectUploader.tsx:83 ✅ Test de endpoint exitoso: {success: true, objectName: '9f7732e4-7d5e-4f90-94b2-7defd6cc21aa-1757537896518.txt', url: '/objects/9f7732e4-7d5e-4f90-94b2-7defd6cc21aa-1757537896518.txt', uploadURL: 'http://54265a11-fa04-401e-930c-217e73aeda9a-00-1ke…2e4-7d5e-4f90-94b2-7defd6cc21aa-1757537896518.txt', location: '/objects/9f7732e4-7d5e-4f90-94b2-7defd6cc21aa-1757537896518.txt'}
+ObjectUploader.tsx:136 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:149 ✅ Dashboard ref is ready: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​434:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:151 🌐 Entorno detectado: Replit
+ObjectUploader.tsx:152 🌐 Protocol: https:
+ObjectUploader.tsx:153 🌐 Host: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:154 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:221 🎯 Initializing Dashboard with target: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​434:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:244 ✅ Dashboard initialized successfully
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
