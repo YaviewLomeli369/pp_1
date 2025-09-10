@@ -1,0 +1,42 @@
+Console was cleared
+undefined
+ObjectUploader.tsx:44 🌐 Protocol detected: https:
+ObjectUploader.tsx:45 🌐 Host detected: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:46 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:44 🌐 Protocol detected: https:
+ObjectUploader.tsx:45 🌐 Host detected: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:46 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:59 📁 Files ready to upload: 1
+ObjectUploader.tsx:68 📝 Cleaned filename: 5.png -> 5.png
+ObjectUploader.tsx:140 🚀 Upload started: 0 files
+ObjectUploader.tsx:168 === 🏆 UPPY COMPLETE EVENT START ===
+ObjectUploader.tsx:169 COMPLETE-1. Complete result: {successful: Array(0), failed: Array(0), uploadID: 'PHiUZNXEQwcWtLKPuz4mZ'}
+ObjectUploader.tsx:170 COMPLETE-2. Result.successful length: 0
+ObjectUploader.tsx:171 COMPLETE-3. Result.failed length: 0
+ObjectUploader.tsx:184 COMPLETE-9. Calling onComplete callback...
+store.tsx:370 === 🏆 UPLOAD COMPLETE START ===
+store.tsx:371 COMPLETE-1. Complete result: {
+  "successful": [],
+  "failed": [],
+  "uploadID": "PHiUZNXEQwcWtLKPuz4mZ"
+}
+store.tsx:487 ❌ Upload failed: {successful: Array(0), failed: Array(0), uploadID: 'PHiUZNXEQwcWtLKPuz4mZ'}failed: []successful: []uploadID: "PHiUZNXEQwcWtLKPuz4mZ"[[Prototype]]: Object
+overrideMethod @ hook.js:608
+handleUploadComplete @ store.tsx:487
+(anonymous) @ ObjectUploader.tsx:187
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2408
+await in _runUpload2
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this error
+store.tsx:506 === 🏁 UPLOAD COMPLETE END ===
+ObjectUploader.tsx:189 COMPLETE-10. Closing modal...
+ObjectUploader.tsx:194 === 🏁 UPPY COMPLETE EVENT END ===
+ObjectUploader.tsx:44 🌐 Protocol detected: https:
+ObjectUploader.tsx:45 🌐 Host detected: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:46 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
