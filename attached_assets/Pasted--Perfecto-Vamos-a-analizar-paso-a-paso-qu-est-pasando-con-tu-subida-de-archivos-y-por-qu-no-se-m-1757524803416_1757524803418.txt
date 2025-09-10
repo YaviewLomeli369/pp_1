@@ -1,0 +1,75 @@
+¡Perfecto! Vamos a analizar paso a paso qué está pasando con tu subida de archivos y por qué no se muestran correctamente. Te lo explico de forma clara, sin entrar aún en la solución completa:
+
+1️⃣ Subida del archivo
+
+Cuando subes un archivo con Uppy:
+
+✅ Upload successful: bg.png 200
+
+
+El archivo llega al backend y se guarda en tu carpeta uploads con un nombre generado único, por ejemplo:
+
+572a64a7-83fc-483b-b11e-78a13d0715dc-1757523824031.upload-1757523824031
+
+
+Uppy devuelve un objeto con info del archivo, incluyendo uploadURL y objectName.
+
+2️⃣ Backend guarda el archivo
+
+En tu servidor Express o Node:
+
+El archivo se guarda físicamente en uploads/.
+
+Pero solo está en el disco, no necesariamente accesible públicamente todavía.
+
+La URL que devuelve Uppy es algo como:
+
+/objects/572a64a7-83fc-483b-b11e-78a13d0715dc-1757523824031.upload-1757523824031
+
+
+Esto es un path relativo, que tu frontend intentará cargar desde la raíz del dominio.
+
+3️⃣ Frontend intenta mostrar la imagen
+
+En tu React:
+
+<img src="/objects/572a64a7-83fc-483b-b11e-78a13d0715dc-1757523824031.upload-1757523824031" />
+
+
+El problema principal aquí es:
+
+El servidor no está sirviendo la carpeta uploads como pública.
+
+Por eso React recibe un 404.
+
+/objects/... no apunta a ningún archivo accesible desde la web.
+
+El path es relativo (/objects/...) y depende de que Express tenga un express.static() configurado para esa carpeta.
+
+Sin eso, el navegador nunca encontrará la imagen.
+
+4️⃣ Guardar la URL en la base de datos
+
+Cuando haces:
+
+PUT /api/store/products/8ca0bcfe-86e8-4d01-abe3-c129d92e8c2c
+body: { images: ["/objects/572a64a7-83fc-483b-b11e-78a13d0715dc-1757523824031.upload-1757523824031"] }
+
+
+La base de datos sí guarda la cadena de texto que representa la URL.
+
+Pero el frontend intenta usar esa URL para mostrar la imagen y da 404 porque el archivo no está siendo servido públicamente.
+
+🔑 Conclusión de lo que está pasando
+
+El archivo se sube correctamente → está en uploads/.
+
+La base de datos guarda la URL relativa correctamente → sí, se almacena.
+
+El navegador no puede acceder a esa URL → porque Express no está configurado para servir /uploads como /objects.
+
+Por eso ves un 404 cuando intentas mostrar la imagen.
+
+En otras palabras:
+
+El archivo existe, la URL está guardada, pero el servidor no lo está entregando al navegador.
