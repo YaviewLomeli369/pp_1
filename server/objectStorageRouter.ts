@@ -193,6 +193,101 @@ router.put("/objects/:name", async (req, res) => {
   }
 });
 
+// POST /api/objects/direct-upload/upload - Direct file upload for Uppy
+router.post("/api/objects/direct-upload/upload", (req, res) => {
+  try {
+    console.log('📸 Direct upload endpoint called');
+    
+    let body: Buffer[] = [];
+    let totalSize = 0;
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    req.on('data', (chunk: Buffer) => {
+      totalSize += chunk.length;
+      if (totalSize > maxSize) {
+        return res.status(413).json({ success: false, error: 'File too large' });
+      }
+      body.push(chunk);
+    });
+
+    req.on('end', async () => {
+      try {
+        const fileBuffer = Buffer.concat(body);
+        console.log(`📁 Received file: ${fileBuffer.length} bytes`);
+
+        // Get original filename from headers
+        const originalFilename = req.headers['x-filename'] || req.headers['x-original-filename'] || 'upload.jpg';
+        console.log(`📝 Original filename: ${originalFilename}`);
+
+        // Generate unique filename
+        const ext = path.extname(String(originalFilename)).toLowerCase() || '.jpg';
+        const uniqueName = `${uuidv4()}-${Date.now()}${ext}`;
+        const filePath = path.join(uploadsDir, uniqueName);
+
+        // Process image with Sharp if it's an image
+        let processedBuffer = fileBuffer;
+        if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'].includes(ext)) {
+          try {
+            const imageInfo = await sharp(fileBuffer).metadata();
+            console.log(`📸 Image metadata:`, {
+              format: imageInfo.format,
+              width: imageInfo.width,
+              height: imageInfo.height
+            });
+
+            // Resize if too large and optimize
+            if (imageInfo.width && imageInfo.width > 1920) {
+              processedBuffer = await sharp(fileBuffer)
+                .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                .jpeg({ quality: 85 })
+                .toBuffer();
+            } else {
+              processedBuffer = await sharp(fileBuffer)
+                .jpeg({ quality: 85 })
+                .toBuffer();
+            }
+          } catch (sharpError) {
+            console.log('⚠️ Sharp processing failed, using original:', sharpError);
+            processedBuffer = fileBuffer;
+          }
+        }
+
+        // Save file
+        fs.writeFileSync(filePath, processedBuffer);
+        console.log(`✅ File saved: ${uniqueName}, size: ${processedBuffer.length} bytes`);
+
+        // Generate URLs
+        const protocol = req.get('x-forwarded-proto') || req.protocol;
+        const host = req.get("host");
+        const secureProtocol = protocol === 'https' || host?.includes('replit.dev') ? 'https' : protocol;
+        const publicUrl = `/objects/${uniqueName}`;
+        const fullUrl = `${secureProtocol}://${host}${publicUrl}`;
+
+        return res.status(200).json({
+          success: true,
+          url: publicUrl,
+          location: publicUrl,
+          uploadURL: fullUrl,
+          objectName: uniqueName
+        });
+
+      } catch (error) {
+        console.error('❌ Upload processing error:', error);
+        return res.status(500).json({ success: false, error: 'Upload failed' });
+      }
+    });
+
+    req.on('error', (error) => {
+      console.error('❌ Request error:', error);
+      return res.status(500).json({ success: false, error: 'Request failed' });
+    });
+
+  } catch (error) {
+    console.error('❌ Direct upload error:', error);
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 // Servir archivos: /objects/<objectName> -> uploads/<objectName>
 router.use("/objects", express.static(uploadsDir, { 
   dotfiles: "deny", 

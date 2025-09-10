@@ -50,38 +50,30 @@ export default function ObjectUploader({
   // Función para probar la conexión
   const testConnection = async (): Promise<boolean> => {
     try {
-      console.log('🔍 Testing connection to:', `${BASE_URL}/api/objects/upload`);
+      console.log('🔍 Testing connection and auth');
       
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("auth_token");
       if (!token) {
         throw new Error('No authentication token found. Please log in.');
       }
 
-      const testResponse = await fetch(`${BASE_URL}/api/objects/upload`, {
-        method: 'POST',
+      // Simple auth test
+      const testResponse = await fetch(`${BASE_URL}/api/auth/me`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ filename: 'test-connection.jpg' }),
       });
 
       if (!testResponse.ok) {
         if (testResponse.status === 401) {
           throw new Error('Authentication failed. Please log in again.');
-        } else if (testResponse.status === 502) {
-          throw new Error('Server is temporarily unavailable. Please try again in a moment.');
-        } else if (testResponse.status >= 500) {
-          throw new Error('Server error. Please try again later.');
         } else {
-          throw new Error(`Connection failed: ${testResponse.status} ${testResponse.statusText}`);
+          throw new Error(`Connection failed: ${testResponse.status}`);
         }
       }
 
-      const testData = await testResponse.json();
-      console.log('✅ Connection test successful:', testData);
-      
+      console.log('✅ Connection and auth successful');
       return true;
     } catch (err) {
       console.error('❌ Connection test failed:', err);
@@ -167,13 +159,13 @@ export default function ObjectUploader({
           id: 'XHRUpload',
           endpoint: `${BASE_URL}/api/objects/direct-upload/upload`,
           method: 'POST',
+          fieldName: 'file',
           headers: (file) => {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("auth_token");
             return {
               'Authorization': token ? `Bearer ${token}` : '',
-              'X-Original-Filename': file.name,
               'X-Filename': file.name,
-              'Content-Type': file.type || 'application/octet-stream',
+              'X-Original-Filename': file.name,
             };
           },
           timeout: 60 * 1000, // 60 segundos

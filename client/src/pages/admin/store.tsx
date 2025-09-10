@@ -103,12 +103,12 @@ function AdminStoreContent() {
       images: Array.isArray(product.images) 
         ? product.images.map(imgUrl => {
             if (typeof imgUrl !== 'string') return imgUrl;
-            
+
             // Handle object URLs that already start with /objects/
             if (imgUrl.startsWith('/objects/')) {
               return imgUrl;
             }
-            
+
             // Handle full URLs by extracting the path
             if (imgUrl.startsWith('http')) {
               try {
@@ -120,12 +120,12 @@ function AdminStoreContent() {
                 console.warn('Invalid URL:', imgUrl);
               }
             }
-            
+
             // Handle relative paths - prepend /objects/ if not present
             if (!imgUrl.startsWith('/')) {
               return `/objects/${imgUrl}`;
             }
-            
+
             return imgUrl;
           })
         : product.images
@@ -395,7 +395,6 @@ function AdminStoreContent() {
 
     const file = result.successful[0];
     console.log("COMPLETE-1. File name:", file?.name);
-    console.log("COMPLETE-2. File.uploadURL:", file?.uploadURL);
     console.log("COMPLETE-3. File.response:", file?.response);
 
     if (file?.response?.error) {
@@ -408,18 +407,20 @@ function AdminStoreContent() {
       return;
     }
 
-    // ✅ Obtener URL real que funciona
-    const imageURL: string | null =
-      (file.response?.body as any)?.url ||
-      (file.response?.body as any)?.location ||
-      (file.response?.body as any)?.relativePath ||
-      file.uploadURL ||
-      file.response?.url ||
-      file.response?.location ||
-      null;
+    // Extraer URL de la primera imagen exitosa
+    const firstSuccessfulFile = result.successful[0];
+    const serverResponse = firstSuccessfulFile?.response?.body || {};
+
+    console.log("COMPLETE-2. Server response:", serverResponse);
+
+    // Try different response properties
+    const imageURL = serverResponse.url || 
+                     serverResponse.location || 
+                     serverResponse.uploadURL ||
+                     null;
 
     if (!imageURL) {
-      console.error("❌ No se encontró ninguna URL en la respuesta");
+      console.error("❌ No se encontró ninguna URL en la respuesta", serverResponse);
       toast({
         title: "Error al subir imagen",
         description: "No se encontró URL válida en la respuesta del servidor",
@@ -428,7 +429,6 @@ function AdminStoreContent() {
       return;
     }
 
-    // 🔹 Usar URL tal cual, sin cambiar nombres
     const finalURL = imageURL.trim();
     console.log("COMPLETE-4. ✅ Final URL:", finalURL);
 
