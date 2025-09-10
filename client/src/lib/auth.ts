@@ -3,11 +3,16 @@ import { User } from "@shared/schema";
 const AUTH_TOKEN_KEY = "auth_token";
 
 export function getAuthToken(): string | null {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  const token = localStorage.getItem("token");
+  console.log('🔍 Retrieved auth token:', token ? token.substring(0, 10) + '...' : 'NO TOKEN');
+  return token;
 }
 
 export function setAuthToken(token: string): void {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  console.log('🔐 Storing auth token:', token.substring(0, 10) + '...');
+  localStorage.setItem("token", token);
+  // Also store with alternative key for compatibility
+  localStorage.setItem("authToken", token);
 }
 
 export function removeAuthToken(): void {
