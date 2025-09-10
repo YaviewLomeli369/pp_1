@@ -63,12 +63,33 @@ export class ObjectStorageService {
 
   async handleDirectUpload(objectId: string, fileBuffer: Buffer, originalFilename: string): Promise<string> {
     try {
-      // Extract file extension and create clean filename
-      const extension = originalFilename.split('.').pop()?.toLowerCase() || '';
-      const timestamp = Date.now();
-      const objectName = `${objectId}-${timestamp}.${extension}`;
+      // Extract file extension properly
+      let extension = '';
+      const lastDotIndex = originalFilename.lastIndexOf('.');
+      if (lastDotIndex > 0) {
+        extension = originalFilename.substring(lastDotIndex).toLowerCase();
+      }
+      
+      // If no extension found, try to detect from buffer
+      if (!extension) {
+        const header = fileBuffer.toString('hex', 0, 4);
+        if (header.startsWith('ffd8ff')) {
+          extension = '.jpg';
+        } else if (header.startsWith('89504e47')) {
+          extension = '.png';
+        } else if (header.startsWith('47494638')) {
+          extension = '.gif';
+        } else if (header.startsWith('52494646') && fileBuffer.toString('ascii', 8, 12) === 'WEBP') {
+          extension = '.webp';
+        } else {
+          extension = '.jpg'; // Default fallback
+        }
+      }
 
-      console.log(`Creating object name: ${objectName} from original: ${originalFilename}`);
+      const timestamp = Date.now();
+      const objectName = `${objectId}-${timestamp}${extension}`;
+
+      console.log(`Creating object name: ${objectName} from original: ${originalFilename}, extension: ${extension}`);
 
       // Create uploads directory if it doesn't exist
       const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -151,7 +172,23 @@ export class ObjectStorageService {
         '.tif': 'image/tiff'
       };
       
-      const contentType = contentTypes[ext] || 'application/octet-stream';
+      let contentType = contentTypes[ext];
+      
+      // If no extension or unknown extension, try to detect from file content
+      if (!contentType) {
+        const header = data.toString('hex', 0, 4);
+        if (header.startsWith('ffd8ff')) {
+          contentType = 'image/jpeg';
+        } else if (header.startsWith('89504e47')) {
+          contentType = 'image/png';
+        } else if (header.startsWith('47494638')) {
+          contentType = 'image/gif';
+        } else if (data.length > 12 && header.startsWith('52494646') && data.toString('ascii', 8, 12) === 'WEBP') {
+          contentType = 'image/webp';
+        } else {
+          contentType = 'application/octet-stream';
+        }
+      }
       
       // Set proper headers for images
       res.setHeader('Content-Type', contentType);
