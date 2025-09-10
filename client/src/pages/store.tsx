@@ -23,6 +23,108 @@ import { useToast } from "@/hooks/use-toast";
 import AnimatedSection from "@/components/AnimatedSection";
 import { Spinner } from "@/components/ui/spinner";
 
+/**
+ * Helper: resolveImageUrl
+ * - Convierte distintas formas de image identifiers en URLs absolutas.
+ * - Maneja:
+ *    - URLs absolutas (http/https) => devueltas tal cual
+ *    - '/objects/...' => origin + path
+ *    - '/api/objects/direct-upload/<id>' => origin + '/objects/<id>'
+ *    - 'somefile' o 'id' => origin + '/objects/<value>'
+ */
+const resolveImageUrl = (img?: string | null) => {
+  if (!img) return "";
+  if (typeof window === "undefined") return img; // SSR-safety
+
+  const origin = window.location.origin;
+
+  // If already absolute
+  if (img.startsWith("http://") || img.startsWith("https://")) return img;
+
+  // direct-upload special case
+  if (img.includes("/api/objects/direct-upload/")) {
+    const objectId = img.split("/api/objects/direct-upload/")[1] || "";
+    return `${origin}/objects/${objectId}`;
+  }
+
+  // If already an objects path
+  if (img.startsWith("/objects/")) {
+    return `${origin}${img}`;
+  }
+
+  // Absolute relative (leading slash)
+  if (img.startsWith("/")) {
+    return `${origin}${img}`;
+  }
+
+  // Otherwise treat as bare object name or relative path
+  return `${origin}/objects/${img}`;
+};
+
+/**
+ * ImageWithRetry component
+ * - Intenta cargar la URL resuelta, si falla prueba variantes:
+ *    1. base
+ *    2. base + '?download=true'
+ *    3. base + '?raw=true'
+ * - Si al final falla, hace console.error con todos los intentos.
+ */
+function ImageWithRetry({
+  src,
+  alt,
+  className,
+  style,
+}: {
+  src?: string | null;
+  alt?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const [attempt, setAttempt] = useState(0);
+  const base = useMemo(() => resolveImageUrl(src), [src]);
+
+  const attempts = useMemo(() => {
+    if (!base) return [""];
+    // Avoid duplicate query strings if base already has '?'
+    const sep = base.includes("?") ? "&" : "?";
+    return [base, `${base}${sep}download=true`, `${base}${sep}raw=true`];
+  }, [base]);
+
+  useEffect(() => {
+    // reset attempt when src changes
+    setAttempt(0);
+  }, [base]);
+
+  useEffect(() => {
+    // nothing to do here besides updating the <img> src via attempt index
+  }, [attempt, attempts]);
+
+  // current attempt url
+  const currentSrc = attempts[Math.min(attempt, attempts.length - 1)] || "";
+
+  return (
+    // eslint-disable-next-line jsx-a11y/alt-text
+    <img
+      src={currentSrc}
+      alt={alt}
+      className={className}
+      style={style}
+      onError={() => {
+        // If there are more attempts, try next one
+        setAttempt((a) => {
+          const next = a + 1;
+          if (next >= attempts.length) {
+            // final failure - log all attempts
+            console.error("❌ Image failed to load after retries. Attempts:", attempts);
+            return attempts.length - 1;
+          }
+          return next;
+        });
+      }}
+    />
+  );
+}
+
 export default function Store() {
   // ✅ ALL HOOKS MUST BE AT THE TOP - NO CONDITIONAL EXECUTION
   const [location, setLocation] = useLocation();
@@ -529,31 +631,10 @@ export default function Store() {
                 >
                   <div className="relative">
                     {product.images?.[0] && (
-                      <img
-                        src={(() => {
-                          const imgUrl = product.images[0];
-                          // Convert upload URLs to serving URLs
-                          if (imgUrl.includes('/api/objects/direct-upload/')) {
-                            const objectId = imgUrl.split('/api/objects/direct-upload/')[1];
-                            return `/objects/${objectId}`;
-                          }
-                          // Handle normal object URLs
-                          if (imgUrl.startsWith('/objects/')) {
-                            return imgUrl;
-                          }
-                          // Handle relative paths
-                          if (!imgUrl.startsWith('http') && !imgUrl.startsWith('/')) {
-                            return `/objects/${imgUrl}`;
-                          }
-                          return imgUrl;
-                        })()}
+                      <ImageWithRetry
+                        src={product.images[0]}
                         alt={product.name}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          console.error('Image failed to load:', product.images[0]);
-                          console.error('Attempted URL:', e.currentTarget.src);
-                          e.currentTarget.style.display = 'none';
-                        }}
                       />
                     )}
                     {product.stock !== null && product.stock <= 5 && product.stock > 0 && (
@@ -622,27 +703,11 @@ export default function Store() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-4">
                   {selectedProduct.images?.map((img, idx) => (
-                    <img key={idx} src={(() => {
-                      // Convert upload URLs to serving URLs
-                      if (img.includes('/api/objects/direct-upload/')) {
-                        const objectId = img.split('/api/objects/direct-upload/')[1];
-                        return `/objects/${objectId}`;
-                      }
-                      // Handle normal object URLs
-                      if (img.startsWith('/objects/')) {
-                        return img;
-                      }
-                      // Handle relative paths
-                      if (!img.startsWith('http') && !img.startsWith('/')) {
-                        return `/objects/${img}`;
-                      }
-                      return img;
-                    })()} alt={`${selectedProduct.name} ${idx + 1}`} className="w-full h-64 object-cover rounded-lg" 
-                      onError={(e) => {
-                        console.error('❌ Image preview failed to load:', img);
-                        console.error('Attempted URL:', e.currentTarget.src);
-                        e.currentTarget.style.display = 'none';
-                      }}
+                    <ImageWithRetry
+                      key={idx}
+                      src={img}
+                      alt={`${selectedProduct.name} ${idx + 1}`}
+                      className="w-full h-64 object-cover rounded-lg"
                     />
                   ))}
                 </div>
