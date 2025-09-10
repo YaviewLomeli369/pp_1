@@ -1,0 +1,103 @@
+detección de entorno (Replit dev o VPS), protocolo HTTP/HTTPS, CORS, subida segura de archivos y prueba previa con archivo dummy para evitar abortos.
+
+// Archivo: uppy-auto.ts
+import Uppy from '@uppy/core';
+import XHRUpload from '@uppy/xhr-upload';
+import Dashboard from '@uppy/dashboard';
+
+// Detectar entorno automáticamente
+const isReplit = window.location.hostname.includes('replit');
+const PROTOCOL = window.location.protocol; // http: o https:
+const HOST = window.location.hostname;
+const PORT = window.location.port;
+const BASE_URL = PROTOCOL + '//' + HOST + (PORT ? ':' + PORT : '');
+
+// Crear Uppy
+const uppy = new Uppy({
+  autoProceed: true,
+  restrictions: {
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    allowedFileTypes: ['image/*', 'application/pdf'],
+    maxNumberOfFiles: 5,
+  },
+})
+  .use(Dashboard, {
+    inline: true,
+    target: '#drag-drop-area',
+    showProgressDetails: true,
+  })
+  .use(XHRUpload, {
+    endpoint: `${BASE_URL}/api/objects/upload`,
+    method: 'POST',
+    formData: true,
+    fieldName: 'file',
+    headers: {},
+    getResponseError(responseText, xhr) {
+      if (xhr.status >= 400) {
+        return new Error(`Error de upload: ${xhr.status} ${xhr.statusText}`);
+      }
+    },
+  });
+
+// Función para probar la conexión antes de subir archivos reales
+const testUpload = async () => {
+  try {
+    const blob = new Blob(['Test upload'], { type: 'text/plain' });
+    const formData = new FormData();
+    formData.append('file', blob, 'test.txt');
+
+    const res = await fetch(`${BASE_URL}/api/objects/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error('Test upload falló');
+    console.log('✅ Test upload exitoso. Subidas reales activadas.');
+  } catch (err) {
+    console.error('❌ Test upload falló. Verifica tu endpoint y CORS.', err);
+    // Desactivar Uppy si falla la prueba
+    uppy.cancelAll();
+  }
+};
+
+// Ejecutar test antes de permitir subir
+testUpload();
+
+// Manejo de eventos
+uppy.on('upload-success', (file, response) => {
+  console.log('✅ Archivo subido con éxito:', file.name, response);
+});
+
+uppy.on('upload-error', (file, error, response) => {
+  console.error('❌ Falló upload:', file.name, error, response);
+});
+
+uppy.on('error', (error) => {
+  console.error('❌ Uppy ERROR:', error);
+});
+
+export default uppy;
+
+🔹 Recomendaciones para el backend Express.js
+import express from 'express';
+import multer from 'multer';
+const app = express();
+const upload = multer({ dest: 'uploads/' });
+
+// Middleware CORS
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Cambiar a tu dominio en producción
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.sendStatus(200);
+  next();
+});
+
+app.post('/api/objects/upload', upload.single('file'), (req, res) => {
+  console.log('Archivo recibido:', req.file);
+  res.json({ success: true, file: req.file.filename });
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Servidor listo en puerto', process.env.PORT || 3000);
+});
