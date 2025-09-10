@@ -21,10 +21,11 @@ router.post("/api/objects/upload", express.json(), (req, res) => {
     // URL relativa pública (servida por express.static más abajo)
     const relativeUrl = `/objects/${objectName}`;
     
-    // Asegurar protocolo consistente - usar el mismo protocolo del request
-    const protocol = req.protocol;
+    // Asegurar protocolo consistente - forzar HTTPS en Replit
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
     const host = req.get("host");
-    const uploadURL = `${protocol}://${host}${relativeUrl}`;
+    const secureProtocol = protocol === 'https' || host?.includes('replit.dev') ? 'https' : protocol;
+    const uploadURL = `${secureProtocol}://${host}${relativeUrl}`;
 
     console.log(`✅ Generated upload params: objectName=${objectName}, uploadURL=${uploadURL}, protocol=${protocol}`);
 

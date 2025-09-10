@@ -36,12 +36,15 @@ export default function ObjectUploader({
   const [connectionStatus, setConnectionStatus] = useState<'testing' | 'ready' | 'error'>('testing');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Detectar entorno automáticamente
+  // Detectar entorno automáticamente y forzar HTTPS en Replit
   const isReplit = window.location.hostname.includes('replit');
   const PROTOCOL = window.location.protocol;
   const HOST = window.location.hostname;
   const PORT = window.location.port;
-  const BASE_URL = PROTOCOL + '//' + HOST + (PORT ? ':' + PORT : '');
+  
+  // En Replit siempre usar HTTPS para evitar mixed content
+  const SECURE_PROTOCOL = isReplit ? 'https:' : PROTOCOL;
+  const BASE_URL = SECURE_PROTOCOL + '//' + HOST + (PORT && !isReplit ? ':' + PORT : '');
 
   // Mocking functions for compilation
   const selectedProduct = null;
@@ -66,11 +69,13 @@ export default function ObjectUploader({
       const blob = new Blob(['Test upload connection'], { type: 'text/plain' });
       
       // Probar primero el endpoint de generación de parámetros
+      const token = localStorage.getItem("token");
       const testResponse = await fetch(`${BASE_URL}/api/objects/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ filename: 'test-connection.txt' }),
       });
@@ -179,11 +184,13 @@ export default function ObjectUploader({
             try {
               console.log('🔄 Getting upload parameters for:', file.name);
               
+              const token = localStorage.getItem("token");
               const response = await fetch(`${BASE_URL}/api/objects/upload`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                   'Accept': 'application/json',
+                  ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
                 },
                 body: JSON.stringify({ filename: file.name }),
               });

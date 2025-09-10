@@ -30,6 +30,7 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
+import crypto from 'crypto';
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -2130,7 +2131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get upload URL for objects
-  app.post("/api/objects/upload", async (req, res) => {
+  app.post("/api/objects/upload", requireAuth, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
 
@@ -2385,7 +2386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // =================== OBJECT STORAGE ROUTES ===================
 
   // Object storage upload endpoint
-  app.post("/api/objects/upload", async (req, res) => {
+  app.post("/api/objects/upload", requireAuth, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -2760,7 +2761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  
+
 
   // Email Configuration endpoints
   app.get("/api/email/config", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
