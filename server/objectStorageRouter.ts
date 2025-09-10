@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
+import multer from "multer";
 
 const router = express.Router();
 
@@ -229,10 +230,132 @@ router.put("/objects/:name", async (req, res) => {
 });
 
 // POST /api/objects/direct-upload/upload - Direct file upload for Uppy
-router.post("/api/objects/direct-upload/upload", (req, res) => {
+router.post("/api/objects/direct-upload/upload", async (req, res) => {
   try {
     console.log('📸 Direct upload endpoint called');
+    console.log('📋 Headers:', req.headers);
+    console.log('📋 Content-Type:', req.headers['content-type']);
     
+    const contentType = req.headers['content-type'] || '';
+    
+    // Handle multipart form data
+    if (contentType.includes('multipart/form-data')) {
+      const multer = require('multer');
+      const upload = multer({ 
+        storage: multer.memoryStorage(),
+        limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+      });
+      
+      const uploadSingle = upload.single('file');
+      
+      uploadSingle(req, res, async (err) => {
+        if (err) {
+          console.error('❌ Multer error:', err);
+          return res.status(500).json({ success: false, error: 'Upload failed' });
+        }
+        
+        if (!req.file) {
+          console.error('❌ No file received');
+          return res.status(400).json({ success: false, error: 'No file received' });
+        }
+        
+        try {
+          const fileBuffer = req.file.buffer;
+          const originalFilename = req.file.originalname || 'upload.jpg';
+          
+          console.log(`📁 Received file: ${fileBuffer.length} bytes`);
+          console.log(`📝 Original filename: ${originalFilename}`);
+          console.log(`🔍 File header: ${fileBuffer.slice(0, 16).toString('hex')}`);
+          
+          // Generate unique filename
+          const ext = path.extname(String(originalFilename)).toLowerCase() || '.jpg';
+          const uniqueName = `${uuidv4()}-${Date.now()}${ext}`;
+          const filePath = path.join(uploadsDir, uniqueName);
+          
+          // Process image with Sharp if it's an image
+          let processedBuffer = fileBuffer;
+          if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'].includes(ext)) {
+            try {
+              // Validate that it's actually an image by reading metadata
+              const imageInfo = await sharp(fileBuffer).metadata();
+              console.log(`📸 Image metadata:`, {
+                format: imageInfo.format,
+                width: imageInfo.width,
+                height: imageInfo.height,
+                size: imageInfo.size
+              });
+              
+              // Only process if Sharp can read the image
+              if (imageInfo.format) {
+                // Resize if too large and optimize based on format
+                if (imageInfo.width && imageInfo.width > 1920) {
+                  if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
+                    processedBuffer = await sharp(fileBuffer)
+                      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                      .jpeg({ quality: 85 })
+                      .toBuffer();
+                  } else if (imageInfo.format === 'png') {
+                    processedBuffer = await sharp(fileBuffer)
+                      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                      .png({ compressionLevel: 6 })
+                      .toBuffer();
+                  } else {
+                    // For other formats, just resize without changing format
+                    processedBuffer = await sharp(fileBuffer)
+                      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                      .toBuffer();
+                  }
+                } else {
+                  // Just optimize without resizing
+                  if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
+                    processedBuffer = await sharp(fileBuffer)
+                      .jpeg({ quality: 85 })
+                      .toBuffer();
+                  } else if (imageInfo.format === 'png') {
+                    processedBuffer = await sharp(fileBuffer)
+                      .png({ compressionLevel: 6 })
+                      .toBuffer();
+                  } else {
+                    processedBuffer = fileBuffer; // Keep original for other formats
+                  }
+                }
+                console.log(`✅ Image processed successfully, size: ${processedBuffer.length} bytes`);
+              }
+            } catch (sharpError) {
+              console.log('⚠️ Sharp processing failed, using original:', sharpError.message);
+              processedBuffer = fileBuffer;
+            }
+          }
+          
+          // Save file
+          fs.writeFileSync(filePath, processedBuffer);
+          console.log(`✅ File saved: ${uniqueName}, size: ${processedBuffer.length} bytes`);
+          
+          // Generate URLs
+          const protocol = req.get('x-forwarded-proto') || req.protocol;
+          const host = req.get("host");
+          const secureProtocol = protocol === 'https' || host?.includes('replit.dev') ? 'https' : protocol;
+          const publicUrl = `/objects/${uniqueName}`;
+          const fullUrl = `${secureProtocol}://${host}${publicUrl}`;
+          
+          return res.status(200).json({
+            success: true,
+            url: publicUrl,
+            location: publicUrl,
+            uploadURL: fullUrl,
+            objectName: uniqueName
+          });
+          
+        } catch (error) {
+          console.error('❌ File processing error:', error);
+          return res.status(500).json({ success: false, error: 'File processing failed' });
+        }
+      });
+      
+      return; // Exit here for multipart handling
+    }
+    
+    // Handle raw binary data (original logic)
     let body: Buffer[] = [];
     let totalSize = 0;
     const maxSize = 10 * 1024 * 1024; // 10MB
@@ -255,10 +378,6 @@ router.post("/api/objects/direct-upload/upload", (req, res) => {
           throw new Error('Empty file received');
         }
 
-        if (fileBuffer.length > maxSize) {
-          throw new Error('File too large');
-        }
-
         // Get original filename from headers
         const originalFilename = req.headers['x-filename'] || req.headers['x-original-filename'] || 'upload.jpg';
         console.log(`📝 Original filename: ${originalFilename}`);
@@ -271,116 +390,9 @@ router.post("/api/objects/direct-upload/upload", (req, res) => {
         const uniqueName = `${uuidv4()}-${Date.now()}${ext}`;
         const filePath = path.join(uploadsDir, uniqueName);
 
-        // Process image with Sharp if it's an image
-        let processedBuffer = fileBuffer;
-        if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'].includes(ext)) {
-          try {
-            // Validate that it's actually an image by reading metadata
-            const imageInfo = await sharp(fileBuffer).metadata();
-            console.log(`📸 Image metadata:`, {
-              format: imageInfo.format,
-              width: imageInfo.width,
-              height: imageInfo.height,
-              size: imageInfo.size
-            });
-
-            // Only process if Sharp can read the image
-            if (imageInfo.format) {
-              // Resize if too large and optimize based on format
-              if (imageInfo.width && imageInfo.width > 1920) {
-                if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
-                  processedBuffer = await sharp(fileBuffer)
-                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-                    .jpeg({ quality: 85 })
-                    .toBuffer();
-                } else if (imageInfo.format === 'png') {
-                  processedBuffer = await sharp(fileBuffer)
-                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-                    .png({ compressionLevel: 6 })
-                    .toBuffer();
-                } else {
-                  // For other formats, just resize without changing format
-                  processedBuffer = await sharp(fileBuffer)
-                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-                    .toBuffer();
-                }
-              } else {
-                // Just optimize without resizing
-                if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
-                  processedBuffer = await sharp(fileBuffer)
-                    .jpeg({ quality: 85 })
-                    .toBuffer();
-                } else if (imageInfo.format === 'png') {
-                  processedBuffer = await sharp(fileBuffer)
-                    .png({ compressionLevel: 6 })
-                    .toBuffer();
-                } else {
-                  processedBuffer = fileBuffer; // Keep original for other formats
-                }
-              }
-              console.log(`✅ Image processed successfully, size: ${processedBuffer.length} bytes`);
-            } else {
-              console.log('⚠️ No valid image format detected, using original file');
-              processedBuffer = fileBuffer;
-            }
-          } catch (sharpError) {
-            console.log('⚠️ Sharp processing failed:', sharpError.message);
-            console.log('📊 File buffer info:', {
-              length: fileBuffer.length,
-              firstBytes: fileBuffer.slice(0, 16).toString('hex'),
-              isBuffer: Buffer.isBuffer(fileBuffer)
-            });
-            
-            // Validate that we have a proper image buffer before falling back
-            if (fileBuffer.length < 100) {
-              throw new Error('File buffer too small, likely corrupted');
-            }
-            
-            // Check for basic image headers
-            const header = fileBuffer.slice(0, 8).toString('hex');
-            const isPNG = header.startsWith('89504e47');
-            const isJPEG = header.startsWith('ffd8ff');
-            const isGIF = header.startsWith('47494638');
-            const isWEBP = header.includes('57454250');
-            
-            if (!isPNG && !isJPEG && !isGIF && !isWEBP) {
-              console.error('❌ Invalid image format detected, header:', header);
-              throw new Error('Invalid image format');
-            }
-            
-            console.log('✅ Image format validated, using original file');
-            processedBuffer = fileBuffer;
-          }
-        } else {
-          console.log(`📄 Non-image file detected: ${ext}, using original`);
-        }
-
-        // Save file
-        fs.writeFileSync(filePath, processedBuffer);
-        console.log(`✅ File saved: ${uniqueName}, size: ${processedBuffer.length} bytes`);
-
-        // Verify file was written correctly
-        if (!fs.existsSync(filePath)) {
-          throw new Error('File was not created successfully');
-        }
-
-        const savedFileStats = fs.statSync(filePath);
-        console.log(`✅ File verified: actual size on disk: ${savedFileStats.size} bytes`);
-        
-        if (savedFileStats.size !== processedBuffer.length) {
-          console.warn(`⚠️ Size mismatch: expected ${processedBuffer.length}, got ${savedFileStats.size}`);
-        }
-
-        // For PNG files, do a quick header check
-        if (ext === '.png') {
-          const savedBuffer = fs.readFileSync(filePath, { start: 0, end: 8 });
-          const savedHeader = savedBuffer.toString('hex');
-          if (!savedHeader.startsWith('89504e47')) {
-            console.error(`❌ Saved PNG file has invalid header: ${savedHeader}`);
-            throw new Error('Saved PNG file appears to be corrupted');
-          }
-          console.log(`✅ PNG header verified: ${savedHeader}`);
-        }
+        // Save file directly without processing for raw uploads
+        fs.writeFileSync(filePath, fileBuffer);
+        console.log(`✅ File saved: ${uniqueName}, size: ${fileBuffer.length} bytes`);
 
         // Generate URLs
         const protocol = req.get('x-forwarded-proto') || req.protocol;
