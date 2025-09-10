@@ -1,0 +1,89 @@
+1️⃣ PROBLEMAS DE FRONTEND (React + Uppy)
+Problema	Señales / Sintomas	Causas posibles	Diagnóstico	Solución
+Imagen no se muestra	<img> vacío o broken link	URL incorrecta, no se guarda en estado	Revisar console.log(imageUrl)	Usar URL absoluta devuelta por backend, guardar correctamente en state
+React no re-renderiza	Imagen no aparece tras subir	setState no llamado o mal manejado	Revisar hooks / estado	setImageUrl(uploadedUrl) después de subir
+Cache del navegador	Imagen antigua se sigue mostrando	Nombre de archivo repetido	Cambiar imagen y sigue apareciendo vieja	Añadir timestamp o hash al nombre: file-${Date.now()}.png
+CSS invisible	<img> renderiza pero no se ve	CSS: display:none, width:0, opacity:0	Revisar devtools	Ajustar estilos o clases
+Error Mixed Content	Navegador bloquea imagen	URL HTTP en frontend HTTPS	Console: Mixed Content	Generar URL con mismo protocolo que frontend
+Uppy no envía imagen	result.successful vacío	Configuración XHRUpload incorrecta, token faltante	Revisar eventos upload-error o complete	Verificar endpoint, headers, fieldName, autoProceed
+Subida interrumpida	Imagen parcial o error de red	Conexión inestable, CORS mal configurado	Console network	Habilitar retry, revisar CORS
+Imagen no aparece en listas dinámicas	React map no actualiza	No actualizar array de productos con URL	Revisar hooks	Actualizar array con setProducts([...products, newProduct])
+Error de tipo	Subida de archivo no soportado	Usuario sube .exe o .txt	Multer rechaza archivo	Filtrar por file.type.startsWith('image/')
+Error tamaño	Imagen muy grande	Limite de Uppy o Multer	Console log	Configurar maxFileSize en Uppy y backend
+2️⃣ PROBLEMAS DE BACKEND (Express + Multer)
+Problema	Señales / Sintomas	Causas posibles	Diagnóstico	Solución
+Carpeta de uploads no existe	Error ENOENT	No se creó carpeta	Revisar logs	fs.mkdirSync('uploads', { recursive: true })
+Sin permisos	Error EACCES	Usuario de Node no tiene permisos	ls -l uploads	Cambiar permisos chmod 755 uploads
+Archivo sobrescrito	Imagen con mismo nombre	No renombrar con timestamp	Revisar carpeta	filename = ${Date.now()}-${originalname}
+Multer no recibe archivo	req.file undefined	fieldName incorrecto	Revisar request payload	Verificar fieldName en frontend y backend
+Ruta no expuesta	404 al intentar acceder	No usar express.static	Intentar abrir URL directo	app.use('/uploads', express.static('uploads'))
+URL devuelta incorrecta	Imagen no carga	Backend devuelve path relativo	Revisar JSON response	Devolver URL absoluta: ${req.protocol}://${req.get('host')}/uploads/...
+Filtro de tipo fallido	Archivo rechazado	Multer fileFilter mal configurado	Revisar file.mimetype	Asegurar file.mimetype.startsWith('image/')
+Tamaño excedido	413 Payload Too Large	Limite Multer o body-parser	Revisar logs	limits: { fileSize: 5 * 1024 * 1024 }
+Error CORS	Frontend no puede acceder	Middleware no configurado	Console browser: CORS error	app.use(cors({ origin: 'https://frontend.com' }))
+Token no enviado	401 Unauthorized	Endpoint protegido	Revisar network request	Incluir header Authorization: Bearer <token>
+Concurrencia / múltiples uploads	Colisiones	No renombrar archivos o manejar storage	Revisar carpeta uploads	Agregar hash o uuid al nombre
+3️⃣ PROBLEMAS DE PROTOCOLO, HOST Y DEPLOY
+Problema	Señales / Sintomas	Causas posibles	Diagnóstico	Solución
+HTTP en producción HTTPS	Imagen bloqueada	URL absoluta con HTTP	Console: Mixed Content	Generar URL con protocolo actual
+Subdominio distinto	CORS	Frontend y backend en diferentes dominios	Console browser	Configurar CORS en backend
+VPS/Nginx no sirve uploads	404	Configuración de server	Revisar logs Nginx	Agregar location /uploads { root /path/to/uploads; }
+Docker / Contenedor	Imagen no persiste	Carpeta volumen no mapeada	Revisar Dockerfile/compose	Mapear volumen persistente para /uploads
+HTTPS certificado inválido	Navegador bloquea	Certificado caducado	Revisar SSL	Renovar o configurar correctamente
+4️⃣ PROBLEMAS DE FORMATO Y COMPATIBILIDAD
+Problema	Señales	Causas	Diagnóstico	Solución
+Imagen corrupta	No se abre	Upload interrumpido o conversión fallida	Abrir archivo local	Validar antes de guardar
+Formato no soportado	Web no muestra	.heic, .tiff, etc.	Revisar tipo MIME	Convertir a .jpg o .png en backend
+Transparencia perdida	PNG con alpha	Procesamiento server	Revisar resultado	Mantener extensión correcta y librería que preserve alpha
+Dimensiones erróneas	UI se rompe	Upload sin validación	Revisar imagen	Resizer en backend o frontend
+5️⃣ ERRORES DE USUARIO
+
+Selecciona varios archivos y no se configuran multiple → solo se sube 1.
+
+Interrumpe upload → archivo incompleto.
+
+Usa nombres raros o caracteres especiales → backend puede fallar al guardar.
+
+Fuma el caché del navegador → ve imagen vieja.
+
+6️⃣ ERRORES DE SISTEMA
+
+Espacio de almacenamiento lleno → upload falla.
+
+Permisos de sistema → Node no puede escribir.
+
+Reinicio de servidor → si no se persisten imágenes, se pierden (si no usas almacenamiento permanente o nube).
+
+Diferencia de entorno Dev/Prod → rutas relativas funcionan en Dev pero fallan en Prod.
+
+7️⃣ ERRORES DE DEPURACIÓN
+
+No mirar network tab → no se ve request POST.
+
+No mirar console backend → Multer puede estar tirando errores silenciosos.
+
+No manejar onError en Uppy → subidas fallidas no se notifican.
+
+No validar JSON devuelto → frontend asume URL y falla.
+
+✅ DIAGNÓSTICO PASO A PASO
+
+Revisar console.log en React: ¿se recibe URL del backend?
+
+Revisar Network tab: ¿request POST a /upload termina 200?
+
+Revisar backend logs: ¿Multer guardó el archivo? ¿Algún error?
+
+Revisar carpeta /uploads: ¿archivo existe físicamente?
+
+Abrir URL en navegador: ¿se muestra imagen?
+
+Revisar CORS / Mixed Content si falla en producción.
+
+Verificar token si endpoint es protegido.
+
+Verificar permisos de carpeta y disco lleno.
+
+Revisar tamaño y formato de archivo.
+
+Probar con nombre único + timestamp para evitar cache.
