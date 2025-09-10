@@ -120,26 +120,28 @@ export default function ObjectUploader({
         return;
       }
 
+      // Cambiar estado a ready primero para que se renderice el DOM
+      setConnectionStatus('ready');
+      
       // Esperar a que el DOM esté listo con múltiples intentos
       let attempts = 0;
-      const maxAttempts = 10;
+      const maxAttempts = 20;
       
-      while (attempts < maxAttempts && !dashboardRef.current) {
+      while (attempts < maxAttempts && (!dashboardRef.current || !dashboardRef.current.isConnected)) {
         console.log(`Waiting for dashboard ref... attempt ${attempts + 1}/${maxAttempts}`);
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
       }
 
-      // Verificar que el elemento DOM esté disponible
-      if (!dashboardRef.current) {
-        console.error('Dashboard ref is not available after waiting');
+      // Verificar que el elemento DOM esté disponible y conectado
+      if (!dashboardRef.current || !dashboardRef.current.isConnected) {
+        console.error('Dashboard ref is not available or not connected after waiting');
         setConnectionStatus('error');
         setErrorMessage('Error: Dashboard container not found after multiple attempts');
         return;
       }
 
       console.log('✅ Dashboard ref is ready:', dashboardRef.current);
-      setConnectionStatus('ready');
 
       console.log('🌐 Entorno detectado:', isReplit ? 'Replit' : 'VPS/Local');
       console.log('🌐 Protocol:', PROTOCOL);
@@ -209,38 +211,31 @@ export default function ObjectUploader({
           limit: 3,
         });
 
-        // Configurar Dashboard con verificación adicional del DOM
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Configurar Dashboard con el elemento DOM ya verificado
+        console.log('🎯 Initializing Dashboard with target:', dashboardRef.current);
         
-        // Triple verificación del dashboard ref
-        if (dashboardRef.current && dashboardRef.current.isConnected) {
-          console.log('🎯 Initializing Dashboard with target:', dashboardRef.current);
-          
-          uppy.use(Dashboard, {
-            id: 'Dashboard',
-            inline: true,
-            target: dashboardRef.current,
-            showProgressDetails: true,
-            proudlyDisplayPoweredByUppy: false,
-            height: 350,
-            showRemoveButtonAfterComplete: true,
-            locale: {
-              strings: {
-                dropHereOr: 'Arrastra archivos aquí o %{browse}',
-                browse: 'selecciona',
-                uploadComplete: '¡Subida completada!',
-                uploadFailed: 'Subida fallida',
-                retry: 'Reintentar',
-                cancel: 'Cancelar',
-                remove: 'Eliminar',
-              }
+        uppy.use(Dashboard, {
+          id: 'Dashboard',
+          inline: true,
+          target: dashboardRef.current,
+          showProgressDetails: true,
+          proudlyDisplayPoweredByUppy: false,
+          height: 320,
+          showRemoveButtonAfterComplete: true,
+          locale: {
+            strings: {
+              dropHereOr: 'Arrastra archivos aquí o %{browse}',
+              browse: 'selecciona',
+              uploadComplete: '¡Subida completada!',
+              uploadFailed: 'Subida fallida',
+              retry: 'Reintentar',
+              cancel: 'Cancelar',
+              remove: 'Eliminar',
             }
-          });
-          
-          console.log('✅ Dashboard initialized successfully');
-        } else {
-          throw new Error('Dashboard ref is not connected to DOM');
-        }
+          }
+        });
+        
+        console.log('✅ Dashboard initialized successfully');
 
         // Event handlers mejorados
         uppy.on('error', (error) => {
@@ -414,8 +409,7 @@ export default function ObjectUploader({
               <div 
                 ref={dashboardRef} 
                 id="uppy-dashboard-container"
-                className="min-h-[300px] w-full"
-                style={{ visibility: dashboardRef.current ? 'visible' : 'hidden' }}
+                className="min-h-[350px] w-full border border-gray-200 rounded-lg"
               />
               {note && (
                 <p className="text-sm text-gray-500 mt-2">{note}</p>
