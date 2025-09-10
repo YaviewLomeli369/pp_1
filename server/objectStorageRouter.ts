@@ -312,7 +312,7 @@ router.post("/api/objects/direct-upload/upload", (req, res) => {
               processedBuffer = fileBuffer;
             }
           } catch (sharpError) {
-            console.log('⚠️ Sharp processing failed, using original file:', sharpError.message);
+            // Silently fall back to original file if Sharp can't process it
             processedBuffer = fileBuffer;
           }
         } else {
