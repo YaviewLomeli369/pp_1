@@ -150,44 +150,19 @@ export default function ObjectUploader({
           },
         });
 
-        // Configurar XHRUpload
+        // Configurar XHRUpload para usar el endpoint directo
         uppy.use(XHRUpload, {
           id: 'XHRUpload',
-          endpoint: `${BASE_URL}/api/objects/upload`,
+          endpoint: `${BASE_URL}/api/objects/direct-upload/upload`,
           method: 'POST',
-          getUploadParameters: async (file) => {
-            try {
-              console.log('🔄 Getting upload parameters for:', file.name);
-              
-              const token = localStorage.getItem("token");
-              const response = await fetch(`${BASE_URL}/api/objects/upload`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-                  ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-                },
-                body: JSON.stringify({ filename: file.name }),
-              });
-
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              }
-
-              const data = await response.json();
-              console.log('✅ Upload parameters received:', data);
-
-              return {
-                method: 'PUT',
-                url: data.uploadURL,
-                headers: {
-                  'Content-Type': file.type || 'application/octet-stream',
-                },
-              };
-            } catch (error) {
-              console.error('❌ Error getting upload parameters:', error);
-              throw error;
-            }
+          headers: (file) => {
+            const token = localStorage.getItem("token");
+            return {
+              'Authorization': token ? `Bearer ${token}` : '',
+              'X-Original-Filename': file.name,
+              'X-Filename': file.name,
+              'Content-Type': file.type || 'application/octet-stream',
+            };
           },
           timeout: 60 * 1000, // 60 segundos
           limit: 2, // Máximo 2 uploads simultáneos

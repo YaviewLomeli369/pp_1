@@ -2124,7 +2124,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error serving object:", error);
       if (error instanceof ObjectNotFoundError) {
-        return res.sendStatus(404);
+        // Return a placeholder image or 404 response
+        res.status(404).json({ 
+          error: "Object not found", 
+          path: objectPath,
+          message: "The requested image could not be found" 
+        });
+        return;
       }
       return res.sendStatus(500);
     }
@@ -2155,7 +2161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Handle direct file uploads - simplified endpoint for Uppy
-  app.post("/api/objects/direct-upload/upload", async (req, res) => {
+  app.post("/api/objects/direct-upload/upload", requireAuth, async (req, res) => {
     try {
       const objectId = crypto.randomUUID();
       const objectStorageService = new ObjectStorageService();
