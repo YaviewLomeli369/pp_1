@@ -7,6 +7,41 @@ import sharp from "sharp";
 
 const router = express.Router();
 
+
+// Debug endpoint to check uploaded files
+router.get("/api/objects/debug", (req, res) => {
+  try {
+    const files = fs.readdirSync(uploadsDir);
+    const fileDetails = files.map(file => {
+      const filePath = path.join(uploadsDir, file);
+      const stats = fs.statSync(filePath);
+      return {
+        name: file,
+        size: stats.size,
+        modified: stats.mtime,
+        url: `/objects/${file}`,
+        exists: fs.existsSync(filePath)
+      };
+    });
+
+    res.json({
+      uploadsDir,
+      totalFiles: files.length,
+      files: fileDetails.slice(0, 20), // Show only first 20 files
+      recentFiles: fileDetails
+        .sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime())
+        .slice(0, 5)
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Error reading uploads directory",
+      message: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
+});
+
+
 // Carpeta donde se almacenan archivos públicamente
 const uploadsDir = path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -228,28 +263,60 @@ router.post("/api/objects/direct-upload/upload", (req, res) => {
         let processedBuffer = fileBuffer;
         if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'].includes(ext)) {
           try {
+            // Validate that it's actually an image by reading metadata
             const imageInfo = await sharp(fileBuffer).metadata();
             console.log(`📸 Image metadata:`, {
               format: imageInfo.format,
               width: imageInfo.width,
-              height: imageInfo.height
+              height: imageInfo.height,
+              size: imageInfo.size
             });
 
-            // Resize if too large and optimize
-            if (imageInfo.width && imageInfo.width > 1920) {
-              processedBuffer = await sharp(fileBuffer)
-                .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-                .jpeg({ quality: 85 })
-                .toBuffer();
+            // Only process if Sharp can read the image
+            if (imageInfo.format) {
+              // Resize if too large and optimize based on format
+              if (imageInfo.width && imageInfo.width > 1920) {
+                if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                    .jpeg({ quality: 85 })
+                    .toBuffer();
+                } else if (imageInfo.format === 'png') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                    .png({ compressionLevel: 6 })
+                    .toBuffer();
+                } else {
+                  // For other formats, just resize without changing format
+                  processedBuffer = await sharp(fileBuffer)
+                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                    .toBuffer();
+                }
+              } else {
+                // Just optimize without resizing
+                if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .jpeg({ quality: 85 })
+                    .toBuffer();
+                } else if (imageInfo.format === 'png') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .png({ compressionLevel: 6 })
+                    .toBuffer();
+                } else {
+                  processedBuffer = fileBuffer; // Keep original for other formats
+                }
+              }
+              console.log(`✅ Image processed successfully, size: ${processedBuffer.length} bytes`);
             } else {
-              processedBuffer = await sharp(fileBuffer)
-                .jpeg({ quality: 85 })
-                .toBuffer();
+              console.log('⚠️ No valid image format detected, using original file');
+              processedBuffer = fileBuffer;
             }
           } catch (sharpError) {
-            console.log('⚠️ Sharp processing failed, using original:', sharpError);
+            console.log('⚠️ Sharp processing failed, using original file:', sharpError.message);
             processedBuffer = fileBuffer;
           }
+        } else {
+          console.log(`📄 Non-image file detected: ${ext}, using original`);
         }
 
         // Save file
@@ -293,8 +360,63 @@ router.use("/objects", express.static(uploadsDir, {
   dotfiles: "deny", 
   index: false,
   maxAge: '1d', // Cache por 1 día
+  fallthrough: false, // Don't fall through if file not found
   setHeaders: (res, filePath) => {
     const ext = path.extname(filePath).toLowerCase();
+    console.log(`🎯 Serving static file: ${path.basename(filePath)} with extension: ${ext}`);
+    
+    const contentTypes: { [key: string]: string } = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.avif': 'image/avif',
+      '.svg': 'image/svg+xml',
+      '.ico': 'image/x-icon',
+      '.bmp': 'image/bmp',
+      '.tiff': 'image/tiff',
+      '.tif': 'image/tiff'
+    };
+    
+    const contentType = contentTypes[ext] || 'application/octet-stream';
+    console.log(`📋 Setting Content-Type: ${contentType}`);
+    
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    
+    // Add proper headers for images
+    if (contentType.startsWith('image/')) {
+      res.setHeader('Accept-Ranges', 'bytes');
+    }
+  }
+}));
+
+// Fallback handler for files not found by static middleware
+router.get("/objects/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(uploadsDir, filename);
+  
+  console.log(`🔍 Fallback handler: Looking for file ${filename} at ${filePath}`);
+  
+  if (!fs.existsSync(filePath)) {
+    console.log(`❌ File not found: ${filePath}`);
+    console.log(`📁 Available files in uploads:`, fs.readdirSync(uploadsDir).slice(0, 10).join(', '));
+    return res.status(404).json({ 
+      success: false, 
+      error: 'File not found',
+      filename,
+      availableFiles: fs.readdirSync(uploadsDir).length
+    });
+  }
+
+  try {
+    const stats = fs.statSync(filePath);
+    const ext = path.extname(filename).toLowerCase();
+    
     const contentTypes: { [key: string]: string } = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
@@ -306,13 +428,26 @@ router.use("/objects", express.static(uploadsDir, {
       '.ico': 'image/x-icon'
     };
     
-    const contentType = contentTypes[ext];
-    if (contentType) {
-      res.setHeader('Content-Type', contentType);
-    }
+    const contentType = contentTypes[ext] || 'application/octet-stream';
+    
+    console.log(`✅ Serving file via fallback: ${filename}, size: ${stats.size}, type: ${contentType}`);
+    
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Length', stats.size);
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.setHeader('Access-Control-Allow-Origin', '*');
+    
+    const readStream = fs.createReadStream(filePath);
+    readStream.pipe(res);
+    
+  } catch (error) {
+    console.error(`❌ Error serving file ${filename}:`, error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Error serving file',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
-}));
+});
 
 export default router;
