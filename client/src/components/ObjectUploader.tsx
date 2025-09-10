@@ -5,7 +5,6 @@ import XHRUpload from '@uppy/xhr-upload';
 import Dashboard from '@uppy/dashboard';
 import { Button } from './ui/button';
 import { X, AlertCircle, CheckCircle, Upload } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
 
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
@@ -31,7 +30,6 @@ export default function ObjectUploader({
   note = "Formatos soportados: JPG, PNG, GIF, WEBP. Máximo 10MB por archivo",
   className = "",
 }: ObjectUploaderProps) {
-  const { user, isAuthenticated } = useAuth();
   const uppyRef = useRef<Uppy | null>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -54,20 +52,10 @@ export default function ObjectUploader({
     try {
       console.log('🔍 Testing connection to:', `${BASE_URL}/api/objects/upload`);
       
-      // Try multiple possible token storage keys
-      let token = localStorage.getItem("token") || 
-                  localStorage.getItem("authToken") || 
-                  localStorage.getItem("auth_token") ||
-                  sessionStorage.getItem("token") ||
-                  sessionStorage.getItem("authToken");
-      
+      const token = localStorage.getItem("token");
       if (!token) {
-        console.error('🔍 Available localStorage keys:', Object.keys(localStorage));
-        console.error('🔍 Available sessionStorage keys:', Object.keys(sessionStorage));
         throw new Error('No authentication token found. Please log in.');
       }
-      
-      console.log('🔍 Found token:', token.substring(0, 10) + '...');
 
       const testResponse = await fetch(`${BASE_URL}/api/objects/upload`, {
         method: 'POST',
@@ -180,15 +168,7 @@ export default function ObjectUploader({
           endpoint: `${BASE_URL}/api/objects/direct-upload/upload`,
           method: 'POST',
           headers: (file) => {
-            // Try multiple possible token storage keys
-            const token = localStorage.getItem("token") || 
-                         localStorage.getItem("authToken") || 
-                         localStorage.getItem("auth_token") ||
-                         sessionStorage.getItem("token") ||
-                         sessionStorage.getItem("authToken");
-            
-            console.log('🔍 Using token for upload:', token ? token.substring(0, 10) + '...' : 'NO TOKEN');
-            
+            const token = localStorage.getItem("token");
             return {
               'Authorization': token ? `Bearer ${token}` : '',
               'X-Original-Filename': file.name,
@@ -362,17 +342,9 @@ export default function ObjectUploader({
   if (!isOpen) {
     return (
       <Button
-        onClick={() => {
-          if (!isAuthenticated) {
-            alert('Debes estar autenticado para subir imágenes. Por favor, inicia sesión.');
-            return;
-          }
-          console.log('🔍 User authenticated:', user?.username);
-          setIsOpen(true);
-        }}
+        onClick={() => setIsOpen(true)}
         className={className}
         type="button"
-        disabled={!isAuthenticated}
       >
         <Upload className="h-4 w-4 mr-2" />
         Subir Imágenes
