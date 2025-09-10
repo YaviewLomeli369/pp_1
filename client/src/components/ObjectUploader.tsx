@@ -94,7 +94,13 @@ export default function ObjectUploader({
   const cleanupUppy = () => {
     if (uppyRef.current) {
       try {
-        uppyRef.current.destroy();
+        if (typeof uppyRef.current.destroy === 'function') {
+          uppyRef.current.destroy();
+        } else {
+          console.warn('Uppy instance does not have destroy method, manual cleanup');
+          uppyRef.current.cancelAll();
+          uppyRef.current.close();
+        }
         uppyRef.current = null;
       } catch (error) {
         console.warn('Error cleaning up Uppy instance:', error);
@@ -207,8 +213,9 @@ export default function ObjectUploader({
               throw error;
             }
           },
-          timeout: 60 * 1000,
-          limit: 3,
+          timeout: 30 * 1000, // Reducir timeout a 30 segundos
+          limit: 1, // Limitar a 1 upload simultáneo para evitar conflictos
+          retryDelays: [0, 1000, 3000], // Reintentos con delays
         });
 
         // Configurar Dashboard con el elemento DOM ya verificado

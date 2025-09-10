@@ -20,9 +20,13 @@ router.post("/api/objects/upload", express.json(), (req, res) => {
     const objectName = `${uuidv4()}-${Date.now()}${ext}`;
     // URL relativa pública (servida por express.static más abajo)
     const relativeUrl = `/objects/${objectName}`;
-    const uploadURL = `${req.protocol}://${req.get("host")}${relativeUrl}`;
+    
+    // Asegurar protocolo consistente - usar el mismo protocolo del request
+    const protocol = req.protocol;
+    const host = req.get("host");
+    const uploadURL = `${protocol}://${host}${relativeUrl}`;
 
-    console.log(`✅ Generated upload params: objectName=${objectName}, uploadURL=${uploadURL}`);
+    console.log(`✅ Generated upload params: objectName=${objectName}, uploadURL=${uploadURL}, protocol=${protocol}`);
 
     return res.json({
       success: true,
