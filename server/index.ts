@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { type Request, Response, NextFunction } from "express";
+import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeStoreData } from "./store-setup";
@@ -43,7 +44,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
-  
+
   // Initialize store data and site configuration on startup
   await initializeStoreData();
   await initializeSiteConfig();
@@ -62,6 +63,8 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
+    // Serve uploaded files from uploads directory at /objects path
+    app.use('/objects', express.static(path.join(process.cwd(), 'uploads')));
     serveStatic(app);
   }
 
