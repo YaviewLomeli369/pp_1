@@ -55,11 +55,10 @@ export default function ObjectUploader({
         allowedFileTypes: acceptedFileTypes,
       },
       onBeforeUpload: (files) => {
-        const fileArray = Object.values(files);
-        console.log('📁 Files ready to upload:', fileArray.length);
+        console.log('📁 Files ready to upload:', files.length);
 
         // Ensure proper filename for each file
-        fileArray.forEach(file => {
+        files.forEach(file => {
           if (file.meta && file.meta.name) {
             const originalName = file.meta.name;
             // Clean filename and ensure proper extension
