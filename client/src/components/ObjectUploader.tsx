@@ -91,22 +91,11 @@ export default function ObjectUploader({
       method: 'POST',
       fieldName: 'file',
       formData: true,
-      bundle: false,
       headers: {
         'Accept': 'application/json',
       },
-      getResponseData: (responseText, response) => {
-        try {
-          const data = JSON.parse(responseText);
-          console.log('📦 XHR Response data:', data);
-          return data;
-        } catch (error) {
-          console.error('❌ Failed to parse response:', responseText);
-          return {};
-        }
-      },
-      timeout: 60 * 1000,
-      limit: 3,
+      timeout: 60 * 1000, // 60 segundos timeout
+      limit: 3, // Máximo 3 subidas simultáneas
     });
 
     // Configurar Dashboard
@@ -136,10 +125,6 @@ export default function ObjectUploader({
       onUploadError?.(error);
     });
 
-    uppy.on('upload', (data) => {
-      console.log('🚀 Upload started:', data.fileIDs.length, 'files');
-    });
-
     uppy.on('upload-error', (file, error, response) => {
       console.log('=== ❌ UPPY UPLOAD ERROR EVENT START ===');
       console.log('ERROR-1. File name:', file?.name || 'Unknown');
@@ -157,11 +142,6 @@ export default function ObjectUploader({
 
     uppy.on('upload-success', (file, response) => {
       console.log('✅ Upload successful:', file?.name, response?.status);
-      console.log('✅ Response body:', response?.body);
-    });
-
-    uppy.on('upload-progress', (file, progress) => {
-      console.log(`📈 Upload progress ${file?.name}: ${progress.percentage}%`);
     });
 
     uppy.on('complete', (result) => {
