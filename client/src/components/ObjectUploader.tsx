@@ -1,9 +1,10 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import Dashboard from '@uppy/dashboard';
 import { Button } from './ui/button';
-import { X } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
 
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
@@ -32,10 +33,18 @@ export default function ObjectUploader({
   const uppyRef = useRef<Uppy | null>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'testing' | 'ready' | 'error'>('testing');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Mocking selectedProduct and updateProductImageMutation for compilation
-  // In a real scenario, these would be passed as props or accessed from context/state management
-  const selectedProduct = null; // Replace with actual selected product
+  // Detectar entorno automáticamente
+  const isReplit = window.location.hostname.includes('replit');
+  const PROTOCOL = window.location.protocol;
+  const HOST = window.location.hostname;
+  const PORT = window.location.port;
+  const BASE_URL = PROTOCOL + '//' + HOST + (PORT ? ':' + PORT : '');
+
+  // Mocking functions for compilation
+  const selectedProduct = null;
   const updateProductImageMutation = {
     mutate: (data: { id: string | null, imageURL: string }) => {
       console.log("Mock updateProductImageMutation.mutate called with:", data);
@@ -48,201 +57,239 @@ export default function ObjectUploader({
     console.log("Mock setTempImageUrl called with:", url);
   };
 
+  // Función para probar la conexión antes de subir archivos reales
+  const testConnection = async (): Promise<boolean> => {
+    try {
+      console.log('🔍 Probando conexión con:', `${BASE_URL}/api/objects/upload`);
+      
+      // Crear archivo dummy para prueba
+      const blob = new Blob(['Test upload connection'], { type: 'text/plain' });
+      
+      // Probar primero el endpoint de generación de parámetros
+      const testResponse = await fetch(`${BASE_URL}/api/objects/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ filename: 'test-connection.txt' }),
+      });
+
+      if (!testResponse.ok) {
+        throw new Error(`Test endpoint failed: ${testResponse.status} ${testResponse.statusText}`);
+      }
+
+      const testData = await testResponse.json();
+      console.log('✅ Test de endpoint exitoso:', testData);
+      
+      return true;
+    } catch (err) {
+      console.error('❌ Test de conexión falló:', err);
+      setErrorMessage(err instanceof Error ? err.message : 'Error de conexión desconocido');
+      return false;
+    }
+  };
 
   useEffect(() => {
-    if (!isOpen || uppyRef.current) return;
+    if (!isOpen) return;
 
-    // Detectar protocolo y host dinámicamente
-    const protocol = window.location.protocol; // 'http:' o 'https:'
-    const host = window.location.host;         // 'www.nyuxo.com' o 'localhost:5000'
-    const baseUrl = `${protocol}//${host}`;
-
-    console.log('🌐 Protocol detected:', protocol);
-    console.log('🌐 Host detected:', host);
-    console.log('🌐 Base URL:', baseUrl);
-
-    // Crear instancia de Uppy
-    const uppy = new Uppy({
-      autoProceed: false,
-      allowMultipleUploadBatches: true,
-      restrictions: {
-        maxFileSize,
-        maxNumberOfFiles: allowMultiple ? maxNumberOfFiles : 1,
-        allowedFileTypes: acceptedFileTypes,
-      },
-      onBeforeUpload: (files) => {
-        console.log('📁 Files ready to upload:', Object.keys(files).length);
-        return true;
+    const initializeUppy = async () => {
+      setConnectionStatus('testing');
+      
+      // Probar conexión primero
+      const isConnected = await testConnection();
+      
+      if (!isConnected) {
+        setConnectionStatus('error');
+        return;
       }
-    });
 
-    // Configurar XHRUpload con el nuevo flujo
-    uppy.use(XHRUpload, {
-      endpoint: `${baseUrl}/api/objects/upload`,
-      method: 'POST',
-      getUploadParameters: async (file) => {
-        try {
-          console.log('🔄 Getting upload parameters for:', file.name);
-          
-          const response = await fetch(`${baseUrl}/api/objects/upload`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: JSON.stringify({ filename: file.name }),
-          });
+      setConnectionStatus('ready');
 
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
+      if (uppyRef.current) return;
 
-          const data = await response.json();
-          console.log('✅ Upload parameters received:', data);
+      console.log('🌐 Entorno detectado:', isReplit ? 'Replit' : 'VPS/Local');
+      console.log('🌐 Protocol:', PROTOCOL);
+      console.log('🌐 Host:', HOST);
+      console.log('🌐 Base URL:', BASE_URL);
 
-          return {
-            method: 'PUT',
-            url: data.uploadURL,
-            headers: {
-              'Content-Type': file.type || 'application/octet-stream',
-            },
-          };
-        } catch (error) {
-          console.error('❌ Error getting upload parameters:', error);
-          toast({
-            title: "Error",
-            description: "Error al obtener parámetros de carga",
-            variant: "destructive"
-          });
-          throw error;
+      // Crear instancia de Uppy
+      const uppy = new Uppy({
+        autoProceed: false,
+        allowMultipleUploadBatches: true,
+        restrictions: {
+          maxFileSize,
+          maxNumberOfFiles: allowMultiple ? maxNumberOfFiles : 1,
+          allowedFileTypes: acceptedFileTypes,
+        },
+        onBeforeUpload: (files) => {
+          console.log('📁 Files ready to upload:', Object.keys(files).length);
+          return true;
         }
-      },
-      timeout: 60 * 1000, // 60 segundos timeout
-      limit: 3, // Máximo 3 subidas simultáneas
-    });
+      });
 
-    // Configurar Dashboard
-    uppy.use(Dashboard, {
-      inline: true,
-      target: dashboardRef.current!,
-      showProgressDetails: true,
-      proudlyDisplayPoweredByUppy: false,
-      height: 350,
-      showRemoveButtonAfterComplete: true,
-      locale: {
-        strings: {
-          dropHereOr: 'Arrastra archivos aquí o %{browse}',
-          browse: 'selecciona',
-          uploadComplete: '¡Subida completada!',
-          uploadFailed: 'Subida fallida',
-          retry: 'Reintentar',
-          cancel: 'Cancelar',
-          remove: 'Eliminar',
-        }
-      }
-    });
+      // Configurar XHRUpload con el flujo mejorado
+      uppy.use(XHRUpload, {
+        endpoint: `${BASE_URL}/api/objects/upload`,
+        method: 'POST',
+        getUploadParameters: async (file) => {
+          try {
+            console.log('🔄 Getting upload parameters for:', file.name);
+            
+            const response = await fetch(`${BASE_URL}/api/objects/upload`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+              body: JSON.stringify({ filename: file.name }),
+            });
 
-    // Event handlers mejorados
-    uppy.on('error', (error) => {
-      console.error('❌ UPPY GENERAL ERROR:', error);
-      onUploadError?.(error);
-    });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
 
-    uppy.on('upload-error', (file, error, response) => {
-      console.log('=== ❌ UPPY UPLOAD ERROR EVENT START ===');
-      console.log('ERROR-1. File name:', file?.name || 'Unknown');
-      console.log('ERROR-2. Error object:', error);
-      console.log('ERROR-3. Error type:', typeof error);
-      console.log('ERROR-4. Response object:', response);
-      console.log('ERROR-5. Response type:', typeof response);
-      console.log('ERROR-6. Response status:', response?.status);
-      console.log('ERROR-7. Response statusText:', response?.statusText);
-      console.log('ERROR-8. Response responseText:', response?.body || response?.responseText);
-      console.log('=== 🏁 UPPY UPLOAD ERROR EVENT END ===');
+            const data = await response.json();
+            console.log('✅ Upload parameters received:', data);
 
-      onUploadError?.(error);
-    });
-
-    uppy.on('upload-success', (file, response) => {
-      console.log('✅ Upload successful:', file?.name, response?.status);
-    });
-
-    uppy.on('complete', (result) => {
-      console.log('=== 🏆 UPPY COMPLETE EVENT START ===');
-      console.log('COMPLETE-1. Complete result:', result);
-      console.log('COMPLETE-2. Result.successful length:', result.successful?.length || 0);
-      console.log('COMPLETE-3. Result.failed length:', result.failed?.length || 0);
-
-      if (result.failed && result.failed.length > 0) {
-        console.log('COMPLETE-4. Failed files:', result.failed);
-        result.failed.forEach((file, index) => {
-          console.log(`COMPLETE-5.${index}. Failed file:`, file.name, 'Error:', file.error);
-        });
-      }
-
-      if (result.successful && result.successful.length > 0) {
-        console.log('COMPLETE-6. Successful files:', result.successful);
-        result.successful.forEach((file) => {
-          // Handle successful upload
-          console.log("COMPLETE-3. ✅ Upload successful, file data:", file);
-          console.log("COMPLETE-3. ✅ Response body:", file.response?.body);
-
-          const serverBody = (file.response?.body as any) || {};
-          let imageURL = serverBody.url || serverBody.location;
-
-          if (!imageURL) {
-            console.error("❌ No se pudo obtener URL desde la respuesta:", file.response);
+            return {
+              method: 'PUT',
+              url: data.uploadURL,
+              headers: {
+                'Content-Type': file.type || 'application/octet-stream',
+              },
+            };
+          } catch (error) {
+            console.error('❌ Error getting upload parameters:', error);
             toast({
-              title: "Error al subir imagen",
-              description: "No se pudo determinar la URL del objeto en el servidor",
+              title: "Error",
+              description: "Error al obtener parámetros de carga",
               variant: "destructive"
             });
-            return;
+            throw error;
           }
+        },
+        timeout: 60 * 1000,
+        limit: 3,
+      });
 
-          // Si es relativa (/objects/...) convertir a absoluta para <img src="">
-          let finalURL = imageURL.trim();
-          if (finalURL.startsWith("/")) {
-            finalURL = `${window.location.origin}${finalURL}`;
+      // Configurar Dashboard
+      uppy.use(Dashboard, {
+        inline: true,
+        target: dashboardRef.current!,
+        showProgressDetails: true,
+        proudlyDisplayPoweredByUppy: false,
+        height: 350,
+        showRemoveButtonAfterComplete: true,
+        locale: {
+          strings: {
+            dropHereOr: 'Arrastra archivos aquí o %{browse}',
+            browse: 'selecciona',
+            uploadComplete: '¡Subida completada!',
+            uploadFailed: 'Subida fallida',
+            retry: 'Reintentar',
+            cancel: 'Cancelar',
+            remove: 'Eliminar',
           }
+        }
+      });
 
-          console.log("COMPLETE-4. ✅ Final URL a guardar:", finalURL);
+      // Event handlers mejorados
+      uppy.on('error', (error) => {
+        console.error('❌ UPPY GENERAL ERROR:', error);
+        onUploadError?.(error);
+      });
 
-          // Guardar según el caso (producto existente o nuevo)
-          if (selectedProduct?.id) {
-            updateProductImageMutation.mutate({
-              id: selectedProduct.id,
-              imageURL: finalURL,
-            });
-          } else {
-            setTempImageUrl(finalURL);
-            toast({
-              title: "Imagen subida exitosamente",
-              description: "Se aplicará al guardar el producto",
-            });
-          }
-        });
-      }
+      uppy.on('upload-error', (file, error, response) => {
+        console.log('=== ❌ UPPY UPLOAD ERROR EVENT START ===');
+        console.log('ERROR-1. File name:', file?.name || 'Unknown');
+        console.log('ERROR-2. Error object:', error);
+        console.log('ERROR-3. Response object:', response);
+        console.log('ERROR-4. Response status:', response?.status);
+        console.log('ERROR-5. Response statusText:', response?.statusText);
+        console.log('=== 🏁 UPPY UPLOAD ERROR EVENT END ===');
 
-      console.log('COMPLETE-9. Calling onComplete callback...');
+        onUploadError?.(error);
+      });
 
-      // Llamar callback de éxito
-      onUploadSuccess(result);
+      uppy.on('upload-success', (file, response) => {
+        console.log('✅ Upload successful:', file?.name, response?.status);
+      });
 
-      console.log('COMPLETE-10. Closing modal...');
-      setTimeout(() => {
-        setIsOpen(false);
-      }, 1000);
+      uppy.on('complete', (result) => {
+        console.log('=== 🏆 UPPY COMPLETE EVENT START ===');
+        console.log('COMPLETE-1. Complete result:', result);
+        console.log('COMPLETE-2. Result.successful length:', result.successful?.length || 0);
+        console.log('COMPLETE-3. Result.failed length:', result.failed?.length || 0);
 
-      console.log('=== 🏁 UPPY COMPLETE EVENT END ===');
-    });
+        if (result.failed && result.failed.length > 0) {
+          console.log('COMPLETE-4. Failed files:', result.failed);
+          result.failed.forEach((file, index) => {
+            console.log(`COMPLETE-5.${index}. Failed file:`, file.name, 'Error:', file.error);
+          });
+        }
 
-    uppyRef.current = uppy;
+        if (result.successful && result.successful.length > 0) {
+          console.log('COMPLETE-6. Successful files:', result.successful);
+          result.successful.forEach((file) => {
+            console.log("COMPLETE-7. ✅ Upload successful, file data:", file);
+            console.log("COMPLETE-8. ✅ Response body:", file.response?.body);
+
+            const serverBody = (file.response?.body as any) || {};
+            let imageURL = serverBody.url || serverBody.location;
+
+            if (!imageURL) {
+              console.error("❌ No se pudo obtener URL desde la respuesta:", file.response);
+              toast({
+                title: "Error al subir imagen",
+                description: "No se pudo determinar la URL del objeto en el servidor",
+                variant: "destructive"
+              });
+              return;
+            }
+
+            // Si es relativa (/objects/...) convertir a absoluta
+            let finalURL = imageURL.trim();
+            if (finalURL.startsWith("/")) {
+              finalURL = `${window.location.origin}${finalURL}`;
+            }
+
+            console.log("COMPLETE-9. ✅ Final URL a guardar:", finalURL);
+
+            // Guardar según el caso
+            if (selectedProduct?.id) {
+              updateProductImageMutation.mutate({
+                id: selectedProduct.id,
+                imageURL: finalURL,
+              });
+            } else {
+              setTempImageUrl(finalURL);
+              toast({
+                title: "Imagen subida exitosamente",
+                description: "Se aplicará al guardar el producto",
+              });
+            }
+          });
+        }
+
+        // Llamar callback de éxito
+        onUploadSuccess(result);
+
+        setTimeout(() => {
+          setIsOpen(false);
+        }, 1000);
+
+        console.log('=== 🏁 UPPY COMPLETE EVENT END ===');
+      });
+
+      uppyRef.current = uppy;
+    };
+
+    initializeUppy();
 
     return () => {
       if (uppyRef.current) {
         try {
-          // Use close() instead of destroy() for newer Uppy versions
           if (typeof uppyRef.current.close === 'function') {
             uppyRef.current.close();
           } else if (typeof uppyRef.current.destroy === 'function') {
@@ -259,9 +306,10 @@ export default function ObjectUploader({
 
   const handleClose = () => {
     setIsOpen(false);
+    setConnectionStatus('testing');
+    setErrorMessage('');
     if (uppyRef.current) {
       try {
-        // Use close() instead of destroy() for newer Uppy versions
         if (typeof uppyRef.current.close === 'function') {
           uppyRef.current.close();
         } else if (typeof uppyRef.current.destroy === 'function') {
@@ -302,9 +350,45 @@ export default function ObjectUploader({
         </div>
 
         <div className="p-4">
-          <div ref={dashboardRef} />
-          {note && (
-            <p className="text-sm text-gray-500 mt-2">{note}</p>
+          {connectionStatus === 'testing' && (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-sm text-gray-600">Probando conexión...</p>
+                <p className="text-xs text-gray-500 mt-1">Entorno: {isReplit ? 'Replit' : 'VPS/Local'}</p>
+                <p className="text-xs text-gray-500">URL: {BASE_URL}</p>
+              </div>
+            </div>
+          )}
+
+          {connectionStatus === 'error' && (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center">
+                <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <p className="text-sm text-red-600 mb-2">Error de conexión</p>
+                <p className="text-xs text-gray-500 mb-4">{errorMessage}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    setConnectionStatus('testing');
+                    setIsOpen(false);
+                    setTimeout(() => setIsOpen(true), 500);
+                  }}
+                >
+                  Reintentar
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {connectionStatus === 'ready' && (
+            <>
+              <div ref={dashboardRef} />
+              {note && (
+                <p className="text-sm text-gray-500 mt-2">{note}</p>
+              )}
+            </>
           )}
         </div>
       </div>
