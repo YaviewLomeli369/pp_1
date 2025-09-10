@@ -94,12 +94,11 @@ export default function ObjectUploader({
   const cleanupUppy = () => {
     if (uppyRef.current) {
       try {
-        if (typeof uppyRef.current.destroy === 'function') {
-          uppyRef.current.destroy();
-        } else {
-          console.warn('Uppy instance does not have destroy method, manual cleanup');
-          uppyRef.current.cancelAll();
+        if (typeof uppyRef.current.close === 'function') {
           uppyRef.current.close();
+        } else {
+          console.warn('Uppy instance does not have close method, manual cleanup');
+          uppyRef.current.cancelAll();
         }
         uppyRef.current = null;
       } catch (error) {

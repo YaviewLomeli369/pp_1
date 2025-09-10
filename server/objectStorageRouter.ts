@@ -44,25 +44,49 @@ router.post("/api/objects/upload", express.json(), (req, res) => {
 // PUT /objects/:name  <- Uppy hará PUT directo aquí
 router.put("/objects/:name", (req, res) => {
   const name = req.params.name;
-  const destPath = path.join(uploadsDir, name);
-
+  
   // Seguridad mínima: rechazar rutas con .. o que intenten escapar
   if (name.includes("..") || path.isAbsolute(name)) {
     return res.status(400).json({ success: false, error: "Invalid name" });
   }
 
-  console.log(`📁 Receiving PUT for object: ${name}, destination: ${destPath}`);
+  // Detectar extensión del Content-Type si no está en el nombre
+  let finalName = name;
+  if (!path.extname(name)) {
+    const contentType = req.headers['content-type'] || '';
+    let extension = '';
+    
+    if (contentType.includes('image/jpeg') || contentType.includes('image/jpg')) {
+      extension = '.jpg';
+    } else if (contentType.includes('image/png')) {
+      extension = '.png';
+    } else if (contentType.includes('image/gif')) {
+      extension = '.gif';
+    } else if (contentType.includes('image/webp')) {
+      extension = '.webp';
+    } else if (contentType.includes('image/avif')) {
+      extension = '.avif';
+    } else {
+      // Default para imágenes
+      extension = '.jpg';
+    }
+    
+    finalName = `${name}${extension}`;
+  }
+
+  const destPath = path.join(uploadsDir, finalName);
+  console.log(`📁 Receiving PUT for object: ${name} → saving as: ${finalName}, destination: ${destPath}`);
 
   const writeStream = fs.createWriteStream(destPath);
   req.pipe(writeStream);
 
   req.on("end", () => {
-    console.log(`✅ File uploaded successfully: ${name}`);
+    console.log(`✅ File uploaded successfully: ${name} → ${finalName}`);
     return res.status(200).json({
       success: true,
-      objectName: name,
-      url: `/objects/${name}`,
-      location: `/objects/${name}`,
+      objectName: finalName, // Devolver el nombre con extensión
+      url: `/objects/${finalName}`,
+      location: `/objects/${finalName}`,
     });
   });
 
