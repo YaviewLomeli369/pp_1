@@ -1,4 +1,3 @@
-
 import express from "express";
 import fs from "fs";
 import path from "path";
@@ -8,6 +7,11 @@ import multer from "multer";
 
 const router = express.Router();
 
+// Configure multer outside the route for better performance
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
 
 // Debug endpoint to check uploaded files
 router.get("/api/objects/debug", (req, res) => {
@@ -58,22 +62,22 @@ router.use(express.json());
 router.post("/api/objects/upload", (req, res) => {
   try {
     const { filename } = (req.body || {}) as { filename?: string };
-    
+
     // Extraer extensión y validar que sea imagen
     const ext = filename ? path.extname(String(filename)).toLowerCase() : '';
     const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
-    
+
     let finalExt = ext;
     if (!allowedExts.includes(ext)) {
       finalExt = '.jpg'; // Default para imágenes
     }
-    
+
     // Generar nombre único conservando extensión
     const objectName = `${uuidv4()}-${Date.now()}${finalExt}`;
-    
+
     // URL relativa pública
     const relativeUrl = `/objects/${objectName}`;
-    
+
     // Generar URL absoluta - forzar HTTPS en Replit
     const protocol = req.get('x-forwarded-proto') || req.protocol;
     const host = req.get("host");
@@ -98,7 +102,7 @@ router.post("/api/objects/upload", (req, res) => {
 // PUT /objects/:name  <- Uppy hará PUT directo aquí
 router.put("/objects/:name", async (req, res) => {
   const name = req.params.name;
-  
+
   // Seguridad: rechazar rutas maliciosas
   if (name.includes("..") || path.isAbsolute(name)) {
     return res.status(400).json({ success: false, error: "Invalid name" });
@@ -110,7 +114,7 @@ router.put("/objects/:name", async (req, res) => {
     if (!path.extname(name)) {
       const contentType = req.headers['content-type'] || '';
       let extension = '';
-      
+
       if (contentType.includes('image/jpeg') || contentType.includes('image/jpg')) {
         extension = '.jpg';
       } else if (contentType.includes('image/png')) {
@@ -124,13 +128,13 @@ router.put("/objects/:name", async (req, res) => {
       } else {
         extension = '.jpg'; // Default
       }
-      
+
       finalName = `${name}${extension}`;
     }
 
     const tempPath = path.join(uploadsDir, `temp-${finalName}`);
     const finalPath = path.join(uploadsDir, finalName);
-    
+
     console.log(`📁 Receiving PUT for object: ${name} → saving as: ${finalName}`);
 
     // Escribir archivo temporal
@@ -150,7 +154,7 @@ router.put("/objects/:name", async (req, res) => {
 
         // Procesar imagen: redimensionar si es muy grande, optimizar
         let processedBuffer;
-        
+
         if (imageInfo.width && imageInfo.width > 1920) {
           // Redimensionar imágenes muy grandes
           processedBuffer = await sharp(tempPath)
@@ -175,7 +179,7 @@ router.put("/objects/:name", async (req, res) => {
 
         // Guardar imagen procesada
         fs.writeFileSync(finalPath, processedBuffer);
-        
+
         // Limpiar archivo temporal
         fs.unlinkSync(tempPath);
 
@@ -190,12 +194,12 @@ router.put("/objects/:name", async (req, res) => {
 
       } catch (imageError) {
         console.error("Error processing image:", imageError);
-        
+
         // Si falla el procesamiento, usar archivo original
         try {
           fs.renameSync(tempPath, finalPath);
           console.log(`⚠️ Image processing failed, saved original: ${finalName}`);
-          
+
           return res.status(200).json({
             success: true,
             objectName: finalName,
@@ -230,131 +234,115 @@ router.put("/objects/:name", async (req, res) => {
 });
 
 // POST /api/objects/direct-upload/upload - Direct file upload for Uppy
-router.post("/api/objects/direct-upload/upload", async (req, res) => {
+router.post("/api/objects/direct-upload/upload", upload.single('file'), async (req, res) => {
   try {
     console.log('📸 Direct upload endpoint called');
     console.log('📋 Headers:', req.headers);
     console.log('📋 Content-Type:', req.headers['content-type']);
-    
+
     const contentType = req.headers['content-type'] || '';
-    
+
     // Handle multipart form data
     if (contentType.includes('multipart/form-data')) {
-      const multer = require('multer');
-      const upload = multer({ 
-        storage: multer.memoryStorage(),
-        limits: { fileSize: 10 * 1024 * 1024 } // 10MB
-      });
-      
-      const uploadSingle = upload.single('file');
-      
-      uploadSingle(req, res, async (err) => {
-        if (err) {
-          console.error('❌ Multer error:', err);
-          return res.status(500).json({ success: false, error: 'Upload failed' });
-        }
-        
-        if (!req.file) {
-          console.error('❌ No file received');
-          return res.status(400).json({ success: false, error: 'No file received' });
-        }
-        
-        try {
-          const fileBuffer = req.file.buffer;
-          const originalFilename = req.file.originalname || 'upload.jpg';
-          
-          console.log(`📁 Received file: ${fileBuffer.length} bytes`);
-          console.log(`📝 Original filename: ${originalFilename}`);
-          console.log(`🔍 File header: ${fileBuffer.slice(0, 16).toString('hex')}`);
-          
-          // Generate unique filename
-          const ext = path.extname(String(originalFilename)).toLowerCase() || '.jpg';
-          const uniqueName = `${uuidv4()}-${Date.now()}${ext}`;
-          const filePath = path.join(uploadsDir, uniqueName);
-          
-          // Process image with Sharp if it's an image
-          let processedBuffer = fileBuffer;
-          if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'].includes(ext)) {
-            try {
-              // Validate that it's actually an image by reading metadata
-              const imageInfo = await sharp(fileBuffer).metadata();
-              console.log(`📸 Image metadata:`, {
-                format: imageInfo.format,
-                width: imageInfo.width,
-                height: imageInfo.height,
-                size: imageInfo.size
-              });
-              
-              // Only process if Sharp can read the image
-              if (imageInfo.format) {
-                // Resize if too large and optimize based on format
-                if (imageInfo.width && imageInfo.width > 1920) {
-                  if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
-                    processedBuffer = await sharp(fileBuffer)
-                      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-                      .jpeg({ quality: 85 })
-                      .toBuffer();
-                  } else if (imageInfo.format === 'png') {
-                    processedBuffer = await sharp(fileBuffer)
-                      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-                      .png({ compressionLevel: 6 })
-                      .toBuffer();
-                  } else {
-                    // For other formats, just resize without changing format
-                    processedBuffer = await sharp(fileBuffer)
-                      .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
-                      .toBuffer();
-                  }
+      // The upload.single('file') middleware already handles the file
+      if (!req.file) {
+        console.error('❌ No file received');
+        return res.status(400).json({ success: false, error: 'No file received' });
+      }
+
+      try {
+        const fileBuffer = req.file.buffer;
+        const originalFilename = req.file.originalname || 'upload.jpg';
+
+        console.log(`📁 Received file: ${fileBuffer.length} bytes`);
+        console.log(`📝 Original filename: ${originalFilename}`);
+        console.log(`🔍 File header: ${fileBuffer.slice(0, 16).toString('hex')}`);
+
+        // Generate unique filename
+        const ext = path.extname(String(originalFilename)).toLowerCase() || '.jpg';
+        const uniqueName = `${uuidv4()}-${Date.now()}${ext}`;
+        const filePath = path.join(uploadsDir, uniqueName);
+
+        // Process image with Sharp if it's an image
+        let processedBuffer = fileBuffer;
+        if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'].includes(ext)) {
+          try {
+            // Validate that it's actually an image by reading metadata
+            const imageInfo = await sharp(fileBuffer).metadata();
+            console.log(`📸 Image metadata:`, {
+              format: imageInfo.format,
+              width: imageInfo.width,
+              height: imageInfo.height,
+              size: imageInfo.size
+            });
+
+            // Only process if Sharp can read the image
+            if (imageInfo.format) {
+              // Resize if too large and optimize based on format
+              if (imageInfo.width && imageInfo.width > 1920) {
+                if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                    .jpeg({ quality: 85 })
+                    .toBuffer();
+                } else if (imageInfo.format === 'png') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                    .png({ compressionLevel: 6 })
+                    .toBuffer();
                 } else {
-                  // Just optimize without resizing
-                  if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
-                    processedBuffer = await sharp(fileBuffer)
-                      .jpeg({ quality: 85 })
-                      .toBuffer();
-                  } else if (imageInfo.format === 'png') {
-                    processedBuffer = await sharp(fileBuffer)
-                      .png({ compressionLevel: 6 })
-                      .toBuffer();
-                  } else {
-                    processedBuffer = fileBuffer; // Keep original for other formats
-                  }
+                  // For other formats, just resize without changing format
+                  processedBuffer = await sharp(fileBuffer)
+                    .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+                    .toBuffer();
                 }
-                console.log(`✅ Image processed successfully, size: ${processedBuffer.length} bytes`);
+              } else {
+                // Just optimize without resizing
+                if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .jpeg({ quality: 85 })
+                    .toBuffer();
+                } else if (imageInfo.format === 'png') {
+                  processedBuffer = await sharp(fileBuffer)
+                    .png({ compressionLevel: 6 })
+                    .toBuffer();
+                } else {
+                  processedBuffer = fileBuffer; // Keep original for other formats
+                }
               }
-            } catch (sharpError) {
-              console.log('⚠️ Sharp processing failed, using original:', sharpError.message);
-              processedBuffer = fileBuffer;
+              console.log(`✅ Image processed successfully, size: ${processedBuffer.length} bytes`);
             }
+          } catch (sharpError) {
+            console.log('⚠️ Sharp processing failed, using original:', sharpError.message);
+            processedBuffer = fileBuffer;
           }
-          
-          // Save file
-          fs.writeFileSync(filePath, processedBuffer);
-          console.log(`✅ File saved: ${uniqueName}, size: ${processedBuffer.length} bytes`);
-          
-          // Generate URLs
-          const protocol = req.get('x-forwarded-proto') || req.protocol;
-          const host = req.get("host");
-          const secureProtocol = protocol === 'https' || host?.includes('replit.dev') ? 'https' : protocol;
-          const publicUrl = `/objects/${uniqueName}`;
-          const fullUrl = `${secureProtocol}://${host}${publicUrl}`;
-          
-          return res.status(200).json({
-            success: true,
-            url: publicUrl,
-            location: publicUrl,
-            uploadURL: fullUrl,
-            objectName: uniqueName
-          });
-          
-        } catch (error) {
-          console.error('❌ File processing error:', error);
-          return res.status(500).json({ success: false, error: 'File processing failed' });
         }
-      });
-      
-      return; // Exit here for multipart handling
+
+        // Save file
+        fs.writeFileSync(filePath, processedBuffer);
+        console.log(`✅ File saved: ${uniqueName}, size: ${processedBuffer.length} bytes`);
+
+        // Generate URLs
+        const protocol = req.get('x-forwarded-proto') || req.protocol;
+        const host = req.get("host");
+        const secureProtocol = protocol === 'https' || host?.includes('replit.dev') ? 'https' : protocol;
+        const publicUrl = `/objects/${uniqueName}`;
+        const fullUrl = `${secureProtocol}://${host}${publicUrl}`;
+
+        return res.status(200).json({
+          success: true,
+          url: publicUrl,
+          location: publicUrl,
+          uploadURL: fullUrl,
+          objectName: uniqueName
+        });
+
+      } catch (error) {
+        console.error('❌ File processing error:', error);
+        return res.status(500).json({ success: false, error: 'File processing failed' });
+      }
     }
-    
+
     // Handle raw binary data (original logic)
     let body: Buffer[] = [];
     let totalSize = 0;
@@ -435,7 +423,7 @@ router.use("/objects", express.static(uploadsDir, {
   setHeaders: (res, filePath) => {
     const ext = path.extname(filePath).toLowerCase();
     console.log(`🎯 Serving static file: ${path.basename(filePath)} with extension: ${ext}`);
-    
+
     const contentTypes: { [key: string]: string } = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
@@ -449,16 +437,16 @@ router.use("/objects", express.static(uploadsDir, {
       '.tiff': 'image/tiff',
       '.tif': 'image/tiff'
     };
-    
+
     const contentType = contentTypes[ext] || 'application/octet-stream';
     console.log(`📋 Setting Content-Type: ${contentType}`);
-    
+
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    
+
     // Add proper headers for images
     if (contentType.startsWith('image/')) {
       res.setHeader('Accept-Ranges', 'bytes');
@@ -470,9 +458,9 @@ router.use("/objects", express.static(uploadsDir, {
 router.get("/objects/:filename", (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(uploadsDir, filename);
-  
+
   console.log(`🔍 Fallback handler: Looking for file ${filename} at ${filePath}`);
-  
+
   if (!fs.existsSync(filePath)) {
     console.log(`❌ File not found: ${filePath}`);
     console.log(`📁 Available files in uploads:`, fs.readdirSync(uploadsDir).slice(0, 10).join(', '));
@@ -487,7 +475,7 @@ router.get("/objects/:filename", (req, res) => {
   try {
     const stats = fs.statSync(filePath);
     const ext = path.extname(filename).toLowerCase();
-    
+
     const contentTypes: { [key: string]: string } = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
@@ -498,19 +486,19 @@ router.get("/objects/:filename", (req, res) => {
       '.svg': 'image/svg+xml',
       '.ico': 'image/x-icon'
     };
-    
+
     const contentType = contentTypes[ext] || 'application/octet-stream';
-    
+
     console.log(`✅ Serving file via fallback: ${filename}, size: ${stats.size}, type: ${contentType}`);
-    
+
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Length', stats.size);
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    
+
     const readStream = fs.createReadStream(filePath);
     readStream.pipe(res);
-    
+
   } catch (error) {
     console.error(`❌ Error serving file ${filename}:`, error);
     res.status(500).json({ 
