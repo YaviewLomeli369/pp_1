@@ -1,0 +1,204 @@
+🔍 Testing connection and auth
+ObjectUploader.tsx:76 ✅ Connection and auth successful
+ObjectUploader.tsx:129 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:141 🌐 Environment: Replit
+ObjectUploader.tsx:142 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:278 ✅ Uppy initialized successfully
+ObjectUploader.tsx:216 🚀 Upload started
+ObjectUploader.tsx:223 📊 Upload progress: 31%
+hook.js:608 [Uppy] [17:39:42] This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+overrideMethod @ hook.js:608
+error @ chunk-77BHBA4S.js?v=a895d439:646
+log @ chunk-77BHBA4S.js?v=a895d439:1840
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2162
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:818
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:831
+_call2 @ @uppy_xhr-upload.js?v=a895d439:395
+run @ @uppy_xhr-upload.js?v=a895d439:277
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=a895d439:751
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=a895d439:951
+value @ @uppy_xhr-upload.js?v=a895d439:585
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2399
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+ObjectUploader.tsx:209 ❌ Uppy general error: Error: Failed to upload 5.png
+    at Function.<anonymous> (chunk-77BHBA4S.js?v=a895d439:2163:24)
+    at emitAll (chunk-77BHBA4S.js?v=a895d439:80:19)
+    at Object.emit (chunk-77BHBA4S.js?v=a895d439:25:11)
+    at Uppy.emit (chunk-77BHBA4S.js?v=a895d439:1080:60)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=a895d439:818:17)
+overrideMethod @ hook.js:608
+(anonymous) @ ObjectUploader.tsx:209
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+_informAndEmit2 @ chunk-77BHBA4S.js?v=a895d439:1964
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2171
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:818
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:831
+_call2 @ @uppy_xhr-upload.js?v=a895d439:395
+run @ @uppy_xhr-upload.js?v=a895d439:277
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=a895d439:751
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=a895d439:951
+value @ @uppy_xhr-upload.js?v=a895d439:585
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2399
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+store.tsx:1008 Upload error: Error: Failed to upload 5.png
+    at Function.<anonymous> (chunk-77BHBA4S.js?v=a895d439:2163:24)
+    at emitAll (chunk-77BHBA4S.js?v=a895d439:80:19)
+    at Object.emit (chunk-77BHBA4S.js?v=a895d439:25:11)
+    at Uppy.emit (chunk-77BHBA4S.js?v=a895d439:1080:60)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=a895d439:818:17)
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1008
+(anonymous) @ ObjectUploader.tsx:212
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+_informAndEmit2 @ chunk-77BHBA4S.js?v=a895d439:1964
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2171
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:818
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:831
+_call2 @ @uppy_xhr-upload.js?v=a895d439:395
+run @ @uppy_xhr-upload.js?v=a895d439:277
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=a895d439:751
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=a895d439:951
+value @ @uppy_xhr-upload.js?v=a895d439:585
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2399
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+ObjectUploader.tsx:227 ❌ Upload error: {file: '5.png', error: 'This looks like a network error, the endpoint migh…be blocked by an internet provider or a firewall.', response: undefined}
+overrideMethod @ hook.js:608
+(anonymous) @ ObjectUploader.tsx:227
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:818
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:831
+_call2 @ @uppy_xhr-upload.js?v=a895d439:395
+run @ @uppy_xhr-upload.js?v=a895d439:277
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=a895d439:751
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=a895d439:951
+value @ @uppy_xhr-upload.js?v=a895d439:585
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2399
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+store.tsx:1008 Upload error: NetworkError: This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+    at buildResponseError (@uppy_xhr-upload.js?v=a895d439:530:13)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=a895d439:817:21)Caused by: NetworkError: This looks like a network error, the endpoint might be blocked by an internet provider or a firewall.
+    at Object.getResponseError (@uppy_xhr-upload.js?v=a895d439:625:19)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=a895d439:817:50)Caused by: Error: Upload error
+    at Object.getResponseError (@uppy_xhr-upload.js?v=a895d439:623:21)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=a895d439:817:50)
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1008
+(anonymous) @ ObjectUploader.tsx:234
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:818
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:831
+_call2 @ @uppy_xhr-upload.js?v=a895d439:395
+run @ @uppy_xhr-upload.js?v=a895d439:277
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=a895d439:751
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=a895d439:951
+value @ @uppy_xhr-upload.js?v=a895d439:585
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2399
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+ObjectUploader.tsx:242 🏆 Upload complete: {successful: Array(0), failed: Array(1), uploadID: '7bq9PuVqBdeHxwOg6ClSE'}
+ObjectUploader.tsx:245 ❌ Failed uploads: [{…}]
+overrideMethod @ hook.js:608
+(anonymous) @ ObjectUploader.tsx:245
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2426
+await in _runUpload2
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+store.tsx:1008 Upload error: Error: Some uploads failed
+    at Function.<anonymous> (ObjectUploader.tsx:248:29)
+    at emitAll (chunk-77BHBA4S.js?v=a895d439:80:19)
+    at Object.emit (chunk-77BHBA4S.js?v=a895d439:25:11)
+    at Uppy.emit (chunk-77BHBA4S.js?v=a895d439:1080:60)
+    at Uppy._runUpload2 (chunk-77BHBA4S.js?v=a895d439:2426:10)
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1008
+(anonymous) @ ObjectUploader.tsx:248
+emitAll @ chunk-77BHBA4S.js?v=a895d439:80
+emit @ chunk-77BHBA4S.js?v=a895d439:25
+emit @ chunk-77BHBA4S.js?v=a895d439:1080
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2426
+await in _runUpload2
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+@uppy_xhr-upload.js?v=a895d439:831  POST https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/upload net::ERR_CONNECTION_ABORTED
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:831
+_call2 @ @uppy_xhr-upload.js?v=a895d439:395
+run @ @uppy_xhr-upload.js?v=a895d439:277
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=a895d439:751
+(anonymous) @ @uppy_xhr-upload.js?v=a895d439:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=a895d439:951
+value @ @uppy_xhr-upload.js?v=a895d439:585
+_runUpload2 @ chunk-77BHBA4S.js?v=a895d439:2399
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=a895d439:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=a895d439:1087
+(anonymous) @ chunk-77BHBA4S.js?v=a895d439:2566Understand this error
+ObjectUploader.tsx:223 📊 Upload progress: 0%
+ObjectUploader.tsx:94 🧹 Uppy instance cleaned up
+ObjectUploader.tsx:53 🔍 Testing connection and auth
+ObjectUploader.tsx:76 ✅ Connection and auth successful
+ObjectUploader.tsx:129 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:141 🌐 Environment: Replit
+ObjectUploader.tsx:142 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:278 ✅ Uppy initialized successfully
