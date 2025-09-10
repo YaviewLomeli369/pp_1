@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import Uppy from '@uppy/core';
+import { Uppy } from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import Dashboard from '@uppy/dashboard';
 import { Button } from './ui/button';
