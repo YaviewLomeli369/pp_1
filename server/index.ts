@@ -63,17 +63,14 @@ app.use((req, res, next) => {
   // doesn't interfere with the other routes
   // Enhanced file serving for uploaded objects
   const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
-  
-  // 1) Static serving first (fast path)
-  app.use('/objects', express.static(UPLOADS_DIR, {
-    dotfiles: 'allow',
-    index: false,
+
+  // 1) Serve static files from the uploads folder (with specific Content-Type headers)
+  app.use('/uploads', express.static(UPLOADS_DIR, {
     setHeaders: (res, filePath) => {
-      // Detect content type for images and other files
       const ext = path.extname(filePath).toLowerCase();
       const contentTypes: { [key: string]: string } = {
         '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg', 
+        '.jpeg': 'image/jpeg',
         '.png': 'image/png',
         '.gif': 'image/gif',
         '.webp': 'image/webp',
@@ -81,110 +78,100 @@ app.use((req, res, next) => {
         '.svg': 'image/svg+xml',
         '.ico': 'image/x-icon'
       };
-      
-      if (contentTypes[ext]) {
-        res.setHeader('Content-Type', contentTypes[ext]);
-      } else if (!ext) {
-        // For files without extension, try to detect if it's an image
-        try {
-          const buffer = fs.readFileSync(filePath);
-          if (buffer.length > 4) {
-            const header = buffer.toString('hex', 0, 4);
-            if (header.startsWith('ffd8ff')) {
-              res.setHeader('Content-Type', 'image/jpeg');
-            } else if (header.startsWith('89504e47')) {
-              res.setHeader('Content-Type', 'image/png');
-            } else if (header.startsWith('47494638')) {
-              res.setHeader('Content-Type', 'image/gif');
-            }
-          }
-        } catch (e) {
-          // Fallback to octet-stream
-          res.setHeader('Content-Type', 'application/octet-stream');
-        }
-      }
-      
+
+      const contentType = contentTypes[ext] || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=86400');
       res.setHeader('Access-Control-Allow-Origin', '*');
     }
   }));
 
-  // 2) Fallback route for files that need prefix matching
-  app.get('/objects/:name', (req, res) => {
-    const name = req.params.name;
-    const candidatePath = path.join(UPLOADS_DIR, name);
+  // Intelligent object resolution handler
+  app.get("/objects/:objectId/:maybeFilename?", async (req, res) => {
+    try {
+      const { objectId, maybeFilename } = req.params;
 
-    // If exact file exists, serve it
-    if (fs.existsSync(candidatePath)) {
-      const ext = path.extname(candidatePath).toLowerCase();
+      // Read files from uploads directory
+      const files = await fs.promises.readdir(UPLOADS_DIR);
+
+      // 1) If no maybeFilename provided, treat objectId as complete name or find by prefix
+      if (!maybeFilename) {
+        // First try exact match
+        let match = files.find(f => f === objectId);
+        if (!match) {
+          // Then try files that start with objectId- or objectId
+          match = files.find(f => f.startsWith(`${objectId}-`) || f.startsWith(`${objectId}`));
+        }
+        if (!match) {
+          return res.status(404).send("Not found");
+        }
+        const filePath = path.join(UPLOADS_DIR, match);
+        if (!fs.existsSync(filePath)) return res.status(404).send("Not found");
+
+        // Set appropriate content type
+        const ext = path.extname(filePath).toLowerCase();
+        const contentTypes: { [key: string]: string } = {
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.png': 'image/png',
+          '.gif': 'image/gif',
+          '.webp': 'image/webp',
+          '.avif': 'image/avif',
+          '.svg': 'image/svg+xml',
+          '.ico': 'image/x-icon'
+        };
+        const contentType = contentTypes[ext] || 'application/octet-stream';
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+
+        return res.sendFile(filePath);
+      }
+
+      // 2) If objectId and filename provided, try to resolve variants
+      const candidate1 = `${objectId}-${maybeFilename}`;
+      const candidate2 = `${objectId}${maybeFilename.startsWith(".") ? "" : "-"}${maybeFilename}`;
+      const candidateExact = `${maybeFilename}`;
+      const candidates = [candidate1, candidate2, candidateExact];
+
+      // Find exact candidate match first
+      let match = files.find(f => candidates.includes(f));
+      if (!match) {
+        // Try files that start with objectId and end with same extension
+        match = files.find(f => f.startsWith(`${objectId}-`) && f.endsWith(path.extname(maybeFilename)));
+      }
+      if (!match) {
+        // Fallback: any file that starts with objectId
+        match = files.find(f => f.startsWith(objectId));
+      }
+
+      if (!match) return res.status(404).send("Not found");
+
+      const filePath = path.join(UPLOADS_DIR, match);
+      if (!fs.existsSync(filePath)) return res.status(404).send("Not found");
+
+      // Set appropriate content type
+      const ext = path.extname(filePath).toLowerCase();
       const contentTypes: { [key: string]: string } = {
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
-        '.png': 'image/png', 
+        '.png': 'image/png',
         '.gif': 'image/gif',
         '.webp': 'image/webp',
         '.avif': 'image/avif',
         '.svg': 'image/svg+xml',
         '.ico': 'image/x-icon'
       };
-      
       const contentType = contentTypes[ext] || 'application/octet-stream';
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=86400');
       res.setHeader('Access-Control-Allow-Origin', '*');
-      return res.sendFile(candidatePath);
-    }
 
-    // Try to find file by prefix (for cases where filename format varies)
-    try {
-      const idPrefix = name.split(/[\.-]/)[0];
-      const files = fs.readdirSync(UPLOADS_DIR).filter(f => f.startsWith(idPrefix));
-      
-      if (files.length > 0) {
-        const filePath = path.join(UPLOADS_DIR, files[0]);
-        const ext = path.extname(files[0]).toLowerCase();
-        const contentTypes: { [key: string]: string } = {
-          '.jpg': 'image/jpeg',
-          '.jpeg': 'image/jpeg',
-          '.png': 'image/png',
-          '.gif': 'image/gif', 
-          '.webp': 'image/webp',
-          '.avif': 'image/avif',
-          '.svg': 'image/svg+xml',
-          '.ico': 'image/x-icon'
-        };
-        
-        let contentType = contentTypes[ext] || 'application/octet-stream';
-        
-        // If no extension, try to detect from file content
-        if (!ext) {
-          try {
-            const buffer = fs.readFileSync(filePath);
-            if (buffer.length > 4) {
-              const header = buffer.toString('hex', 0, 4);
-              if (header.startsWith('ffd8ff')) {
-                contentType = 'image/jpeg';
-              } else if (header.startsWith('89504e47')) {
-                contentType = 'image/png';
-              } else if (header.startsWith('47494638')) {
-                contentType = 'image/gif';
-              }
-            }
-          } catch (e) {
-            // Keep default octet-stream
-          }
-        }
-        
-        res.setHeader('Content-Type', contentType);
-        res.setHeader('Cache-Control', 'public, max-age=86400');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        return res.sendFile(filePath);
-      }
-    } catch (e) {
-      console.error('Error searching for file:', e);
+      return res.sendFile(filePath);
+    } catch (err) {
+      console.error("Error serving object:", err);
+      return res.status(500).send("Internal error");
     }
-
-    return res.status(404).send('File not found');
   });
 
   if (app.get("env") === "development") {

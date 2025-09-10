@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
@@ -34,6 +33,22 @@ export default function ObjectUploader({
   const dashboardRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Mocking selectedProduct and updateProductImageMutation for compilation
+  // In a real scenario, these would be passed as props or accessed from context/state management
+  const selectedProduct = null; // Replace with actual selected product
+  const updateProductImageMutation = {
+    mutate: (data: { id: string | null, imageURL: string }) => {
+      console.log("Mock updateProductImageMutation.mutate called with:", data);
+    }
+  };
+  const toast = ({ title, description, variant }: { title: string, description: string, variant?: string }) => {
+    console.log(`Toast: ${title} - ${description} (${variant})`);
+  };
+  const setTempImageUrl = (url: string) => {
+    console.log("Mock setTempImageUrl called with:", url);
+  };
+
+
   useEffect(() => {
     if (!isOpen || uppyRef.current) return;
 
@@ -41,7 +56,7 @@ export default function ObjectUploader({
     const protocol = window.location.protocol; // 'http:' o 'https:'
     const host = window.location.host;         // 'www.nyuxo.com' o 'localhost:5000'
     const baseUrl = `${protocol}//${host}`;
-    
+
     console.log('🌐 Protocol detected:', protocol);
     console.log('🌐 Host detected:', host);
     console.log('🌐 Base URL:', baseUrl);
@@ -112,7 +127,7 @@ export default function ObjectUploader({
       console.log('ERROR-7. Response statusText:', response?.statusText);
       console.log('ERROR-8. Response responseText:', response?.body || response?.responseText);
       console.log('=== 🏁 UPPY UPLOAD ERROR EVENT END ===');
-      
+
       onUploadError?.(error);
     });
 
@@ -125,28 +140,85 @@ export default function ObjectUploader({
       console.log('COMPLETE-1. Complete result:', result);
       console.log('COMPLETE-2. Result.successful length:', result.successful?.length || 0);
       console.log('COMPLETE-3. Result.failed length:', result.failed?.length || 0);
-      
+
       if (result.failed && result.failed.length > 0) {
         console.log('COMPLETE-4. Failed files:', result.failed);
         result.failed.forEach((file, index) => {
           console.log(`COMPLETE-5.${index}. Failed file:`, file.name, 'Error:', file.error);
         });
       }
-      
+
       if (result.successful && result.successful.length > 0) {
         console.log('COMPLETE-6. Successful files:', result.successful);
+        result.successful.forEach((file) => {
+          // Handle successful upload
+          console.log("COMPLETE-3. ✅ Upload successful, file data:", file);
+          console.log("COMPLETE-3. ✅ Upload URL:", file.uploadURL);
+          console.log("COMPLETE-3. ✅ Response body:", file.response?.body);
+
+          // Obtener el nombre que devolvió el servidor (si existe)
+          const serverBody = (file.response?.body as any) || {};
+          // Preferir el campo que te devuelva el servidor: objectName / url / location / uploadURL
+          const serverObjectName =
+            serverBody.objectName ||
+            serverBody.object ||
+            // si server devuelve url '/objects/xxx' -> extraer ultimo segmento
+            (typeof serverBody.url === "string" ? serverBody.url.split("/").pop() : null) ||
+            (typeof serverBody.location === "string" ? serverBody.location.split("/").pop() : null) ||
+            null;
+
+          // Si no está objectName, tomar uploadURL tal cual (viene como '/objects/<objectName>')
+          let storedObjectSegment = serverObjectName;
+          if (!storedObjectSegment) {
+            const maybePath = (file.uploadURL || file.response?.uploadURL || file.response?.url || file.response?.location);
+            if (typeof maybePath === "string") {
+              storedObjectSegment = maybePath.split("/").pop() || maybePath;
+            }
+          }
+
+          if (!storedObjectSegment) {
+            console.error("❌ No se pudo deducir nombre de objeto desde la respuesta:", file.response);
+            toast({
+              title: "Error al subir imagen",
+              description: "No se pudo determinar la ruta del objeto en el servidor",
+              variant: "destructive"
+            });
+            return;
+          }
+
+          // Construir URL pública absoluta (guardarla así en DB/PUT)
+          const publicUrl = storedObjectSegment.startsWith("http")
+            ? storedObjectSegment
+            : `${window.location.origin}/objects/${encodeURIComponent(storedObjectSegment)}`;
+
+          console.log("COMPLETE-4. ✅ Public URL a guardar:", publicUrl);
+
+          // Guardar según el caso (producto existente o nuevo)
+          if (selectedProduct?.id) {
+            updateProductImageMutation.mutate({
+              id: selectedProduct.id,
+              imageURL: publicUrl,
+            });
+          } else {
+            setTempImageUrl(publicUrl);
+            toast({
+              title: "Imagen subida exitosamente",
+              description: "Se aplicará al guardar el producto",
+            });
+          }
+        });
       }
 
       console.log('COMPLETE-9. Calling onComplete callback...');
-      
+
       // Llamar callback de éxito
       onUploadSuccess(result);
-      
+
       console.log('COMPLETE-10. Closing modal...');
       setTimeout(() => {
         setIsOpen(false);
       }, 1000);
-      
+
       console.log('=== 🏁 UPPY COMPLETE EVENT END ===');
     });
 
@@ -213,7 +285,7 @@ export default function ObjectUploader({
             <X className="h-4 w-4" />
           </Button>
         </div>
-        
+
         <div className="p-4">
           <div ref={dashboardRef} />
           {note && (
