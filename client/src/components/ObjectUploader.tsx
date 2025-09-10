@@ -120,14 +120,25 @@ export default function ObjectUploader({
         return;
       }
 
+      // Esperar a que el DOM esté listo con múltiples intentos
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      while (attempts < maxAttempts && !dashboardRef.current) {
+        console.log(`Waiting for dashboard ref... attempt ${attempts + 1}/${maxAttempts}`);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+
       // Verificar que el elemento DOM esté disponible
       if (!dashboardRef.current) {
-        console.error('Dashboard ref is not available');
+        console.error('Dashboard ref is not available after waiting');
         setConnectionStatus('error');
-        setErrorMessage('Error: Dashboard container not found');
+        setErrorMessage('Error: Dashboard container not found after multiple attempts');
         return;
       }
 
+      console.log('✅ Dashboard ref is ready:', dashboardRef.current);
       setConnectionStatus('ready');
 
       console.log('🌐 Entorno detectado:', isReplit ? 'Replit' : 'VPS/Local');
@@ -198,10 +209,13 @@ export default function ObjectUploader({
           limit: 3,
         });
 
-        // Configurar Dashboard después de un pequeño delay para asegurar que el DOM está listo
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Configurar Dashboard con verificación adicional del DOM
+        await new Promise(resolve => setTimeout(resolve, 200));
         
-        if (dashboardRef.current) {
+        // Triple verificación del dashboard ref
+        if (dashboardRef.current && dashboardRef.current.isConnected) {
+          console.log('🎯 Initializing Dashboard with target:', dashboardRef.current);
+          
           uppy.use(Dashboard, {
             id: 'Dashboard',
             inline: true,
@@ -222,6 +236,10 @@ export default function ObjectUploader({
               }
             }
           });
+          
+          console.log('✅ Dashboard initialized successfully');
+        } else {
+          throw new Error('Dashboard ref is not connected to DOM');
         }
 
         // Event handlers mejorados
@@ -393,7 +411,12 @@ export default function ObjectUploader({
 
           {connectionStatus === 'ready' && (
             <>
-              <div ref={dashboardRef} />
+              <div 
+                ref={dashboardRef} 
+                id="uppy-dashboard-container"
+                className="min-h-[300px] w-full"
+                style={{ visibility: dashboardRef.current ? 'visible' : 'hidden' }}
+              />
               {note && (
                 <p className="text-sm text-gray-500 mt-2">{note}</p>
               )}
