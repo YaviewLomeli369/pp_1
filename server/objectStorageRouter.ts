@@ -250,9 +250,21 @@ router.post("/api/objects/direct-upload/upload", (req, res) => {
         const fileBuffer = Buffer.concat(body);
         console.log(`📁 Received file: ${fileBuffer.length} bytes`);
 
+        // Validate file buffer
+        if (fileBuffer.length === 0) {
+          throw new Error('Empty file received');
+        }
+
+        if (fileBuffer.length > maxSize) {
+          throw new Error('File too large');
+        }
+
         // Get original filename from headers
         const originalFilename = req.headers['x-filename'] || req.headers['x-original-filename'] || 'upload.jpg';
         console.log(`📝 Original filename: ${originalFilename}`);
+
+        // Log first few bytes for debugging
+        console.log(`🔍 File header: ${fileBuffer.slice(0, 16).toString('hex')}`);
 
         // Generate unique filename
         const ext = path.extname(String(originalFilename)).toLowerCase() || '.jpg';
@@ -312,7 +324,31 @@ router.post("/api/objects/direct-upload/upload", (req, res) => {
               processedBuffer = fileBuffer;
             }
           } catch (sharpError) {
-            // Silently fall back to original file if Sharp can't process it
+            console.log('⚠️ Sharp processing failed:', sharpError.message);
+            console.log('📊 File buffer info:', {
+              length: fileBuffer.length,
+              firstBytes: fileBuffer.slice(0, 16).toString('hex'),
+              isBuffer: Buffer.isBuffer(fileBuffer)
+            });
+            
+            // Validate that we have a proper image buffer before falling back
+            if (fileBuffer.length < 100) {
+              throw new Error('File buffer too small, likely corrupted');
+            }
+            
+            // Check for basic image headers
+            const header = fileBuffer.slice(0, 8).toString('hex');
+            const isPNG = header.startsWith('89504e47');
+            const isJPEG = header.startsWith('ffd8ff');
+            const isGIF = header.startsWith('47494638');
+            const isWEBP = header.includes('57454250');
+            
+            if (!isPNG && !isJPEG && !isGIF && !isWEBP) {
+              console.error('❌ Invalid image format detected, header:', header);
+              throw new Error('Invalid image format');
+            }
+            
+            console.log('✅ Image format validated, using original file');
             processedBuffer = fileBuffer;
           }
         } else {
@@ -322,6 +358,29 @@ router.post("/api/objects/direct-upload/upload", (req, res) => {
         // Save file
         fs.writeFileSync(filePath, processedBuffer);
         console.log(`✅ File saved: ${uniqueName}, size: ${processedBuffer.length} bytes`);
+
+        // Verify file was written correctly
+        if (!fs.existsSync(filePath)) {
+          throw new Error('File was not created successfully');
+        }
+
+        const savedFileStats = fs.statSync(filePath);
+        console.log(`✅ File verified: actual size on disk: ${savedFileStats.size} bytes`);
+        
+        if (savedFileStats.size !== processedBuffer.length) {
+          console.warn(`⚠️ Size mismatch: expected ${processedBuffer.length}, got ${savedFileStats.size}`);
+        }
+
+        // For PNG files, do a quick header check
+        if (ext === '.png') {
+          const savedBuffer = fs.readFileSync(filePath, { start: 0, end: 8 });
+          const savedHeader = savedBuffer.toString('hex');
+          if (!savedHeader.startsWith('89504e47')) {
+            console.error(`❌ Saved PNG file has invalid header: ${savedHeader}`);
+            throw new Error('Saved PNG file appears to be corrupted');
+          }
+          console.log(`✅ PNG header verified: ${savedHeader}`);
+        }
 
         // Generate URLs
         const protocol = req.get('x-forwarded-proto') || req.protocol;
