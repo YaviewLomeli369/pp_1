@@ -8,6 +8,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeStoreData } from "./store-setup";
 import { initializeSiteConfig } from "./site-config-setup";
+import objectStorageRouter from "./objectStorageRouter";
 
 const app = express();
 app.use(express.json());
@@ -44,6 +45,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Add object storage router first
+  app.use('/', objectStorageRouter);
+  
   const server = await registerRoutes(app);
 
   // Initialize store data and site configuration on startup

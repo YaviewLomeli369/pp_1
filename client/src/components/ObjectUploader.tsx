@@ -76,14 +76,46 @@ export default function ObjectUploader({
       }
     });
 
-    // Configurar XHRUpload con URL estática
+    // Configurar XHRUpload con el nuevo flujo
     uppy.use(XHRUpload, {
-      endpoint: `${baseUrl}/api/objects/direct-upload/upload`,
+      endpoint: `${baseUrl}/api/objects/upload`,
       method: 'POST',
-      fieldName: 'file',
-      formData: true,
-      headers: {
-        'Accept': 'application/json',
+      getUploadParameters: async (file) => {
+        try {
+          console.log('🔄 Getting upload parameters for:', file.name);
+          
+          const response = await fetch(`${baseUrl}/api/objects/upload`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({ filename: file.name }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log('✅ Upload parameters received:', data);
+
+          return {
+            method: 'PUT',
+            url: data.uploadURL,
+            headers: {
+              'Content-Type': file.type || 'application/octet-stream',
+            },
+          };
+        } catch (error) {
+          console.error('❌ Error getting upload parameters:', error);
+          toast({
+            title: "Error",
+            description: "Error al obtener parámetros de carga",
+            variant: "destructive"
+          });
+          throw error;
+        }
       },
       timeout: 60 * 1000, // 60 segundos timeout
       limit: 3, // Máximo 3 subidas simultáneas
@@ -153,54 +185,37 @@ export default function ObjectUploader({
         result.successful.forEach((file) => {
           // Handle successful upload
           console.log("COMPLETE-3. ✅ Upload successful, file data:", file);
-          console.log("COMPLETE-3. ✅ Upload URL:", file.uploadURL);
           console.log("COMPLETE-3. ✅ Response body:", file.response?.body);
 
-          // Obtener el nombre que devolvió el servidor (si existe)
           const serverBody = (file.response?.body as any) || {};
-          // Preferir el campo que te devuelva el servidor: objectName / url / location / uploadURL
-          const serverObjectName =
-            serverBody.objectName ||
-            serverBody.object ||
-            // si server devuelve url '/objects/xxx' -> extraer ultimo segmento
-            (typeof serverBody.url === "string" ? serverBody.url.split("/").pop() : null) ||
-            (typeof serverBody.location === "string" ? serverBody.location.split("/").pop() : null) ||
-            null;
+          let imageURL = serverBody.url || serverBody.location;
 
-          // Si no está objectName, tomar uploadURL tal cual (viene como '/objects/<objectName>')
-          let storedObjectSegment = serverObjectName;
-          if (!storedObjectSegment) {
-            const maybePath = (file.uploadURL || file.response?.uploadURL || file.response?.url || file.response?.location);
-            if (typeof maybePath === "string") {
-              storedObjectSegment = maybePath.split("/").pop() || maybePath;
-            }
-          }
-
-          if (!storedObjectSegment) {
-            console.error("❌ No se pudo deducir nombre de objeto desde la respuesta:", file.response);
+          if (!imageURL) {
+            console.error("❌ No se pudo obtener URL desde la respuesta:", file.response);
             toast({
               title: "Error al subir imagen",
-              description: "No se pudo determinar la ruta del objeto en el servidor",
+              description: "No se pudo determinar la URL del objeto en el servidor",
               variant: "destructive"
             });
             return;
           }
 
-          // Construir URL pública absoluta (guardarla así en DB/PUT)
-          const publicUrl = storedObjectSegment.startsWith("http")
-            ? storedObjectSegment
-            : `${window.location.origin}/objects/${encodeURIComponent(storedObjectSegment)}`;
+          // Si es relativa (/objects/...) convertir a absoluta para <img src="">
+          let finalURL = imageURL.trim();
+          if (finalURL.startsWith("/")) {
+            finalURL = `${window.location.origin}${finalURL}`;
+          }
 
-          console.log("COMPLETE-4. ✅ Public URL a guardar:", publicUrl);
+          console.log("COMPLETE-4. ✅ Final URL a guardar:", finalURL);
 
           // Guardar según el caso (producto existente o nuevo)
           if (selectedProduct?.id) {
             updateProductImageMutation.mutate({
               id: selectedProduct.id,
-              imageURL: publicUrl,
+              imageURL: finalURL,
             });
           } else {
-            setTempImageUrl(publicUrl);
+            setTempImageUrl(finalURL);
             toast({
               title: "Imagen subida exitosamente",
               description: "Se aplicará al guardar el producto",
