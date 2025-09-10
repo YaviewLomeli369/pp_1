@@ -53,18 +53,30 @@ export default function ObjectUploader({
       console.log('🔍 Testing connection to:', `${BASE_URL}/api/objects/upload`);
       
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error('No authentication token found. Please log in.');
+      }
+
       const testResponse = await fetch(`${BASE_URL}/api/objects/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ filename: 'test-connection.jpg' }),
       });
 
       if (!testResponse.ok) {
-        throw new Error(`Test endpoint failed: ${testResponse.status} ${testResponse.statusText}`);
+        if (testResponse.status === 401) {
+          throw new Error('Authentication failed. Please log in again.');
+        } else if (testResponse.status === 502) {
+          throw new Error('Server is temporarily unavailable. Please try again in a moment.');
+        } else if (testResponse.status >= 500) {
+          throw new Error('Server error. Please try again later.');
+        } else {
+          throw new Error(`Connection failed: ${testResponse.status} ${testResponse.statusText}`);
+        }
       }
 
       const testData = await testResponse.json();

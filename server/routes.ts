@@ -2098,6 +2098,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // =================== OBJECT STORAGE API ROUTES ===================
 
+  // Object upload endpoint - generate upload URL
+  app.post("/api/objects/upload", requireAuth, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+
+      // Build base URL from request
+      const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+      const host = req.headers['x-forwarded-host'] || req.headers.host;
+      const baseURL = `${protocol}://${host}`;
+
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL(baseURL);
+
+      console.log("Generated absolute upload URL:", uploadURL);
+
+      res.json({
+        uploadURL,
+        method: "PUT",
+      });
+    } catch (error) {
+      console.error("Error generating upload URL:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
   // Serve public objects
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
@@ -2127,7 +2151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Return a placeholder image or 404 response
         res.status(404).json({ 
           error: "Object not found", 
-          path: objectPath,
+          path: req.params.objectPath,
           message: "The requested image could not be found" 
         });
         return;
@@ -2390,18 +2414,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // =================== OBJECT STORAGE ROUTES ===================
-
-  // Object storage upload endpoint
-  app.post("/api/objects/upload", requireAuth, async (req, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      res.json({ uploadURL });
-    } catch (error) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
-    }
-  });
 
   // =================== STRIPE PAYMENT API ROUTES ===================
 
