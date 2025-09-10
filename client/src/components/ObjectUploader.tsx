@@ -4,7 +4,7 @@ import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import Dashboard from '@uppy/dashboard';
 import { Button } from './ui/button';
-import { X, AlertCircle } from 'lucide-react';
+import { X, AlertCircle, CheckCircle, Upload } from 'lucide-react';
 
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
@@ -23,20 +23,21 @@ interface ObjectUploaderProps {
 export default function ObjectUploader({
   onUploadSuccess,
   onUploadError,
-  acceptedFileTypes = ['image/*', 'video/*', 'application/pdf'],
+  acceptedFileTypes = ['image/*'],
   maxFileSize = 10 * 1024 * 1024, // 10MB
   maxNumberOfFiles = 10,
   allowMultiple = true,
-  note = "Tamaño máximo: 10MB por archivo",
+  note = "Formatos soportados: JPG, PNG, GIF, WEBP. Máximo 10MB por archivo",
   className = "",
 }: ObjectUploaderProps) {
   const uppyRef = useRef<Uppy | null>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'testing' | 'ready' | 'error'>('testing');
+  const [connectionStatus, setConnectionStatus] = useState<'testing' | 'ready' | 'error' | 'uploading' | 'success'>('testing');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
-  // Detectar entorno automáticamente y forzar HTTPS en Replit
+  // Detectar entorno y configurar URLs
   const isReplit = window.location.hostname.includes('replit');
   const PROTOCOL = window.location.protocol;
   const HOST = window.location.hostname;
@@ -46,29 +47,11 @@ export default function ObjectUploader({
   const SECURE_PROTOCOL = isReplit ? 'https:' : PROTOCOL;
   const BASE_URL = SECURE_PROTOCOL + '//' + HOST + (PORT && !isReplit ? ':' + PORT : '');
 
-  // Mocking functions for compilation
-  const selectedProduct = null;
-  const updateProductImageMutation = {
-    mutate: (data: { id: string | null, imageURL: string }) => {
-      console.log("Mock updateProductImageMutation.mutate called with:", data);
-    }
-  };
-  const toast = ({ title, description, variant }: { title: string, description: string, variant?: string }) => {
-    console.log(`Toast: ${title} - ${description} (${variant})`);
-  };
-  const setTempImageUrl = (url: string) => {
-    console.log("Mock setTempImageUrl called with:", url);
-  };
-
-  // Función para probar la conexión antes de subir archivos reales
+  // Función para probar la conexión
   const testConnection = async (): Promise<boolean> => {
     try {
-      console.log('🔍 Probando conexión con:', `${BASE_URL}/api/objects/upload`);
+      console.log('🔍 Testing connection to:', `${BASE_URL}/api/objects/upload`);
       
-      // Crear archivo dummy para prueba
-      const blob = new Blob(['Test upload connection'], { type: 'text/plain' });
-      
-      // Probar primero el endpoint de generación de parámetros
       const token = localStorage.getItem("token");
       const testResponse = await fetch(`${BASE_URL}/api/objects/upload`, {
         method: 'POST',
@@ -77,7 +60,7 @@ export default function ObjectUploader({
           'Accept': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ filename: 'test-connection.txt' }),
+        body: JSON.stringify({ filename: 'test-connection.jpg' }),
       });
 
       if (!testResponse.ok) {
@@ -85,12 +68,12 @@ export default function ObjectUploader({
       }
 
       const testData = await testResponse.json();
-      console.log('✅ Test de endpoint exitoso:', testData);
+      console.log('✅ Connection test successful:', testData);
       
       return true;
     } catch (err) {
-      console.error('❌ Test de conexión falló:', err);
-      setErrorMessage(err instanceof Error ? err.message : 'Error de conexión desconocido');
+      console.error('❌ Connection test failed:', err);
+      setErrorMessage(err instanceof Error ? err.message : 'Unknown connection error');
       return false;
     }
   };
@@ -99,15 +82,14 @@ export default function ObjectUploader({
   const cleanupUppy = () => {
     if (uppyRef.current) {
       try {
+        uppyRef.current.cancelAll();
         if (typeof uppyRef.current.close === 'function') {
           uppyRef.current.close();
-        } else {
-          console.warn('Uppy instance does not have close method, manual cleanup');
-          uppyRef.current.cancelAll();
         }
         uppyRef.current = null;
+        console.log('🧹 Uppy instance cleaned up');
       } catch (error) {
-        console.warn('Error cleaning up Uppy instance:', error);
+        console.warn('Warning cleaning up Uppy:', error);
         uppyRef.current = null;
       }
     }
@@ -118,11 +100,13 @@ export default function ObjectUploader({
 
     const initializeUppy = async () => {
       setConnectionStatus('testing');
+      setErrorMessage('');
+      setUploadProgress(0);
       
-      // Limpiar instancia anterior si existe
+      // Limpiar instancia anterior
       cleanupUppy();
       
-      // Probar conexión primero
+      // Probar conexión
       const isConnected = await testConnection();
       
       if (!isConnected) {
@@ -130,10 +114,10 @@ export default function ObjectUploader({
         return;
       }
 
-      // Cambiar estado a ready primero para que se renderice el DOM
+      // Cambiar estado a ready
       setConnectionStatus('ready');
       
-      // Esperar a que el DOM esté listo con múltiples intentos
+      // Esperar a que el DOM esté listo
       let attempts = 0;
       const maxAttempts = 20;
       
@@ -143,25 +127,20 @@ export default function ObjectUploader({
         attempts++;
       }
 
-      // Verificar que el elemento DOM esté disponible y conectado
-      if (!dashboardRef.current || !dashboardRef.current.isConnected) {
-        console.error('Dashboard ref is not available or not connected after waiting');
+      if (!dashboardRef.current?.isConnected) {
+        console.error('Dashboard ref not available after waiting');
         setConnectionStatus('error');
-        setErrorMessage('Error: Dashboard container not found after multiple attempts');
+        setErrorMessage('UI component not ready');
         return;
       }
 
-      console.log('✅ Dashboard ref is ready:', dashboardRef.current);
-
-      console.log('🌐 Entorno detectado:', isReplit ? 'Replit' : 'VPS/Local');
-      console.log('🌐 Protocol:', PROTOCOL);
-      console.log('🌐 Host:', HOST);
+      console.log('🌐 Environment:', isReplit ? 'Replit' : 'Local/VPS');
       console.log('🌐 Base URL:', BASE_URL);
 
       try {
         // Crear instancia de Uppy
         const uppy = new Uppy({
-          id: `uppy-${Date.now()}`, // ID único para evitar conflictos
+          id: `uppy-${Date.now()}`,
           autoProceed: false,
           allowMultipleUploadBatches: true,
           restrictions: {
@@ -169,13 +148,9 @@ export default function ObjectUploader({
             maxNumberOfFiles: allowMultiple ? maxNumberOfFiles : 1,
             allowedFileTypes: acceptedFileTypes,
           },
-          onBeforeUpload: (files) => {
-            console.log('📁 Files ready to upload:', Object.keys(files).length);
-            return true;
-          }
         });
 
-        // Configurar XHRUpload con el flujo mejorado
+        // Configurar XHRUpload
         uppy.use(XHRUpload, {
           id: 'XHRUpload',
           endpoint: `${BASE_URL}/api/objects/upload`,
@@ -211,60 +186,72 @@ export default function ObjectUploader({
               };
             } catch (error) {
               console.error('❌ Error getting upload parameters:', error);
-              toast({
-                title: "Error",
-                description: "Error al obtener parámetros de carga",
-                variant: "destructive"
-              });
               throw error;
             }
           },
-          timeout: 30 * 1000, // Reducir timeout a 30 segundos
-          limit: 1, // Limitar a 1 upload simultáneo para evitar conflictos
-          retryDelays: [0, 1000, 3000], // Reintentos con delays
+          timeout: 60 * 1000, // 60 segundos
+          limit: 2, // Máximo 2 uploads simultáneos
+          retryDelays: [0, 1000, 3000], // Reintentos
         });
 
-        // Configurar Dashboard con el elemento DOM ya verificado
-        console.log('🎯 Initializing Dashboard with target:', dashboardRef.current);
-        
+        // Configurar Dashboard
         uppy.use(Dashboard, {
           id: 'Dashboard',
           inline: true,
           target: dashboardRef.current,
           showProgressDetails: true,
           proudlyDisplayPoweredByUppy: false,
-          height: 320,
+          height: 350,
           showRemoveButtonAfterComplete: true,
           locale: {
             strings: {
-              dropHereOr: 'Arrastra archivos aquí o %{browse}',
-              browse: 'selecciona',
+              dropHereOr: 'Arrastra imágenes aquí o %{browse}',
+              browse: 'selecciona archivos',
               uploadComplete: '¡Subida completada!',
               uploadFailed: 'Subida fallida',
               retry: 'Reintentar',
               cancel: 'Cancelar',
               remove: 'Eliminar',
+              addMore: 'Agregar más',
+              importFrom: 'Importar desde',
+              dashboardWindowTitle: 'Subir Archivos',
+              dashboardTitle: 'Subir Archivos',
+              copyLinkToClipboardSuccess: 'Link copiado al portapapeles',
+              copyLinkToClipboardFallback: 'Copia el link de abajo',
+              done: 'Listo',
+              localDisk: 'Disco Local',
+              myDevice: 'Mi Dispositivo',
             }
           }
         });
-        
-        console.log('✅ Dashboard initialized successfully');
 
-        // Event handlers mejorados
+        // Event handlers
         uppy.on('error', (error) => {
-          console.error('❌ UPPY GENERAL ERROR:', error);
+          console.error('❌ Uppy general error:', error);
+          setConnectionStatus('error');
+          setErrorMessage(error.message);
           onUploadError?.(error);
         });
 
-        uppy.on('upload-error', (file, error, response) => {
-          console.log('=== ❌ UPPY UPLOAD ERROR EVENT START ===');
-          console.log('ERROR-1. File name:', file?.name || 'Unknown');
-          console.log('ERROR-2. Error object:', error);
-          console.log('ERROR-3. Response object:', response);
-          console.log('ERROR-4. Response status:', response?.status);
-          console.log('ERROR-5. Response statusText:', response?.statusText);
-          console.log('=== 🏁 UPPY UPLOAD ERROR EVENT END ===');
+        uppy.on('upload', () => {
+          console.log('🚀 Upload started');
+          setConnectionStatus('uploading');
+          setUploadProgress(0);
+        });
 
+        uppy.on('progress', (progress) => {
+          setUploadProgress(progress);
+          console.log(`📊 Upload progress: ${progress}%`);
+        });
+
+        uppy.on('upload-error', (file, error, response) => {
+          console.error('❌ Upload error:', {
+            file: file?.name,
+            error: error.message,
+            response
+          });
+          setConnectionStatus('error');
+          setErrorMessage(`Error subiendo ${file?.name}: ${error.message}`);
           onUploadError?.(error);
         });
 
@@ -273,76 +260,48 @@ export default function ObjectUploader({
         });
 
         uppy.on('complete', (result) => {
-          console.log('=== 🏆 UPPY COMPLETE EVENT START ===');
-          console.log('COMPLETE-1. Complete result:', result);
-          console.log('COMPLETE-2. Result.successful length:', result.successful?.length || 0);
-          console.log('COMPLETE-3. Result.failed length:', result.failed?.length || 0);
+          console.log('🏆 Upload complete:', result);
 
           if (result.failed && result.failed.length > 0) {
-            console.log('COMPLETE-4. Failed files:', result.failed);
-            result.failed.forEach((file, index) => {
-              console.log(`COMPLETE-5.${index}. Failed file:`, file.name, 'Error:', file.error);
-            });
+            console.error('❌ Failed uploads:', result.failed);
+            setConnectionStatus('error');
+            setErrorMessage(`${result.failed.length} archivo(s) fallaron al subir`);
+            onUploadError?.(new Error('Some uploads failed'));
+            return;
           }
 
           if (result.successful && result.successful.length > 0) {
-            console.log('COMPLETE-6. Successful files:', result.successful);
+            console.log('✅ Successful uploads:', result.successful);
+            setConnectionStatus('success');
+            
             result.successful.forEach((file) => {
-              console.log("COMPLETE-7. ✅ Upload successful, file data:", file);
-              console.log("COMPLETE-8. ✅ Response body:", file.response?.body);
-
-              const serverBody = (file.response?.body as any) || {};
-              let imageURL = serverBody.url || serverBody.location;
-
-              if (!imageURL) {
-                console.error("❌ No se pudo obtener URL desde la respuesta:", file.response);
-                toast({
-                  title: "Error al subir imagen",
-                  description: "No se pudo determinar la URL del objeto en el servidor",
-                  variant: "destructive"
-                });
-                return;
-              }
-
-              // Si es relativa (/objects/...) convertir a absoluta
-              let finalURL = imageURL.trim();
-              if (finalURL.startsWith("/")) {
-                finalURL = `${window.location.origin}${finalURL}`;
-              }
-
-              console.log("COMPLETE-9. ✅ Final URL a guardar:", finalURL);
-
-              // Guardar según el caso
-              if (selectedProduct?.id) {
-                updateProductImageMutation.mutate({
-                  id: selectedProduct.id,
-                  imageURL: finalURL,
-                });
+              const serverResponse = file.response?.body || {};
+              const imageURL = serverResponse.url || serverResponse.location;
+              
+              if (imageURL) {
+                console.log('📸 Image URL received:', imageURL);
               } else {
-                setTempImageUrl(finalURL);
-                toast({
-                  title: "Imagen subida exitosamente",
-                  description: "Se aplicará al guardar el producto",
-                });
+                console.warn('⚠️ No URL in server response:', serverResponse);
               }
             });
+
+            // Llamar callback de éxito
+            onUploadSuccess(result);
+
+            // Cerrar modal después de un breve delay
+            setTimeout(() => {
+              setIsOpen(false);
+            }, 1500);
           }
-
-          // Llamar callback de éxito
-          onUploadSuccess(result);
-
-          setTimeout(() => {
-            setIsOpen(false);
-          }, 1000);
-
-          console.log('=== 🏁 UPPY COMPLETE EVENT END ===');
         });
 
         uppyRef.current = uppy;
+        console.log('✅ Uppy initialized successfully');
+
       } catch (error) {
         console.error('❌ Error initializing Uppy:', error);
         setConnectionStatus('error');
-        setErrorMessage(error instanceof Error ? error.message : 'Error desconocido al inicializar uploader');
+        setErrorMessage(error instanceof Error ? error.message : 'Error initializing uploader');
       }
     };
 
@@ -355,7 +314,42 @@ export default function ObjectUploader({
     setIsOpen(false);
     setConnectionStatus('testing');
     setErrorMessage('');
+    setUploadProgress(0);
     cleanupUppy();
+  };
+
+  const getStatusIcon = () => {
+    switch (connectionStatus) {
+      case 'testing':
+        return <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />;
+      case 'ready':
+        return <Upload className="h-5 w-5 text-blue-600" />;
+      case 'uploading':
+        return <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-600" />;
+      case 'success':
+        return <CheckCircle className="h-5 w-5 text-green-600" />;
+      case 'error':
+        return <AlertCircle className="h-5 w-5 text-red-600" />;
+      default:
+        return <Upload className="h-5 w-5" />;
+    }
+  };
+
+  const getStatusText = () => {
+    switch (connectionStatus) {
+      case 'testing':
+        return 'Verificando conexión...';
+      case 'ready':
+        return 'Listo para subir archivos';
+      case 'uploading':
+        return `Subiendo... ${uploadProgress}%`;
+      case 'success':
+        return '¡Subida exitosa!';
+      case 'error':
+        return 'Error de conexión';
+      default:
+        return 'Subir Archivos';
+    }
   };
 
   if (!isOpen) {
@@ -365,16 +359,20 @@ export default function ObjectUploader({
         className={className}
         type="button"
       >
-        Subir Archivos
+        <Upload className="h-4 w-4 mr-2" />
+        Subir Imágenes
       </Button>
     );
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4 max-h-[85vh] overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-semibold">Subir Archivos</h3>
+          <div className="flex items-center gap-3">
+            {getStatusIcon()}
+            <h3 className="text-lg font-semibold">Subir Imágenes</h3>
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -385,16 +383,17 @@ export default function ObjectUploader({
         </div>
 
         <div className="p-4">
-          {connectionStatus === 'testing' && (
-            <div className="flex items-center justify-center p-8">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-sm text-gray-600">Probando conexión...</p>
-                <p className="text-xs text-gray-500 mt-1">Entorno: {isReplit ? 'Replit' : 'VPS/Local'}</p>
-                <p className="text-xs text-gray-500">URL: {BASE_URL}</p>
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">{getStatusText()}</p>
+            {uploadProgress > 0 && connectionStatus === 'uploading' && (
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {connectionStatus === 'error' && (
             <div className="flex items-center justify-center p-8">
@@ -417,17 +416,27 @@ export default function ObjectUploader({
             </div>
           )}
 
-          {connectionStatus === 'ready' && (
+          {(connectionStatus === 'ready' || connectionStatus === 'uploading') && (
             <>
               <div 
                 ref={dashboardRef} 
                 id="uppy-dashboard-container"
-                className="min-h-[350px] w-full border border-gray-200 rounded-lg"
+                className="min-h-[400px] w-full border border-gray-200 rounded-lg"
               />
               {note && (
-                <p className="text-sm text-gray-500 mt-2">{note}</p>
+                <p className="text-sm text-gray-500 mt-3 text-center">{note}</p>
               )}
             </>
+          )}
+
+          {connectionStatus === 'success' && (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center">
+                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                <p className="text-sm text-green-600 mb-2">¡Imágenes subidas exitosamente!</p>
+                <p className="text-xs text-gray-500">Cerrando automáticamente...</p>
+              </div>
+            </div>
           )}
         </div>
       </div>

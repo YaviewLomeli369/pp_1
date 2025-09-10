@@ -3,31 +3,48 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+import sharp from "sharp";
 
 const router = express.Router();
 
 // Carpeta donde se almacenan archivos públicamente
 const uploadsDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log("✅ Created uploads directory:", uploadsDir);
+}
+
+// Middleware para parsear JSON
+router.use(express.json());
 
 // POST /api/objects/upload
-// Recibe { filename } y devuelve uploadURL + url pública (con extensión)
-router.post("/api/objects/upload", express.json(), (req, res) => {
+// Recibe { filename } y devuelve uploadURL + url pública
+router.post("/api/objects/upload", (req, res) => {
   try {
     const { filename } = (req.body || {}) as { filename?: string };
-    const ext = filename ? path.extname(String(filename)) : "";
-    // Generar nombre único conservando extensión si existe
-    const objectName = `${uuidv4()}-${Date.now()}${ext}`;
-    // URL relativa pública (servida por express.static más abajo)
+    
+    // Extraer extensión y validar que sea imagen
+    const ext = filename ? path.extname(String(filename)).toLowerCase() : '';
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
+    
+    let finalExt = ext;
+    if (!allowedExts.includes(ext)) {
+      finalExt = '.jpg'; // Default para imágenes
+    }
+    
+    // Generar nombre único conservando extensión
+    const objectName = `${uuidv4()}-${Date.now()}${finalExt}`;
+    
+    // URL relativa pública
     const relativeUrl = `/objects/${objectName}`;
     
-    // Asegurar protocolo consistente - forzar HTTPS en Replit
+    // Generar URL absoluta - forzar HTTPS en Replit
     const protocol = req.get('x-forwarded-proto') || req.protocol;
     const host = req.get("host");
     const secureProtocol = protocol === 'https' || host?.includes('replit.dev') ? 'https' : protocol;
     const uploadURL = `${secureProtocol}://${host}${relativeUrl}`;
 
-    console.log(`✅ Generated upload params: objectName=${objectName}, uploadURL=${uploadURL}, protocol=${protocol}`);
+    console.log(`✅ Generated upload params: objectName=${objectName}, uploadURL=${uploadURL}`);
 
     return res.json({
       success: true,
@@ -43,69 +60,144 @@ router.post("/api/objects/upload", express.json(), (req, res) => {
 });
 
 // PUT /objects/:name  <- Uppy hará PUT directo aquí
-router.put("/objects/:name", (req, res) => {
+router.put("/objects/:name", async (req, res) => {
   const name = req.params.name;
   
-  // Seguridad mínima: rechazar rutas con .. o que intenten escapar
+  // Seguridad: rechazar rutas maliciosas
   if (name.includes("..") || path.isAbsolute(name)) {
     return res.status(400).json({ success: false, error: "Invalid name" });
   }
 
-  // Detectar extensión del Content-Type si no está en el nombre
-  let finalName = name;
-  if (!path.extname(name)) {
-    const contentType = req.headers['content-type'] || '';
-    let extension = '';
-    
-    if (contentType.includes('image/jpeg') || contentType.includes('image/jpg')) {
-      extension = '.jpg';
-    } else if (contentType.includes('image/png')) {
-      extension = '.png';
-    } else if (contentType.includes('image/gif')) {
-      extension = '.gif';
-    } else if (contentType.includes('image/webp')) {
-      extension = '.webp';
-    } else if (contentType.includes('image/avif')) {
-      extension = '.avif';
-    } else {
-      // Default para imágenes
-      extension = '.jpg';
+  try {
+    // Detectar extensión del Content-Type si no está en el nombre
+    let finalName = name;
+    if (!path.extname(name)) {
+      const contentType = req.headers['content-type'] || '';
+      let extension = '';
+      
+      if (contentType.includes('image/jpeg') || contentType.includes('image/jpg')) {
+        extension = '.jpg';
+      } else if (contentType.includes('image/png')) {
+        extension = '.png';
+      } else if (contentType.includes('image/gif')) {
+        extension = '.gif';
+      } else if (contentType.includes('image/webp')) {
+        extension = '.webp';
+      } else if (contentType.includes('image/avif')) {
+        extension = '.avif';
+      } else {
+        extension = '.jpg'; // Default
+      }
+      
+      finalName = `${name}${extension}`;
     }
+
+    const tempPath = path.join(uploadsDir, `temp-${finalName}`);
+    const finalPath = path.join(uploadsDir, finalName);
     
-    finalName = `${name}${extension}`;
-  }
+    console.log(`📁 Receiving PUT for object: ${name} → saving as: ${finalName}`);
 
-  const destPath = path.join(uploadsDir, finalName);
-  console.log(`📁 Receiving PUT for object: ${name} → saving as: ${finalName}, destination: ${destPath}`);
+    // Escribir archivo temporal
+    const writeStream = fs.createWriteStream(tempPath);
+    req.pipe(writeStream);
 
-  const writeStream = fs.createWriteStream(destPath);
-  req.pipe(writeStream);
+    req.on("end", async () => {
+      try {
+        // Validar que es una imagen válida y procesarla con Sharp
+        const imageInfo = await sharp(tempPath).metadata();
+        console.log(`📸 Image metadata:`, {
+          format: imageInfo.format,
+          width: imageInfo.width,
+          height: imageInfo.height,
+          size: imageInfo.size
+        });
 
-  req.on("end", () => {
-    console.log(`✅ File uploaded successfully: ${name} → ${finalName}`);
-    return res.status(200).json({
-      success: true,
-      objectName: finalName, // Devolver el nombre con extensión
-      url: `/objects/${finalName}`,
-      location: `/objects/${finalName}`,
+        // Procesar imagen: redimensionar si es muy grande, optimizar
+        let processedBuffer;
+        
+        if (imageInfo.width && imageInfo.width > 1920) {
+          // Redimensionar imágenes muy grandes
+          processedBuffer = await sharp(tempPath)
+            .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+            .jpeg({ quality: 85 })
+            .toBuffer();
+        } else {
+          // Solo optimizar sin redimensionar
+          if (imageInfo.format === 'jpeg' || imageInfo.format === 'jpg') {
+            processedBuffer = await sharp(tempPath)
+              .jpeg({ quality: 85 })
+              .toBuffer();
+          } else if (imageInfo.format === 'png') {
+            processedBuffer = await sharp(tempPath)
+              .png({ compressionLevel: 6 })
+              .toBuffer();
+          } else {
+            // Para otros formatos, mantener original
+            processedBuffer = fs.readFileSync(tempPath);
+          }
+        }
+
+        // Guardar imagen procesada
+        fs.writeFileSync(finalPath, processedBuffer);
+        
+        // Limpiar archivo temporal
+        fs.unlinkSync(tempPath);
+
+        console.log(`✅ Image processed and saved: ${finalName}, size: ${processedBuffer.length} bytes`);
+
+        return res.status(200).json({
+          success: true,
+          objectName: finalName,
+          url: `/objects/${finalName}`,
+          location: `/objects/${finalName}`,
+        });
+
+      } catch (imageError) {
+        console.error("Error processing image:", imageError);
+        
+        // Si falla el procesamiento, usar archivo original
+        try {
+          fs.renameSync(tempPath, finalPath);
+          console.log(`⚠️ Image processing failed, saved original: ${finalName}`);
+          
+          return res.status(200).json({
+            success: true,
+            objectName: finalName,
+            url: `/objects/${finalName}`,
+            location: `/objects/${finalName}`,
+          });
+        } catch (fallbackError) {
+          console.error("Fallback save failed:", fallbackError);
+          return res.status(500).json({ success: false, error: "Failed to save image" });
+        }
+      }
     });
-  });
 
-  req.on("error", (err) => {
-    console.error("PUT write error:", err);
-    return res.status(500).json({ success: false, error: "Write failed" });
-  });
+    req.on("error", (err) => {
+      console.error("PUT request error:", err);
+      // Limpiar archivo temporal si existe
+      if (fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath);
+      }
+      return res.status(500).json({ success: false, error: "Upload failed" });
+    });
 
-  writeStream.on("error", (err) => {
-    console.error("Write stream error:", err);
-    return res.status(500).json({ success: false, error: "Write failed" });
-  });
+    writeStream.on("error", (err) => {
+      console.error("Write stream error:", err);
+      return res.status(500).json({ success: false, error: "Write failed" });
+    });
+
+  } catch (error) {
+    console.error("PUT handler error:", error);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
 });
 
 // Servir archivos: /objects/<objectName> -> uploads/<objectName>
 router.use("/objects", express.static(uploadsDir, { 
   dotfiles: "deny", 
   index: false,
+  maxAge: '1d', // Cache por 1 día
   setHeaders: (res, filePath) => {
     const ext = path.extname(filePath).toLowerCase();
     const contentTypes: { [key: string]: string } = {

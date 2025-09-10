@@ -45,10 +45,11 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Add object storage router first
-  app.use('/', objectStorageRouter);
-  
-  const server = await registerRoutes(app);
+  // Mount object storage router first
+  app.use(objectStorageRouter);
+
+  // Register API routes and get HTTP server
+  const httpServer = await registerRoutes(app);
 
   // Initialize store data and site configuration on startup
   await initializeStoreData();
@@ -179,7 +180,7 @@ app.use((req, res, next) => {
   });
 
   if (app.get("env") === "development") {
-    await setupVite(app, server);
+    await setupVite(app, httpServer);
   } else {
     serveStatic(app);
   }
@@ -189,7 +190,7 @@ app.use((req, res, next) => {
   // Default to 5000 only if PORT is not specified
   console.log('ENV PORT:', process.env.PORT);
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
+  httpServer.listen({
     port,
     host: "0.0.0.0",
     reusePort: true,
