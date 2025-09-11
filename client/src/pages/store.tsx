@@ -165,6 +165,39 @@ export default function Store() {
     retry: 1,
   });
 
+  // ✅ HELPER FUNCTIONS - MUST BE DECLARED BEFORE MUTATIONS
+  const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
+    } catch (error) {
+      console.warn('Error saving cart to localStorage:', error);
+    }
+  }, []);
+
+  const loadCartFromStorage = useCallback(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const savedCart = localStorage.getItem('shopping-cart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        // Validar que el carrito tenga la estructura correcta
+        if (Array.isArray(parsedCart)) {
+          return parsedCart.filter(item => 
+            item && 
+            typeof item === 'object' && 
+            item.product && 
+            typeof item.quantity === 'number' &&
+            item.quantity > 0
+          );
+        }
+      }
+    } catch (error) {
+      console.warn('Error loading cart from localStorage:', error);
+    }
+    return [];
+  }, []);
+
   // ✅ MUTATIONS
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
@@ -381,16 +414,6 @@ export default function Store() {
     }
   }, [cart, handleNavigation, toast, isNavigating]);
 
-  // Funciones para persistir carrito en localStorage
-  const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
-    } catch (error) {
-      console.warn('Error saving cart to localStorage:', error);
-    }
-  }, []);
-
   const removeFromCart = useCallback((productId: string) => {
     if (!isMountedRef.current || isNavigating) return;
     setCart(prev => {
@@ -399,29 +422,6 @@ export default function Store() {
       return newCart;
     });
   }, [isNavigating, saveCartToStorage]);
-
-  const loadCartFromStorage = useCallback(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const savedCart = localStorage.getItem('shopping-cart');
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        // Validar que el carrito tenga la estructura correcta
-        if (Array.isArray(parsedCart)) {
-          return parsedCart.filter(item => 
-            item && 
-            typeof item === 'object' && 
-            item.product && 
-            typeof item.quantity === 'number' &&
-            item.quantity > 0
-          );
-        }
-      }
-    } catch (error) {
-      console.warn('Error loading cart from localStorage:', error);
-    }
-    return [];
-  }, []);
 
   const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
     if (!isMountedRef.current || isNavigating) return;
