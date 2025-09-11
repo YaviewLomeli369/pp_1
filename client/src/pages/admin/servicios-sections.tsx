@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
@@ -28,7 +27,8 @@ interface ServiceSection {
   isActive: boolean;
 }
 
-export default function ServiciosSections() {
+export default function AdminServiciosSections() {
+  console.log("AdminServiciosSections cargado ✅");
   const [editingSection, setEditingSection] = useState<ServiceSection | null>(null);
   const [newSection, setNewSection] = useState<Partial<ServiceSection>>({
     type: 'service',
@@ -128,7 +128,7 @@ export default function ServiciosSections() {
   const addFeature = (section: ServiceSection | Partial<ServiceSection>, feature: string) => {
     if (!feature.trim()) return;
     const updatedFeatures = [...(section.features || []), feature];
-    
+
     if ('id' in section) {
       setEditingSection({ ...section as ServiceSection, features: updatedFeatures });
     } else {
@@ -138,7 +138,7 @@ export default function ServiciosSections() {
 
   const removeFeature = (section: ServiceSection | Partial<ServiceSection>, index: number) => {
     const updatedFeatures = (section.features || []).filter((_, i) => i !== index);
-    
+
     if ('id' in section) {
       setEditingSection({ ...section as ServiceSection, features: updatedFeatures });
     } else {
@@ -231,7 +231,7 @@ export default function ServiciosSections() {
             <DialogHeader>
               <DialogTitle>Nueva Sección de Servicios</DialogTitle>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -258,7 +258,7 @@ export default function ServiciosSections() {
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Título *</Label>
                 <Input
@@ -267,7 +267,7 @@ export default function ServiciosSections() {
                   placeholder="Título de la sección"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Descripción *</Label>
                 <Textarea
@@ -349,7 +349,7 @@ export default function ServiciosSections() {
                 </div>
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                 Cancelar
@@ -358,7 +358,7 @@ export default function ServiciosSections() {
                 {createSectionMutation.isPending ? "Guardando..." : "Crear Sección"}
               </Button>
             </DialogFooter>
-          </DialogContent>
+          </Dialog>
         </Dialog>
 
         {/* Edit Section Dialog */}
@@ -368,7 +368,7 @@ export default function ServiciosSections() {
               <DialogHeader>
                 <DialogTitle>Editar Sección</DialogTitle>
               </DialogHeader>
-              
+
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -395,7 +395,7 @@ export default function ServiciosSections() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Título *</Label>
                   <Input
@@ -404,7 +404,7 @@ export default function ServiciosSections() {
                     placeholder="Título de la sección"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Descripción *</Label>
                   <Textarea
@@ -493,7 +493,7 @@ export default function ServiciosSections() {
                   </div>
                 </div>
               </div>
-              
+
               <DialogFooter>
                 <Button variant="outline" onClick={() => setEditingSection(null)}>
                   Cancelar

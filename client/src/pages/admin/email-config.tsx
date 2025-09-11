@@ -28,6 +28,7 @@ interface EmailConfig {
 }
 
 export default function AdminEmailConfig() {
+  console.log("AdminEmailConfig cargado ✅");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [testingConnection, setTestingConnection] = useState(false);
