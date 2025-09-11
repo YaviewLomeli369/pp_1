@@ -142,10 +142,7 @@ function Router() {
       <Route path="/admin/reservation-settings" component={AdminReservationSettings} />
       <Route path="/admin/payments" component={AdminPayments} />
       <Route path="/admin/blog" component={AdminBlog} />
-      <Route path="/admin/orders" component={AdminOrders} />
-      <Route path="/admin/email-config" component={AdminEmailConfig} />
-      <Route path="/admin/contact-info" component={AdminContactInfo} /></Route>
-<new_str>      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
       <Route path="/admin/appearance" component={AdminAppearance} />
       <Route path="/admin/reservations" component={AdminReservations} />
@@ -154,7 +151,13 @@ function Router() {
       <Route path="/admin/blog" component={AdminBlog} />
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/email-config" component={AdminEmailConfig} />
+      <Route path="/admin/contact-info" component={AdminContactInfo} /></old_str>
+<new_str>      <Route path="/admin/orders" component={AdminOrders} />
+      <Route path="/admin/email-config" component={AdminEmailConfig} />
       <Route path="/admin/contact-info" component={AdminContactInfo} />
+
+      <Route component={NotFound} />
+    </Switch>
 
       <Route component={NotFound} />
     </Switch>
