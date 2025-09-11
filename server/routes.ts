@@ -1253,6 +1253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/store/products/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
       const { id } = req.params;
+      const { force } = req.query; // Optional force parameter
 
       // Get product before deletion to access Stripe IDs
       const product = await storage.getProduct(id);
@@ -1260,8 +1261,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      // First, delete all related inventory movements
+      // Check if product has associated orders
+      const orders = await storage.getAllOrders();
+      const hasOrders = orders.some(order => 
+        Array.isArray(order.items) && 
+        order.items.some((item: any) => item.productId === id)
+      );
+
+      // If product has orders and force is not specified, suggest soft delete
+      if (hasOrders && force !== 'true') {
+        return res.status(409).json({ 
+          message: "Este producto tiene pedidos asociados y no puede eliminarse completamente",
+          suggestion: "¿Deseas desactivarlo en su lugar? Esto lo ocultará de la tienda pero mantendrá el historial de pedidos.",
+          hasOrders: true,
+          productName: product.name
+        });
+      }
+
+      // If force delete is requested or no orders exist, proceed with deletion
       try {
+        // First, delete all related inventory movements
         const inventoryMovements = await storage.getInventoryMovements(id);
         console.log(`Found ${inventoryMovements.length} inventory movements to delete for product ${product.name}`);
         
@@ -1284,11 +1303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Deleted cart items for product ${product.name}`);
       } catch (cartError) {
         console.warn("Error deleting cart items:", cartError);
-        // Don't fail the deletion for cart items as they're less critical
       }
-
-      // Then delete all related order items (we'll keep these as historical records but update the deletion logic if needed)
-      // Note: We typically don't delete order items as they are historical records
 
       // Delete product variants
       try {
@@ -1342,6 +1357,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting product:", error);
       res.status(500).json({ message: error instanceof Error ? error.message : "Failed to delete product" });
+    }
+  });
+
+  // New endpoint for soft delete (deactivate)
+  app.put("/api/store/products/:id/deactivate", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const updatedProduct = await storage.updateProduct(id, { 
+        isActive: false,
+        updatedAt: new Date()
+      });
+
+      if (!updatedProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Also deactivate in Stripe if configured
+      try {
+        const paymentConfig = await storage.getPaymentConfig();
+        if (paymentConfig?.isActive && paymentConfig.stripeSecretKey && updatedProduct.stripeProductId) {
+          const stripeClient = new Stripe(paymentConfig.stripeSecretKey, {
+            apiVersion: "2025-07-30.basil",
+          });
+
+          await stripeClient.products.update(updatedProduct.stripeProductId, {
+            active: false
+          });
+
+          console.log(`Product ${updatedProduct.name} deactivated in Stripe`);
+        }
+      } catch (stripeError: any) {
+        console.error("Error deactivating product in Stripe:", stripeError);
+      }
+
+      res.json({ 
+        message: "Producto desactivado correctamente", 
+        product: updatedProduct 
+      });
+    } catch (error) {
+      console.error("Error deactivating product:", error);
+      res.status(500).json({ message: error instanceof Error ? error.message : "Failed to deactivate product" });
+    }
+  });
+
+  // New endpoint for reactivate
+  app.put("/api/store/products/:id/activate", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const updatedProduct = await storage.updateProduct(id, { 
+        isActive: true,
+        updatedAt: new Date()
+      });
+
+      if (!updatedProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Also reactivate in Stripe if configured
+      try {
+        const paymentConfig = await storage.getPaymentConfig();
+        if (paymentConfig?.isActive && paymentConfig.stripeSecretKey && updatedProduct.stripeProductId) {
+          const stripeClient = new Stripe(paymentConfig.stripeSecretKey, {
+            apiVersion: "2025-07-30.basil",
+          });
+
+          await stripeClient.products.update(updatedProduct.stripeProductId, {
+            active: true
+          });
+
+          console.log(`Product ${updatedProduct.name} reactivated in Stripe`);
+        }
+      } catch (stripeError: any) {
+        console.error("Error reactivating product in Stripe:", stripeError);
+      }
+
+      res.json({ 
+        message: "Producto reactivado correctamente", 
+        product: updatedProduct 
+      });
+    } catch (error) {
+      console.error("Error reactivating product:", error);
+      res.status(500).json({ message: error instanceof Error ? error.message : "Failed to reactivate product" });
     }
   });
 

@@ -78,6 +78,8 @@ function AdminStoreContent() {
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [uploadingImage, setUploadingImage] = useState<string | null>(null);
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
+  const [showProductDetails, setShowProductDetails] = useState(false); // State for product details dialog
+  const [showOrderEdit, setShowOrderEdit] = useState(false); // State for order edit dialog
 
   // Fetch store statistics
   const { data: stats = {} } = useQuery({
@@ -148,7 +150,7 @@ function AdminStoreContent() {
   // State for order management
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
-  const [showOrderEdit, setShowOrderEdit] = useState(false);
+  // const [showOrderEdit, setShowOrderEdit] = useState(false); // Moved this state up
 
   // Fetch customers
   const { data: customers = [] } = useQuery({
@@ -242,8 +244,11 @@ function AdminStoreContent() {
     },
   });
 
+  // Delete product mutation
   const deleteProductMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/store/products/${id}`, { method: "DELETE" }),
+    mutationFn: async (id: string) => {
+      return await apiRequest(`/api/store/products/${id}`, { method: "DELETE" });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/store/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] }); // Refresh stats
@@ -253,17 +258,81 @@ function AdminStoreContent() {
       });
     },
     onError: (error: any) => {
-      toast({ 
-        title: "Error", 
-        description: error.message || "Error al eliminar producto",
-        variant: "destructive" 
-      });
+      if (error.status === 409 && error.hasOrders) {
+        // Product has orders, show deactivation option
+        toast({
+          title: "No se puede eliminar",
+          description: error.message,
+          variant: "destructive",
+          action: (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => deactivateProductMutation.mutate(error.productId || selectedProduct?.id)}
+            >
+              Desactivar
+            </Button>
+          ),
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "No se pudo eliminar el producto",
+          variant: "destructive",
+        });
+      }
+    }
+  });
+
+  // Deactivate product mutation
+  const deactivateProductMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest(`/api/store/products/${id}/deactivate`, { method: "PUT" });
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/store/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] });
+      toast({
+        title: "Producto desactivado",
+        description: "El producto ha sido desactivado y ya no aparecerá en la tienda",
+      });
+      setShowProductDetails(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo desactivar el producto",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Reactivate product mutation
+  const reactivateProductMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest(`/api/store/products/${id}/activate`, { method: "PUT" });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/store/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] });
+      toast({
+        title: "Producto reactivado",
+        description: "El producto ha sido reactivado y volverá a aparecer en la tienda",
+      });
+      setShowProductDetails(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo reactivar el producto",
+        variant: "destructive",
+      });
+    }
   });
 
   // Handle delete with confirmation
-  const handleDeleteProduct = (product: any) => {
-    if (window.confirm(`¿Estás seguro de que deseas eliminar "${product.name}"? Esta acción no se puede deshacer y también se archivará el producto en Stripe.`)) {
+  const handleDeleteProduct = (product: Product) => {
+    if (window.confirm(`¿Estás seguro de que deseas eliminar "${product.name}"? Esta acción no se puede deshacer.`)) {
       deleteProductMutation.mutate(product.id);
     }
   };
@@ -588,7 +657,11 @@ function AdminStoreContent() {
     window.history.pushState(null, '', `#${value}`);
   };
 
-  const defaultTab = window.location.hash === '#categories' ? 'categories' : 'products';
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
+    setShowProductDetails(true);
+  };
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -701,46 +774,47 @@ function AdminStoreContent() {
               ) : (
                 <div className="space-y-4">
                   {products && products.map((product: Product) => (
-                    <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{product.name}</h3>
-                          {product.isFeatured && <Badge>Destacado</Badge>}
-                          {!product.isActive && <Badge variant="secondary">Inactivo</Badge>}
-                          {product.stock <= product.lowStockThreshold && (
-                            <Badge variant="destructive">
-                              <AlertTriangle className="w-3 h-3 mr-1" />
-                              Stock Bajo
-                            </Badge>
+                    <Card key={product.id} className={`cursor-pointer hover:shadow-md transition-shadow ${!product.isActive ? 'opacity-60 border-gray-300' : ''}`} onClick={() => handleProductSelect(product)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-4">
+                          {product.images && product.images.length > 0 && (
+                            <img 
+                              src={product.images[0]} 
+                              alt={product.name}
+                              className="w-16 h-16 object-cover rounded-md"
+                              onError={(e) => {
+                                console.error('Image failed to load:', product.images[0]);
+                                e.currentTarget.src = '/imgs/placeholder.png';
+                              }}
+                            />
                           )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-lg truncate">{product.name}</h3>
+                              {!product.isActive && (
+                                <Badge variant="secondary" className="text-xs">
+                                  Inactivo
+                                </Badge>
+                              )}
+                              {product.isFeatured && (
+                                <Badge variant="default" className="text-xs">
+                                  Destacado
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+                            <div className="flex justify-between items-center mt-2">
+                              <span className="text-lg font-bold text-green-600">
+                                ${product.price / 100).toFixed(2)} {product.currency || 'MXN'}
+                              </span>
+                              <div className="text-sm text-gray-500">
+                                Stock: {product.stock ?? 'N/A'}
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground">{product.shortDescription}</p>
-                        <div className="flex items-center gap-4 mt-2 text-sm">
-                          <span className="font-medium">{formatPrice(product.price, product.currency)}</span>
-                          <span>Stock: {product.stock}</span>
-                          <span>SKU: {product.sku}</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setShowProductForm(true);
-                          }}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteProduct(product)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}
