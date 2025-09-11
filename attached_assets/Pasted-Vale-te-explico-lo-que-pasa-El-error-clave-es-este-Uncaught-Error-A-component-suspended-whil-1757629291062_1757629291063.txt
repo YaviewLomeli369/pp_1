@@ -1,0 +1,86 @@
+Vale, te explico lo que pasa 👇
+
+El error clave es este:
+
+Uncaught Error: A component suspended while responding to synchronous input. 
+This will cause the UI to be replaced with a loading indicator. 
+To fix, updates that suspend should be wrapped with startTransition.
+
+🔍 Qué significa
+
+Estás usando React.lazy (lo veo en at Lazy) para cargar componentes en tus rutas (con wouter o React Router).
+
+Uno de esos componentes suspende (porque aún no terminó de cargar o está esperando datos).
+
+React no permite que un suspense ocurra justo en medio de una acción sincrónica del usuario (ejemplo: click, input, submit).
+
+Cuando eso pasa, te pide envolver la actualización con startTransition o bien asegurarte de que tu árbol está cubierto por un <Suspense> con un fallback.
+
+✅ Cómo solucionarlo
+
+Envuelve tus rutas con <Suspense>
+En tu App.tsx asegúrate de algo así:
+
+import React, { Suspense } from "react";
+import { Router, Route, Switch } from "wouter";
+
+const LazyPage = React.lazy(() => import("./pages/LazyPage"));
+
+function App() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <Router>
+        <Switch>
+          <Route path="/lazy" component={LazyPage} />
+          {/* tus demás rutas */}
+        </Switch>
+      </Router>
+    </Suspense>
+  );
+}
+
+export default App;
+
+
+👉 Esto evita que React se quede “colgado” sin UI cuando el componente se suspende.
+
+Si el error ocurre tras un input o click
+React te está diciendo: “usa startTransition si la actualización puede suspender”.
+
+Ejemplo:
+
+import { startTransition } from "react";
+
+const handleClick = () => {
+  startTransition(() => {
+    navigate("/lazy"); // navegación que dispara carga lazy
+  });
+};
+
+
+Esto le dice a React: “esta actualización puede ser lenta, no bloquees la UI mientras tanto”.
+
+Agrega un Error Boundary
+Si quieres un manejo más pro, crea un error boundary para mostrar mensajes personalizados cuando un componente falla:
+
+class ErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Algo salió mal al cargar la página.</h1>;
+    }
+    return this.props.children;
+  }
+}
+
+// Usar así:
+<ErrorBoundary>
+  <Suspense fallback={<div>Cargando...</div>}>
+    <App />
+  </Suspense>
+</ErrorBoundary>
