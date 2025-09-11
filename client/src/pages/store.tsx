@@ -141,6 +141,7 @@ export default function Store() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [cart, setCart] = useState<Array<{ product: Product; quantity: number }>>([]);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [cartLoaded, setCartLoaded] = useState(false);
 
   // ✅ FETCH DATA WITH PROPER ERROR HANDLING AND MOBILE OPTIMIZATION
   const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({
@@ -195,15 +196,19 @@ export default function Store() {
 
       setCart(prev => {
         const existing = prev.find(item => item.product.id === productId);
+        let newCart;
         if (existing) {
           const newQuantity = existing.quantity + quantity;
-          return prev.map(item =>
+          newCart = prev.map(item =>
             item.product.id === productId
               ? { ...item, quantity: newQuantity }
               : item
           );
+        } else {
+          newCart = [...prev, { product, quantity }];
         }
-        return [...prev, { product, quantity }];
+        saveCartToStorage(newCart);
+        return newCart;
       });
       return product;
     },
@@ -378,8 +383,45 @@ export default function Store() {
 
   const removeFromCart = useCallback((productId: string) => {
     if (!isMountedRef.current || isNavigating) return;
-    setCart(prev => prev.filter(item => item.product.id !== productId));
-  }, [isNavigating]);
+    setCart(prev => {
+      const newCart = prev.filter(item => item.product.id !== productId);
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [isNavigating, saveCartToStorage]);
+
+  // Funciones para persistir carrito en localStorage
+  const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
+    } catch (error) {
+      console.warn('Error saving cart to localStorage:', error);
+    }
+  }, []);
+
+  const loadCartFromStorage = useCallback(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const savedCart = localStorage.getItem('shopping-cart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        // Validar que el carrito tenga la estructura correcta
+        if (Array.isArray(parsedCart)) {
+          return parsedCart.filter(item => 
+            item && 
+            typeof item === 'object' && 
+            item.product && 
+            typeof item.quantity === 'number' &&
+            item.quantity > 0
+          );
+        }
+      }
+    } catch (error) {
+      console.warn('Error loading cart from localStorage:', error);
+    }
+    return [];
+  }, []);
 
   const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
     if (!isMountedRef.current || isNavigating) return;
@@ -409,10 +451,14 @@ export default function Store() {
       return;
     }
 
-    setCart(prev => prev.map(item =>
-      item.product.id === productId ? { ...item, quantity: newQuantity } : item
-    ));
-  }, [removeFromCart, isNavigating, products, toast]);
+    setCart(prev => {
+      const newCart = prev.map(item =>
+        item.product.id === productId ? { ...item, quantity: newQuantity } : item
+      );
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [removeFromCart, isNavigating, products, toast, saveCartToStorage]);
 
   // ✅ EFFECTS - MUST BE AFTER ALL HOOKS
   useEffect(() => {
@@ -423,6 +469,33 @@ export default function Store() {
       performCleanup();
     };
   }, [performCleanup]);
+
+  // Cargar carrito desde localStorage al montar el componente
+  useEffect(() => {
+    if (!cartLoaded && products && products.length > 0) {
+      const savedCart = loadCartFromStorage();
+      if (savedCart.length > 0) {
+        // Validar que los productos del carrito guardado aún existen y están activos
+        const validCartItems = savedCart.filter(item => {
+          const product = products.find(p => p.id === item.product.id);
+          return product && product.isActive;
+        }).map(item => {
+          // Actualizar los datos del producto por si han cambiado
+          const currentProduct = products.find(p => p.id === item.product.id);
+          return currentProduct ? { ...item, product: currentProduct } : item;
+        });
+        
+        if (validCartItems.length > 0) {
+          setCart(validCartItems);
+          if (validCartItems.length !== savedCart.length) {
+            // Si algunos productos fueron removidos, actualizar localStorage
+            saveCartToStorage(validCartItems);
+          }
+        }
+      }
+      setCartLoaded(true);
+    }
+  }, [products, cartLoaded, loadCartFromStorage, saveCartToStorage]);
 
   useEffect(() => {
     const handlePopState = () => {
