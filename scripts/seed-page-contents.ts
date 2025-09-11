@@ -126,7 +126,7 @@ async function seedPageContents() {
 }
 
 // Run if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedPageContents().then(() => {
     console.log("🎉 Seeding completed");
     process.exit(0);

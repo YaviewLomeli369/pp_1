@@ -1264,14 +1264,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if product has associated orders
       const orders = await storage.getAllOrders();
-      const hasOrders = orders.some(order => 
-        Array.isArray(order.items) && 
+      const hasOrders = orders.some(order =>
+        Array.isArray(order.items) &&
         order.items.some((item: any) => item.productId === id)
       );
 
       // If product has orders and force is not specified, suggest soft delete
       if (hasOrders && force !== 'true') {
-        return res.status(409).json({ 
+        return res.status(409).json({
           message: "Este producto tiene pedidos asociados y no puede eliminarse completamente",
           suggestion: "¿Deseas desactivarlo en su lugar? Esto lo ocultará de la tienda pero mantendrá el historial de pedidos.",
           hasOrders: true,
@@ -1284,17 +1284,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // First, delete all related inventory movements
         const inventoryMovements = await storage.getInventoryMovements(id);
         console.log(`Found ${inventoryMovements.length} inventory movements to delete for product ${product.name}`);
-        
+
         for (const movement of inventoryMovements) {
           await storage.deleteInventoryMovement(movement.id);
         }
-        
+
         console.log(`Successfully deleted ${inventoryMovements.length} inventory movements for product ${product.name}`);
       } catch (inventoryError) {
         console.error("Error deleting inventory movements:", inventoryError);
-        return res.status(500).json({ 
-          message: "Failed to delete related inventory movements", 
-          error: inventoryError instanceof Error ? inventoryError.message : "Unknown error" 
+        return res.status(500).json({
+          message: "Failed to delete related inventory movements",
+          error: inventoryError instanceof Error ? inventoryError.message : "Unknown error"
         });
       }
 
@@ -1374,7 +1374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
 
-      const updatedProduct = await storage.updateProduct(id, { 
+      const updatedProduct = await storage.updateProduct(id, {
         isActive: false,
         updatedAt: new Date()
       });
@@ -1401,9 +1401,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Error deactivating product in Stripe:", stripeError);
       }
 
-      res.json({ 
-        message: "Producto desactivado correctamente", 
-        product: updatedProduct 
+      res.json({
+        message: "Producto desactivado correctamente",
+        product: updatedProduct
       });
     } catch (error) {
       console.error("Error deactivating product:", error);
@@ -1416,7 +1416,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
 
-      const updatedProduct = await storage.updateProduct(id, { 
+      const updatedProduct = await storage.updateProduct(id, {
         isActive: true,
         updatedAt: new Date()
       });
@@ -1443,9 +1443,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Error reactivating product in Stripe:", stripeError);
       }
 
-      res.json({ 
-        message: "Producto reactivado correctamente", 
-        product: updatedProduct 
+      res.json({
+        message: "Producto reactivado correctamente",
+        product: updatedProduct
       });
     } catch (error) {
       console.error("Error reactivating product:", error);
@@ -2299,10 +2299,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error serving object:", error);
       if (error instanceof ObjectNotFoundError) {
         // Return a placeholder image or 404 response
-        res.status(404).json({ 
-          error: "Object not found", 
+        res.status(404).json({
+          error: "Object not found",
           path: req.params.objectPath,
-          message: "The requested image could not be found" 
+          message: "The requested image could not be found"
         });
         return;
       }
@@ -3071,13 +3071,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { pageId } = req.query;
       let contents;
-      
+
       if (pageId) {
         contents = await storage.getPageContents(pageId as string);
       } else {
         contents = await storage.getAllPageContents();
       }
-      
+
       res.json(contents);
     } catch (error) {
       console.error("Error fetching page contents:", error);

@@ -204,7 +204,7 @@ export function AdminSidebar() {
       )}
 
       {/* Desktop Sidebar */}
-      <aside className="w-64 bg-white shadow-sm border-r border-gray-200 fixed left-0 top-16 bottom-0 overflow-y-auto z-30 hidden lg:block">
+      <aside className="w-64 bg-white shadow-sm border-r border-gray-200 fixed left-0 top-16 bottom-16 overflow-y-auto z-30 hidden lg:block">
         <SidebarContent />
       </aside>
 
