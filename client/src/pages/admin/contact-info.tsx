@@ -32,7 +32,6 @@ const contactInfoSchema = z.object({
 type ContactInfoFormData = z.infer<typeof contactInfoSchema>;
 
 export default function AdminContactInfo() {
-  console.log("AdminContactInfo cargado ✅");
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
 

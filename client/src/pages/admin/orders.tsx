@@ -72,7 +72,6 @@ interface OrderItem {
 }
 
 export default function AdminOrders() {
-  console.log("AdminOrders cargado ✅");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
   const [showOrderDetails, setShowOrderDetails] = useState(false);

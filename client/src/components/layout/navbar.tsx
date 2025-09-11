@@ -23,7 +23,7 @@ import {
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ShoppingCart, User, LogOut, Settings, Menu } from "lucide-react";
-import { useState, useCallback, useRef, useEffect, startTransition } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
@@ -63,16 +63,14 @@ export function Navbar() {
     document.body.classList.remove("modal-open", "overflow-hidden");
     document.body.style.overflow = "";
 
-    startTransition(() => {
-      if (href === location) {
-        const refreshHref = `${href}?refresh=${Date.now()}`;
-        window.history.replaceState(null, "", href);
-        setLocation(refreshHref);
-        setTimeout(() => setLocation(href), 50);
-      } else {
-        setLocation(href);
-      }
-    });
+    if (href === location) {
+      const refreshHref = `${href}?refresh=${Date.now()}`;
+      window.history.replaceState(null, "", href);
+      setLocation(refreshHref);
+      setTimeout(() => setLocation(href), 50);
+    } else {
+      setLocation(href);
+    }
 
     setTimeout(() => {
       isNavigatingRef.current = false;
