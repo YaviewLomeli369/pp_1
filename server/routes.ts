@@ -1305,6 +1305,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.warn("Error deleting cart items:", cartError);
       }
 
+      // Delete related order items
+      try {
+        await storage.deleteOrderItemsByProduct(id);
+        console.log(`Deleted order items for product ${product.name}`);
+      } catch (orderItemsError) {
+        console.warn("Error deleting order items:", orderItemsError);
+      }
+
       // Delete product variants
       try {
         const variants = await storage.getProductVariants(id);

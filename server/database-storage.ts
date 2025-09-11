@@ -788,6 +788,14 @@ export class DatabaseStorage implements IStorage {
     return true; // Return true even if no rows were deleted
   }
 
+  async deleteOrderItemsByProduct(productId: string): Promise<boolean> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('deleteOrderItemsByProduct');
+    }
+    const result = await db!.delete(schema.orderItems).where(eq(schema.orderItems.productId, productId));
+    return true; // Return true even if no rows were deleted
+  }
+
   // Cart
   async getCartItems(userId?: string, sessionId?: string): Promise<CartItem[]> {
     if (!isDatabaseAvailable()) {

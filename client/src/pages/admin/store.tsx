@@ -805,7 +805,7 @@ function AdminStoreContent() {
                             <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
                             <div className="flex justify-between items-center mt-2">
                               <span className="text-lg font-bold text-green-600">
-                                ${product.price / 100).toFixed(2)} {product.currency || 'MXN'}
+                                ${(product.price / 100).toFixed(2)} {product.currency || 'MXN'}
                               </span>
                               <div className="text-sm text-gray-500">
                                 Stock: {product.stock ?? 'N/A'}
