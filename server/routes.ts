@@ -32,7 +32,7 @@ import {
 } from "./objectStorage";
 import crypto from 'crypto';
 import { eq } from "drizzle-orm";
-import { db } from "./database";
+import { db } from "./db";
 import {
   users,
   testimonials,
@@ -44,12 +44,8 @@ import {
   reservations,
   reservationSettings,
   sections,
-  storeProducts,
-  storeCategories,
-  storeOrders,
-  storeOrderItems,
   serviciosSections
-} from "./database-storage";
+} from "@shared/schema";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
