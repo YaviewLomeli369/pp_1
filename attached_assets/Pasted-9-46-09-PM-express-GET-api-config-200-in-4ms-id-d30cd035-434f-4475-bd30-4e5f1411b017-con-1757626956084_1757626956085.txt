@@ -1,0 +1,74 @@
+9:46:09 PM [express] GET /api/config 200 in 4ms :: {"id":"d30cd035-434f-4475-bd30-4e5f1411b017","con…
+9:46:09 PM [express] GET /api/contact/messages 200 in 4ms :: []
+9:46:09 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Authentication required"}
+9:46:09 PM [express] GET /api/testimonials 200 in 2ms :: [{"id":"d8db69c7-17f8-47a6-863f-d68df4753dd…
+9:46:09 PM [express] GET /api/users 200 in 1ms :: [{"id":"f656067f-c634-4fd5-8378-a58d49a5b029","use…
+9:46:09 PM [express] GET /api/blog 200 in 15ms :: []
+9:46:09 PM [express] GET /api/store/orders 401 in 1ms :: {"message":"Authentication required"}
+9:46:09 PM [express] GET /api/store/products 200 in 5ms :: [{"id":"36798950-3058-4f0e-b30f-cf2d0c3ce…
+9:46:09 PM [express] GET /api/contact/info 200 in 3ms
+9:46:10 PM [express] GET /api/config 304 in 4ms :: {"id":"d30cd035-434f-4475-bd30-4e5f1411b017","con…
+9:46:10 PM [express] GET /api/sections 304 in 2ms :: []
+9:46:10 PM [express] GET /api/testimonials 304 in 2ms :: [{"id":"d8db69c7-17f8-47a6-863f-d68df4753dd…
+9:46:10 PM [express] GET /api/contact/info 200 in 1ms
+9:46:12 PM [express] POST /api/auth/login 200 in 2ms :: {"token":"h8gcrn9wma8rla8mp9n22s","user":{"i…
+9:46:13 PM [express] GET /api/store/orders 200 in 7ms :: [{"id":"fd5c9c4a-5fbd-4bdc-aacb-2fb31cf8b52…
+9:46:14 PM [vite] Internal server error: /home/runner/workspace/client/src/pages/admin/servicios-sections.tsx: Identifier 'React' has already been declared. (508:7)
+
+  506 |   );
+  507 | }
+> 508 | import React, { useState } from "react";
+      |        ^
+  509 | import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  510 | import { AdminLayout } from "@/components/layout/admin-layout";
+  511 | import { Button } from "@/components/ui/button";
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/client/src/pages/admin/servicios-sections.tsx:508:7
+  506 |    );
+  507 |  }
+  508 |  import React, { useState } from "react";
+      |         ^
+  509 |  import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+  510 |  import { AdminLayout } from "@/components/layout/admin-layout";
+      at toParseError (/home/runner/workspace/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1503:19)
+      at checkRedeclarationInScope (/home/runner/workspace/node_modules/@babel/parser/src/util/scope.ts:164:19)
+      at declareName (/home/runner/workspace/node_modules/@babel/parser/src/util/scope.ts:118:12)
+      at declareName (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/scope.ts:89:11)
+      at declareNameFromIdentifier (/home/runner/workspace/node_modules/@babel/parser/src/parser/lval.ts:818:16)
+      at checkIdentifier (/home/runner/workspace/node_modules/@babel/parser/src/parser/lval.ts:813:12)
+      at checkLVal (/home/runner/workspace/node_modules/@babel/parser/src/parser/lval.ts:713:12)
+      at finishImportSpecifier (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:3223:10)
+      at parseImportSpecifierLocal (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:3210:31)
+      at maybeParseDefaultImportSpecifier (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:3395:12)
+      at parseImportSpecifiersAndAfter (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:3157:29)
+      at parseImport (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:3142:17)
+      at parseImport (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3011:28)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:642:25)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3185:20)
+      at parseStatementLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:477:17)
+      at parseModuleItem (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:414:17)
+      at parseBlockOrModuleBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1438:16)
+      at parseBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1412:10)
+      at parseProgram (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:229:10)
+      at parseTopLevel (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:203:25)
+      at parse (/home/runner/workspace/node_modules/@babel/parser/src/parser/index.ts:93:10)
+      at parse (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:4309:20)
+      at parse (/home/runner/workspace/node_modules/@babel/parser/src/index.ts:92:38)
+      at parser (/home/runner/workspace/node_modules/@babel/core/src/parser/index.ts:28:19)
+      at parser.next (<anonymous>)
+      at normalizeFile (/home/runner/workspace/node_modules/@babel/core/src/transformation/normalize-file.ts:49:24)
+      at normalizeFile.next (<anonymous>)
+      at run (/home/runner/workspace/node_modules/@babel/core/src/transformation/index.ts:40:36)
+      at run.next (<anonymous>)
+      at transform (/home/runner/workspace/node_modules/@babel/core/src/transform.ts:29:20)
+      at transform.next (<anonymous>)
+      at step (/home/runner/workspace/node_modules/gensync/index.js:261:32)
+      at /home/runner/workspace/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/home/runner/workspace/node_modules/gensync/index.js:223:11)
+      at /home/runner/workspace/node_modules/gensync/index.js:189:28
+      at <anonymous> (/home/runner/workspace/node_modules/@babel/core/src/gensync-utils/async.ts:90:7)
+      at /home/runner/workspace/node_modules/gensync/index.js:113:33
+      at step (/home/runner/workspace/node_modules/gensync/index.js:287:14)
+      at /home/runner/workspace/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/home/runner/workspace/node_modules/gensync/index.js:223:11)
