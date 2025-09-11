@@ -1,4 +1,4 @@
-import React, { useMemo, startTransition } from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -11,35 +11,65 @@ import { Rocket, Users, Target, Check, Star } from "lucide-react";
 import type { SiteConfig } from "@shared/schema";
 import AnimatedSection from "@/components/AnimatedSection";
 
-interface ServiceSection {
-  id: string;
-  type: 'service' | 'plan';
-  title: string;
-  description: string;
-  price?: string;
-  features: string[];
-  highlight?: boolean;
-  icon?: string;
-  order: number;
-  isActive: boolean;
-}
+const services = [
+  {
+    title: "Desarrollo Web a Medida",
+    description: "Creamos sitios web modernos y escalables.",
+    icon: <Rocket className="h-8 w-8 text-blue-600" />,
+  },
+  {
+    title: "Marketing Digital",
+    description: "Estrategias para atraer clientes y crecer en línea.",
+    icon: <Target className="h-8 w-8 text-green-600" />,
+  },
+  {
+    title: "Consultoría Tecnológica",
+    description: "Acompañamos a tu empresa en su transformación digital.",
+    icon: <Users className="h-8 w-8 text-purple-600" />,
+  },
+];
 
-// Iconos por defecto para servicios
-const getServiceIcon = (title: string) => {
-  const titleLower = title.toLowerCase();
-  if (titleLower.includes('desarrollo') || titleLower.includes('web')) {
-    return <Rocket className="h-8 w-8 text-blue-600" />;
-  }
-  if (titleLower.includes('marketing') || titleLower.includes('digital')) {
-    return <Target className="h-8 w-8 text-green-600" />;
-  }
-  if (titleLower.includes('consultoría') || titleLower.includes('tecnológica')) {
-    return <Users className="h-8 w-8 text-purple-600" />;
-  }
-  return <Rocket className="h-8 w-8 text-blue-600" />;
-};
+const plans = [
+  {
+    name: "Esencial",
+    price: "6,499 MXN",
+    description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
+    features: [
+      "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
+      "Contenido clave: 3 secciones principales (Inicio, Servicios, Contacto), con un blog y 3 servicios listados.",
+      "Módulo de contacto",
+      "Conexión directa: Formulario de contacto, integración con redes sociales y botón de WhatsApp.",
+      'Detalles profesionales: Correo corporativo y una sección de "Conócenos" para generar confianza.',
+    ],
+    highlight: false,
+  },
+  {
+    name: "Profesional",
+    price: "9,499 MXN",
+    description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
+    features: [
+      "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
+      "Automatiza tu agenda: Sistema de reservas en línea para que tus clientes agenden fácilmente.",
+      "Mejora tu contenido: Blog optimizado y un banner principal personalizado para destacar tu marca.",
+      "Organización profesional: Gestión de entregables y documentos de forma estructurada.",
+    ],
+    highlight: true,
+  },
+  {
+    name: "Premium",
+    price: "15,499 MXN",
+    description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
+    features: [
+      "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
+      "Pagos seguros: Integración con Stripe para recibir pagos en línea.",
+      "Marketing avanzado: Herramientas de comunicación y marketing digital para atraer y retener clientes.",
+      "Análisis y crecimiento: Reportes de actividad web y una sección de servicios premium para monetizar más tu oferta.",
+    ],
+    highlight: false,
+  },
+];
 
-const PlanCard = ({ plan }: { plan: ServiceSection }) => {
+const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
   const WHATSAPP_NUMBER = "525512345678";
   const message = encodeURIComponent(
     `Hola, me interesa más información sobre sus servicios.`
@@ -47,7 +77,7 @@ const PlanCard = ({ plan }: { plan: ServiceSection }) => {
 
   const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
 
-  const priceValue = plan.price ? parseInt(plan.price.replace(/\D/g, "")) : 0;
+  const priceValue = parseInt(plan.price.replace(/\D/g, ""));
   const oldPrice = priceValue ? `${(priceValue * 1.30).toLocaleString()} MXN` : null;
 
   return (
@@ -67,13 +97,13 @@ const PlanCard = ({ plan }: { plan: ServiceSection }) => {
           </div>
         )}
 
-        <h3 className="text-2xl font-bold mb-2 text-center text-gray-800">{plan.title}</h3>
+        <h3 className="text-2xl font-bold mb-2 text-center text-gray-800">{plan.name}</h3>
         <p className="text-gray-500 mb-4 text-center">{plan.description}</p>
 
         <div className="text-center mb-6">
           {oldPrice && <span className="text-gray-400 line-through mr-2 text-lg">${oldPrice}</span>}
           <br />  
-          <span className="text-4xl font-extrabold text-blue-600">{plan.price || 'Consultar precio'}</span>
+          <span className="text-4xl font-extrabold text-blue-600">${plan.price}</span>
         </div>
 
       
@@ -105,46 +135,13 @@ const PlanCard = ({ plan }: { plan: ServiceSection }) => {
 };
 
 function Servicios() {
-  const { data: config, isLoading: configLoading, error: configError } = useQuery<SiteConfig>({ 
-    queryKey: ["/api/config"],
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
-    suspense: false
-  });
-  
-  const { data: sections = [], isLoading: sectionsLoading, error: sectionsError } = useQuery<ServiceSection[]>({ 
-    queryKey: ["/api/servicios-sections"],
-    retry: 1,
-    staleTime: 2 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    suspense: false
-  });
-  
+  const { data: config, isLoading } = useQuery<SiteConfig>({ queryKey: ["/api/config"] });
   const { appearance } = useMemo(() => {
     const configData = config?.config as any;
     return { appearance: configData?.appearance || {} };
   }, [config]);
 
-  // Separar servicios y planes, solo mostrar los activos
-  const activeSections = sections.filter(section => section.isActive);
-  const services = activeSections.filter(section => section.type === 'service').sort((a, b) => a.order - b.order);
-  const plans = activeSections.filter(section => section.type === 'plan').sort((a, b) => a.order - b.order);
-
-  if (configLoading || sectionsLoading) return <PageLoader message="Cargando servicios..." />;
-  
-  if (configError || sectionsError) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-16 text-center navbar-fixed-body">
-          <h1 className="text-4xl font-bold mb-4">Error</h1>
-          <p className="text-xl text-muted-foreground">
-            Hubo un problema cargando los servicios. Por favor, intenta más tarde.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader message="Cargando servicios..." />;
 
   return (
     <div 
@@ -194,33 +191,17 @@ function Servicios() {
             <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-12">
               Nuestros Servicios
             </h2>
-            {services.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                {services.map((service, i) => (
-                  <AnimatedSection key={service.id} delay={0.1 * i}>
-                    <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition duration-300">
-                      <div className="flex justify-center mb-4">{getServiceIcon(service.title)}</div>
-                      <h3 className="text-xl font-semibold mb-2 text-gray-800">{service.title}</h3>
-                      <p className="text-gray-600">{service.description}</p>
-                      {service.features && service.features.length > 0 && (
-                        <ul className="mt-4 space-y-2 text-left">
-                          {service.features.slice(0, 3).map((feature, index) => (
-                            <li key={index} className="flex items-start text-sm text-gray-600">
-                              <Check className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </AnimatedSection>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No hay servicios configurados aún.</p>
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              {services.map((s, i) => (
+                <AnimatedSection key={i} delay={0.1 * i}>
+                  <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition duration-300">
+                    <div className="flex justify-center mb-4">{s.icon}</div>
+                    <h3 className="text-xl font-semibold mb-2 text-gray-800">{s.title}</h3>
+                    <p className="text-gray-600">{s.description}</p>
+                  </div>
+                </AnimatedSection>
+              ))}
+            </div>
           </div>
         </section>
       </AnimatedSection>
@@ -236,17 +217,11 @@ function Servicios() {
               Escoge el plan que mejor se adapte a tus objetivos. Todos incluyen soporte y
               optimización básica.
             </p>
-            {plans.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {plans.map((plan, i) => (
-                  <PlanCard key={plan.id} plan={plan} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No hay planes configurados aún.</p>
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {plans.map((plan, i) => (
+                <PlanCard key={i} plan={plan} />
+              ))}
+            </div>
           </div>
         </section>
       </AnimatedSection>

@@ -934,8 +934,8 @@ export class DatabaseStorage implements IStorage {
       throwDatabaseError('updateOrder');
     }
 
-    console.log('Database updateOrder called:', {
-      id,
+    console.log('Database updateOrder called:', { 
+      id, 
       updates,
       updatesType: typeof updates,
       updatesKeys: Object.keys(updates)

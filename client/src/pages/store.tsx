@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef, startTransition } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/navbar";
@@ -165,90 +165,6 @@ export default function Store() {
     retry: 1,
   });
 
-  // ✅ HELPER FUNCTIONS - MUST BE DECLARED FIRST
-  const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
-    } catch (error) {
-      console.warn('Error saving cart to localStorage:', error);
-    }
-  }, []);
-
-  const loadCartFromStorage = useCallback(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const savedCart = localStorage.getItem('shopping-cart');
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        // Validar que el carrito tenga la estructura correcta
-        if (Array.isArray(parsedCart)) {
-          return parsedCart.filter(item => 
-            item && 
-            typeof item === 'object' && 
-            item.product && 
-            typeof item.quantity === 'number' &&
-            item.quantity > 0
-          );
-        }
-      }
-    } catch (error) {
-      console.warn('Error loading cart from localStorage:', error);
-    }
-    return [];
-  }, []);
-
-  const clearCart = useCallback(() => {
-    if (!isMountedRef.current || isNavigating) return;
-    setCart([]);
-  }, [isNavigating]);
-
-  const removeFromCart = useCallback((productId: string) => {
-    if (!isMountedRef.current || isNavigating) return;
-    setCart(prev => {
-      const newCart = prev.filter(item => item.product.id !== productId);
-      saveCartToStorage(newCart);
-      return newCart;
-    });
-  }, [isNavigating, saveCartToStorage]);
-
-  const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
-    if (!isMountedRef.current || isNavigating) return;
-
-    if (newQuantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-
-    const product = products?.find(p => p.id === productId);
-    if (!product) {
-      toast({
-        title: "Error",
-        description: "Producto no encontrado",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate stock if tracking is enabled
-    if (product.stock !== null && newQuantity > product.stock) {
-      toast({
-        title: "Stock insuficiente",
-        description: `Solo hay ${product.stock} unidades disponibles`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setCart(prev => {
-      const newCart = prev.map(item =>
-        item.product.id === productId ? { ...item, quantity: newQuantity } : item
-      );
-      saveCartToStorage(newCart);
-      return newCart;
-    });
-  }, [removeFromCart, isNavigating, products, toast, saveCartToStorage]);
-
   // ✅ MUTATIONS
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
@@ -381,24 +297,17 @@ export default function Store() {
     if (!isMountedRef.current) return;
 
     try {
-      startTransition(() => {
-        setIsNavigating(true);
-      });
-      
+      setIsNavigating(true);
       performCleanup();
 
       setTimeout(() => {
         if (isMountedRef.current) {
-          startTransition(() => {
-            setLocation(href);
-          });
+          setLocation(href);
         }
       }, 50);
     } catch (error) {
       console.error('Navigation error:', error);
-      startTransition(() => {
-        setLocation(href);
-      });
+      setLocation(href);
     }
   }, [setLocation, performCleanup]);
 
@@ -472,6 +381,85 @@ export default function Store() {
     }
   }, [cart, handleNavigation, toast, isNavigating]);
 
+  // Funciones para persistir carrito en localStorage
+  const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
+    } catch (error) {
+      console.warn('Error saving cart to localStorage:', error);
+    }
+  }, []);
+
+  const removeFromCart = useCallback((productId: string) => {
+    if (!isMountedRef.current || isNavigating) return;
+    setCart(prev => {
+      const newCart = prev.filter(item => item.product.id !== productId);
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [isNavigating, saveCartToStorage]);
+
+  const loadCartFromStorage = useCallback(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const savedCart = localStorage.getItem('shopping-cart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        // Validar que el carrito tenga la estructura correcta
+        if (Array.isArray(parsedCart)) {
+          return parsedCart.filter(item => 
+            item && 
+            typeof item === 'object' && 
+            item.product && 
+            typeof item.quantity === 'number' &&
+            item.quantity > 0
+          );
+        }
+      }
+    } catch (error) {
+      console.warn('Error loading cart from localStorage:', error);
+    }
+    return [];
+  }, []);
+
+  const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
+    if (!isMountedRef.current || isNavigating) return;
+
+    if (newQuantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+
+    const product = products?.find(p => p.id === productId);
+    if (!product) {
+      toast({
+        title: "Error",
+        description: "Producto no encontrado",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate stock if tracking is enabled
+    if (product.stock !== null && newQuantity > product.stock) {
+      toast({
+        title: "Stock insuficiente",
+        description: `Solo hay ${product.stock} unidades disponibles`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCart(prev => {
+      const newCart = prev.map(item =>
+        item.product.id === productId ? { ...item, quantity: newQuantity } : item
+      );
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [removeFromCart, isNavigating, products, toast, saveCartToStorage]);
+
   // ✅ EFFECTS - MUST BE AFTER ALL HOOKS
   useEffect(() => {
     isMountedRef.current = true;
@@ -496,7 +484,7 @@ export default function Store() {
           const currentProduct = products.find(p => p.id === item.product.id);
           return currentProduct ? { ...item, product: currentProduct } : item;
         });
-
+        
         if (validCartItems.length > 0) {
           setCart(validCartItems);
           if (validCartItems.length !== savedCart.length) {

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
@@ -11,7 +12,6 @@ import { ModuleRoute } from "@/components/module-route";
 import { LoadingPage } from "@/components/loading-page";
 import type { SiteConfig } from "@shared/schema";
 import ReloadOnStore from "@/components/ReloadOnStore";
-import { lazy } from "react";
 
 // Public pages
 import Home from "@/pages/home";
@@ -125,7 +125,7 @@ function Router() {
       <Route path="/conocenos" component={Conocenos} />
       <Route path="/servicios" component={Servicios} />
       {/* <Route path="/tienda-prueba" component={TiendaPrueba} /> */}
-
+      
       {/* Admin routes */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/modules" component={AdminModules} />
@@ -135,8 +135,7 @@ function Router() {
       <Route path="/admin/store" component={AdminStore} />
       <Route path="/admin/inventory" component={AdminInventory} />
       <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/sections" component={lazy(() => import("@/pages/admin/sections"))} />
-      <Route path="/admin/servicios-sections" component={lazy(() => import("@/pages/admin/servicios-sections"))} />
+      <Route path="/admin/sections" component={AdminSections} />
       <Route path="/admin/appearance" component={AdminAppearance} />
       <Route path="/admin/reservations" component={AdminReservations} />
       <Route path="/admin/reservation-settings" component={AdminReservationSettings} />
@@ -145,7 +144,7 @@ function Router() {
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/email-config" component={AdminEmailConfig} />
       <Route path="/admin/contact-info" component={AdminContactInfo} />
-
+      
       <Route component={NotFound} />
     </Switch>
 

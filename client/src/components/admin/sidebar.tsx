@@ -42,7 +42,6 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/appearance", label: "Apariencia", icon: Palette, section: "Configuración" },
   { href: "/admin/users", label: "Usuarios", icon: Users, section: "Configuración" },
   { href: "/admin/sections", label: "Secciones", icon: Layout, section: "Contenido", superuserOnly: true },
-  { href: "/admin/servicios-sections", label: "Servicios", icon: Settings, section: "Contenido", superuserOnly: true },
   { href: "/admin/testimonials", label: "Testimonios", icon: Quote, section: "Contenido", moduleRequired: "testimonios" },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle, section: "Contenido", moduleRequired: "faqs" },
   { href: "/admin/blog", label: "Blog", icon: FileText, section: "Contenido", moduleRequired: "blog" },
@@ -53,9 +52,9 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/reservations", label: "Reservas", icon: Calendar, section: "Módulos de Negocio", moduleRequired: "reservas" },
   { href: "/admin/reservation-settings", label: "Config. Reservas", icon: Settings, section: "Módulos de Negocio", moduleRequired: "reservas" },
   { href: "/admin/contact", label: "Contacto", icon: MessageSquare, section: "Módulos de Negocio", moduleRequired: "contacto" },
-
+  
   { href: "/admin/contact-info", label: "Información de Contacto", icon: MapPin, section: "Módulos de Negocio", moduleRequired: "contacto" },
-
+  
   { href: "/admin/email-config", label: "Config. Email", icon: Mail, section: "Módulos de Negocio" },
 ];
 
@@ -63,7 +62,7 @@ export function AdminSidebar() {
   const [location] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { logout } = useAuth();
-
+  
   // Get current user info to check role
   const { data: currentUser } = useQuery({
     queryKey: ["/api/auth/me"],
@@ -77,23 +76,23 @@ export function AdminSidebar() {
   // Filter items based on user role and active modules
   const isSuperuser = (currentUser as any)?.role === 'superuser';
   const modules = (config as any)?.config?.frontpage?.modulos || {};
-
+  
   const sidebarItems = getAllSidebarItems().filter(item => {
     // Superuser sees everything
     if (isSuperuser) {
       return true;
     }
-
+    
     // Hide superuser-only items from admin
     if (item.superuserOnly) {
       return false;
     }
-
+    
     // For admin users, check if module is active
     if (item.moduleRequired) {
       return modules[item.moduleRequired]?.activo || false;
     }
-
+    
     return true;
   });
 
@@ -129,7 +128,7 @@ export function AdminSidebar() {
         {/* Grouped sections */}
         {Object.entries(groupedItems).map(([section, items]) => {
           if (section === "main") return null;
-
+          
           return (
             <div key={section} className="pt-4">
               <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -165,7 +164,7 @@ export function AdminSidebar() {
             </div>
           );
         })}
-
+        
         {/* Logout Section */}
         <div className="pt-4 border-t border-gray-200">
           <Link href="/" className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100 mb-2">
