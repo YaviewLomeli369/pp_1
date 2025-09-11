@@ -54,7 +54,6 @@ import AdminOrders from "@/pages/admin/orders";
 import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminInventory from "@/pages/admin/inventory";
 import AdminContactInfo from "@/pages/admin/contact-info";
-import AdminSections from "@/pages/admin/sections";
 import AdminServiciosSections from "@/pages/admin/servicios-sections";
 
 import NotFound from "@/pages/not-found";
@@ -137,7 +136,16 @@ function Router() {
       <Route path="/admin/store" component={AdminStore} />
       <Route path="/admin/inventory" component={AdminInventory} />
       <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/sections" component={AdminSections} />
+      <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
+      <Route path="/admin/appearance" component={AdminAppearance} />
+      <Route path="/admin/reservations" component={AdminReservations} />
+      <Route path="/admin/reservation-settings" component={AdminReservationSettings} />
+      <Route path="/admin/payments" component={AdminPayments} />
+      <Route path="/admin/blog" component={AdminBlog} />
+      <Route path="/admin/orders" component={AdminOrders} />
+      <Route path="/admin/email-config" component={AdminEmailConfig} />
+      <Route path="/admin/contact-info" component={AdminContactInfo} /></Route>
+<new_str>      <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
       <Route path="/admin/appearance" component={AdminAppearance} />
       <Route path="/admin/reservations" component={AdminReservations} />
