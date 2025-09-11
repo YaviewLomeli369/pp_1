@@ -484,7 +484,7 @@ export default function Store() {
           const currentProduct = products.find(p => p.id === item.product.id);
           return currentProduct ? { ...item, product: currentProduct } : item;
         });
-        
+
         if (validCartItems.length > 0) {
           setCart(validCartItems);
           if (validCartItems.length !== savedCart.length) {
