@@ -381,15 +381,6 @@ export default function Store() {
     }
   }, [cart, handleNavigation, toast, isNavigating]);
 
-  const removeFromCart = useCallback((productId: string) => {
-    if (!isMountedRef.current || isNavigating) return;
-    setCart(prev => {
-      const newCart = prev.filter(item => item.product.id !== productId);
-      saveCartToStorage(newCart);
-      return newCart;
-    });
-  }, [isNavigating, saveCartToStorage]);
-
   // Funciones para persistir carrito en localStorage
   const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
     if (typeof window === 'undefined') return;
@@ -399,6 +390,15 @@ export default function Store() {
       console.warn('Error saving cart to localStorage:', error);
     }
   }, []);
+
+  const removeFromCart = useCallback((productId: string) => {
+    if (!isMountedRef.current || isNavigating) return;
+    setCart(prev => {
+      const newCart = prev.filter(item => item.product.id !== productId);
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [isNavigating, saveCartToStorage]);
 
   const loadCartFromStorage = useCallback(() => {
     if (typeof window === 'undefined') return [];
