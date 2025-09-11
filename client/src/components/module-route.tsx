@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { LoadingPage } from "@/components/loading-page";
 import NotFound from "@/pages/not-found";
 import type { SiteConfig } from "@shared/schema";
-import { Suspense } from "react";
 
 interface ModuleRouteProps {
   path: string;
@@ -18,8 +17,8 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
 
   const { data: config, isLoading } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false, // Prevent unnecessary refetches
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
     retry: 1,
     enabled: isMountedRef.current,
   });
@@ -31,26 +30,21 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
     return modules[moduleKey]?.activo;
   }, [config, moduleKey]);
 
-  // Component lifecycle management
   useEffect(() => {
     isMountedRef.current = true;
-
     return () => {
       isMountedRef.current = false;
     };
   }, []);
 
-  // Enhanced navigation safety for mobile
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        // Cleanup any module-specific states when page becomes hidden
         document.body.classList.remove('modal-open', 'overflow-hidden');
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -72,11 +66,7 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
           return <NotFound key={`${routeInstanceRef.current}-not-found`} />;
         }
 
-        return (
-          <Suspense fallback={<LoadingPage key={`${routeInstanceRef.current}-suspense-loading`} />}>
-            <Component {...props} key={`${routeInstanceRef.current}-component-${moduleKey}`} />
-          </Suspense>
-        );
+        return <Component {...props} key={`${routeInstanceRef.current}-component-${moduleKey}`} />;
       }}
     />
   );
