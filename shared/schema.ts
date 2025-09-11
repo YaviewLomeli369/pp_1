@@ -590,3 +590,19 @@ export type PaymentConfig = typeof paymentConfig.$inferSelect;
 export type InsertPaymentConfig = typeof paymentConfig.$inferInsert;
 export type EmailConfig = typeof emailConfig.$inferSelect;
 export type InsertEmailConfig = z.infer<typeof insertEmailConfigSchema>;
+
+// Service Section Type (for dynamic page content)
+export interface ServiceSection {
+  id: string;
+  type: 'service' | 'plan';
+  title: string;
+  description: string;
+  price?: string;
+  features: string[];
+  highlight?: boolean;
+  icon?: string;
+  order: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
