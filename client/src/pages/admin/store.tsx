@@ -14,17 +14,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 
-import { 
-  Package, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  ShoppingCart, 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
-  Search, 
+import {
+  Package,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  ShoppingCart,
+  Users,
+  DollarSign,
+  TrendingUp,
+  Search,
   Filter,
   RefreshCw,
   AlertTriangle,
@@ -102,7 +102,7 @@ function AdminStoreContent() {
 
     return rawProducts.map(product => ({
       ...product,
-      images: Array.isArray(product.images) 
+      images: Array.isArray(product.images)
         ? product.images.map(imgUrl => {
             if (typeof imgUrl !== 'string') return imgUrl;
 
@@ -197,10 +197,10 @@ function AdminStoreContent() {
       toast({ title: "Producto creado exitosamente" });
     },
     onError: (error: any) => {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: error.message || "Error al crear producto",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
@@ -348,16 +348,16 @@ function AdminStoreContent() {
       toast({ title: "Categoría creada exitosamente" });
     },
     onError: (error: any) => {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: error.message || "Error al crear categoría",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => 
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       apiRequest(`/api/store/categories/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/store/categories"] });
@@ -367,10 +367,10 @@ function AdminStoreContent() {
       toast({ title: "Categoría actualizada exitosamente" });
     },
     onError: (error: any) => {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: error.message || "Error al actualizar categoría",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
@@ -386,10 +386,10 @@ function AdminStoreContent() {
       });
     },
     onError: (error: any) => {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: error.message || "Error al eliminar categoría",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
@@ -398,7 +398,7 @@ function AdminStoreContent() {
 
   // Image upload mutation
   const updateProductImageMutation = useMutation({
-    mutationFn: ({ id, imageURL }: { id: string; imageURL: string }) => 
+    mutationFn: ({ id, imageURL }: { id: string; imageURL: string }) =>
       apiRequest(`/api/store/products/${id}`, { method: "PUT", body: JSON.stringify({ images: [imageURL] }) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/store/products"] });
@@ -408,10 +408,10 @@ function AdminStoreContent() {
       setTempImageUrl(null);
     },
     onError: (error: any) => {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: error.message || "Error al actualizar imagen",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
@@ -483,8 +483,8 @@ function AdminStoreContent() {
     console.log("COMPLETE-2. Server response:", serverResponse);
 
     // Try different response properties
-    const imageURL = serverResponse.url || 
-                     serverResponse.location || 
+    const imageURL = serverResponse.url ||
+                     serverResponse.location ||
                      serverResponse.uploadURL ||
                      null;
 
@@ -628,7 +628,7 @@ function AdminStoreContent() {
     }
   };
 
-  const [activeTab, setActiveTab] = useState("overview"); // ✅ ahora dentro del componente
+  const [activeTab, setActiveTab] = useState("products"); // ✅ now inside the component
 
   // Handle URL hash for direct navigation to tabs
   useEffect(() => {
@@ -668,8 +668,8 @@ function AdminStoreContent() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Gestión de Tienda</h1>
         <div className="flex gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
               queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] });
               queryClient.invalidateQueries({ queryKey: ["/api/store/orders"] });
@@ -778,8 +778,8 @@ function AdminStoreContent() {
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-4">
                           {product.images && product.images.length > 0 && (
-                            <img 
-                              src={product.images[0]} 
+                            <img
+                              src={product.images[0]}
                               alt={product.name}
                               className="w-16 h-16 object-cover rounded-md"
                               onError={(e) => {
@@ -855,10 +855,10 @@ function AdminStoreContent() {
                     <div className="flex gap-2">
                       <Select
                         value={order.status}
-                        onValueChange={(value) => 
-                          updateOrderMutation.mutate({ 
-                            id: order.id, 
-                            data: { status: value } 
+                        onValueChange={(value) =>
+                          updateOrderMutation.mutate({
+                            id: order.id,
+                            data: { status: value }
                           })
                         }
                       >
@@ -873,8 +873,8 @@ function AdminStoreContent() {
                           <SelectItem value="cancelled">Cancelado</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => {
                           setSelectedOrder(order);
@@ -1288,8 +1288,8 @@ function AdminStoreContent() {
               {selectedCategory ? "Editar Categoría" : "Nueva Categoría"}
             </DialogTitle>
             <DialogDescription>
-              {selectedCategory 
-                ? "Modifica los datos de la categoría" 
+              {selectedCategory
+                ? "Modifica los datos de la categoría"
                 : "Crea una nueva categoría para organizar tus productos"
               }
             </DialogDescription>
@@ -1325,9 +1325,9 @@ function AdminStoreContent() {
             </div>
 
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => {
                   setShowCategoryForm(false);
                   setSelectedCategory(null);
@@ -1336,8 +1336,8 @@ function AdminStoreContent() {
                 Cancelar
               </Button>
               <Button type="submit" disabled={createCategoryMutation.isPending || updateCategoryMutation.isPending}>
-                {createCategoryMutation.isPending || updateCategoryMutation.isPending 
-                  ? "Guardando..." 
+                {createCategoryMutation.isPending || updateCategoryMutation.isPending
+                  ? "Guardando..."
                   : selectedCategory ? "Actualizar Categoría" : "Crear Categoría"
                 }
               </Button>
@@ -1426,8 +1426,8 @@ function AdminStoreContent() {
                   <CardContent>
                     {(() => {
                       try {
-                        const address = typeof selectedOrder.shippingAddress === 'string' 
-                          ? JSON.parse(selectedOrder.shippingAddress) 
+                        const address = typeof selectedOrder.shippingAddress === 'string'
+                          ? JSON.parse(selectedOrder.shippingAddress)
                           : selectedOrder.shippingAddress;
                         return (
                           <div className="space-y-2">
@@ -1522,10 +1522,10 @@ function AdminStoreContent() {
                 <Label>Estado del Pedido</Label>
                 <Select
                   defaultValue={selectedOrder.status}
-                  onValueChange={(value) => 
-                    updateOrderMutation.mutate({ 
-                      id: selectedOrder.id, 
-                      data: { status: value } 
+                  onValueChange={(value) =>
+                    updateOrderMutation.mutate({
+                      id: selectedOrder.id,
+                      data: { status: value }
                     })
                   }
                 >
@@ -1546,10 +1546,10 @@ function AdminStoreContent() {
                 <Label>Estado del Pago</Label>
                 <Select
                   defaultValue={selectedOrder.paymentStatus}
-                  onValueChange={(value) => 
-                    updateOrderMutation.mutate({ 
-                      id: selectedOrder.id, 
-                      data: { paymentStatus: value } 
+                  onValueChange={(value) =>
+                    updateOrderMutation.mutate({
+                      id: selectedOrder.id,
+                      data: { paymentStatus: value }
                     })
                   }
                 >
