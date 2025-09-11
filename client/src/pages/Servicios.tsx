@@ -108,16 +108,14 @@ function Servicios() {
   const { data: config, isLoading: configLoading, error: configError } = useQuery<SiteConfig>({ 
     queryKey: ["/api/config"],
     retry: 1,
-    staleTime: 5 * 60 * 1000,
-    suspense: false
+    staleTime: 5 * 60 * 1000
   });
   
   const { data: sections = [], isLoading: sectionsLoading, error: sectionsError } = useQuery<ServiceSection[]>({ 
     queryKey: ["/api/servicios-sections"],
     retry: 1,
     staleTime: 2 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    suspense: false
+    refetchOnWindowFocus: false
   });
   
   const { appearance } = useMemo(() => {

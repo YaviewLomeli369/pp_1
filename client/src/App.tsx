@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { Suspense, useEffect, useRef } from "react";
 import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -103,7 +103,7 @@ function Router() {
     <>
       {/* Este componente controla la recarga para /store */}
       <ReloadOnStore />
-    <Switch>
+      <Switch>
       <Route path="/" component={Home} />
       <ModuleRoute path="/testimonials" component={Testimonials} moduleKey="testimonios" />
       <ModuleRoute path="/faqs" component={Faqs} moduleKey="faqs" />
@@ -157,7 +157,16 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Router />
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Cargando...</p>
+            </div>
+          </div>
+        }>
+          <Router />
+        </Suspense>
         <InlineEditor value="" onSave={async () => {}} />
         <WhatsAppWidget />
         <Toaster />

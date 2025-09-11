@@ -381,10 +381,7 @@ export default function Store() {
     if (!isMountedRef.current) return;
 
     try {
-      startTransition(() => {
-        setIsNavigating(true);
-      });
-      
+      setIsNavigating(true);
       performCleanup();
 
       setTimeout(() => {
