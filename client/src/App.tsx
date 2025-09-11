@@ -135,8 +135,22 @@ function Router() {
       <Route path="/admin/store" component={AdminStore} />
       <Route path="/admin/inventory" component={AdminInventory} />
       <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/sections" component={lazy(() => import("@/pages/admin/sections"))} />
-      <Route path="/admin/servicios-sections" component={lazy(() => import("@/pages/admin/servicios-sections"))} />
+      <Route path="/admin/sections" component={() => (
+        <Suspense fallback={<LoadingPage />}>
+          {(() => {
+            const Component = lazy(() => import("@/pages/admin/sections"));
+            return <Component />;
+          })()}
+        </Suspense>
+      )} />
+      <Route path="/admin/servicios-sections" component={() => (
+        <Suspense fallback={<LoadingPage />}>
+          {(() => {
+            const Component = lazy(() => import("@/pages/admin/servicios-sections"));
+            return <Component />;
+          })()}
+        </Suspense>
+      )} />
       <Route path="/admin/appearance" component={AdminAppearance} />
       <Route path="/admin/reservations" component={AdminReservations} />
       <Route path="/admin/reservation-settings" component={AdminReservationSettings} />

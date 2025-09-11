@@ -1,10 +1,10 @@
-
 import React, { useMemo, useEffect, useRef } from "react";
 import { Route } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingPage } from "@/components/loading-page";
 import NotFound from "@/pages/not-found";
 import type { SiteConfig } from "@shared/schema";
+import { Suspense } from "react";
 
 interface ModuleRouteProps {
   path: string;
@@ -15,7 +15,7 @@ interface ModuleRouteProps {
 export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRouteProps) {
   const routeInstanceRef = useRef(`module-route-${moduleKey}-${Date.now()}`);
   const isMountedRef = useRef(true);
-  
+
   const { data: config, isLoading } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -34,7 +34,7 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
   // Component lifecycle management
   useEffect(() => {
     isMountedRef.current = true;
-    
+
     return () => {
       isMountedRef.current = false;
     };
@@ -50,19 +50,20 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
   return (
-    <Route path={path}>
-      {() => {
+    <Route
+      path={path}
+      component={(props) => {
         if (!isMountedRef.current) {
           return null;
         }
-        
+
         if (isLoading) {
           return <LoadingPage key={`${routeInstanceRef.current}-loading`} />;
         }
@@ -71,8 +72,12 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
           return <NotFound key={`${routeInstanceRef.current}-not-found`} />;
         }
 
-        return <Component key={`${routeInstanceRef.current}-component-${moduleKey}`} />;
+        return (
+          <Suspense fallback={<LoadingPage key={`${routeInstanceRef.current}-suspense-loading`} />}>
+            <Component {...props} key={`${routeInstanceRef.current}-component-${moduleKey}`} />
+          </Suspense>
+        );
       }}
-    </Route>
+    />
   );
 }

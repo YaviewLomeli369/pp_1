@@ -84,18 +84,11 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
+      retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes cache for better performance
-      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
-      retry: (failureCount, error: any) => {
-        // Only retry on network errors, not on 4xx/5xx responses
-        if (error?.message?.includes('NetworkError') || error?.message?.includes('fetch')) {
-          return failureCount < 2;
-        }
-        return false;
-      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      suspense: false,
+      useErrorBoundary: false,
     },
     mutations: {
       retry: false,
