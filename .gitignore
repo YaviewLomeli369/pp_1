@@ -1,0 +1,5 @@
+uploads/*
+.cache/
+.env
+.local/
+node_modules/
