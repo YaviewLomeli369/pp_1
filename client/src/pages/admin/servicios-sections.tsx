@@ -505,3 +505,368 @@ export default function ServiciosSections() {
     </AdminLayout>
   );
 }
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { AdminLayout } from "@/components/layout/admin-layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  ArrowUp, 
+  ArrowDown,
+  Save,
+  X
+} from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { ServiceSection } from "@shared/schema";
+
+export default function AdminServiciosSections() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const [editingSection, setEditingSection] = useState<ServiceSection | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const { data: sections = [], isLoading } = useQuery<ServiceSection[]>({
+    queryKey: ["/api/servicios-sections"],
+  });
+
+  const [formData, setFormData] = useState({
+    type: 'service' as 'service' | 'plan',
+    title: '',
+    description: '',
+    price: '',
+    features: [''],
+    highlight: false,
+    icon: '',
+    order: 0,
+    isActive: true
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: Omit<ServiceSection, 'id'>) => {
+      return await apiRequest("/api/servicios-sections", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/servicios-sections"] });
+      toast({
+        title: "Sección creada",
+        description: "La sección ha sido creada correctamente",
+      });
+      resetForm();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<ServiceSection> }) => {
+      return await apiRequest(`/api/servicios-sections/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/servicios-sections"] });
+      toast({
+        title: "Sección actualizada",
+        description: "La sección ha sido actualizada correctamente",
+      });
+      setEditingSection(null);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest(`/api/servicios-sections/${id}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/servicios-sections"] });
+      toast({
+        title: "Sección eliminada",
+        description: "La sección ha sido eliminada correctamente",
+      });
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      type: 'service',
+      title: '',
+      description: '',
+      price: '',
+      features: [''],
+      highlight: false,
+      icon: '',
+      order: 0,
+      isActive: true
+    });
+    setIsCreating(false);
+    setEditingSection(null);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = {
+      ...formData,
+      features: formData.features.filter(f => f.trim() !== ''),
+      order: editingSection ? editingSection.order : sections.length
+    };
+
+    if (editingSection) {
+      updateMutation.mutate({ id: editingSection.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  const startEdit = (section: ServiceSection) => {
+    setEditingSection(section);
+    setFormData({
+      type: section.type,
+      title: section.title,
+      description: section.description,
+      price: section.price || '',
+      features: section.features.length > 0 ? section.features : [''],
+      highlight: section.highlight || false,
+      icon: section.icon || '',
+      order: section.order,
+      isActive: section.isActive
+    });
+    setIsCreating(true);
+  };
+
+  const addFeature = () => {
+    setFormData(prev => ({
+      ...prev,
+      features: [...prev.features, '']
+    }));
+  };
+
+  const updateFeature = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.map((f, i) => i === index ? value : f)
+    }));
+  };
+
+  const removeFeature = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.filter((_, i) => i !== index)
+    }));
+  };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="p-6">
+          <div className="text-center">Cargando secciones...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Secciones de Servicios</h1>
+          <Button onClick={() => setIsCreating(true)}>
+            <Plus className="h-4 w-4 mr-2" /> Agregar Sección
+          </Button>
+        </div>
+
+        {/* Lista de secciones */}
+        <div className="grid gap-4">
+          {sections.map((section) => (
+            <Card key={section.id}>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    {section.title}
+                    <Badge variant={section.type === 'service' ? 'default' : 'secondary'}>
+                      {section.type === 'service' ? 'Servicio' : 'Plan'}
+                    </Badge>
+                    {!section.isActive && <Badge variant="outline">Inactivo</Badge>}
+                    {section.highlight && <Badge variant="destructive">Destacado</Badge>}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">{section.description}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => startEdit(section)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => deleteMutation.mutate(section.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {section.price && (
+                    <p className="font-semibold text-lg">{section.price}</p>
+                  )}
+                  {section.features.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium mb-1">Características:</p>
+                      <ul className="text-sm text-muted-foreground list-disc list-inside">
+                        {section.features.slice(0, 3).map((feature, index) => (
+                          <li key={index}>{feature}</li>
+                        ))}
+                        {section.features.length > 3 && (
+                          <li>... y {section.features.length - 3} más</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Modal de creación/edición */}
+        <Dialog open={isCreating} onOpenChange={(open) => !open && resetForm()}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingSection ? 'Editar Sección' : 'Crear Nueva Sección'}
+              </DialogTitle>
+            </DialogHeader>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="type">Tipo</Label>
+                  <Select value={formData.type} onValueChange={(value: 'service' | 'plan') => setFormData(prev => ({ ...prev, type: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="service">Servicio</SelectItem>
+                      <SelectItem value="plan">Plan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={formData.isActive}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
+                  />
+                  <Label>Activo</Label>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="title">Título</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="description">Descripción</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  required
+                />
+              </div>
+
+              {formData.type === 'plan' && (
+                <>
+                  <div>
+                    <Label htmlFor="price">Precio</Label>
+                    <Input
+                      id="price"
+                      value={formData.price}
+                      onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                      placeholder="$999 MXN"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={formData.highlight}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, highlight: checked }))}
+                    />
+                    <Label>Destacado</Label>
+                  </div>
+                </>
+              )}
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Características</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addFeature}>
+                    <Plus className="h-4 w-4 mr-1" /> Agregar
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {formData.features.map((feature, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={feature}
+                        onChange={(e) => updateFeature(index, e.target.value)}
+                        placeholder="Característica..."
+                      />
+                      {formData.features.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeFeature(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {editingSection ? 'Actualizar' : 'Crear'}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </AdminLayout>
+  );
+}

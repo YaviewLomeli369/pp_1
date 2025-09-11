@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, startTransition } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -105,9 +105,17 @@ const PlanCard = ({ plan }: { plan: ServiceSection }) => {
 };
 
 function Servicios() {
-  const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({ queryKey: ["/api/config"] });
-  const { data: sections = [], isLoading: sectionsLoading } = useQuery<ServiceSection[]>({ 
-    queryKey: ["/api/servicios-sections"] 
+  const { data: config, isLoading: configLoading, error: configError } = useQuery<SiteConfig>({ 
+    queryKey: ["/api/config"],
+    retry: 1,
+    staleTime: 5 * 60 * 1000
+  });
+  
+  const { data: sections = [], isLoading: sectionsLoading, error: sectionsError } = useQuery<ServiceSection[]>({ 
+    queryKey: ["/api/servicios-sections"],
+    retry: 1,
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false
   });
   
   const { appearance } = useMemo(() => {
@@ -121,6 +129,20 @@ function Servicios() {
   const plans = activeSections.filter(section => section.type === 'plan').sort((a, b) => a.order - b.order);
 
   if (configLoading || sectionsLoading) return <PageLoader message="Cargando servicios..." />;
+  
+  if (configError || sectionsError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-16 text-center navbar-fixed-body">
+          <h1 className="text-4xl font-bold mb-4">Error</h1>
+          <p className="text-xl text-muted-foreground">
+            Hubo un problema cargando los servicios. Por favor, intenta más tarde.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
