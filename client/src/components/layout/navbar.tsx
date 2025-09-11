@@ -274,6 +274,15 @@ export function Navbar() {
                       >
                         <User className="h-4 w-4" /> Perfil
                       </NavLink>
+                      {(user?.role === "admin" || user?.role === "superuser") && (
+                        <NavLink
+                          href="/admin"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100"
+                        >
+                          <Settings className="h-4 w-4" /> Administración
+                        </NavLink>
+                      )}
                       <div
                         onClick={() => {
                           logout();
