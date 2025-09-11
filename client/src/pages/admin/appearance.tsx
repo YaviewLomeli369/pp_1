@@ -394,12 +394,92 @@ export default function AdminAppearance() {
                       onChange={(e) => setAppearance({...appearance, fontFamily: e.target.value})}
                       className="w-full p-2 border rounded-md"
                     >
+                      {/* Sans-serif modernas */}
                       <option value="Inter">Inter</option>
                       <option value="Roboto">Roboto</option>
                       <option value="Open Sans">Open Sans</option>
                       <option value="Lato">Lato</option>
                       <option value="Montserrat">Montserrat</option>
                       <option value="Poppins">Poppins</option>
+                      <option value="Nunito">Nunito</option>
+                      <option value="Source Sans Pro">Source Sans Pro</option>
+                      <option value="Ubuntu">Ubuntu</option>
+                      <option value="Raleway">Raleway</option>
+                      <option value="PT Sans">PT Sans</option>
+                      <option value="Fira Sans">Fira Sans</option>
+                      <option value="Work Sans">Work Sans</option>
+                      <option value="Noto Sans">Noto Sans</option>
+                      <option value="Rubik">Rubik</option>
+                      <option value="Outfit">Outfit</option>
+                      <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                      <option value="DM Sans">DM Sans</option>
+                      <option value="Space Grotesk">Space Grotesk</option>
+                      <option value="Manrope">Manrope</option>
+                      <option value="IBM Plex Sans">IBM Plex Sans</option>
+                      <option value="Karla">Karla</option>
+                      <option value="Barlow">Barlow</option>
+                      <option value="Quicksand">Quicksand</option>
+                      <option value="Mulish">Mulish</option>
+                      <option value="Hind">Hind</option>
+                      <option value="Oxygen">Oxygen</option>
+                      <option value="Red Hat Display">Red Hat Display</option>
+                      <option value="Lexend">Lexend</option>
+                      <option value="Sora">Sora</option>
+                      
+                      {/* Serif clásicas */}
+                      <option value="Playfair Display">Playfair Display</option>
+                      <option value="Lora">Lora</option>
+                      <option value="Merriweather">Merriweather</option>
+                      <option value="Crimson Text">Crimson Text</option>
+                      <option value="Source Serif Pro">Source Serif Pro</option>
+                      <option value="Libre Baskerville">Libre Baskerville</option>
+                      <option value="Cormorant">Cormorant</option>
+                      <option value="Spectral">Spectral</option>
+                      <option value="Vollkorn">Vollkorn</option>
+                      <option value="Bitter">Bitter</option>
+                      <option value="Arvo">Arvo</option>
+                      <option value="Rokkitt">Rokkitt</option>
+                      <option value="Cardo">Cardo</option>
+                      <option value="Crimson Pro">Crimson Pro</option>
+                      
+                      {/* Display y decorativas */}
+                      <option value="Bebas Neue">Bebas Neue</option>
+                      <option value="Oswald">Oswald</option>
+                      <option value="Anton">Anton</option>
+                      <option value="Righteous">Righteous</option>
+                      <option value="Fredoka One">Fredoka One</option>
+                      <option value="Lobster">Lobster</option>
+                      <option value="Pacifico">Pacifico</option>
+                      <option value="Dancing Script">Dancing Script</option>
+                      <option value="Great Vibes">Great Vibes</option>
+                      <option value="Sacramento">Sacramento</option>
+                      <option value="Comfortaa">Comfortaa</option>
+                      <option value="Caveat">Caveat</option>
+                      <option value="Architects Daughter">Architects Daughter</option>
+                      
+                      {/* Monoespaciadas */}
+                      <option value="JetBrains Mono">JetBrains Mono</option>
+                      <option value="Fira Code">Fira Code</option>
+                      <option value="Source Code Pro">Source Code Pro</option>
+                      <option value="IBM Plex Mono">IBM Plex Mono</option>
+                      <option value="Roboto Mono">Roboto Mono</option>
+                      <option value="Space Mono">Space Mono</option>
+                      <option value="Inconsolata">Inconsolata</option>
+                      <option value="Ubuntu Mono">Ubuntu Mono</option>
+                      
+                      {/* Fuentes del sistema */}
+                      <option value="system-ui">System UI</option>
+                      <option value="-apple-system">Apple System</option>
+                      <option value="BlinkMacSystemFont">Blink Mac System</option>
+                      <option value="Segoe UI">Segoe UI</option>
+                      <option value="Helvetica Neue">Helvetica Neue</option>
+                      <option value="Arial">Arial</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Verdana">Verdana</option>
+                      <option value="Tahoma">Tahoma</option>
+                      <option value="Trebuchet MS">Trebuchet MS</option>
+                      <option value="Courier New">Courier New</option>
                     </select>
                   </div>
 
@@ -411,12 +491,92 @@ export default function AdminAppearance() {
                       onChange={(e) => setAppearance({...appearance, headingFont: e.target.value})}
                       className="w-full p-2 border rounded-md"
                     >
+                      {/* Sans-serif modernas */}
                       <option value="Inter">Inter</option>
                       <option value="Roboto">Roboto</option>
                       <option value="Open Sans">Open Sans</option>
                       <option value="Lato">Lato</option>
                       <option value="Montserrat">Montserrat</option>
                       <option value="Poppins">Poppins</option>
+                      <option value="Nunito">Nunito</option>
+                      <option value="Source Sans Pro">Source Sans Pro</option>
+                      <option value="Ubuntu">Ubuntu</option>
+                      <option value="Raleway">Raleway</option>
+                      <option value="PT Sans">PT Sans</option>
+                      <option value="Fira Sans">Fira Sans</option>
+                      <option value="Work Sans">Work Sans</option>
+                      <option value="Noto Sans">Noto Sans</option>
+                      <option value="Rubik">Rubik</option>
+                      <option value="Outfit">Outfit</option>
+                      <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                      <option value="DM Sans">DM Sans</option>
+                      <option value="Space Grotesk">Space Grotesk</option>
+                      <option value="Manrope">Manrope</option>
+                      <option value="IBM Plex Sans">IBM Plex Sans</option>
+                      <option value="Karla">Karla</option>
+                      <option value="Barlow">Barlow</option>
+                      <option value="Quicksand">Quicksand</option>
+                      <option value="Mulish">Mulish</option>
+                      <option value="Hind">Hind</option>
+                      <option value="Oxygen">Oxygen</option>
+                      <option value="Red Hat Display">Red Hat Display</option>
+                      <option value="Lexend">Lexend</option>
+                      <option value="Sora">Sora</option>
+                      
+                      {/* Serif clásicas */}
+                      <option value="Playfair Display">Playfair Display</option>
+                      <option value="Lora">Lora</option>
+                      <option value="Merriweather">Merriweather</option>
+                      <option value="Crimson Text">Crimson Text</option>
+                      <option value="Source Serif Pro">Source Serif Pro</option>
+                      <option value="Libre Baskerville">Libre Baskerville</option>
+                      <option value="Cormorant">Cormorant</option>
+                      <option value="Spectral">Spectral</option>
+                      <option value="Vollkorn">Vollkorn</option>
+                      <option value="Bitter">Bitter</option>
+                      <option value="Arvo">Arvo</option>
+                      <option value="Rokkitt">Rokkitt</option>
+                      <option value="Cardo">Cardo</option>
+                      <option value="Crimson Pro">Crimson Pro</option>
+                      
+                      {/* Display y decorativas */}
+                      <option value="Bebas Neue">Bebas Neue</option>
+                      <option value="Oswald">Oswald</option>
+                      <option value="Anton">Anton</option>
+                      <option value="Righteous">Righteous</option>
+                      <option value="Fredoka One">Fredoka One</option>
+                      <option value="Lobster">Lobster</option>
+                      <option value="Pacifico">Pacifico</option>
+                      <option value="Dancing Script">Dancing Script</option>
+                      <option value="Great Vibes">Great Vibes</option>
+                      <option value="Sacramento">Sacramento</option>
+                      <option value="Comfortaa">Comfortaa</option>
+                      <option value="Caveat">Caveat</option>
+                      <option value="Architects Daughter">Architects Daughter</option>
+                      
+                      {/* Monoespaciadas */}
+                      <option value="JetBrains Mono">JetBrains Mono</option>
+                      <option value="Fira Code">Fira Code</option>
+                      <option value="Source Code Pro">Source Code Pro</option>
+                      <option value="IBM Plex Mono">IBM Plex Mono</option>
+                      <option value="Roboto Mono">Roboto Mono</option>
+                      <option value="Space Mono">Space Mono</option>
+                      <option value="Inconsolata">Inconsolata</option>
+                      <option value="Ubuntu Mono">Ubuntu Mono</option>
+                      
+                      {/* Fuentes del sistema */}
+                      <option value="system-ui">System UI</option>
+                      <option value="-apple-system">Apple System</option>
+                      <option value="BlinkMacSystemFont">Blink Mac System</option>
+                      <option value="Segoe UI">Segoe UI</option>
+                      <option value="Helvetica Neue">Helvetica Neue</option>
+                      <option value="Arial">Arial</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Verdana">Verdana</option>
+                      <option value="Tahoma">Tahoma</option>
+                      <option value="Trebuchet MS">Trebuchet MS</option>
+                      <option value="Courier New">Courier New</option>
                     </select>
                   </div>
 
