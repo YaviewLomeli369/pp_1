@@ -165,7 +165,7 @@ export default function Store() {
     retry: 1,
   });
 
-  // ✅ HELPER FUNCTIONS - MUST BE DECLARED BEFORE MUTATIONS
+  // ✅ HELPER FUNCTIONS - MUST BE DECLARED FIRST
   const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
     if (typeof window === 'undefined') return;
     try {
@@ -197,6 +197,57 @@ export default function Store() {
     }
     return [];
   }, []);
+
+  const clearCart = useCallback(() => {
+    if (!isMountedRef.current || isNavigating) return;
+    setCart([]);
+  }, [isNavigating]);
+
+  const removeFromCart = useCallback((productId: string) => {
+    if (!isMountedRef.current || isNavigating) return;
+    setCart(prev => {
+      const newCart = prev.filter(item => item.product.id !== productId);
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [isNavigating, saveCartToStorage]);
+
+  const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
+    if (!isMountedRef.current || isNavigating) return;
+
+    if (newQuantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+
+    const product = products?.find(p => p.id === productId);
+    if (!product) {
+      toast({
+        title: "Error",
+        description: "Producto no encontrado",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate stock if tracking is enabled
+    if (product.stock !== null && newQuantity > product.stock) {
+      toast({
+        title: "Stock insuficiente",
+        description: `Solo hay ${product.stock} unidades disponibles`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCart(prev => {
+      const newCart = prev.map(item =>
+        item.product.id === productId ? { ...item, quantity: newQuantity } : item
+      );
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [removeFromCart, isNavigating, products, toast, saveCartToStorage]);
 
   // ✅ MUTATIONS
   const addToCartMutation = useMutation({
@@ -413,52 +464,6 @@ export default function Store() {
       }
     }
   }, [cart, handleNavigation, toast, isNavigating]);
-
-  const removeFromCart = useCallback((productId: string) => {
-    if (!isMountedRef.current || isNavigating) return;
-    setCart(prev => {
-      const newCart = prev.filter(item => item.product.id !== productId);
-      saveCartToStorage(newCart);
-      return newCart;
-    });
-  }, [isNavigating, saveCartToStorage]);
-
-  const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
-    if (!isMountedRef.current || isNavigating) return;
-
-    if (newQuantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-
-    const product = products?.find(p => p.id === productId);
-    if (!product) {
-      toast({
-        title: "Error",
-        description: "Producto no encontrado",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Validate stock if tracking is enabled
-    if (product.stock !== null && newQuantity > product.stock) {
-      toast({
-        title: "Stock insuficiente",
-        description: `Solo hay ${product.stock} unidades disponibles`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setCart(prev => {
-      const newCart = prev.map(item =>
-        item.product.id === productId ? { ...item, quantity: newQuantity } : item
-      );
-      saveCartToStorage(newCart);
-      return newCart;
-    });
-  }, [removeFromCart, isNavigating, products, toast, saveCartToStorage]);
 
   // ✅ EFFECTS - MUST BE AFTER ALL HOOKS
   useEffect(() => {
