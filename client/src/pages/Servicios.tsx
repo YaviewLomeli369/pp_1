@@ -10,6 +10,7 @@ import { Link } from "wouter";
 import { Rocket, Users, Target, Check, Star } from "lucide-react";
 import type { SiteConfig } from "@shared/schema";
 import AnimatedSection from "@/components/AnimatedSection";
+import { apiRequest } from "@/lib/queryClient";
 
 const services = [
   {
@@ -134,14 +135,53 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
   );
 };
 
+type PageContent = {
+  id: string;
+  pageId: string;
+  sectionKey: string;
+  type: string;
+  title?: string;
+  content?: string;
+  imageUrl?: string;
+  metadata?: any;
+  isActive: boolean;
+  order: number;
+};
+
 function Servicios() {
-  const { data: config, isLoading } = useQuery<SiteConfig>({ queryKey: ["/api/config"] });
+  const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({ queryKey: ["/api/config"] });
+  const { data: pageContents, isLoading: contentsLoading } = useQuery<PageContent[]>({
+    queryKey: ["/api/page-contents", "servicios"],
+    queryFn: () => apiRequest("/api/page-contents?pageId=servicios"),
+  });
+
   const { appearance } = useMemo(() => {
     const configData = config?.config as any;
     return { appearance: configData?.appearance || {} };
   }, [config]);
 
-  if (isLoading) return <PageLoader message="Cargando servicios..." />;
+  // Group contents by section
+  const contentsBySection = useMemo(() => {
+    if (!pageContents) return {};
+    return pageContents.reduce((acc, content) => {
+      if (!acc[content.sectionKey]) {
+        acc[content.sectionKey] = [];
+      }
+      acc[content.sectionKey].push(content);
+      return acc;
+    }, {} as Record<string, PageContent[]>);
+  }, [pageContents]);
+
+  // Get content for a specific section
+  const getContent = (sectionKey: string, type?: string) => {
+    const sectionContents = contentsBySection[sectionKey] || [];
+    if (type) {
+      return sectionContents.filter(content => content.type === type);
+    }
+    return sectionContents.sort((a, b) => (a.order || 0) - (b.order || 0));
+  };
+
+  if (configLoading || contentsLoading) return <PageLoader message="Cargando servicios..." />;
 
   return (
     <div 
@@ -164,7 +204,8 @@ function Servicios() {
         <section
           className="relative py-20 text-white text-center"
           style={{
-            backgroundImage: `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
+            backgroundImage: getContent('hero').find(c => c.type === 'image')?.imageUrl || 
+              `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -172,10 +213,12 @@ function Servicios() {
           <div className="absolute inset-0 bg-black/60"></div>
           <div className="relative max-w-4xl mx-auto px-4">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-              Servicios Digitales para Impulsar tu Negocio
+              {getContent('hero').find(c => c.type === 'text')?.title || 
+                "Servicios Digitales para Impulsar tu Negocio"}
             </h1>
             <p className="text-lg md:text-xl text-gray-200 mb-8">
-              Diseño, SEO y soporte para que tu marca brille en internet.
+              {getContent('hero').find(c => c.type === 'text')?.content || 
+                "Diseño, SEO y soporte para que tu marca brille en internet."}
             </p>
             <Button size="lg" variant="secondary" asChild>
               <Link href="/contact">Solicitar cotización</Link>
@@ -189,18 +232,34 @@ function Servicios() {
         <section className="py-20 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-12">
-              Nuestros Servicios
+              {getContent('services').find(c => c.type === 'text')?.title || "Nuestros Servicios"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              {services.map((s, i) => (
-                <AnimatedSection key={i} delay={0.1 * i}>
-                  <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition duration-300">
-                    <div className="flex justify-center mb-4">{s.icon}</div>
-                    <h3 className="text-xl font-semibold mb-2 text-gray-800">{s.title}</h3>
-                    <p className="text-gray-600">{s.description}</p>
-                  </div>
-                </AnimatedSection>
-              ))}
+              {getContent('services', 'card').length > 0 ? (
+                getContent('services', 'card').map((service, i) => (
+                  <AnimatedSection key={service.id} delay={0.1 * i}>
+                    <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition duration-300">
+                      <div className="flex justify-center mb-4">
+                        {i === 0 && <Rocket className="h-8 w-8 text-blue-600" />}
+                        {i === 1 && <Target className="h-8 w-8 text-green-600" />}
+                        {i === 2 && <Users className="h-8 w-8 text-purple-600" />}
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2 text-gray-800">{service.title}</h3>
+                      <p className="text-gray-600">{service.content}</p>
+                    </div>
+                  </AnimatedSection>
+                ))
+              ) : (
+                services.map((s, i) => (
+                  <AnimatedSection key={i} delay={0.1 * i}>
+                    <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition duration-300">
+                      <div className="flex justify-center mb-4">{s.icon}</div>
+                      <h3 className="text-xl font-semibold mb-2 text-gray-800">{s.title}</h3>
+                      <p className="text-gray-600">{s.description}</p>
+                    </div>
+                  </AnimatedSection>
+                ))
+              )}
             </div>
           </div>
         </section>

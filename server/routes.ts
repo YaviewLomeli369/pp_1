@@ -23,7 +23,8 @@ import {
   insertShipmentSchema,
   insertReservationSchema,
   insertReservationSettingsSchema,
-  insertSectionSchema
+  insertSectionSchema,
+  insertPageContentSchema
 } from "@shared/schema";
 import Stripe from "stripe";
 import {
@@ -3062,6 +3063,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error normalizing URL:", error);
       res.status(500).json({ error: "Failed to normalize URL" });
+    }
+  });
+
+  // Page Contents routes
+  app.get("/api/page-contents", async (req, res) => {
+    try {
+      const { pageId } = req.query;
+      let contents;
+      
+      if (pageId) {
+        contents = await storage.getPageContents(pageId as string);
+      } else {
+        contents = await storage.getAllPageContents();
+      }
+      
+      res.json(contents);
+    } catch (error) {
+      console.error("Error fetching page contents:", error);
+      res.status(500).json({ message: "Error fetching page contents" });
+    }
+  });
+
+  app.post("/api/page-contents", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const contentData = insertPageContentSchema.parse(req.body);
+      const content = await storage.createPageContent(contentData);
+      res.json(content);
+    } catch (error) {
+      console.error("Error creating page content:", error);
+      res.status(400).json({ message: error instanceof Error ? error.message : "Invalid data" });
+    }
+  });
+
+  app.put("/api/page-contents/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updatedContent = await storage.updatePageContent(id, req.body);
+      if (!updatedContent) {
+        return res.status(404).json({ message: "Page content not found" });
+      }
+      res.json(updatedContent);
+    } catch (error) {
+      console.error("Error updating page content:", error);
+      res.status(400).json({ message: error instanceof Error ? error.message : "Invalid data" });
+    }
+  });
+
+  app.delete("/api/page-contents/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deletePageContent(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Page content not found" });
+      }
+      res.json({ message: "Page content deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting page content:", error);
+      res.status(500).json({ message: "Error deleting page content" });
     }
   });
 

@@ -7,16 +7,56 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Star, User, Phone, Mail, Quote } from "lucide-react"; 
 import AnimatedSection from "@/components/AnimatedSection";
 import type { SiteConfig } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+
+type PageContent = {
+  id: string;
+  pageId: string;
+  sectionKey: string;
+  type: string;
+  title?: string;
+  content?: string;
+  imageUrl?: string;
+  metadata?: any;
+  isActive: boolean;
+  order: number;
+};
 
 function Conocenos() {
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
   });
 
+  const { data: pageContents } = useQuery<PageContent[]>({
+    queryKey: ["/api/page-contents", "conocenos"],
+    queryFn: () => apiRequest("/api/page-contents?pageId=conocenos"),
+  });
+
   const appearance = useMemo(() => {
     const configData = config?.config as any;
     return configData?.appearance || {};
   }, [config]);
+
+  // Group contents by section
+  const contentsBySection = useMemo(() => {
+    if (!pageContents) return {};
+    return pageContents.reduce((acc, content) => {
+      if (!acc[content.sectionKey]) {
+        acc[content.sectionKey] = [];
+      }
+      acc[content.sectionKey].push(content);
+      return acc;
+    }, {} as Record<string, PageContent[]>);
+  }, [pageContents]);
+
+  // Get content for a specific section
+  const getContent = (sectionKey: string, type?: string) => {
+    const sectionContents = contentsBySection[sectionKey] || [];
+    if (type) {
+      return sectionContents.filter(content => content.type === type);
+    }
+    return sectionContents.sort((a, b) => (a.order || 0) - (b.order || 0));
+  };
 
   return (
     <div 
@@ -51,10 +91,11 @@ function Conocenos() {
           {/* Contenido */}
           <div className="relative max-w-4xl mx-auto px-4">
             <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
-              Conócenos
+              {getContent('hero').find(c => c.type === 'text')?.title || "Conócenos"}
             </h1>
             <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-gray-100">
-              Somos un equipo comprometido con el crecimiento de tu negocio.
+              {getContent('hero').find(c => c.type === 'text')?.content || 
+                "Somos un equipo comprometido con el crecimiento de tu negocio."}
             </p>
           </div>
         </section>
@@ -71,10 +112,13 @@ function Conocenos() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="relative p-10 text-center">
                   <Target className="w-12 h-12 mx-auto mb-6 text-blue-600 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold mb-3 text-gray-800">Nuestra Misión</h3>
+                  <h3 className="text-2xl font-bold mb-3 text-gray-800">
+                    {getContent('mission').find(c => c.type === 'text')?.title || "Nuestra Misión"}
+                  </h3>
                   <div className="w-12 h-1 bg-blue-600 mx-auto mb-4 rounded-full" />
                   <p className="text-gray-600 leading-relaxed">
-                    Brindar soluciones digitales accesibles y de alto impacto.
+                    {getContent('mission').find(c => c.type === 'text')?.content || 
+                      "Brindar soluciones digitales accesibles y de alto impacto."}
                   </p>
                 </CardContent>
               </Card>
@@ -86,10 +130,13 @@ function Conocenos() {
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="relative p-10 text-center">
                   <Eye className="w-12 h-12 mx-auto mb-6 text-indigo-600 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold mb-3 text-gray-800">Nuestra Visión</h3>
+                  <h3 className="text-2xl font-bold mb-3 text-gray-800">
+                    {getContent('vision').find(c => c.type === 'text')?.title || "Nuestra Visión"}
+                  </h3>
                   <div className="w-12 h-1 bg-indigo-600 mx-auto mb-4 rounded-full" />
                   <p className="text-gray-600 leading-relaxed">
-                    Ser líderes en innovación tecnológica para PYMES en LATAM.
+                    {getContent('vision').find(c => c.type === 'text')?.content || 
+                      "Ser líderes en innovación tecnológica para PYMES en LATAM."}
                   </p>
                 </CardContent>
               </Card>
@@ -101,10 +148,13 @@ function Conocenos() {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <CardContent className="relative p-10 text-center">
                   <Star className="w-12 h-12 mx-auto mb-6 text-purple-600 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold mb-3 text-gray-800">Nuestros Valores</h3>
+                  <h3 className="text-2xl font-bold mb-3 text-gray-800">
+                    {getContent('values').find(c => c.type === 'text')?.title || "Nuestros Valores"}
+                  </h3>
                   <div className="w-12 h-1 bg-purple-600 mx-auto mb-4 rounded-full" />
                   <p className="text-gray-600 leading-relaxed">
-                    Innovación, compromiso, transparencia.
+                    {getContent('values').find(c => c.type === 'text')?.content || 
+                      "Innovación, compromiso, transparencia."}
                   </p>
                 </CardContent>
               </Card>
@@ -117,9 +167,12 @@ function Conocenos() {
       <AnimatedSection delay={0.5}>
         <section className="py-20 bg-white">
           <div className="max-w-5xl mx-auto px-6 text-center">
-            <h2 className="text-4xl font-extrabold mb-6 text-gray-800">Nuestro Equipo</h2>
+            <h2 className="text-4xl font-extrabold mb-6 text-gray-800">
+              {getContent('team').find(c => c.type === 'text')?.title || "Nuestro Equipo"}
+            </h2>
             <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Detrás de cada proyecto hay personas apasionadas, listas para ayudarte a crecer.
+              {getContent('team').find(c => c.type === 'text')?.content || 
+                "Detrás de cada proyecto hay personas apasionadas, listas para ayudarte a crecer."}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
               {/* Repetimos Cards de equipo */}

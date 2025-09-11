@@ -541,6 +541,31 @@ export const visualCustomizations = pgTable("visual_customizations", {
 
 export type VisualCustomization = typeof visualCustomizations.$inferSelect;
 export type InsertVisualCustomization = typeof visualCustomizations.$inferInsert;
+
+// Page Contents - stores editable content for specific pages
+export const pageContents = pgTable("page_contents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  pageId: varchar("page_id").notNull(), // 'servicios', 'conocenos', etc.
+  sectionKey: varchar("section_key").notNull(), // 'hero', 'mission', 'services', etc.
+  type: varchar("type").notNull(), // 'text', 'image', 'card', 'list'
+  title: text("title"),
+  content: text("content"),
+  imageUrl: text("image_url"),
+  metadata: jsonb("metadata"), // additional data like order, links, etc.
+  isActive: boolean("is_active").default(true),
+  order: integer("order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPageContentSchema = createInsertSchema(pageContents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PageContent = typeof pageContents.$inferSelect;
+export type InsertPageContent = z.infer<typeof insertPageContentSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type SiteConfig = typeof siteConfig.$inferSelect;
 export type InsertSiteConfig = z.infer<typeof insertSiteConfigSchema>;

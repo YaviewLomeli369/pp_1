@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, lazy, Suspense } from "react";
 import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -54,6 +53,9 @@ import AdminOrders from "@/pages/admin/orders";
 import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminInventory from "@/pages/admin/inventory";
 import AdminContactInfo from "@/pages/admin/contact-info";
+
+const AdminPageContents = lazy(() => import("./pages/admin/page-contents"));
+
 
 import NotFound from "@/pages/not-found";
 
@@ -125,7 +127,7 @@ function Router() {
       <Route path="/conocenos" component={Conocenos} />
       <Route path="/servicios" component={Servicios} />
       {/* <Route path="/tienda-prueba" component={TiendaPrueba} /> */}
-      
+
       {/* Admin routes */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/modules" component={AdminModules} />
@@ -144,7 +146,8 @@ function Router() {
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/email-config" component={AdminEmailConfig} />
       <Route path="/admin/contact-info" component={AdminContactInfo} />
-      
+      <Route path="/admin/page-contents" component={AdminPageContents} />
+
       <Route component={NotFound} />
     </Switch>
 
