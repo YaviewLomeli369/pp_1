@@ -812,6 +812,78 @@ function AdminStoreContent() {
                               </div>
                             </div>
                           </div>
+                          <div className="flex flex-col gap-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  Acciones
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleProductSelect(product);
+                                  }}
+                                >
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  Ver Detalles
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedProduct(product);
+                                    setShowProductForm(true);
+                                  }}
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setUploadingImage(product.id);
+                                  }}
+                                >
+                                  <Package className="w-4 h-4 mr-2" />
+                                  Cambiar Imagen
+                                </DropdownMenuItem>
+                                {product.isActive ? (
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deactivateProductMutation.mutate(product.id);
+                                    }}
+                                    className="text-orange-600"
+                                  >
+                                    <AlertTriangle className="w-4 h-4 mr-2" />
+                                    Desactivar
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      reactivateProductMutation.mutate(product.id);
+                                    }}
+                                    className="text-green-600"
+                                  >
+                                    <Package className="w-4 h-4 mr-2" />
+                                    Reactivar
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteProduct(product);
+                                  }}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -1503,6 +1575,94 @@ function AdminStoreContent() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Upload Dialog */}
+      <Dialog open={!!uploadingImage} onOpenChange={(open) => {
+        if (!open) {
+          setUploadingImage(null);
+          setTempImageUrl(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cambiar Imagen del Producto</DialogTitle>
+            <DialogDescription>
+              Selecciona una nueva imagen para el producto
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {uploadingImage && (() => {
+              const product = products?.find(p => p.id === uploadingImage);
+              return product ? (
+                <div className="flex items-center gap-4">
+                  <img
+                    src={product.images?.[0] || '/imgs/placeholder.png'}
+                    alt={product.name}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                  <div>
+                    <h4 className="font-medium">{product.name}</h4>
+                    <p className="text-sm text-muted-foreground">Imagen actual</p>
+                  </div>
+                </div>
+              ) : null;
+            })()}
+
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              {tempImageUrl ? (
+                <div className="space-y-4">
+                  <img
+                    src={tempImageUrl}
+                    alt="Nueva imagen"
+                    className="w-32 h-32 object-cover rounded mx-auto"
+                  />
+                  <p className="text-sm text-green-600">Nueva imagen seleccionada</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-gray-400">
+                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600">Selecciona una nueva imagen</p>
+                </div>
+              )}
+
+              <ObjectUploader
+                onUploadSuccess={handleUploadComplete}
+                onUploadError={(error) => {
+                  console.error("Upload error:", error);
+                  toast({
+                    title: "Error al subir imagen",
+                    description: "No se pudo subir la imagen",
+                    variant: "destructive",
+                  });
+                }}
+                acceptedFileTypes={['image/*']}
+                maxFileSize={10 * 1024 * 1024}
+                maxNumberOfFiles={1}
+                allowMultiple={false}
+                note="Formatos: JPG, PNG, GIF. Máximo 10MB"
+                className="mt-4"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setUploadingImage(null);
+                setTempImageUrl(null);
+              }}
+            >
+              Cancelar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
