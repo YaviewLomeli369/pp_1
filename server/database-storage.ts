@@ -765,17 +765,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteInventoryMovement(id: string): Promise<boolean> {
-    const result = await this.db.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.id, id));
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('deleteInventoryMovement');
+    }
+    const result = await db!.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.id, id));
     return result.rowCount ? result.rowCount > 0 : false;
   }
 
   async deleteInventoryMovementsByProduct(productId: string): Promise<boolean> {
-    const result = await this.db.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.productId, productId));
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('deleteInventoryMovementsByProduct');
+    }
+    const result = await db!.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.productId, productId));
     return true; // Return true even if no rows were deleted
   }
 
   async deleteCartItemsByProduct(productId: string): Promise<boolean> {
-    const result = await this.db.delete(schema.cartItems).where(eq(schema.cartItems.productId, productId));
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('deleteCartItemsByProduct');
+    }
+    const result = await db!.delete(schema.cartItems).where(eq(schema.cartItems.productId, productId));
     return true; // Return true even if no rows were deleted
   }
 
