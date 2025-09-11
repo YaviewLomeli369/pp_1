@@ -839,7 +839,7 @@ function AdminStoreContent() {
                                   <Edit className="w-4 h-4 mr-2" />
                                   Editar
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
+                                {/* <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setUploadingImage(product.id);
@@ -847,7 +847,7 @@ function AdminStoreContent() {
                                 >
                                   <Package className="w-4 h-4 mr-2" />
                                   Cambiar Imagen
-                                </DropdownMenuItem>
+                                </DropdownMenuItem> */}
                                 {product.isActive ? (
                                   <DropdownMenuItem
                                     onClick={(e) => {
