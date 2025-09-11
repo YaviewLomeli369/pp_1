@@ -820,7 +820,7 @@ function AdminStoreContent() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem
+                                {/* <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleProductSelect(product);
@@ -828,7 +828,7 @@ function AdminStoreContent() {
                                 >
                                   <Eye className="w-4 h-4 mr-2" />
                                   Ver Detalles
-                                </DropdownMenuItem>
+                                </DropdownMenuItem> */}
                                 <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -871,7 +871,7 @@ function AdminStoreContent() {
                                     Reactivar
                                   </DropdownMenuItem>
                                 )}
-                                <DropdownMenuItem
+                                {/* <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDeleteProduct(product);
@@ -880,7 +880,7 @@ function AdminStoreContent() {
                                 >
                                   <Trash2 className="w-4 h-4 mr-2" />
                                   Eliminar
-                                </DropdownMenuItem>
+                                </DropdownMenuItem> */}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
