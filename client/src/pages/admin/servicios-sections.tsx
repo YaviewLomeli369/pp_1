@@ -358,7 +358,7 @@ export default function AdminServiciosSections() {
                 {createSectionMutation.isPending ? "Guardando..." : "Crear Sección"}
               </Button>
             </DialogFooter>
-          </Dialog>
+          </DialogContent>
         </Dialog>
 
         {/* Edit Section Dialog */}
