@@ -357,6 +357,22 @@ export const sections = pgTable("sections", {
   config: jsonb("config"), // additional configuration for the section
 });
 
+// Servicios Sections (for Services page management)
+export const serviciosSections = pgTable("servicios_sections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull(), // 'service' or 'plan'
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  price: text("price"), // optional for services, required for plans
+  features: text("features").notNull().default('[]'), // JSON string array
+  highlight: boolean("highlight").default(false),
+  icon: text("icon"),
+  order: integer("order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Email Configuration
 export const emailConfig = pgTable("email_config", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -505,6 +521,12 @@ export const insertSectionSchema = createInsertSchema(sections).omit({
   id: true,
 });
 
+export const insertServiciosSectionSchema = createInsertSchema(serviciosSections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 
 
 // Types
@@ -590,6 +612,10 @@ export type PaymentConfig = typeof paymentConfig.$inferSelect;
 export type InsertPaymentConfig = typeof paymentConfig.$inferInsert;
 export type EmailConfig = typeof emailConfig.$inferSelect;
 export type InsertEmailConfig = z.infer<typeof insertEmailConfigSchema>;
+
+// Servicios Sections types
+export type ServiciosSection = typeof serviciosSections.$inferSelect;
+export type InsertServiciosSection = typeof serviciosSections.$inferInsert;
 
 // Service Section Type (for dynamic page content)
 export interface ServiceSection {
