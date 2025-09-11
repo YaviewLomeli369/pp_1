@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, startTransition } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/navbar";
@@ -381,17 +381,24 @@ export default function Store() {
     if (!isMountedRef.current) return;
 
     try {
-      setIsNavigating(true);
+      startTransition(() => {
+        setIsNavigating(true);
+      });
+      
       performCleanup();
 
       setTimeout(() => {
         if (isMountedRef.current) {
-          setLocation(href);
+          startTransition(() => {
+            setLocation(href);
+          });
         }
       }, 50);
     } catch (error) {
       console.error('Navigation error:', error);
-      setLocation(href);
+      startTransition(() => {
+        setLocation(href);
+      });
     }
   }, [setLocation, performCleanup]);
 
