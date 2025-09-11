@@ -121,6 +121,9 @@ export interface IStorage {
   // Inventory
   getInventoryMovements(productId?: string): Promise<InventoryMovement[]>;
   createInventoryMovement(movement: InsertInventoryMovement): Promise<InventoryMovement>;
+  deleteInventoryMovement(id: string): Promise<boolean>;
+  deleteInventoryMovementsByProduct(productId: string): Promise<boolean>;
+  deleteCartItemsByProduct(productId: string): Promise<boolean>;
   getLowStockProducts(): Promise<Product[]>;
 
   // Cart
@@ -656,6 +659,11 @@ export class DatabaseStorage implements IStorage {
     if (!isDatabaseAvailable()) {
       throwDatabaseError('deleteProduct');
     }
+
+    // Delete related inventory movements and cart items first
+    await this.deleteInventoryMovementsByProduct(id);
+    await this.deleteCartItemsByProduct(id);
+
     const result = await db!.delete(schema.products).where(eq(schema.products.id, id));
     return (result.rowCount ?? 0) > 0;
   }
@@ -754,6 +762,21 @@ export class DatabaseStorage implements IStorage {
       createdAt: new Date()
     }).returning();
     return newMovement;
+  }
+
+  async deleteInventoryMovement(id: string): Promise<boolean> {
+    const result = await this.db.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  async deleteInventoryMovementsByProduct(productId: string): Promise<boolean> {
+    const result = await this.db.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.productId, productId));
+    return true; // Return true even if no rows were deleted
+  }
+
+  async deleteCartItemsByProduct(productId: string): Promise<boolean> {
+    const result = await this.db.delete(schema.cartItems).where(eq(schema.cartItems.productId, productId));
+    return true; // Return true even if no rows were deleted
   }
 
   // Cart
@@ -893,39 +916,39 @@ export class DatabaseStorage implements IStorage {
     if (!isDatabaseAvailable()) {
       throwDatabaseError('updateOrder');
     }
-    
+
     console.log('Database updateOrder called:', { 
       id, 
       updates,
       updatesType: typeof updates,
       updatesKeys: Object.keys(updates)
     });
-    
+
     try {
       // Validate the order exists first
       const existingOrder = await db!.select()
         .from(schema.orders)
         .where(eq(schema.orders.id, id))
         .limit(1);
-        
+
       if (existingOrder.length === 0) {
         console.error('Order not found in database during update:', id);
         return undefined;
       }
-      
+
       console.log('Order found, proceeding with update');
-      
+
       const [updatedOrder] = await db!.update(schema.orders)
         .set({ ...updates, updatedAt: new Date() })
         .where(eq(schema.orders.id, id))
         .returning();
-        
+
       console.log('Order updated successfully:', {
         id: updatedOrder.id,
         oldStatus: existingOrder[0].status,
         newStatus: updatedOrder.status
       });
-      
+
       return updatedOrder;
     } catch (error) {
       console.error('Error in updateOrder database operation:', {
@@ -942,9 +965,9 @@ export class DatabaseStorage implements IStorage {
     if (!isDatabaseAvailable()) {
       throwDatabaseError('updateOrderStatus');
     }
-    
+
     console.log('Database updateOrderStatus called:', { id, status });
-    
+
     try {
       // First check if order exists
       const existingOrder = await this.getOrder(id);
@@ -952,16 +975,16 @@ export class DatabaseStorage implements IStorage {
         console.error('Order not found in database:', id);
         return undefined;
       }
-      
+
       console.log('Existing order found:', {
         id: existingOrder.id,
         currentStatus: existingOrder.status,
         newStatus: status
       });
-      
+
       const result = await this.updateOrder(id, { status });
       console.log('Order status update result:', result);
-      
+
       return result;
     } catch (error) {
       console.error('Error in updateOrderStatus:', error);

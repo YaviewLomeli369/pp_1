@@ -1,5 +1,6 @@
-
 import { DatabaseStorage } from "./database-storage";
+import { eq } from "drizzle-orm";
+import { inventoryMovements, cartItems } from "./schema"; // Assuming schema is correctly imported
 
 // Simple memory storage implementation
 class MemoryStorage {

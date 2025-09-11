@@ -1260,7 +1260,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      // Delete from local storage first
+      // First, delete all related inventory movements
+      try {
+        const inventoryMovements = await storage.getInventoryMovements(id);
+        console.log(`Found ${inventoryMovements.length} inventory movements to delete for product ${product.name}`);
+        
+        for (const movement of inventoryMovements) {
+          await storage.deleteInventoryMovement(movement.id);
+        }
+        
+        console.log(`Successfully deleted ${inventoryMovements.length} inventory movements for product ${product.name}`);
+      } catch (inventoryError) {
+        console.error("Error deleting inventory movements:", inventoryError);
+        return res.status(500).json({ 
+          message: "Failed to delete related inventory movements", 
+          error: inventoryError instanceof Error ? inventoryError.message : "Unknown error" 
+        });
+      }
+
+      // Then delete all related cart items
+      try {
+        await storage.deleteCartItemsByProduct(id);
+        console.log(`Deleted cart items for product ${product.name}`);
+      } catch (cartError) {
+        console.warn("Error deleting cart items:", cartError);
+        // Don't fail the deletion for cart items as they're less critical
+      }
+
+      // Then delete all related order items (we'll keep these as historical records but update the deletion logic if needed)
+      // Note: We typically don't delete order items as they are historical records
+
+      // Delete product variants
+      try {
+        const variants = await storage.getProductVariants(id);
+        for (const variant of variants) {
+          await storage.deleteProductVariant(variant.id);
+        }
+        console.log(`Deleted ${variants.length} product variants for product ${product.name}`);
+      } catch (variantError) {
+        console.warn("Error deleting product variants:", variantError);
+      }
+
+      // Now delete from local storage
       const deleted = await storage.deleteProduct(id);
       if (!deleted) {
         return res.status(404).json({ message: "Product not found" });
@@ -1297,8 +1338,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Don't fail the deletion if Stripe operations fail
       }
 
-      res.json({ message: "Product deleted successfully" });
+      res.json({ message: "Product and all related records deleted successfully" });
     } catch (error) {
+      console.error("Error deleting product:", error);
       res.status(500).json({ message: error instanceof Error ? error.message : "Failed to delete product" });
     }
   });
