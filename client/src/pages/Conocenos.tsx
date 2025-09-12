@@ -6,6 +6,7 @@ import { SEOHead } from "@/components/seo-head";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Star, User, Phone, Mail, Quote } from "lucide-react"; 
 import AnimatedSection from "@/components/AnimatedSection";
+import HeroSection from "@/components/HeroSection";
 import { InlineEditor } from "@/components/inline-editor/InlineEditor";
 import { InlineTextarea } from "@/components/inline-editor/InlineTextarea";
 import { useAuth } from "@/hooks/use-auth";
@@ -266,48 +267,29 @@ function Conocenos() {
       <Navbar />
 
       {/* Hero principal */}
-      <AnimatedSection>
-        <section
-          className="relative py-24 bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white text-center shadow-lg navbar-fixed-body"
-          style={{
-            backgroundImage: `url("${pagesContent.hero?.backgroundImage}")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50"></div>
-
-          {/* Contenido */}
-          <div className="relative max-w-4xl mx-auto px-4">
-            {isSuperuser ? (
-              <InlineEditor
-                value={pagesContent.hero?.title || "Conócenos"}
-                onSave={updateHeroTitle}
-                tag="h1"
-                className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight"
-              />
-            ) : (
-              <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
-                {pagesContent.hero?.title}
-              </h1>
-            )}
-            {isSuperuser ? (
-              <InlineTextarea
-                value={pagesContent.hero?.subtitle || "Somos un equipo comprometido con el crecimiento de tu negocio."}
-                onSave={updateHeroSubtitle}
-                className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-gray-100"
-              />
-            ) : (
-              <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-gray-100">
-                {pagesContent.hero?.subtitle}
-              </p>
-            )}
-          </div>
-        </section>
-      </AnimatedSection>
+      <HeroSection
+        title={isSuperuser ? (
+          <InlineEditor
+            value={pagesContent.hero?.title || "Conócenos"}
+            onSave={updateHeroTitle}
+            tag="h1"
+            className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight"
+          />
+        ) : (
+          pagesContent.hero?.title || "Conócenos"
+        )}
+        subtitle={isSuperuser ? (
+          <InlineTextarea
+            value={pagesContent.hero?.subtitle || "Somos un equipo comprometido con el crecimiento de tu negocio."}
+            onSave={updateHeroSubtitle}
+            className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-gray-100"
+          />
+        ) : (
+          pagesContent.hero?.subtitle || "Somos un equipo comprometido con el crecimiento de tu negocio."
+        )}
+        appearance={appearance}
+        className="py-24 text-center shadow-lg"
+      />
 
 
       {/* Sección principal */}
