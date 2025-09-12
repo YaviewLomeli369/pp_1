@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShoppingCart, CreditCard, ArrowLeft, Package } from "lucide-react";
 import { useLocation } from "wouter";
+import { queryClient } from "@/lib/queryClient"; // Import queryClient
 
 // Load Stripe
 let stripePromise: Promise<any> | null = null;
@@ -26,7 +27,7 @@ function CheckoutForm({ cartItems, customerInfo, shippingAddress, paymentIntentI
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!stripe || !elements) {
       return;
     }
@@ -68,10 +69,10 @@ function CheckoutForm({ cartItems, customerInfo, shippingAddress, paymentIntentI
           localStorage.removeItem('checkoutItems');
           localStorage.removeItem('checkout-info');
           localStorage.removeItem('shopping-cart'); // Clear the main cart
-          
+
           // Dispatch event to notify other components
           window.dispatchEvent(new CustomEvent('checkoutComplete'));
-          
+
           toast({
             title: "¡Pago exitoso!",
             description: "Tu pedido ha sido procesado correctamente"
@@ -129,7 +130,7 @@ function CheckoutForm({ cartItems, customerInfo, shippingAddress, paymentIntentI
           <ArrowLeft className="w-4 h-4 mr-2" />
           Volver
         </Button>
-        
+
         <div className="text-center">
           <CreditCard className="w-12 h-12 mx-auto mb-4 text-blue-600" />
           <h1 className="text-3xl font-bold mb-2">Finalizar Compra</h1>
@@ -166,7 +167,7 @@ function CheckoutForm({ cartItems, customerInfo, shippingAddress, paymentIntentI
                     </div>
                   </div>
                 ))}
-                
+
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center font-bold text-lg">
                     <span>Total:</span>
@@ -284,21 +285,21 @@ export default function Checkout() {
       if (cartItems.length === 0) {
         throw new Error("No hay productos en el carrito");
       }
-      
+
       const total = cartItems.reduce((sum: number, item: any) => {
         const price = item.product.price || 0;
         const quantity = item.quantity || 1;
         return sum + (price * quantity);
       }, 0);
-      
+
       if (total <= 0) {
         throw new Error("El total del pedido debe ser mayor a 0");
       }
-      
+
       const currency = cartItems[0]?.product?.currency || 'MXN';
-      
+
       console.log("Creating payment intent:", { total, currency, items: cartItems.length });
-      
+
       const response = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { 
@@ -313,13 +314,13 @@ export default function Checkout() {
           }))
         })
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Payment intent creation failed:", response.status, errorText);
         throw new Error(`Error ${response.status}: ${errorText}`);
       }
-      
+
       const result = await response.json();
       console.log("Payment intent created successfully:", result);
       return result;
