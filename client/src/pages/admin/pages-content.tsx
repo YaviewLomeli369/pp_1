@@ -202,11 +202,27 @@ function PagesContent() {
       newConfig.pagesContent[selectedPage] = pagesContent[selectedPage];
     }
 
+    let metadata = {};
+    
+    // Handle team member fields separately
+    if (selectedContent?.type === "team") {
+      metadata = {
+        position: formData.get("position") as string,
+        phone: formData.get("phone") as string,
+        email: formData.get("email") as string,
+        image: formData.get("image") as string,
+      };
+    } else {
+      // For other types, use JSON metadata if present
+      const metadataString = formData.get("metadata") as string;
+      metadata = metadataString ? JSON.parse(metadataString) : {};
+    }
+
     const contentData = {
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       content: formData.get("content") as string,
-      metadata: JSON.parse((formData.get("metadata") as string) || "{}"),
+      metadata: metadata,
     };
 
     // Update specific content based on context
@@ -534,18 +550,44 @@ function PagesContent() {
                   />
                 </div>
                 {selectedContent?.type === "team" && (
-                  <div>
-                    <Label htmlFor="metadata">Información Adicional (JSON)</Label>
-                    <Textarea
-                      id="metadata"
-                      name="metadata"
-                      defaultValue={selectedContent?.metadata ? JSON.stringify(selectedContent.metadata, null, 2) : ''}
-                      placeholder='{"position": "CEO", "phone": "+52 55 1234 5678", "email": "ejemplo@correo.com", "image": "https://..."}'
-                      rows={4}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Incluye: position, phone, email, image
-                    </p>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="position">Posición/Cargo</Label>
+                      <Input
+                        id="position"
+                        name="position"
+                        defaultValue={selectedContent?.metadata?.position || ''}
+                        placeholder="CEO, Director, etc."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Teléfono</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        defaultValue={selectedContent?.metadata?.phone || ''}
+                        placeholder="+52 55 1234 5678"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        defaultValue={selectedContent?.metadata?.email || ''}
+                        placeholder="ejemplo@correo.com"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="image">URL de Imagen</Label>
+                      <Input
+                        id="image"
+                        name="image"
+                        defaultValue={selectedContent?.metadata?.image || ''}
+                        placeholder="https://ejemplo.com/imagen.jpg"
+                      />
+                    </div>
                   </div>
                 )}
                 {(selectedContent?.type === "service" || selectedContent?.type === "value") && (
