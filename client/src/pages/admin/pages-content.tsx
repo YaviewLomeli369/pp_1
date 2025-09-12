@@ -352,8 +352,8 @@ function PagesContent() {
       }
 
       metadata = {
-        price: finalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " MXN",
-        originalPrice: originalPrice > 0 ? originalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " MXN" : "",
+        price: finalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        originalPrice: originalPrice > 0 ? originalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "",
         discountPercentage: discountPercentage,
         isPromotion: isPromotion,
         highlight: formData.get("highlight") === "on",

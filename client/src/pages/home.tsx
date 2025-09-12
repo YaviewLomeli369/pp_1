@@ -31,18 +31,25 @@ const PlanCard = ({ plan }: { plan: any }) => {
                           plan.discountPercentage > 0;
 
   // Calculate prices
-  // Remove currency symbols and thousand separators, then parse to integer
-  const currentPriceNum = parseInt(plan.price.replace(/[^0-9]/g, "")) || 0;
-  const originalPriceNum = plan.originalPrice ? parseInt(plan.originalPrice.replace(/[^0-9]/g, "")) : 0;
+  // Parse price strings - handle different formats (with/without commas and decimals)
+  const parsePrice = (priceStr: string) => {
+    if (!priceStr) return 0;
+    // Remove everything except numbers, commas, and dots
+    const cleanStr = priceStr.replace(/[^\d,.\s]/g, '');
+    // Handle Mexican format: 15,000.00 or 15000.00 or 15000
+    const numStr = cleanStr.replace(/,/g, '');
+    return parseFloat(numStr) || 0;
+  };
+
+  const currentPriceNum = parsePrice(plan.price);
+  const originalPriceNum = plan.originalPrice ? parsePrice(plan.originalPrice) : 0;
 
   // For promotions, show the calculated discounted price, otherwise show the current price
-  // Format the price using Mexican locale
   const displayPrice = isValidPromotion && originalPriceNum > 0
     ? (originalPriceNum * (1 - plan.discountPercentage / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : currentPriceNum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   // Show original price (crossed out) only if it's a valid promotion
-  // Format the original price using Mexican locale
   const displayOriginalPrice = isValidPromotion && originalPriceNum > 0
     ? originalPriceNum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : null;
