@@ -46,30 +46,22 @@ export function Navbar() {
 
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
-    staleTime: 30 * 60 * 1000, // 30 minutes
-    gcTime: 60 * 60 * 1000, // 1 hour
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: false,
   });
 
   const { data: navbarConfig } = useQuery({
     queryKey: ["/api/navbar-config"],
-    staleTime: 30 * 60 * 1000, // 30 minutes
-    gcTime: 60 * 60 * 1000, // 1 hour
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: false,
   });
 
   // Products query for cart functionality
   const { data: products } = useQuery({
     queryKey: ["/api/store/products"],
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: false,
+    retry: 1,
   });
 
   // Cart state - using localStorage like store.tsx
@@ -155,7 +147,7 @@ export function Navbar() {
     }
   }, [products, cartLoaded, loadCartFromStorage, saveCartToStorage]);
 
-  // Periodic cart sync to ensure data consistency - reduced frequency
+  // Periodic cart sync to ensure data consistency
   useEffect(() => {
     if (!cartLoaded || !products) return;
 
@@ -179,7 +171,7 @@ export function Navbar() {
           setCart([]);
         }
       }
-    }, 5000); // Check every 5 seconds instead of 1
+    }, 1000); // Check every second
 
     return () => clearInterval(syncInterval);
   }, [cart, cartLoaded, products, loadCartFromStorage]);
@@ -466,12 +458,7 @@ export function Navbar() {
             {modules.tienda?.activo && (
               <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
                 <DialogTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="relative gap-2" 
-                    size="sm"
-                    aria-label={`Carrito de compras${cartItemCount > 0 ? ` - ${cartItemCount} productos` : ' - vacío'}`}
-                  >
+                  <Button variant="ghost" className="relative gap-2" size="sm">
                     <ShoppingCart className="h-5 w-5" />
                     {cartItemCount > 0 && (
                       <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -602,12 +589,7 @@ export function Navbar() {
               {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar 
-                      className="h-9 w-9 cursor-pointer ring-2 ring-white/40"
-                      role="button"
-                      aria-label={`Menú de usuario - ${user?.username || 'Usuario'}`}
-                      tabIndex={0}
-                    >
+                    <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-white/40">
                       <AvatarFallback>
                         {user?.username?.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -645,14 +627,13 @@ export function Navbar() {
             {/* Mobile Menu Trigger */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`${isDesktop ? "hidden" : "block"}`}
-                  aria-label="Abrir menú de navegación"
+                <div
+                  className={`inline-flex items-center justify-center h-9 px-3 cursor-pointer ${
+                    isDesktop ? "hidden" : "block"
+                  }`}
                 >
                   <Menu className="h-6 w-6" />
-                </Button>
+                </div>
               </SheetTrigger>
               <SheetContent
                 side="right"

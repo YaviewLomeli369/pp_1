@@ -14,31 +14,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Security headers
-app.use((req, res, next) => {
-  // Content Security Policy
-  res.setHeader('Content-Security-Policy', 
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-    "style-src 'self' 'unsafe-inline'; " +
-    "img-src 'self' data: https:; " +
-    "font-src 'self' data:; " +
-    "connect-src 'self' https:; " +
-    "frame-ancestors 'self';"
-  );
-  
-  // X-Frame-Options for clickjacking protection
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  
-  // X-Content-Type-Options
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  
-  // Referrer Policy
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  next();
-});
-
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -94,11 +69,8 @@ app.use((req, res, next) => {
   // Enhanced file serving for uploaded objects
   const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
 
-  // 1) Serve static files from the uploads folder (with optimized cache headers)
+  // 1) Serve static files from the uploads folder (with specific Content-Type headers)
   app.use('/uploads', express.static(UPLOADS_DIR, {
-    maxAge: '1y', // 1 year cache
-    etag: false, // Disable ETag generation
-    lastModified: false, // Disable Last-Modified
     setHeaders: (res, filePath) => {
       const ext = path.extname(filePath).toLowerCase();
       const contentTypes: { [key: string]: string } = {
@@ -114,9 +86,7 @@ app.use((req, res, next) => {
 
       const contentType = contentTypes[ext] || 'application/octet-stream';
       res.setHeader('Content-Type', contentType);
-      
-      // Aggressive cache headers for better performance
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for images
+      res.setHeader('Cache-Control', 'public, max-age=86400');
       res.setHeader('Access-Control-Allow-Origin', '*');
     }
   }));
@@ -157,7 +127,7 @@ app.use((req, res, next) => {
         };
         const contentType = contentTypes[ext] || 'application/octet-stream';
         res.setHeader('Content-Type', contentType);
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year cache
+        res.setHeader('Cache-Control', 'public, max-age=86400');
         res.setHeader('Access-Control-Allow-Origin', '*');
 
         return res.sendFile(filePath);
@@ -199,7 +169,7 @@ app.use((req, res, next) => {
       };
       const contentType = contentTypes[ext] || 'application/octet-stream';
       res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year cache
+      res.setHeader('Cache-Control', 'public, max-age=86400');
       res.setHeader('Access-Control-Allow-Origin', '*');
 
       return res.sendFile(filePath);
