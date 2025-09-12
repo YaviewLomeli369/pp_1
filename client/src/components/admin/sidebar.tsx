@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { 
-  BarChart3, 
-  Puzzle, 
-  Palette, 
-  Users, 
-  Layout, 
-  Quote, 
-  HelpCircle, 
-  ShoppingCart, 
-  Calendar, 
+import {
+  BarChart3,
+  Puzzle,
+  Palette,
+  Users,
+  Layout,
+  Quote,
+  HelpCircle,
+  ShoppingCart,
+  Calendar,
   Mail,
   MessageSquare,
   FileText,
@@ -42,6 +42,8 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/appearance", label: "Apariencia", icon: Palette, section: "Configuración" },
   { href: "/admin/users", label: "Usuarios", icon: Users, section: "Configuración" },
   { href: "/admin/sections", label: "Secciones", icon: Layout, section: "Contenido", superuserOnly: true },
+  { href: "/admin/pages-content", label: "Contenido de Páginas", icon: FileText, section: "Contenido" },
+  { href: "/admin/servicios-sections", label: "Servicios", icon: Settings, section: "Contenido" },
   { href: "/admin/testimonials", label: "Testimonios", icon: Quote, section: "Contenido", moduleRequired: "testimonios" },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle, section: "Contenido", moduleRequired: "faqs" },
   { href: "/admin/blog", label: "Blog", icon: FileText, section: "Contenido", moduleRequired: "blog" },
@@ -171,7 +173,7 @@ export function AdminSidebar() {
             <Home className="w-5 h-5" />
             <span>Ir al Inicio</span>
           </Link>
-          <button 
+          <button
             onClick={() => logout()}
             className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors text-red-600 hover:bg-red-50"
           >
