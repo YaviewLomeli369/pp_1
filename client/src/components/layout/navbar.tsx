@@ -140,6 +140,35 @@ export function Navbar() {
     }
   }, [products, cartLoaded, loadCartFromStorage, saveCartToStorage]);
 
+  // Periodic cart sync to ensure data consistency
+  useEffect(() => {
+    if (!cartLoaded || !products) return;
+
+    const syncInterval = setInterval(() => {
+      const currentCartString = JSON.stringify(cart);
+      const storageCartString = localStorage.getItem('shopping-cart') || '[]';
+      
+      // Only sync if there's a difference
+      if (currentCartString !== storageCartString) {
+        const storageCart = loadCartFromStorage();
+        if (storageCart.length > 0) {
+          const validCartItems = storageCart.filter(item => {
+            const product = products.find(p => p.id === item.product.id);
+            return product && product.isActive;
+          }).map(item => {
+            const currentProduct = products.find(p => p.id === item.product.id);
+            return currentProduct ? { ...item, product: currentProduct } : item;
+          });
+          setCart(validCartItems);
+        } else if (cart.length > 0) {
+          setCart([]);
+        }
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(syncInterval);
+  }, [cart, cartLoaded, products, loadCartFromStorage]);
+
   const configData = config?.config as any;
   const modules = configData?.frontpage?.modulos || {};
   const appearance = configData?.appearance || {};
@@ -268,18 +297,37 @@ export function Navbar() {
       saveCartToStorage([]);
     };
 
+    // Listen for cart updates from same page (custom event)
+    const handleCartUpdate = () => {
+      const updatedCart = loadCartFromStorage();
+      if (products && products.length > 0) {
+        // Validate that products still exist and are active
+        const validCartItems = updatedCart.filter(item => {
+          const product = products.find(p => p.id === item.product.id);
+          return product && product.isActive;
+        }).map(item => {
+          // Update product data in case it changed
+          const currentProduct = products.find(p => p.id === item.product.id);
+          return currentProduct ? { ...item, product: currentProduct } : item;
+        });
+        setCart(validCartItems);
+      }
+    };
+
     window.addEventListener("resize", handleResize);
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("checkoutComplete", handleCheckoutComplete);
+    window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("checkoutComplete", handleCheckoutComplete);
+      window.removeEventListener("cartUpdated", handleCartUpdate);
     };
-  }, [isMobileMenuOpen, saveCartToStorage]);
+  }, [isMobileMenuOpen, saveCartToStorage, products, loadCartFromStorage]);
 
   const NavLink = useCallback(({ href, children, className, onClick }: {
     href: string;

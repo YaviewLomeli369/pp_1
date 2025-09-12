@@ -386,6 +386,8 @@ export default function Store() {
     if (typeof window === 'undefined') return;
     try {
       localStorage.setItem('shopping-cart', JSON.stringify(cartData));
+      // Dispatch custom event to notify other components (like navbar)
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
     } catch (error) {
       console.warn('Error saving cart to localStorage:', error);
     }
