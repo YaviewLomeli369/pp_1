@@ -142,6 +142,7 @@ export default function Store() {
   const [cart, setCart] = useState<Array<{ product: Product; quantity: number }>>([]);
   const [isNavigating, setIsNavigating] = useState(false);
   const [cartLoaded, setCartLoaded] = useState(false);
+  const [favoritesLoaded, setFavoritesLoaded] = useState(false);
 
   // ✅ FETCH DATA WITH PROPER ERROR HANDLING AND MOBILE OPTIMIZATION
   const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({
@@ -281,7 +282,7 @@ export default function Store() {
       setIsCartOpen(false);
       setSelectedProduct(null);
       setProductQuantity(1);
-      setFavorites(new Set());
+      // Don't clear favorites on cleanup - they should persist
       setIsNavigating(false);
 
       // Clear any body classes that might have been added by modals
@@ -318,14 +319,16 @@ export default function Store() {
       const newFavorites = new Set(prev);
       if (newFavorites.has(productId)) {
         newFavorites.delete(productId);
+        saveFavoritesToStorage(newFavorites);
         toast({ title: "Eliminado de favoritos", description: "Producto eliminado de tus favoritos" });
       } else {
         newFavorites.add(productId);
+        saveFavoritesToStorage(newFavorites);
         toast({ title: "Agregado a favoritos", description: "Producto agregado a tus favoritos" });
       }
       return newFavorites;
     });
-  }, [toast, isNavigating]);
+  }, [toast, isNavigating, saveFavoritesToStorage]);
 
   const getCategoryName = useCallback((categoryId: string) => {
     if (categoryId === "all") return "Todas las categorías";
@@ -391,6 +394,32 @@ export default function Store() {
     } catch (error) {
       console.warn('Error saving cart to localStorage:', error);
     }
+  }, []);
+
+  // Funciones para persistir favoritos en localStorage
+  const saveFavoritesToStorage = useCallback((favoritesData: Set<string>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('store-favorites', JSON.stringify(Array.from(favoritesData)));
+    } catch (error) {
+      console.warn('Error saving favorites to localStorage:', error);
+    }
+  }, []);
+
+  const loadFavoritesFromStorage = useCallback(() => {
+    if (typeof window === 'undefined') return new Set<string>();
+    try {
+      const savedFavorites = localStorage.getItem('store-favorites');
+      if (savedFavorites) {
+        const parsedFavorites = JSON.parse(savedFavorites);
+        if (Array.isArray(parsedFavorites)) {
+          return new Set(parsedFavorites.filter(id => typeof id === 'string'));
+        }
+      }
+    } catch (error) {
+      console.warn('Error loading favorites from localStorage:', error);
+    }
+    return new Set<string>();
   }, []);
 
   const removeFromCart = useCallback((productId: string) => {
@@ -499,6 +528,29 @@ export default function Store() {
     }
   }, [products, cartLoaded, loadCartFromStorage, saveCartToStorage]);
 
+  // Cargar favoritos desde localStorage al montar el componente
+  useEffect(() => {
+    if (!favoritesLoaded && products && products.length > 0) {
+      const savedFavorites = loadFavoritesFromStorage();
+      if (savedFavorites.size > 0) {
+        // Validar que los productos favoritos aún existen y están activos
+        const validFavorites = new Set(
+          Array.from(savedFavorites).filter(productId => {
+            const product = products.find(p => p.id === productId);
+            return product && product.isActive;
+          })
+        );
+        setFavorites(validFavorites);
+        
+        if (validFavorites.size !== savedFavorites.size) {
+          // Si algunos favoritos fueron removidos, actualizar localStorage
+          saveFavoritesToStorage(validFavorites);
+        }
+      }
+      setFavoritesLoaded(true);
+    }
+  }, [products, favoritesLoaded, loadFavoritesFromStorage, saveFavoritesToStorage]);
+
   // Periodic cart sync to ensure data consistency
   useEffect(() => {
     if (!cartLoaded || !products) return;
@@ -591,9 +643,35 @@ export default function Store() {
       }
     };
 
+    // Listen for favorites storage changes
+    const handleFavoritesStorageChange = (e: StorageEvent) => {
+      if (e.key === 'store-favorites' && !isNavigating && isMountedRef.current) {
+        if (e.newValue === null || e.newValue === '[]') {
+          setFavorites(new Set());
+        } else {
+          try {
+            const newFavorites = JSON.parse(e.newValue);
+            if (Array.isArray(newFavorites) && products) {
+              // Validate that products still exist and are active
+              const validFavorites = new Set(
+                newFavorites.filter(productId => {
+                  const product = products.find(p => p.id === productId);
+                  return product && product.isActive;
+                })
+              );
+              setFavorites(validFavorites);
+            }
+          } catch (error) {
+            console.warn('Error parsing favorites from storage:', error);
+          }
+        }
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleFavoritesStorageChange);
     window.addEventListener('cartUpdated', handleCartUpdate);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -601,6 +679,7 @@ export default function Store() {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage', handleFavoritesStorageChange);
       window.removeEventListener('cartUpdated', handleCartUpdate);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
