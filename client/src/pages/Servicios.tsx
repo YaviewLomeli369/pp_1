@@ -21,16 +21,23 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
 
   const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
 
-  const priceValue = parseInt(plan.price.replace(/\D/g, ""));
-  // Calculate old price for display if it's a promotion
-  const oldPriceDisplay = plan.isPromotion && plan.originalPrice
-    ? `${parseInt(plan.originalPrice.replace(/\D/g, "")).toLocaleString()} MXN`
-    : null;
+  // Check if it's a valid promotion
+  const isValidPromotion = plan.isPromotion && 
+                          plan.originalPrice && 
+                          plan.originalPrice.trim() !== '' &&
+                          plan.discountPercentage > 0;
 
-  // Calculate discounted price
-  const discountedPrice = plan.isPromotion && plan.originalPrice
-    ? (parseInt(plan.originalPrice.replace(/\D/g, "")) * (1 - plan.discountPercentage / 100)).toLocaleString()
-    : plan.price;
+  // Calculate prices
+  const currentPrice = plan.price.replace(/\D/g, "");
+  const originalPrice = plan.originalPrice ? plan.originalPrice.replace(/\D/g, "") : "";
+  
+  const displayPrice = isValidPromotion && originalPrice
+    ? (parseInt(originalPrice) * (1 - plan.discountPercentage / 100)).toLocaleString()
+    : currentPrice.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  const displayOriginalPrice = isValidPromotion && originalPrice
+    ? parseInt(originalPrice).toLocaleString()
+    : null;
 
   return (
     <AnimatedSection delay={0.1}>
@@ -53,12 +60,16 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
         <p className="text-gray-500 mb-4 text-center">{plan.description}</p>
 
         <div className="text-center mb-6">
-          {oldPriceDisplay && (
-            <span className="text-gray-400 line-through mr-2 text-lg">${oldPriceDisplay}</span>
+          {displayOriginalPrice && (
+            <>
+              <span className="text-gray-400 line-through mr-2 text-lg">${displayOriginalPrice} MXN</span>
+              <br />
+            </>
           )}
-          <br />
-          <span className="text-4xl font-extrabold text-blue-600">${discountedPrice}</span>
-          {plan.isPromotion && <span className="text-green-600 font-semibold ml-2">({plan.discountPercentage}%)</span>}
+          <span className="text-4xl font-extrabold text-blue-600">${displayPrice} MXN</span>
+          {isValidPromotion && (
+            <span className="text-green-600 font-semibold ml-2">({plan.discountPercentage}% OFF)</span>
+          )}
         </div>
 
 
