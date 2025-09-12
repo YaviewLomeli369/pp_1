@@ -284,19 +284,19 @@ function PagesContent() {
     const discountInput = document.getElementById('discountPercentage') as HTMLInputElement;
     const isPromotionSwitch = document.getElementById('isPromotion') as HTMLInputElement;
     const previewElement = document.getElementById('price-preview');
-    
+
     if (!previewElement || !priceInput) return;
-    
+
     const currentPrice = parseInt(priceInput.value) || 0;
     const originalPrice = parseInt(originalPriceInput?.value || '0');
     const discountPercentage = parseInt(discountInput?.value || '0');
     const isPromotion = isPromotionSwitch?.checked;
-    
+
     if (currentPrice === 0) {
       previewElement.innerHTML = '<div class="text-gray-400">Ingrese un precio</div>';
       return;
     }
-    
+
     if (isPromotion && originalPrice > 0) {
       previewElement.innerHTML = `
         <div>
@@ -1113,7 +1113,7 @@ function PagesContent() {
                             const currentPrice = parseInt(e.target.value) || 0;
                             const discountPercentage = parseInt((document.getElementById('discountPercentage') as HTMLInputElement)?.value || '0');
                             const isPromotion = (document.getElementById('isPromotion') as HTMLInputElement)?.checked;
-                            
+
                             if (isPromotion && discountPercentage > 0 && currentPrice > 0) {
                               // Calculate original price from current price and discount
                               const originalPrice = Math.round(currentPrice / (1 - discountPercentage / 100));
@@ -1132,14 +1132,14 @@ function PagesContent() {
                           name="isPromotion"
                           checked={selectedContent?.metadata?.isPromotion || false}
                           onCheckedChange={(checked) => {
-                            setSelectedContent(prev => prev ? { 
-                              ...prev, 
-                              metadata: { 
-                                ...prev.metadata, 
+                            setSelectedContent(prev => prev ? {
+                              ...prev,
+                              metadata: {
+                                ...prev.metadata,
                                 isPromotion: checked,
                                 // Clear pricing fields when promotion is disabled
                                 ...(checked ? {} : { originalPrice: '', discountPercentage: 0 })
-                              } 
+                              }
                             } : null);
                             setTimeout(updatePricePreview, 100);
                           }}
@@ -1147,7 +1147,7 @@ function PagesContent() {
                         <Label htmlFor="isPromotion">¿Es promoción?</Label>
                       </div>
                     </div>
-                    
+
                     {selectedContent?.metadata?.isPromotion && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -1175,7 +1175,7 @@ function PagesContent() {
                             onChange={(e) => {
                               const discount = parseInt(e.target.value) || 0;
                               const currentPrice = parseInt((document.getElementById('price') as HTMLInputElement)?.value || '0');
-                              
+
                               if (currentPrice > 0 && discount > 0) {
                                 // Calculate original price from current price and discount
                                 const originalPrice = Math.round(currentPrice / (1 - discount / 100));
@@ -1201,7 +1201,7 @@ function PagesContent() {
                       </div>
                     </div></div>
                 )}
-                    
+
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
