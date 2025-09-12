@@ -278,44 +278,10 @@ function PagesContent() {
     updateConfigMutation.mutate({ config: newConfig });
   };
 
-  const updatePricePreview = () => {
-    const priceInput = document.getElementById('price') as HTMLInputElement;
-    const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
-    const discountInput = document.getElementById('discountPercentage') as HTMLInputElement;
-    const isPromotionSwitch = document.getElementById('isPromotion') as HTMLInputElement;
-    const previewElement = document.getElementById('price-preview');
+  // Function to update price preview - now removed as per user request
+  // const updatePricePreview = () => { ... };
 
-    if (!previewElement || !priceInput) return;
-
-    const currentPrice = parseFloat(priceInput.value) || 0;
-    const originalPrice = parseFloat(originalPriceInput?.value || '0');
-    const discountPercentage = parseInt(discountInput?.value || '0');
-    const isPromotion = isPromotionSwitch?.checked;
-
-    if (currentPrice === 0) {
-      previewElement.innerHTML = '<div class="text-gray-400">Ingrese un precio</div>';
-      return;
-    }
-
-    if (isPromotion && originalPrice > 0) {
-      previewElement.innerHTML = `
-        <div>
-          <span class="text-red-500 line-through mr-2 text-lg">$${originalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span>
-          <br />
-          <span class="text-2xl font-bold text-blue-600">$${currentPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span>
-          ${discountPercentage > 0 ? `<span class="text-green-600 font-semibold ml-2">(${discountPercentage}% OFF)</span>` : ''}
-        </div>
-      `;
-    } else {
-      previewElement.innerHTML = `
-        <div class="text-2xl font-bold text-blue-600">
-          $${currentPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
-        </div>
-      `;
-    }
-  };
-
-  // Function to synchronize price calculations
+  // Function to synchronize price calculations - kept for potential future use but not actively called
   const syncPriceCalculations = (changedField: 'price' | 'originalPrice' | 'discountPercentage') => {
     const priceInput = document.getElementById('price') as HTMLInputElement;
     const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
@@ -351,7 +317,7 @@ function PagesContent() {
     }
 
     // Update preview after calculations
-    updatePricePreview();
+    // updatePricePreview(); // Removed as preview is no longer used
   };
 
   const handleSaveContent = async (formData: FormData) => {
@@ -383,6 +349,8 @@ function PagesContent() {
       const originalPrice = parseInt(formData.get("originalPrice") as string) || 0;
       const discountPercentage = parseInt(formData.get("discountPercentage") as string) || 0;
       const isPromotion = formData.get("isPromotion") === "on";
+      const whatsappPhone = formData.get("whatsappPhone") as string;
+      const whatsappMessage = formData.get("whatsappMessage") as string;
 
       metadata = {
         price: price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
@@ -391,6 +359,8 @@ function PagesContent() {
         isPromotion: isPromotion,
         highlight: formData.get("highlight") === "on",
         features: features,
+        whatsappPhone: whatsappPhone,
+        whatsappMessage: whatsappMessage
       };
     }
 
@@ -658,7 +628,7 @@ function PagesContent() {
                         title: "",
                         content: "",
                         type: "plan",
-                        metadata: { price: "", originalPrice: "", discountPercentage: 0, isPromotion: false, highlight: false, features: [] }
+                        metadata: { price: "", originalPrice: "", discountPercentage: 0, isPromotion: false, highlight: false, features: [], whatsappPhone: "", whatsappMessage: "" }
                       });
                       setShowContentForm(true);
                     }}>
@@ -709,7 +679,9 @@ function PagesContent() {
                                   discountPercentage: plan.discountPercentage,
                                   isPromotion: plan.isPromotion,
                                   highlight: plan.highlight,
-                                  features: plan.features
+                                  features: plan.features,
+                                  whatsappPhone: plan.whatsappPhone || "",
+                                  whatsappMessage: plan.whatsappMessage || ""
                                 }
                               });
                               setShowContentForm(true);
@@ -943,11 +915,11 @@ function PagesContent() {
             setSelectedContent(null); // Clear selected content when dialog closes
           } else {
             // Initialize price preview when dialog opens
-            setTimeout(() => {
-              if (selectedContent?.type === "plan") {
-                updatePricePreview();
-              }
-            }, 100);
+            // setTimeout(() => { // No longer needed as preview is removed
+            //   if (selectedContent?.type === "plan") {
+            //     updatePricePreview();
+            //   }
+            // }, 100);
           }
         }}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
@@ -1141,7 +1113,7 @@ function PagesContent() {
                           placeholder="9499.00"
                           required
                           onChange={() => {
-                            syncPriceCalculations('price');
+                            // syncPriceCalculations('price'); // Removed as preview is not used
                           }}
                         />
                       </div>
@@ -1168,7 +1140,7 @@ function PagesContent() {
                                 if (originalPriceInput) originalPriceInput.value = '';
                                 if (discountInput) discountInput.value = '';
                               }
-                              updatePricePreview();
+                              // updatePricePreview(); // Removed as preview is not used
                             }, 100);
                           }}
                         />
@@ -1187,7 +1159,7 @@ function PagesContent() {
                             placeholder="12000.00"
                             disabled={!selectedContent?.metadata?.isPromotion}
                             onChange={() => {
-                              syncPriceCalculations('originalPrice');
+                              // syncPriceCalculations('originalPrice'); // Removed as preview is not used
                             }}
                           />
                         </div>
@@ -1203,22 +1175,45 @@ function PagesContent() {
                             placeholder="15"
                             disabled={!selectedContent?.metadata?.isPromotion}
                             onChange={() => {
-                              syncPriceCalculations('discountPercentage');
+                              // syncPriceCalculations('discountPercentage'); // Removed as preview is not used
                             }}
                           />
                         </div>
                       </div>
                     )}
 
-                    {/* Price Preview */}
-                    <div className="bg-gray-50 border rounded-lg p-4">
+                    {/* WhatsApp fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="whatsappPhone">Teléfono WhatsApp</Label>
+                        <Input
+                          id="whatsappPhone"
+                          name="whatsappPhone"
+                          defaultValue={selectedContent?.metadata?.whatsappPhone || ''}
+                          placeholder="+52 55 1234 5678"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="whatsappMessage">Mensaje WhatsApp (URL Encoded)</Label>
+                        <Input
+                          id="whatsappMessage"
+                          name="whatsappMessage"
+                          defaultValue={selectedContent?.metadata?.whatsappMessage || ''}
+                          placeholder="Hola, me interesa el plan..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Price Preview - Removed */}
+                    {/* <div className="bg-gray-50 border rounded-lg p-4">
                       <Label className="text-sm font-medium text-gray-700 mb-2 block">Preview del Precio:</Label>
                       <div id="price-preview" className="text-center">
                         <div className="text-2xl font-bold text-blue-600">
                           $9,499 MXN
                         </div>
                       </div>
-                    </div></div>
+                    </div> */}
+                  </div>
                 )}
 
                 {selectedContent?.type === "plan" && (

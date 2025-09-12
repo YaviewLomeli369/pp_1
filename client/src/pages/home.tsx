@@ -17,10 +17,13 @@ import { Rocket, Users, Target, Star, Check } from "lucide-react";
 import type { SiteConfig, Section, Testimonial } from "@shared/schema";
 
 const PlanCard = ({ plan }: { plan: any }) => {
-  const WHATSAPP_NUMBER = "525512345678";
-  const message = encodeURIComponent(
-    `Hola, me interesa más información sobre sus servicios.`
-  );
+  // Use plan-specific WhatsApp configuration or fallback to defaults
+  const WHATSAPP_NUMBER = plan.whatsappPhone || "525512345678";
+  const messageTemplate = plan.whatsappMessage || "Hola, me interesa más información sobre sus servicios.";
+  
+  // Replace [PLAN_NAME] placeholder with actual plan name
+  const personalizedMessage = messageTemplate.replace(/\[PLAN_NAME\]/g, plan.name);
+  const message = encodeURIComponent(personalizedMessage);
 
   const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
 
