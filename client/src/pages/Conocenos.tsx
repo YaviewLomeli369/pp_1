@@ -1,16 +1,37 @@
-import React, { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useMemo, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SEOHead } from "@/components/seo-head";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target, Eye, Star, User, Phone, Mail, Quote } from "lucide-react"; 
 import AnimatedSection from "@/components/AnimatedSection";
+import { InlineEditor } from "@/components/inline-editor/InlineEditor";
+import { InlineTextarea } from "@/components/inline-editor/InlineTextarea";
+import { useAuth } from "@/hooks/use-auth";
+import { apiRequest } from "@/lib/queryClient";
 import type { SiteConfig } from "@shared/schema";
 
 function Conocenos() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isSuperuser = user?.role === 'superuser';
+
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
+  });
+
+  // Mutation for updating config
+  const updateConfigMutation = useMutation({
+    mutationFn: async (updates: any) => {
+      return apiRequest("/api/config", {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/config"] });
+    },
   });
 
   const { appearance, pagesContent } = useMemo(() => {
@@ -88,6 +109,147 @@ function Conocenos() {
     }
   };
 
+  // Update functions for inline editing
+  const updateHeroTitle = useCallback(async (newValue: string) => {
+    if (!isSuperuser) throw new Error("Only superusers can edit");
+    const updates = {
+      config: {
+        ...config?.config,
+        pagesContent: {
+          ...config?.config?.pagesContent,
+          conocenos: {
+            ...pagesContent,
+            hero: {
+              ...pagesContent.hero,
+              title: newValue
+            }
+          }
+        }
+      }
+    };
+    await updateConfigMutation.mutateAsync(updates);
+  }, [config, pagesContent, updateConfigMutation, isSuperuser]);
+
+  const updateHeroSubtitle = useCallback(async (newValue: string) => {
+    if (!isSuperuser) throw new Error("Only superusers can edit");
+    const updates = {
+      config: {
+        ...config?.config,
+        pagesContent: {
+          ...config?.config?.pagesContent,
+          conocenos: {
+            ...pagesContent,
+            hero: {
+              ...pagesContent.hero,
+              subtitle: newValue
+            }
+          }
+        }
+      }
+    };
+    await updateConfigMutation.mutateAsync(updates);
+  }, [config, pagesContent, updateConfigMutation, isSuperuser]);
+
+  const updateValueTitle = useCallback(async (valueId: string, newValue: string) => {
+    if (!isSuperuser) throw new Error("Only superusers can edit");
+    const updatedValues = pagesContent.values?.map((value: any) => 
+      value.id === valueId ? { ...value, title: newValue } : value
+    );
+    const updates = {
+      config: {
+        ...config?.config,
+        pagesContent: {
+          ...config?.config?.pagesContent,
+          conocenos: {
+            ...pagesContent,
+            values: updatedValues
+          }
+        }
+      }
+    };
+    await updateConfigMutation.mutateAsync(updates);
+  }, [config, pagesContent, updateConfigMutation, isSuperuser]);
+
+  const updateValueDescription = useCallback(async (valueId: string, newValue: string) => {
+    if (!isSuperuser) throw new Error("Only superusers can edit");
+    const updatedValues = pagesContent.values?.map((value: any) => 
+      value.id === valueId ? { ...value, description: newValue } : value
+    );
+    const updates = {
+      config: {
+        ...config?.config,
+        pagesContent: {
+          ...config?.config?.pagesContent,
+          conocenos: {
+            ...pagesContent,
+            values: updatedValues
+          }
+        }
+      }
+    };
+    await updateConfigMutation.mutateAsync(updates);
+  }, [config, pagesContent, updateConfigMutation, isSuperuser]);
+
+  const updateTeamMemberName = useCallback(async (memberId: string, newValue: string) => {
+    if (!isSuperuser) throw new Error("Only superusers can edit");
+    const updatedTeam = pagesContent.team?.map((member: any) => 
+      member.id === memberId ? { ...member, name: newValue } : member
+    );
+    const updates = {
+      config: {
+        ...config?.config,
+        pagesContent: {
+          ...config?.config?.pagesContent,
+          conocenos: {
+            ...pagesContent,
+            team: updatedTeam
+          }
+        }
+      }
+    };
+    await updateConfigMutation.mutateAsync(updates);
+  }, [config, pagesContent, updateConfigMutation, isSuperuser]);
+
+  const updateTeamMemberPosition = useCallback(async (memberId: string, newValue: string) => {
+    if (!isSuperuser) throw new Error("Only superusers can edit");
+    const updatedTeam = pagesContent.team?.map((member: any) => 
+      member.id === memberId ? { ...member, position: newValue } : member
+    );
+    const updates = {
+      config: {
+        ...config?.config,
+        pagesContent: {
+          ...config?.config?.pagesContent,
+          conocenos: {
+            ...pagesContent,
+            team: updatedTeam
+          }
+        }
+      }
+    };
+    await updateConfigMutation.mutateAsync(updates);
+  }, [config, pagesContent, updateConfigMutation, isSuperuser]);
+
+  const updateTeamMemberQuote = useCallback(async (memberId: string, newValue: string) => {
+    if (!isSuperuser) throw new Error("Only superusers can edit");
+    const updatedTeam = pagesContent.team?.map((member: any) => 
+      member.id === memberId ? { ...member, quote: newValue } : member
+    );
+    const updates = {
+      config: {
+        ...config?.config,
+        pagesContent: {
+          ...config?.config?.pagesContent,
+          conocenos: {
+            ...pagesContent,
+            team: updatedTeam
+          }
+        }
+      }
+    };
+    await updateConfigMutation.mutateAsync(updates);
+  }, [config, pagesContent, updateConfigMutation, isSuperuser]);
+
   return (
     <div 
       className="min-h-screen bg-background flex flex-col"
@@ -120,12 +282,29 @@ function Conocenos() {
 
           {/* Contenido */}
           <div className="relative max-w-4xl mx-auto px-4">
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
-              {pagesContent.hero?.title}
-            </h1>
-            <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-gray-100">
-              {pagesContent.hero?.subtitle}
-            </p>
+            {isSuperuser ? (
+              <InlineEditor
+                value={pagesContent.hero?.title || "Conócenos"}
+                onSave={updateHeroTitle}
+                tag="h1"
+                className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight"
+              />
+            ) : (
+              <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
+                {pagesContent.hero?.title}
+              </h1>
+            )}
+            {isSuperuser ? (
+              <InlineTextarea
+                value={pagesContent.hero?.subtitle || "Somos un equipo comprometido con el crecimiento de tu negocio."}
+                onSave={updateHeroSubtitle}
+                className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-gray-100"
+              />
+            ) : (
+              <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed text-gray-100">
+                {pagesContent.hero?.subtitle}
+              </p>
+            )}
           </div>
         </section>
       </AnimatedSection>
@@ -141,11 +320,28 @@ function Conocenos() {
                   <div className={`absolute inset-0 bg-gradient-to-br from-${value.color}-500/10 to-${value.color === 'blue' ? 'indigo' : value.color === 'indigo' ? 'purple' : 'pink'}-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                   <CardContent className="relative p-10 text-center">
                     {getIconComponent(value.icon, `w-12 h-12 mx-auto mb-6 ${getColorClass(value.color)} group-hover:scale-110 transition-transform duration-300`)}
-                    <h3 className="text-2xl font-bold mb-3 text-gray-800">{value.title}</h3>
+                    {isSuperuser ? (
+                      <InlineEditor
+                        value={value.title}
+                        onSave={(newValue) => updateValueTitle(value.id, newValue)}
+                        tag="h3"
+                        className="text-2xl font-bold mb-3 text-gray-800"
+                      />
+                    ) : (
+                      <h3 className="text-2xl font-bold mb-3 text-gray-800">{value.title}</h3>
+                    )}
                     <div className={`w-12 h-1 bg-${value.color === 'indigo' ? 'indigo' : value.color}-600 mx-auto mb-4 rounded-full`} />
-                    <p className="text-gray-600 leading-relaxed">
-                      {value.description}
-                    </p>
+                    {isSuperuser ? (
+                      <InlineTextarea
+                        value={value.description}
+                        onSave={(newValue) => updateValueDescription(value.id, newValue)}
+                        className="text-gray-600 leading-relaxed"
+                      />
+                    ) : (
+                      <p className="text-gray-600 leading-relaxed">
+                        {value.description}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </AnimatedSection>
@@ -183,11 +379,38 @@ function Conocenos() {
                           </div>
                         </div>
                       </div>
-                      <h4 className="font-semibold text-xl text-gray-800">{member.name}</h4>
-                      <p className="text-sm text-gray-500 mb-4">{member.position}</p>
+                      {isSuperuser ? (
+                        <InlineEditor
+                          value={member.name}
+                          onSave={(newValue) => updateTeamMemberName(member.id, newValue)}
+                          tag="h4"
+                          className="font-semibold text-xl text-gray-800"
+                        />
+                      ) : (
+                        <h4 className="font-semibold text-xl text-gray-800">{member.name}</h4>
+                      )}
+                      {isSuperuser ? (
+                        <InlineEditor
+                          value={member.position}
+                          onSave={(newValue) => updateTeamMemberPosition(member.id, newValue)}
+                          tag="p"
+                          className="text-sm text-gray-500 mb-4"
+                        />
+                      ) : (
+                        <p className="text-sm text-gray-500 mb-4">{member.position}</p>
+                      )}
                       <div className="italic text-gray-600 mb-4 flex items-center justify-center gap-2">
                         <Quote className="h-4 w-4 text-blue-500" />
-                        <span>"{member.quote}"</span>
+                        {isSuperuser ? (
+                          <InlineEditor
+                            value={member.quote}
+                            onSave={(newValue) => updateTeamMemberQuote(member.id, newValue)}
+                            tag="span"
+                            className="italic"
+                          />
+                        ) : (
+                          <span>"{member.quote}"</span>
+                        )}
                       </div>
                       <div className="space-y-2 text-sm text-gray-600">
                         {member.phone && (
