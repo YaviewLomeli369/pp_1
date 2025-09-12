@@ -57,8 +57,6 @@ import AdminContactInfo from "@/pages/admin/contact-info";
 // Lazy loaded admin pages
 const AdminServiciosSections = lazy(() => import("./pages/admin/servicios-sections"));
 const AdminPagesContent = lazy(() => import("./pages/admin/pages-content"));
-const AdminAppearance = lazy(() => import("./pages/admin/appearance"));
-const AdminModules = lazy(() => import("./pages/admin/modules"));
 
 import NotFound from "@/pages/not-found";
 
