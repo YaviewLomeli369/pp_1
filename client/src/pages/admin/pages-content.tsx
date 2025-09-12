@@ -875,7 +875,7 @@ function PagesContent() {
             setSelectedContent(null); // Clear selected content when dialog closes
           }
         }}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>
                 {selectedContent?.id === "hero" ? "Editar Sección Hero" :
@@ -893,7 +893,7 @@ function PagesContent() {
               const formData = new FormData(e.currentTarget);
               handleSaveContent(formData);
             }}>
-              <div className="space-y-4">
+              <div className="space-y-4 px-1">
                 <div>
                   <Label htmlFor="title">
                     {selectedContent?.type === "hero" ? "Título" :
@@ -911,42 +911,46 @@ function PagesContent() {
                 </div>
                 {selectedContent?.type === "team" && (
                   <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="position">Posición/Cargo</Label>
-                      <Input
-                        id="position"
-                        name="position"
-                        defaultValue={selectedContent?.metadata?.position || ''}
-                        placeholder="CEO, Director, etc."
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="position">Posición/Cargo</Label>
+                        <Input
+                          id="position"
+                          name="position"
+                          defaultValue={selectedContent?.metadata?.position || ''}
+                          placeholder="CEO, Director, etc."
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">Teléfono</Label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          defaultValue={selectedContent?.metadata?.phone || ''}
+                          placeholder="+52 55 1234 5678"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="phone">Teléfono</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        defaultValue={selectedContent?.metadata?.phone || ''}
-                        placeholder="+52 55 1234 5678"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        defaultValue={selectedContent?.metadata?.email || ''}
-                        placeholder="ejemplo@correo.com"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="image">URL de Imagen</Label>
-                      <Input
-                        id="image"
-                        name="image"
-                        defaultValue={selectedContent?.metadata?.image || ''}
-                        placeholder="https://ejemplo.com/imagen.jpg"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          defaultValue={selectedContent?.metadata?.email || ''}
+                          placeholder="ejemplo@correo.com"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="image">URL de Imagen</Label>
+                        <Input
+                          id="image"
+                          name="image"
+                          defaultValue={selectedContent?.metadata?.image || ''}
+                          placeholder="https://ejemplo.com/imagen.jpg"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -967,7 +971,7 @@ function PagesContent() {
                   />
                 </div>
                 {selectedContent?.type === "service" && (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="icon">Icono</Label>
                       <Select name="icon" defaultValue={selectedContent?.metadata?.icon || "Rocket"}>
@@ -1009,7 +1013,7 @@ function PagesContent() {
                   </div>
                 )}
                 {selectedContent?.type === "value" && (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="icon">Icono</Label>
                       <Select name="icon" defaultValue={selectedContent?.metadata?.icon || "Target"}>
@@ -1052,50 +1056,77 @@ function PagesContent() {
                 )}
                 {selectedContent?.type === "plan" && (
                   <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="price">Precio Actual</Label>
-                      <Input
-                        id="price"
-                        name="price"
-                        defaultValue={selectedContent?.metadata?.price?.replace(' MXN', '') || ''}
-                        placeholder="9,499"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="originalPrice">Precio Oficial (Tachado)</Label>
-                      <Input
-                        id="originalPrice"
-                        name="originalPrice"
-                        defaultValue={selectedContent?.metadata?.originalPrice?.replace(' MXN', '') || ''}
-                        placeholder="12,000"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="isPromotion"
-                        name="isPromotion"
-                        checked={selectedContent?.metadata?.isPromotion || false}
-                        onCheckedChange={(checked) => {
-                          setSelectedContent(prev => prev ? { ...prev, metadata: { ...prev.metadata, isPromotion: checked } } : null);
-                        }}
-                      />
-                      <Label htmlFor="isPromotion">¿Es promoción?</Label>
-                    </div>
-                    {selectedContent?.metadata?.isPromotion && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="discountPercentage">Porcentaje de Descuento (%)</Label>
+                        <Label htmlFor="price">Precio Actual</Label>
                         <Input
-                          id="discountPercentage"
-                          name="discountPercentage"
-                          type="number"
-                          min="0"
-                          max="100"
-                          defaultValue={selectedContent?.metadata?.discountPercentage || ''}
-                          placeholder="15"
+                          id="price"
+                          name="price"
+                          defaultValue={selectedContent?.metadata?.price?.replace(' MXN', '') || ''}
+                          placeholder="9,499"
+                          required
                         />
                       </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="isPromotion"
+                          name="isPromotion"
+                          checked={selectedContent?.metadata?.isPromotion || false}
+                          onCheckedChange={(checked) => {
+                            setSelectedContent(prev => prev ? { 
+                              ...prev, 
+                              metadata: { 
+                                ...prev.metadata, 
+                                isPromotion: checked,
+                                // Clear pricing fields when promotion is disabled
+                                ...(checked ? {} : { originalPrice: '', discountPercentage: 0 })
+                              } 
+                            } : null);
+                          }}
+                        />
+                        <Label htmlFor="isPromotion">¿Es promoción?</Label>
+                      </div>
+                    </div>
+                    
+                    {selectedContent?.metadata?.isPromotion && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="originalPrice">Precio Oficial (Tachado)</Label>
+                          <Input
+                            id="originalPrice"
+                            name="originalPrice"
+                            defaultValue={selectedContent?.metadata?.originalPrice?.replace(' MXN', '') || ''}
+                            placeholder="12,000"
+                            disabled={!selectedContent?.metadata?.isPromotion}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="discountPercentage">Porcentaje de Descuento (%)</Label>
+                          <Input
+                            id="discountPercentage"
+                            name="discountPercentage"
+                            type="number"
+                            min="0"
+                            max="100"
+                            defaultValue={selectedContent?.metadata?.discountPercentage || ''}
+                            placeholder="15"
+                            disabled={!selectedContent?.metadata?.isPromotion}
+                            onChange={(e) => {
+                              const discount = parseInt(e.target.value) || 0;
+                              const originalPrice = parseInt(document.getElementById('originalPrice')?.value || '0');
+                              if (originalPrice > 0 && discount > 0) {
+                                const finalPrice = Math.round(originalPrice * (1 - discount / 100));
+                                const priceInput = document.getElementById('price') as HTMLInputElement;
+                                if (priceInput) {
+                                  priceInput.value = finalPrice.toString();
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
                     )}
+                    
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -1115,6 +1146,7 @@ function PagesContent() {
                         placeholder="Característica 1&#10;Característica 2&#10;Característica 3"
                         rows={6}
                         required
+                        className="resize-none"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         Escriba cada característica en una línea separada
