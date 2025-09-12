@@ -16,47 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Rocket, Users, Target, Star, Check } from "lucide-react";
 import type { SiteConfig, Section, Testimonial } from "@shared/schema";
 
-const plans = [
-  {
-    name: "Esencial",
-    price: "6,499 MXN",
-    description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
-    features: [
-      "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
-      "Contenido clave: 3 secciones principales (Inicio, Servicios, Contacto), con un blog y 3 servicios listados.",
-      "Módulo de contacto",
-      "Conexión directa: Formulario de contacto, integración con redes sociales y botón de WhatsApp.",
-      'Detalles profesionales: Correo corporativo y una sección de "Conócenos" para generar confianza.',
-    ],
-    highlight: false,
-  },
-  {
-    name: "Profesional",
-    price: "9,499 MXN",
-    description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
-    features: [
-      "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
-      "Automatiza tu agenda: Sistema de reservas en línea para que tus clientes agenden fácilmente.",
-      "Mejora tu contenido: Blog optimizado y un banner principal personalizado para destacar tu marca.",
-      "Organización profesional: Gestión de entregables y documentos de forma estructurada.",
-    ],
-    highlight: true,
-  },
-  {
-    name: "Premium",
-    price: "15,499 MXN",
-    description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
-    features: [
-      "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
-      "Pagos seguros: Integración con Stripe para recibir pagos en línea.",
-      "Marketing avanzado: Herramientas de comunicación y marketing digital para atraer y retener clientes.",
-      "Análisis y crecimiento: Reportes de actividad web y una sección de servicios premium para monetizar más tu oferta.",
-    ],
-    highlight: false,
-  },
-];
-
-const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
+const PlanCard = ({ plan }: { plan: any }) => {
   const WHATSAPP_NUMBER = "525512345678";
   const message = encodeURIComponent(
     `Hola, me interesa más información sobre sus servicios.`
@@ -64,8 +24,28 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
 
   const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
 
-  const priceValue = parseInt(plan.price.replace(/\D/g, ""));
-  const oldPrice = priceValue ? `${(priceValue * 1.30).toLocaleString()} MXN` : null;
+  // Check if it's a valid promotion
+  const isValidPromotion = plan.isPromotion && 
+                          plan.originalPrice && 
+                          plan.originalPrice.trim() !== '' &&
+                          plan.discountPercentage > 0;
+
+  // Calculate prices
+  // Remove currency symbols and thousand separators, then parse to integer
+  const currentPriceNum = parseInt(plan.price.replace(/[^0-9]/g, "")) || 0;
+  const originalPriceNum = plan.originalPrice ? parseInt(plan.originalPrice.replace(/[^0-9]/g, "")) : 0;
+
+  // For promotions, show the calculated discounted price, otherwise show the current price
+  // Format the price using Mexican locale
+  const displayPrice = isValidPromotion && originalPriceNum > 0
+    ? (originalPriceNum * (1 - plan.discountPercentage / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : currentPriceNum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Show original price (crossed out) only if it's a valid promotion
+  // Format the original price using Mexican locale
+  const displayOriginalPrice = isValidPromotion && originalPriceNum > 0
+    ? originalPriceNum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : null;
 
   return (
     <AnimatedSection delay={0.1}>
@@ -88,15 +68,20 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
         <p className="text-gray-500 mb-4 text-center">{plan.description}</p>
 
         <div className="text-center mb-6">
-          {oldPrice && <span className="text-gray-400 line-through mr-2 text-lg">${oldPrice}</span>}
-          <br />  
-          <span className="text-4xl font-extrabold text-blue-600">${plan.price}</span>
+          {displayOriginalPrice && (
+            <>
+              <span className="text-gray-400 line-through mr-2 text-lg">${displayOriginalPrice} MXN</span>
+              <br />
+            </>
+          )}
+          <span className="text-4xl font-extrabold text-blue-600">${displayPrice} MXN</span>
+          {isValidPromotion && (
+            <span className="text-green-600 font-semibold ml-2">({plan.discountPercentage}% OFF)</span>
+          )}
         </div>
 
-
-
         <ul className="space-y-3 flex-1">
-          {plan.features.map((feature, i) => (
+          {plan.features?.map((feature: string, i: number) => (
             <li key={i} className="flex items-start">
               <Check className="h-5 w-5 text-green-500 mr-2" />
               <span className="text-gray-700">{feature}</span>
@@ -144,12 +129,65 @@ function Home() {
     [testimonials]
   );
 
-  const { appearance, frontpage, modules } = useMemo(() => {
+  const { appearance, frontpage, modules, pagesContent } = useMemo(() => {
     const configData = config?.config as any;
     return {
       appearance: configData?.appearance || {},
       frontpage: configData?.frontpage || {},
       modules: configData?.frontpage?.modulos || {},
+      pagesContent: configData?.pagesContent?.servicios || {
+        plans: [
+          {
+            id: "1",
+            name: "Esencial",
+            price: "6,499.00 MXN",
+            originalPrice: "",
+            discountPercentage: 0,
+            isPromotion: false,
+            description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
+            features: [
+              "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
+              "Contenido clave: 3 secciones principales (Inicio, Servicios, Contacto), con un blog y 3 servicios listados.",
+              "Módulo de contacto",
+              "Conexión directa: Formulario de contacto, integración con redes sociales y botón de WhatsApp.",
+              'Detalles profesionales: Correo corporativo y una sección de "Conócenos" para generar confianza.'
+            ],
+            highlight: false
+          },
+          {
+            id: "2",
+            name: "Profesional",
+            price: "7,599.00 MXN",
+            originalPrice: "9,499.00 MXN",
+            discountPercentage: 20,
+            isPromotion: true,
+            description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
+            features: [
+              "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
+              "Automatiza tu agenda: Sistema de reservas en línea para que tus clientes agenden fácilmente.",
+              "Mejora tu contenido: Blog optimizado y un banner principal personalizado para destacar tu marca.",
+              "Organización profesional: Gestión de entregables y documentos de forma estructurada."
+            ],
+            highlight: true
+          },
+          {
+            id: "3",
+            name: "Premium",
+            price: "15,499.00 MXN",
+            originalPrice: "",
+            discountPercentage: 0,
+            isPromotion: false,
+            description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
+            features: [
+              "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
+              "Pagos seguros: Integración con Stripe para recibir pagos en línea.",
+              "Marketing avanzado: Herramientas de comunicación y marketing digital para atraer y retener clientes.",
+              "Análisis y crecimiento: Reportes de actividad web y una sección de servicios premium para monetizar más tu oferta."
+            ],
+            highlight: false
+          }
+        ]
+      }
     };
   }, [config]);
 
@@ -221,25 +259,27 @@ function Home() {
       </AnimatedSection>
 
 
-      {/* Planes */}
-      <AnimatedSection delay={0.2}>
-        <section className="py-20 bg-gradient-to-b from-white to-gray-100">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6">
-              Planes a tu Medida
-            </h2>
-            <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
-              Escoge el plan que mejor se adapte a tus objetivos. Todos incluyen soporte y
-              optimización básica.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {plans.map((plan, i) => (
-                <PlanCard key={i} plan={plan} />
-              ))}
+      {/* Planes - Solo mostrar si el módulo está activo */}
+      {modules.planes?.activo === true && pagesContent.plans && pagesContent.plans.length > 0 && (
+        <AnimatedSection delay={0.2}>
+          <section className="py-20 bg-gradient-to-b from-white to-gray-100">
+            <div className="max-w-7xl mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6">
+                Planes a tu Medida
+              </h2>
+              <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+                Escoge el plan que mejor se adapte a tus objetivos. Todos incluyen soporte y
+                optimización básica.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {pagesContent.plans?.map((plan: any) => (
+                  <PlanCard key={plan.id} plan={plan} />
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      </AnimatedSection>
+          </section>
+        </AnimatedSection>
+      )}
 
       {/* Dynamic Sections */}
       {sections?.filter(s => s.isActive).map((section, index) => {
