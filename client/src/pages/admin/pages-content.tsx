@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
@@ -54,7 +53,7 @@ function PagesContent() {
             color: "blue"
           },
           {
-            id: "2", 
+            id: "2",
             title: "Marketing Digital",
             description: "Estrategias para atraer clientes y crecer en línea.",
             icon: "Target",
@@ -62,7 +61,7 @@ function PagesContent() {
           },
           {
             id: "3",
-            title: "Consultoría Tecnológica", 
+            title: "Consultoría Tecnológica",
             description: "Acompañamos a tu empresa en su transformación digital.",
             icon: "Users",
             color: "purple"
@@ -85,7 +84,7 @@ function PagesContent() {
           },
           {
             id: "2",
-            name: "Profesional", 
+            name: "Profesional",
             price: "9,499 MXN",
             description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
             features: [
@@ -99,7 +98,7 @@ function PagesContent() {
           {
             id: "3",
             name: "Premium",
-            price: "15,499 MXN", 
+            price: "15,499 MXN",
             description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
             features: [
               "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
@@ -127,7 +126,7 @@ function PagesContent() {
           },
           {
             id: "2",
-            title: "Nuestra Visión", 
+            title: "Nuestra Visión",
             description: "Ser líderes en innovación tecnológica para PYMES en LATAM.",
             icon: "Eye",
             color: "indigo"
@@ -136,7 +135,7 @@ function PagesContent() {
             id: "3",
             title: "Nuestros Valores",
             description: "Innovación, compromiso, transparencia.",
-            icon: "Star", 
+            icon: "Star",
             color: "purple"
           }
         ],
@@ -152,7 +151,7 @@ function PagesContent() {
           },
           {
             id: "2",
-            name: "Ana Torres", 
+            name: "Ana Torres",
             position: "Directora de Marketing",
             quote: "Las ideas valen cuando se ejecutan.",
             phone: "",
@@ -195,7 +194,7 @@ function PagesContent() {
   const handleSaveContent = (formData: FormData) => {
     const configData = config?.config as any;
     const newConfig = { ...configData };
-    
+
     if (!newConfig.pagesContent) {
       newConfig.pagesContent = {};
     }
@@ -219,8 +218,23 @@ function PagesContent() {
           ...newConfig.pagesContent[selectedPage].hero,
           ...contentData
         };
+      } else if (contentType === "service") {
+        newConfig.pagesContent[selectedPage].services = newConfig.pagesContent[selectedPage].services.map((s: any) =>
+          s.id === selectedContent.id ? { ...s, title: contentData.title, description: contentData.content, ...contentData.metadata } : s
+        );
+      } else if (contentType === "plan") {
+        newConfig.pagesContent[selectedPage].plans = newConfig.pagesContent[selectedPage].plans.map((p: any) =>
+          p.id === selectedContent.id ? { ...p, name: contentData.title, description: contentData.content, ...contentData.metadata } : p
+        );
+      } else if (contentType === "value") {
+        newConfig.pagesContent[selectedPage].values = newConfig.pagesContent[selectedPage].values.map((v: any) =>
+          v.id === selectedContent.id ? { ...v, title: contentData.title, description: contentData.content, ...contentData.metadata } : v
+        );
+      } else if (contentType === "team") {
+        newConfig.pagesContent[selectedPage].team = newConfig.pagesContent[selectedPage].team.map((m: any) =>
+          m.id === selectedContent.id ? { ...m, name: contentData.title, quote: contentData.content, ...contentData.metadata } : m
+        );
       }
-      // Add more content type handling as needed
     }
 
     updateConfigMutation.mutate(newConfig);
@@ -277,7 +291,8 @@ function PagesContent() {
                         id: "hero",
                         title: pagesContent.servicios.hero?.title || "",
                         content: pagesContent.servicios.hero?.subtitle || "",
-                        type: "hero"
+                        type: "hero",
+                        metadata: {}
                       });
                       setShowContentForm(true);
                     }}
@@ -310,7 +325,8 @@ function PagesContent() {
                               id: service.id,
                               title: service.title,
                               content: service.description,
-                              type: "service"
+                              type: "service",
+                              metadata: { icon: service.icon, color: service.color }
                             });
                             setShowContentForm(true);
                           }}
@@ -345,7 +361,8 @@ function PagesContent() {
                               id: plan.id,
                               title: plan.name,
                               content: plan.description,
-                              type: "plan"
+                              type: "plan",
+                              metadata: { price: plan.price, highlight: plan.highlight, features: plan.features }
                             });
                             setShowContentForm(true);
                           }}
@@ -386,7 +403,8 @@ function PagesContent() {
                         id: "hero",
                         title: pagesContent.conocenos.hero?.title || "",
                         content: pagesContent.conocenos.hero?.subtitle || "",
-                        type: "hero"
+                        type: "hero",
+                        metadata: {}
                       });
                       setShowContentForm(true);
                     }}
@@ -419,7 +437,8 @@ function PagesContent() {
                               id: value.id,
                               title: value.title,
                               content: value.description,
-                              type: "value"
+                              type: "value",
+                              metadata: { icon: value.icon, color: value.color }
                             });
                             setShowContentForm(true);
                           }}
@@ -454,7 +473,8 @@ function PagesContent() {
                               id: member.id,
                               title: member.name,
                               content: member.quote,
-                              type: "team"
+                              type: "team",
+                              metadata: { position: member.position, phone: member.phone, email: member.email, image: member.image }
                             });
                             setShowContentForm(true);
                           }}
@@ -487,7 +507,11 @@ function PagesContent() {
             }}>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="title">Título</Label>
+                  <Label htmlFor="title">
+                    {selectedContent?.type === "hero" ? "Título" :
+                     selectedContent?.type === "team" ? "Nombre" :
+                     selectedContent?.type === "plan" ? "Nombre del Plan" : "Título"}
+                  </Label>
                   <Input
                     id="title"
                     name="title"
@@ -496,7 +520,11 @@ function PagesContent() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="content">Contenido</Label>
+                  <Label htmlFor="content">
+                    {selectedContent?.type === "hero" ? "Subtítulo" :
+                     selectedContent?.type === "team" ? "Frase/Quote" :
+                     selectedContent?.type === "plan" ? "Descripción del Plan" : "Descripción"}
+                  </Label>
                   <Textarea
                     id="content"
                     name="content"
@@ -505,15 +533,51 @@ function PagesContent() {
                     required
                   />
                 </div>
-                <div>
-                  <Label htmlFor="metadata">Metadatos (JSON)</Label>
-                  <Textarea
-                    id="metadata"
-                    name="metadata"
-                    placeholder='{"color": "blue", "icon": "Target"}'
-                    rows={3}
-                  />
-                </div>
+                {selectedContent?.type === "team" && (
+                  <div>
+                    <Label htmlFor="metadata">Información Adicional (JSON)</Label>
+                    <Textarea
+                      id="metadata"
+                      name="metadata"
+                      defaultValue={selectedContent?.metadata ? JSON.stringify(selectedContent.metadata, null, 2) : ''}
+                      placeholder='{"position": "CEO", "phone": "+52 55 1234 5678", "email": "ejemplo@correo.com", "image": "https://..."}'
+                      rows={4}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Incluye: position, phone, email, image
+                    </p>
+                  </div>
+                )}
+                {(selectedContent?.type === "service" || selectedContent?.type === "value") && (
+                  <div>
+                    <Label htmlFor="metadata">Configuración (JSON)</Label>
+                    <Textarea
+                      id="metadata"
+                      name="metadata"
+                      defaultValue={selectedContent?.metadata ? JSON.stringify(selectedContent.metadata, null, 2) : ''}
+                      placeholder='{"icon": "Target", "color": "blue"}'
+                      rows={3}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Incluye: icon, color
+                    </p>
+                  </div>
+                )}
+                {selectedContent?.type === "plan" && (
+                  <div>
+                    <Label htmlFor="metadata">Configuración del Plan (JSON)</Label>
+                    <Textarea
+                      id="metadata"
+                      name="metadata"
+                      defaultValue={selectedContent?.metadata ? JSON.stringify(selectedContent.metadata, null, 2) : ''}
+                      placeholder='{"price": "9,499 MXN", "highlight": true, "features": ["Feature 1", "Feature 2"]}'
+                      rows={4}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Incluye: price, highlight, features
+                    </p>
+                  </div>
+                )}
               </div>
               <DialogFooter className="mt-6">
                 <Button
