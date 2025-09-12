@@ -315,6 +315,45 @@ function PagesContent() {
     }
   };
 
+  // Function to synchronize price calculations
+  const syncPriceCalculations = (changedField: 'price' | 'originalPrice' | 'discountPercentage') => {
+    const priceInput = document.getElementById('price') as HTMLInputElement;
+    const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
+    const discountInput = document.getElementById('discountPercentage') as HTMLInputElement;
+    const isPromotionSwitch = document.getElementById('isPromotion') as HTMLInputElement;
+
+    if (!priceInput || !originalPriceInput || !discountInput || !isPromotionSwitch) return;
+    if (!isPromotionSwitch.checked) return; // Only sync when promotion is enabled
+
+    const currentPrice = parseFloat(priceInput.value) || 0;
+    const originalPrice = parseFloat(originalPriceInput.value) || 0;
+    const discountPercentage = parseInt(discountInput.value) || 0;
+
+    // Prevent infinite loops by checking if we have valid values
+    if (changedField === 'price' && currentPrice > 0 && originalPrice > 0) {
+      // Calculate discount percentage: ((original - current) / original) * 100
+      const calculatedDiscount = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+      if (calculatedDiscount >= 0 && calculatedDiscount <= 100 && calculatedDiscount !== discountPercentage) {
+        discountInput.value = calculatedDiscount.toString();
+      }
+    } else if (changedField === 'originalPrice' && originalPrice > 0 && currentPrice > 0) {
+      // Calculate discount percentage: ((original - current) / original) * 100
+      const calculatedDiscount = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+      if (calculatedDiscount >= 0 && calculatedDiscount <= 100 && calculatedDiscount !== discountPercentage) {
+        discountInput.value = calculatedDiscount.toString();
+      }
+    } else if (changedField === 'discountPercentage' && discountPercentage >= 0 && discountPercentage <= 100 && originalPrice > 0) {
+      // Calculate current price: original * (1 - discount/100)
+      const calculatedPrice = originalPrice * (1 - discountPercentage / 100);
+      if (calculatedPrice !== currentPrice && calculatedPrice >= 0) {
+        priceInput.value = calculatedPrice.toFixed(2);
+      }
+    }
+
+    // Update preview after calculations
+    updatePricePreview();
+  };
+
   const handleSaveContent = async (formData: FormData) => {
     if (!selectedContent) return;
 
@@ -1098,10 +1137,12 @@ function PagesContent() {
                         <Input
                           id="price"
                           name="price"
-                          defaultValue={selectedContent?.metadata?.price?.replace(' MXN', '') || ''}
-                          placeholder="9,499"
+                          defaultValue={selectedContent?.metadata?.price?.replace(/[^\d.,]/g, '').replace(',', '') || ''}
+                          placeholder="9499.00"
                           required
-                          onChange={() => updatePricePreview()}
+                          onChange={() => {
+                            syncPriceCalculations('price');
+                          }}
                         />
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1119,7 +1160,16 @@ function PagesContent() {
                                 ...(checked ? {} : { originalPrice: '', discountPercentage: 0 })
                               }
                             } : null);
-                            setTimeout(updatePricePreview, 100);
+                            setTimeout(() => {
+                              if (!checked) {
+                                // Clear fields when promotion is disabled
+                                const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
+                                const discountInput = document.getElementById('discountPercentage') as HTMLInputElement;
+                                if (originalPriceInput) originalPriceInput.value = '';
+                                if (discountInput) discountInput.value = '';
+                              }
+                              updatePricePreview();
+                            }, 100);
                           }}
                         />
                         <Label htmlFor="isPromotion">¿Es promoción?</Label>
@@ -1133,10 +1183,12 @@ function PagesContent() {
                           <Input
                             id="originalPrice"
                             name="originalPrice"
-                            defaultValue={selectedContent?.metadata?.originalPrice?.replace(' MXN', '') || ''}
-                            placeholder="12,000"
+                            defaultValue={selectedContent?.metadata?.originalPrice?.replace(/[^\d.,]/g, '').replace(',', '') || ''}
+                            placeholder="12000.00"
                             disabled={!selectedContent?.metadata?.isPromotion}
-                            onChange={() => updatePricePreview()}
+                            onChange={() => {
+                              syncPriceCalculations('originalPrice');
+                            }}
                           />
                         </div>
                         <div>
@@ -1150,7 +1202,9 @@ function PagesContent() {
                             defaultValue={selectedContent?.metadata?.discountPercentage || ''}
                             placeholder="15"
                             disabled={!selectedContent?.metadata?.isPromotion}
-                            onChange={() => updatePricePreview()}
+                            onChange={() => {
+                              syncPriceCalculations('discountPercentage');
+                            }}
                           />
                         </div>
                       </div>
