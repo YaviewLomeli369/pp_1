@@ -312,6 +312,28 @@ export default function Store() {
     }
   }, [setLocation, performCleanup]);
 
+  // Funciones para persistir carrito en localStorage
+  const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
+      // Dispatch custom event to notify other components (like navbar)
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+    } catch (error) {
+      console.warn('Error saving cart to localStorage:', error);
+    }
+  }, []);
+
+  // Funciones para persistir favoritos en localStorage
+  const saveFavoritesToStorage = useCallback((favoritesData: Set<string>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('store-favorites', JSON.stringify(Array.from(favoritesData)));
+    } catch (error) {
+      console.warn('Error saving favorites to localStorage:', error);
+    }
+  }, []);
+
   const toggleFavorite = useCallback((productId: string) => {
     if (!isMountedRef.current || isNavigating) return;
 
@@ -383,28 +405,6 @@ export default function Store() {
       }
     }
   }, [cart, handleNavigation, toast, isNavigating]);
-
-  // Funciones para persistir carrito en localStorage
-  const saveCartToStorage = useCallback((cartData: Array<{ product: Product; quantity: number }>) => {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
-      // Dispatch custom event to notify other components (like navbar)
-      window.dispatchEvent(new CustomEvent('cartUpdated'));
-    } catch (error) {
-      console.warn('Error saving cart to localStorage:', error);
-    }
-  }, []);
-
-  // Funciones para persistir favoritos en localStorage
-  const saveFavoritesToStorage = useCallback((favoritesData: Set<string>) => {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem('store-favorites', JSON.stringify(Array.from(favoritesData)));
-    } catch (error) {
-      console.warn('Error saving favorites to localStorage:', error);
-    }
-  }, []);
 
   const loadFavoritesFromStorage = useCallback(() => {
     if (typeof window === 'undefined') return new Set<string>();
