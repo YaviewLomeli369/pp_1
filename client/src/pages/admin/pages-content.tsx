@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2, FileText, Users, Briefcase } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { getAuthToken } from "@/lib/auth";
 import type { SiteConfig } from "@shared/schema";
 
 interface PageContent {
@@ -164,14 +166,19 @@ function PagesContent() {
   }, [config]);
 
   const updateConfigMutation = useMutation({
-    mutationFn: async (newConfig: any) => {
-      const response = await fetch("/api/config", {
+    mutationFn: async (updates: any) => {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+      return apiRequest("/api/config", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ config: newConfig }),
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
       });
-      if (!response.ok) throw new Error("Failed to update config");
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/config"] });
@@ -203,7 +210,7 @@ function PagesContent() {
     }
 
     let metadata = {};
-    
+
     // Handle team member fields separately
     if (selectedContent?.type === "team") {
       metadata = {
@@ -248,9 +255,9 @@ function PagesContent() {
         );
       } else if (contentType === "team") {
         newConfig.pagesContent[selectedPage].team = newConfig.pagesContent[selectedPage].team.map((m: any) =>
-          m.id === selectedContent.id ? { 
-            ...m, 
-            name: contentData.title, 
+          m.id === selectedContent.id ? {
+            ...m,
+            name: contentData.title,
             quote: contentData.content,
             position: contentData.metadata.position,
             phone: contentData.metadata.phone,
