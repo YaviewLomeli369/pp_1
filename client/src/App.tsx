@@ -1,5 +1,4 @@
-
-import React, { useEffect, useRef } from "react";
+import React, { lazy, useEffect, useRef } from "react";
 import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -21,7 +20,7 @@ import Contact from "@/pages/contact";
 import Store from "@/pages/store";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
-import Reservations from "@/pages/reservations";
+import Reservations from "@/pages/reservas";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import CreateAdmin from "@/pages/auth/create-admin";
@@ -54,6 +53,12 @@ import AdminOrders from "@/pages/admin/orders";
 import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminInventory from "@/pages/admin/inventory";
 import AdminContactInfo from "@/pages/admin/contact-info";
+
+// Lazy loaded admin pages
+const AdminServiciosSections = lazy(() => import("./pages/admin/servicios-sections"));
+const AdminPagesContent = lazy(() => import("./pages/admin/pages-content"));
+const AdminAppearance = lazy(() => import("./pages/admin/appearance"));
+const AdminModules = lazy(() => import("./pages/admin/modules"));
 
 import NotFound from "@/pages/not-found";
 
@@ -125,7 +130,7 @@ function Router() {
       <Route path="/conocenos" component={Conocenos} />
       <Route path="/servicios" component={Servicios} />
       {/* <Route path="/tienda-prueba" component={TiendaPrueba} /> */}
-      
+
       {/* Admin routes */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/modules" component={AdminModules} />
@@ -144,7 +149,9 @@ function Router() {
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/email-config" component={AdminEmailConfig} />
       <Route path="/admin/contact-info" component={AdminContactInfo} />
-      
+      <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
+      <Route path="/admin/pages-content" component={AdminPagesContent} />
+
       <Route component={NotFound} />
     </Switch>
 

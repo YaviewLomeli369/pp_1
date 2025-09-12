@@ -11,63 +11,7 @@ import { Rocket, Users, Target, Check, Star } from "lucide-react";
 import type { SiteConfig } from "@shared/schema";
 import AnimatedSection from "@/components/AnimatedSection";
 
-const services = [
-  {
-    title: "Desarrollo Web a Medida",
-    description: "Creamos sitios web modernos y escalables.",
-    icon: <Rocket className="h-8 w-8 text-blue-600" />,
-  },
-  {
-    title: "Marketing Digital",
-    description: "Estrategias para atraer clientes y crecer en línea.",
-    icon: <Target className="h-8 w-8 text-green-600" />,
-  },
-  {
-    title: "Consultoría Tecnológica",
-    description: "Acompañamos a tu empresa en su transformación digital.",
-    icon: <Users className="h-8 w-8 text-purple-600" />,
-  },
-];
 
-const plans = [
-  {
-    name: "Esencial",
-    price: "6,499 MXN",
-    description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
-    features: [
-      "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
-      "Contenido clave: 3 secciones principales (Inicio, Servicios, Contacto), con un blog y 3 servicios listados.",
-      "Módulo de contacto",
-      "Conexión directa: Formulario de contacto, integración con redes sociales y botón de WhatsApp.",
-      'Detalles profesionales: Correo corporativo y una sección de "Conócenos" para generar confianza.',
-    ],
-    highlight: false,
-  },
-  {
-    name: "Profesional",
-    price: "9,499 MXN",
-    description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
-    features: [
-      "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
-      "Automatiza tu agenda: Sistema de reservas en línea para que tus clientes agenden fácilmente.",
-      "Mejora tu contenido: Blog optimizado y un banner principal personalizado para destacar tu marca.",
-      "Organización profesional: Gestión de entregables y documentos de forma estructurada.",
-    ],
-    highlight: true,
-  },
-  {
-    name: "Premium",
-    price: "15,499 MXN",
-    description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
-    features: [
-      "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
-      "Pagos seguros: Integración con Stripe para recibir pagos en línea.",
-      "Marketing avanzado: Herramientas de comunicación y marketing digital para atraer y retener clientes.",
-      "Análisis y crecimiento: Reportes de actividad web y una sección de servicios premium para monetizar más tu oferta.",
-    ],
-    highlight: false,
-  },
-];
 
 const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
   const WHATSAPP_NUMBER = "525512345678";
@@ -136,10 +80,102 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
 
 function Servicios() {
   const { data: config, isLoading } = useQuery<SiteConfig>({ queryKey: ["/api/config"] });
-  const { appearance } = useMemo(() => {
+  const { appearance, pagesContent } = useMemo(() => {
     const configData = config?.config as any;
-    return { appearance: configData?.appearance || {} };
+    return { 
+      appearance: configData?.appearance || {},
+      pagesContent: configData?.pagesContent?.servicios || {
+        hero: {
+          title: "Servicios Digitales para Impulsar tu Negocio",
+          subtitle: "Diseño, SEO y soporte para que tu marca brille en internet.",
+          backgroundImage: "https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        },
+        services: [
+          {
+            id: "1",
+            title: "Desarrollo Web a Medida",
+            description: "Creamos sitios web modernos y escalables.",
+            icon: "Rocket",
+            color: "blue"
+          },
+          {
+            id: "2", 
+            title: "Marketing Digital",
+            description: "Estrategias para atraer clientes y crecer en línea.",
+            icon: "Target",
+            color: "green"
+          },
+          {
+            id: "3",
+            title: "Consultoría Tecnológica", 
+            description: "Acompañamos a tu empresa en su transformación digital.",
+            icon: "Users",
+            color: "purple"
+          }
+        ],
+        plans: [
+          {
+            id: "1",
+            name: "Esencial",
+            price: "6,499 MXN",
+            description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
+            features: [
+              "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
+              "Contenido clave: 3 secciones principales (Inicio, Servicios, Contacto), con un blog y 3 servicios listados.",
+              "Módulo de contacto",
+              "Conexión directa: Formulario de contacto, integración con redes sociales y botón de WhatsApp.",
+              'Detalles profesionales: Correo corporativo y una sección de "Conócenos" para generar confianza.'
+            ],
+            highlight: false
+          },
+          {
+            id: "2",
+            name: "Profesional", 
+            price: "9,499 MXN",
+            description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
+            features: [
+              "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
+              "Automatiza tu agenda: Sistema de reservas en línea para que tus clientes agenden fácilmente.",
+              "Mejora tu contenido: Blog optimizado y un banner principal personalizado para destacar tu marca.",
+              "Organización profesional: Gestión de entregables y documentos de forma estructurada."
+            ],
+            highlight: true
+          },
+          {
+            id: "3",
+            name: "Premium",
+            price: "15,499 MXN", 
+            description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
+            features: [
+              "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
+              "Pagos seguros: Integración con Stripe para recibir pagos en línea.",
+              "Marketing avanzado: Herramientas de comunicación y marketing digital para atraer y retener clientes.",
+              "Análisis y crecimiento: Reportes de actividad web y una sección de servicios premium para monetizar más tu oferta."
+            ],
+            highlight: false
+          }
+        ]
+      }
+    };
   }, [config]);
+
+  const getIconComponent = (iconName: string, className: string) => {
+    switch (iconName) {
+      case "Rocket": return <Rocket className={className} />;
+      case "Target": return <Target className={className} />;
+      case "Users": return <Users className={className} />;
+      default: return <Rocket className={className} />;
+    }
+  };
+
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case "blue": return "text-blue-600";
+      case "green": return "text-green-600";
+      case "purple": return "text-purple-600";
+      default: return "text-blue-600";
+    }
+  };
 
   if (isLoading) return <PageLoader message="Cargando servicios..." />;
 
@@ -164,7 +200,7 @@ function Servicios() {
         <section
           className="relative py-20 text-white text-center"
           style={{
-            backgroundImage: `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
+            backgroundImage: `url("${pagesContent.hero?.backgroundImage}")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -172,10 +208,10 @@ function Servicios() {
           <div className="absolute inset-0 bg-black/60"></div>
           <div className="relative max-w-4xl mx-auto px-4">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-              Servicios Digitales para Impulsar tu Negocio
+              {pagesContent.hero?.title}
             </h1>
             <p className="text-lg md:text-xl text-gray-200 mb-8">
-              Diseño, SEO y soporte para que tu marca brille en internet.
+              {pagesContent.hero?.subtitle}
             </p>
             <Button size="lg" variant="secondary" asChild>
               <Link href="/contact">Solicitar cotización</Link>
@@ -192,12 +228,14 @@ function Servicios() {
               Nuestros Servicios
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              {services.map((s, i) => (
-                <AnimatedSection key={i} delay={0.1 * i}>
+              {pagesContent.services?.map((service: any, i: number) => (
+                <AnimatedSection key={service.id} delay={0.1 * i}>
                   <div className="bg-white rounded-2xl shadow-md p-8 text-center hover:shadow-xl transition duration-300">
-                    <div className="flex justify-center mb-4">{s.icon}</div>
-                    <h3 className="text-xl font-semibold mb-2 text-gray-800">{s.title}</h3>
-                    <p className="text-gray-600">{s.description}</p>
+                    <div className="flex justify-center mb-4">
+                      {getIconComponent(service.icon, `h-8 w-8 ${getColorClass(service.color)}`)}
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2 text-gray-800">{service.title}</h3>
+                    <p className="text-gray-600">{service.description}</p>
                   </div>
                 </AnimatedSection>
               ))}
@@ -218,8 +256,8 @@ function Servicios() {
               optimización básica.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {plans.map((plan, i) => (
-                <PlanCard key={i} plan={plan} />
+              {pagesContent.plans?.map((plan: any) => (
+                <PlanCard key={plan.id} plan={plan} />
               ))}
             </div>
           </div>
