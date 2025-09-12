@@ -278,6 +278,43 @@ function PagesContent() {
     updateConfigMutation.mutate({ config: newConfig });
   };
 
+  const updatePricePreview = () => {
+    const priceInput = document.getElementById('price') as HTMLInputElement;
+    const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
+    const discountInput = document.getElementById('discountPercentage') as HTMLInputElement;
+    const isPromotionSwitch = document.getElementById('isPromotion') as HTMLInputElement;
+    const previewElement = document.getElementById('price-preview');
+    
+    if (!previewElement || !priceInput) return;
+    
+    const currentPrice = parseInt(priceInput.value) || 0;
+    const originalPrice = parseInt(originalPriceInput?.value || '0');
+    const discountPercentage = parseInt(discountInput?.value || '0');
+    const isPromotion = isPromotionSwitch?.checked;
+    
+    if (currentPrice === 0) {
+      previewElement.innerHTML = '<div class="text-gray-400">Ingrese un precio</div>';
+      return;
+    }
+    
+    if (isPromotion && originalPrice > 0) {
+      previewElement.innerHTML = `
+        <div>
+          <span class="text-red-500 line-through mr-2 text-lg">$${originalPrice.toLocaleString()} MXN</span>
+          <br />
+          <span class="text-2xl font-bold text-blue-600">$${currentPrice.toLocaleString()} MXN</span>
+          ${discountPercentage > 0 ? `<span class="text-green-600 font-semibold ml-2">(${discountPercentage}% OFF)</span>` : ''}
+        </div>
+      `;
+    } else {
+      previewElement.innerHTML = `
+        <div class="text-2xl font-bold text-blue-600">
+          $${currentPrice.toLocaleString()} MXN
+        </div>
+      `;
+    }
+  };
+
   const handleSaveContent = async (formData: FormData) => {
     if (!selectedContent) return;
 
@@ -873,6 +910,13 @@ function PagesContent() {
           setShowContentForm(isOpen);
           if (!isOpen) {
             setSelectedContent(null); // Clear selected content when dialog closes
+          } else {
+            // Initialize price preview when dialog opens
+            setTimeout(() => {
+              if (selectedContent?.type === "plan") {
+                updatePricePreview();
+              }
+            }, 100);
           }
         }}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
@@ -1065,6 +1109,21 @@ function PagesContent() {
                           defaultValue={selectedContent?.metadata?.price?.replace(' MXN', '') || ''}
                           placeholder="9,499"
                           required
+                          onChange={(e) => {
+                            const currentPrice = parseInt(e.target.value) || 0;
+                            const discountPercentage = parseInt((document.getElementById('discountPercentage') as HTMLInputElement)?.value || '0');
+                            const isPromotion = (document.getElementById('isPromotion') as HTMLInputElement)?.checked;
+                            
+                            if (isPromotion && discountPercentage > 0 && currentPrice > 0) {
+                              // Calculate original price from current price and discount
+                              const originalPrice = Math.round(currentPrice / (1 - discountPercentage / 100));
+                              const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
+                              if (originalPriceInput) {
+                                originalPriceInput.value = originalPrice.toString();
+                              }
+                            }
+                            updatePricePreview();
+                          }}
                         />
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1082,6 +1141,7 @@ function PagesContent() {
                                 ...(checked ? {} : { originalPrice: '', discountPercentage: 0 })
                               } 
                             } : null);
+                            setTimeout(updatePricePreview, 100);
                           }}
                         />
                         <Label htmlFor="isPromotion">¿Es promoción?</Label>
@@ -1098,6 +1158,7 @@ function PagesContent() {
                             defaultValue={selectedContent?.metadata?.originalPrice?.replace(' MXN', '') || ''}
                             placeholder="12,000"
                             disabled={!selectedContent?.metadata?.isPromotion}
+                            onChange={() => updatePricePreview()}
                           />
                         </div>
                         <div>
@@ -1113,19 +1174,33 @@ function PagesContent() {
                             disabled={!selectedContent?.metadata?.isPromotion}
                             onChange={(e) => {
                               const discount = parseInt(e.target.value) || 0;
-                              const originalPrice = parseInt(document.getElementById('originalPrice')?.value || '0');
-                              if (originalPrice > 0 && discount > 0) {
-                                const finalPrice = Math.round(originalPrice * (1 - discount / 100));
-                                const priceInput = document.getElementById('price') as HTMLInputElement;
-                                if (priceInput) {
-                                  priceInput.value = finalPrice.toString();
+                              const currentPrice = parseInt((document.getElementById('price') as HTMLInputElement)?.value || '0');
+                              
+                              if (currentPrice > 0 && discount > 0) {
+                                // Calculate original price from current price and discount
+                                const originalPrice = Math.round(currentPrice / (1 - discount / 100));
+                                const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
+                                if (originalPriceInput) {
+                                  originalPriceInput.value = originalPrice.toString();
                                 }
                               }
+                              updatePricePreview();
                             }}
                           />
                         </div>
                       </div>
                     )}
+
+                    {/* Price Preview */}
+                    <div className="bg-gray-50 border rounded-lg p-4">
+                      <Label className="text-sm font-medium text-gray-700 mb-2 block">Preview del Precio:</Label>
+                      <div id="price-preview" className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">
+                          $9,499 MXN
+                        </div>
+                      </div>
+                    </div></div>
+                )}
                     
                     <div className="flex items-center space-x-2">
                       <input
