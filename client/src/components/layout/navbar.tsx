@@ -458,7 +458,12 @@ export function Navbar() {
             {modules.tienda?.activo && (
               <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" className="relative gap-2" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    className="relative gap-2" 
+                    size="sm"
+                    aria-label={`Carrito de compras${cartItemCount > 0 ? ` - ${cartItemCount} productos` : ' - vacío'}`}
+                  >
                     <ShoppingCart className="h-5 w-5" />
                     {cartItemCount > 0 && (
                       <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -589,7 +594,12 @@ export function Navbar() {
               {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-white/40">
+                    <Avatar 
+                      className="h-9 w-9 cursor-pointer ring-2 ring-white/40"
+                      role="button"
+                      aria-label={`Menú de usuario - ${user?.username || 'Usuario'}`}
+                      tabIndex={0}
+                    >
                       <AvatarFallback>
                         {user?.username?.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -627,13 +637,14 @@ export function Navbar() {
             {/* Mobile Menu Trigger */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
-                <div
-                  className={`inline-flex items-center justify-center h-9 px-3 cursor-pointer ${
-                    isDesktop ? "hidden" : "block"
-                  }`}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`${isDesktop ? "hidden" : "block"}`}
+                  aria-label="Abrir menú de navegación"
                 >
                   <Menu className="h-6 w-6" />
-                </div>
+                </Button>
               </SheetTrigger>
               <SheetContent
                 side="right"

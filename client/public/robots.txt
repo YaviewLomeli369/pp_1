@@ -1,0 +1,25 @@
+
+User-agent: *
+Allow: /
+
+# Permitir acceso a todas las páginas públicas
+Allow: /
+Allow: /store
+Allow: /blog
+Allow: /testimonials
+Allow: /faqs
+Allow: /contact
+Allow: /conocenos
+Allow: /servicios
+Allow: /reservations
+
+# Bloquear páginas administrativas y de autenticación
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /checkout
+Disallow: /api
+
+# Sitemap (cuando esté disponible)
+# Sitemap: https://tusitio.com/sitemap.xml
