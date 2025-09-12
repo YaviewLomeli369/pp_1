@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
@@ -96,7 +97,7 @@ export default function AdminNavbarConfig() {
         const availableItems = defaultNavItems.filter(item => 
           item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
         );
-
+        
         const defaultItems = availableItems.map((item, index) => ({
           id: `default-${item.moduleKey}`,
           moduleKey: item.moduleKey,
@@ -227,7 +228,7 @@ export default function AdminNavbarConfig() {
 
   const handleRefreshFromModules = () => {
     if (!config) return;
-
+    
     const modules = (config as any)?.config?.frontpage?.modulos || {};
     const availableItems = defaultNavItems.filter(item => 
       item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
@@ -252,7 +253,7 @@ export default function AdminNavbarConfig() {
       newItems.forEach(item => {
         createMutation.mutate(item);
       });
-
+      
       setItems([...items, ...newItems]);
       toast({ 
         title: "Módulos actualizados", 
@@ -316,95 +317,77 @@ export default function AdminNavbarConfig() {
                   Arrastra para reordenar. Los elementos marcados como requeridos no se pueden eliminar.
                 </p>
               </CardHeader>
-              <CardContent className="min-h-[200px]">
-                {items.length === 0 ? (
-                  <div className="flex items-center justify-center py-8 text-gray-500">
-                    <p>No hay elementos configurados. Usa "Actualizar desde Módulos" para cargar los elementos.</p>
-                  </div>
-                ) : (
-                  <DragDropContext onDragEnd={handleDragEnd}>
-                    <Droppable droppableId="navbar-items">
-                      {(provided, snapshot) => (
-                        <div 
-                          {...provided.droppableProps} 
-                          ref={provided.innerRef} 
-                          className={`space-y-2 min-h-[100px] transition-colors ${
-                            snapshot.isDraggingOver ? "bg-gray-50 border-dashed border-2 border-primary rounded-lg p-2" : ""
-                          }`}
-                        >
-                          {items.map((item, index) => (
-                            <Draggable key={item.id} draggableId={item.id} index={index}>
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={`flex items-center justify-between p-4 border rounded-lg bg-white transition-all ${
-                                    snapshot.isDragging ? "shadow-lg border-primary rotate-1 scale-105" : "border-gray-200 hover:border-gray-300"
-                                  }`}
-                                  style={{
-                                    ...provided.draggableProps.style,
-                                    transform: snapshot.isDragging 
-                                      ? `${provided.draggableProps.style?.transform} rotate(1deg)` 
-                                      : provided.draggableProps.style?.transform,
-                                  }}
-                                >
-                                  <div className="flex items-center space-x-3">
-                                    <div {...provided.dragHandleProps}>
-                                      <GripVertical className="h-5 w-5 text-gray-400 cursor-grab" />
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                      {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
-                                      <span className="font-medium">{item.label}</span>
-                                    </div>
-                                    <Badge variant="outline" className="text-xs">
-                                      {item.href}
-                                    </Badge>
-                                    {item.isRequired && (
-                                      <Badge variant="secondary" className="text-xs">
-                                        Requerido
-                                      </Badge>
-                                    )}
+              <CardContent>
+                <DragDropContext onDragEnd={handleDragEnd}>
+                  <Droppable droppableId="navbar-items">
+                    {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                        {items.map((item, index) => (
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`flex items-center justify-between p-4 border rounded-lg bg-white ${
+                                  snapshot.isDragging ? "shadow-lg border-primary" : "border-gray-200"
+                                }`}
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <div {...provided.dragHandleProps}>
+                                    <GripVertical className="h-5 w-5 text-gray-400 cursor-grab" />
                                   </div>
-
                                   <div className="flex items-center space-x-2">
-                                    <Switch
-                                      checked={item.isVisible}
-                                      onCheckedChange={(checked) => handleToggleVisibility(item.id, checked)}
-                                      disabled={item.isRequired}
-                                    />
+                                    {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
+                                    <span className="font-medium">{item.label}</span>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs">
+                                    {item.href}
+                                  </Badge>
+                                  {item.isRequired && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Requerido
+                                    </Badge>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    checked={item.isVisible}
+                                    onCheckedChange={(checked) => handleToggleVisibility(item.id, checked)}
+                                    disabled={item.isRequired}
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleToggleVisibility(item.id, !item.isVisible)}
+                                    disabled={item.isRequired}
+                                  >
+                                    {item.isVisible ? (
+                                      <Eye className="h-4 w-4" />
+                                    ) : (
+                                      <EyeOff className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                  {!item.isRequired && (
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      onClick={() => handleToggleVisibility(item.id, !item.isVisible)}
-                                      disabled={item.isRequired}
+                                      onClick={() => handleDeleteItem(item.id)}
+                                      className="text-red-600 hover:text-red-700"
                                     >
-                                      {item.isVisible ? (
-                                        <Eye className="h-4 w-4" />
-                                      ) : (
-                                        <EyeOff className="h-4 w-4" />
-                                      )}
+                                      <Trash2 className="h-4 w-4" />
                                     </Button>
-                                    {!item.isRequired && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleDeleteItem(item.id)}
-                                        className="text-red-600 hover:text-red-700"
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    )}
-                                  </div>
+                                  )}
                                 </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
-                )}
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
               </CardContent>
             </Card>
           </div>
@@ -423,7 +406,7 @@ export default function AdminNavbarConfig() {
                   const isActive = item.isRequired || 
                     (item.moduleKey && (config as any)?.config?.frontpage?.modulos?.[item.moduleKey]?.activo);
                   const isInNavbar = items.some(navItem => navItem.moduleKey === item.moduleKey);
-
+                  
                   return (
                     <div key={item.moduleKey} className="flex items-center justify-between p-2 border rounded">
                       <div className="flex items-center space-x-2">
