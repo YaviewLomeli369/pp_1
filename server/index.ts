@@ -96,6 +96,9 @@ app.use((req, res, next) => {
 
   // 1) Serve static files from the uploads folder (with optimized cache headers)
   app.use('/uploads', express.static(UPLOADS_DIR, {
+    maxAge: '1y', // 1 year cache
+    etag: false, // Disable ETag generation
+    lastModified: false, // Disable Last-Modified
     setHeaders: (res, filePath) => {
       const ext = path.extname(filePath).toLowerCase();
       const contentTypes: { [key: string]: string } = {
@@ -112,10 +115,8 @@ app.use((req, res, next) => {
       const contentType = contentTypes[ext] || 'application/octet-stream';
       res.setHeader('Content-Type', contentType);
       
-      // Improved cache headers
+      // Aggressive cache headers for better performance
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year for images
-      res.setHeader('ETag', `W/"${Date.now()}"`);
-      res.setHeader('Last-Modified', new Date().toUTCString());
       res.setHeader('Access-Control-Allow-Origin', '*');
     }
   }));
@@ -156,7 +157,7 @@ app.use((req, res, next) => {
         };
         const contentType = contentTypes[ext] || 'application/octet-stream';
         res.setHeader('Content-Type', contentType);
-        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year cache
         res.setHeader('Access-Control-Allow-Origin', '*');
 
         return res.sendFile(filePath);
@@ -198,7 +199,7 @@ app.use((req, res, next) => {
       };
       const contentType = contentTypes[ext] || 'application/octet-stream';
       res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year cache
       res.setHeader('Access-Control-Allow-Origin', '*');
 
       return res.sendFile(filePath);

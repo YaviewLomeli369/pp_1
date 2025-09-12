@@ -21,5 +21,8 @@ Disallow: /profile
 Disallow: /checkout
 Disallow: /api
 
-# Sitemap (cuando esté disponible)
-# Sitemap: https://tusitio.com/sitemap.xml
+# Sitemap
+Sitemap: /sitemap.xml
+
+# Crawl-delay for better performance
+Crawl-delay: 1

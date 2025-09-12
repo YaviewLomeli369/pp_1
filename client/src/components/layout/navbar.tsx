@@ -46,22 +46,30 @@ export function Navbar() {
 
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    gcTime: 60 * 60 * 1000, // 1 hour
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: false,
   });
 
   const { data: navbarConfig } = useQuery({
     queryKey: ["/api/navbar-config"],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    gcTime: 60 * 60 * 1000, // 1 hour
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: false,
   });
 
   // Products query for cart functionality
   const { data: products } = useQuery({
     queryKey: ["/api/store/products"],
-    staleTime: 2 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnWindowFocus: false,
-    retry: 1,
+    refetchOnMount: false,
+    retry: false,
   });
 
   // Cart state - using localStorage like store.tsx
@@ -147,7 +155,7 @@ export function Navbar() {
     }
   }, [products, cartLoaded, loadCartFromStorage, saveCartToStorage]);
 
-  // Periodic cart sync to ensure data consistency
+  // Periodic cart sync to ensure data consistency - reduced frequency
   useEffect(() => {
     if (!cartLoaded || !products) return;
 
@@ -171,7 +179,7 @@ export function Navbar() {
           setCart([]);
         }
       }
-    }, 1000); // Check every second
+    }, 5000); // Check every 5 seconds instead of 1
 
     return () => clearInterval(syncInterval);
   }, [cart, cartLoaded, products, loadCartFromStorage]);
