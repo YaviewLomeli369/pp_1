@@ -70,6 +70,10 @@ function CheckoutForm({ cartItems, customerInfo, shippingAddress, paymentIntentI
           localStorage.removeItem('checkout-info');
           localStorage.removeItem('shopping-cart'); // Clear the main cart
 
+          // Invalidate queries to refresh product data
+          queryClient.invalidateQueries({ queryKey: ["/api/store/products"] });
+          queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] });
+
           // Dispatch event to notify other components
           window.dispatchEvent(new CustomEvent('checkoutComplete'));
 
