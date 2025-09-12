@@ -167,16 +167,8 @@ function PagesContent() {
 
   const updateConfigMutation = useMutation({
     mutationFn: async (updates: any) => {
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
       return apiRequest("/api/config", {
         method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(updates),
       });
     },
@@ -268,7 +260,7 @@ function PagesContent() {
       }
     }
 
-    updateConfigMutation.mutate(newConfig);
+    updateConfigMutation.mutate({ config: newConfig });
   };
 
   return (
