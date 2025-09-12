@@ -61,7 +61,7 @@ class MockDatabaseStorage implements IStorage {
     if (!db) return [];
     return await db.select().from(schema.visualCustomizations)
       .where(eq(schema.visualCustomizations.pageId, pageId));
-  },
+  }
 
   async saveVisualCustomization(data: Partial<InsertVisualCustomization>): Promise<VisualCustomization | null> {
     if (!db) return null;
@@ -69,7 +69,7 @@ class MockDatabaseStorage implements IStorage {
       .values(data as InsertVisualCustomization)
       .returning();
     return customization;
-  },
+  }
 
   async updateVisualCustomization(id: string, data: Partial<InsertVisualCustomization>): Promise<VisualCustomization | null> {
     if (!db) return null;
@@ -78,21 +78,21 @@ class MockDatabaseStorage implements IStorage {
       .where(eq(schema.visualCustomizations.id, id))
       .returning();
     return customization;
-  },
+  }
 
   async deleteVisualCustomization(id: string): Promise<boolean> {
     if (!db) return false;
     const result = await db.delete(schema.visualCustomizations)
       .where(eq(schema.visualCustomizations.id, id));
     return result.rowCount > 0;
-  },
+  }
 
   // Page Contents
   async getAllPageContents(): Promise<PageContent[]> {
     if (!db) return [];
     return await db.select().from(schema.pageContents)
       .orderBy(asc(schema.pageContents.pageId), asc(schema.pageContents.order));
-  },
+  }
 
   async getPageContents(pageId: string): Promise<PageContent[]> {
     if (!db) return [];
@@ -102,14 +102,14 @@ class MockDatabaseStorage implements IStorage {
         eq(schema.pageContents.isActive, true)
       ))
       .orderBy(asc(schema.pageContents.order));
-  },
+  }
 
   async getPageContent(id: string): Promise<PageContent | null> {
     if (!db) return null;
     const [content] = await db.select().from(schema.pageContents)
       .where(eq(schema.pageContents.id, id));
     return content || null;
-  },
+  }
 
   async createPageContent(data: InsertPageContent): Promise<PageContent> {
     if (!db) throw new Error("Database not available");
@@ -117,7 +117,7 @@ class MockDatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return content;
-  },
+  }
 
   async updatePageContent(id: string, data: Partial<PageContent>): Promise<PageContent | null> {
     if (!db) return null;
@@ -126,14 +126,14 @@ class MockDatabaseStorage implements IStorage {
       .where(eq(schema.pageContents.id, id))
       .returning();
     return content;
-  },
+  }
 
   async deletePageContent(id: string): Promise<boolean> {
     if (!db) return false;
     const result = await db.delete(schema.pageContents)
       .where(eq(schema.pageContents.id, id));
     return result.rowCount > 0;
-  },
+  }
 
   // Existing methods from DatabaseStorage (assuming they are present and need to be kept)
   async getInventoryMovements(): Promise<any[]> {
