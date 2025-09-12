@@ -199,18 +199,6 @@ export function Navbar() {
     }
   }, [cart, handleNavigation, toast]);
 
-  const navItems = [
-    { href: "/", label: "Inicio", always: true },
-    { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios" },
-    { href: "/faqs", label: "FAQs", moduleKey: "faqs" },
-    { href: "/contact", label: "Contacto", moduleKey: "contacto" },
-    { href: "/store", label: "Tienda", moduleKey: "tienda" },
-    { href: "/blog", label: "Blog", moduleKey: "blog" },
-    { href: "/reservations", label: "Reservas", moduleKey: "reservas" },
-    { href: "/conocenos", label: "Conócenos", always: true },
-    { href: "/servicios", label: "Servicios", always: true }
-  ].filter(item => item.always || (item.moduleKey && modules[item.moduleKey]?.activo));
-
   const handleNavigation = useCallback((href: string) => {
     if (isNavigatingRef.current) return;
 
@@ -231,6 +219,18 @@ export function Navbar() {
       isNavigatingRef.current = false;
     }, 300);
   }, [location, setLocation]);
+
+  const navItems = [
+    { href: "/", label: "Inicio", always: true },
+    { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios" },
+    { href: "/faqs", label: "FAQs", moduleKey: "faqs" },
+    { href: "/contact", label: "Contacto", moduleKey: "contacto" },
+    { href: "/store", label: "Tienda", moduleKey: "tienda" },
+    { href: "/blog", label: "Blog", moduleKey: "blog" },
+    { href: "/reservations", label: "Reservas", moduleKey: "reservas" },
+    { href: "/conocenos", label: "Conócenos", always: true },
+    { href: "/servicios", label: "Servicios", always: true }
+  ].filter(item => item.always || (item.moduleKey && modules[item.moduleKey]?.activo));
 
   useEffect(() => {
     const handleResize = () => {
