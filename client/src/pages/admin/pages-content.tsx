@@ -287,8 +287,8 @@ function PagesContent() {
 
     if (!previewElement || !priceInput) return;
 
-    const currentPrice = parseInt(priceInput.value) || 0;
-    const originalPrice = parseInt(originalPriceInput?.value || '0');
+    const currentPrice = parseFloat(priceInput.value) || 0;
+    const originalPrice = parseFloat(originalPriceInput?.value || '0');
     const discountPercentage = parseInt(discountInput?.value || '0');
     const isPromotion = isPromotionSwitch?.checked;
 
@@ -300,16 +300,16 @@ function PagesContent() {
     if (isPromotion && originalPrice > 0) {
       previewElement.innerHTML = `
         <div>
-          <span class="text-red-500 line-through mr-2 text-lg">$${originalPrice.toLocaleString()} MXN</span>
+          <span class="text-red-500 line-through mr-2 text-lg">$${originalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span>
           <br />
-          <span class="text-2xl font-bold text-blue-600">$${currentPrice.toLocaleString()} MXN</span>
+          <span class="text-2xl font-bold text-blue-600">$${currentPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span>
           ${discountPercentage > 0 ? `<span class="text-green-600 font-semibold ml-2">(${discountPercentage}% OFF)</span>` : ''}
         </div>
       `;
     } else {
       previewElement.innerHTML = `
         <div class="text-2xl font-bold text-blue-600">
-          $${currentPrice.toLocaleString()} MXN
+          $${currentPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
         </div>
       `;
     }
@@ -345,14 +345,8 @@ function PagesContent() {
       const discountPercentage = parseInt(formData.get("discountPercentage") as string) || 0;
       const isPromotion = formData.get("isPromotion") === "on";
 
-      // Calculate final price based on discount percentage if provided
-      let finalPrice = price;
-      if (isPromotion && originalPrice > 0 && discountPercentage > 0) {
-        finalPrice = Math.round(originalPrice * (1 - discountPercentage / 100));
-      }
-
       metadata = {
-        price: finalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        price: price.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         originalPrice: originalPrice > 0 ? originalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "",
         discountPercentage: discountPercentage,
         isPromotion: isPromotion,
@@ -1107,21 +1101,7 @@ function PagesContent() {
                           defaultValue={selectedContent?.metadata?.price?.replace(' MXN', '') || ''}
                           placeholder="9,499"
                           required
-                          onChange={(e) => {
-                            const currentPrice = parseInt(e.target.value) || 0;
-                            const discountPercentage = parseInt((document.getElementById('discountPercentage') as HTMLInputElement)?.value || '0');
-                            const isPromotion = (document.getElementById('isPromotion') as HTMLInputElement)?.checked;
-
-                            if (isPromotion && discountPercentage > 0 && currentPrice > 0) {
-                              // Calculate original price from current price and discount
-                              const originalPrice = Math.round(currentPrice / (1 - discountPercentage / 100));
-                              const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
-                              if (originalPriceInput) {
-                                originalPriceInput.value = originalPrice.toString();
-                              }
-                            }
-                            updatePricePreview();
-                          }}
+                          onChange={() => updatePricePreview()}
                         />
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1170,20 +1150,7 @@ function PagesContent() {
                             defaultValue={selectedContent?.metadata?.discountPercentage || ''}
                             placeholder="15"
                             disabled={!selectedContent?.metadata?.isPromotion}
-                            onChange={(e) => {
-                              const discount = parseInt(e.target.value) || 0;
-                              const currentPrice = parseInt((document.getElementById('price') as HTMLInputElement)?.value || '0');
-
-                              if (currentPrice > 0 && discount > 0) {
-                                // Calculate original price from current price and discount
-                                const originalPrice = Math.round(currentPrice / (1 - discount / 100));
-                                const originalPriceInput = document.getElementById('originalPrice') as HTMLInputElement;
-                                if (originalPriceInput) {
-                                  originalPriceInput.value = originalPrice.toString();
-                                }
-                              }
-                              updatePricePreview();
-                            }}
+                            onChange={() => updatePricePreview()}
                           />
                         </div>
                       </div>
