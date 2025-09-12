@@ -67,6 +67,10 @@ function CheckoutForm({ cartItems, customerInfo, shippingAddress, paymentIntentI
           // Clear cart and checkout info
           localStorage.removeItem('checkoutItems');
           localStorage.removeItem('checkout-info');
+          localStorage.removeItem('shopping-cart'); // Clear the main cart
+          
+          // Dispatch event to notify other components
+          window.dispatchEvent(new CustomEvent('checkoutComplete'));
           
           toast({
             title: "¡Pago exitoso!",

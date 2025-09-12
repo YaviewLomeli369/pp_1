@@ -243,14 +243,43 @@ export function Navbar() {
       setIsScrolled(window.scrollY > 50);
     };
 
+    // Listen for storage changes to sync cart across tabs/components
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'shopping-cart') {
+        if (e.newValue === null || e.newValue === '[]') {
+          // Cart was cleared
+          setCart([]);
+        } else {
+          try {
+            const newCart = JSON.parse(e.newValue);
+            if (Array.isArray(newCart)) {
+              setCart(newCart);
+            }
+          } catch (error) {
+            console.warn('Error parsing cart from storage:', error);
+          }
+        }
+      }
+    };
+
+    // Listen for checkout completion event
+    const handleCheckoutComplete = () => {
+      setCart([]);
+      saveCartToStorage([]);
+    };
+
     window.addEventListener("resize", handleResize);
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("checkoutComplete", handleCheckoutComplete);
 
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("checkoutComplete", handleCheckoutComplete);
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, saveCartToStorage]);
 
   const NavLink = useCallback(({ href, children, className, onClick }: {
     href: string;
