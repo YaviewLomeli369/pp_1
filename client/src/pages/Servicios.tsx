@@ -10,7 +10,7 @@ import { Link } from "wouter";
 import { Rocket, Users, Target, Check, Star } from "lucide-react";
 import type { SiteConfig } from "@shared/schema";
 import AnimatedSection from "@/components/AnimatedSection";
-
+import { Badge } from "@/components/ui/badge";
 
 
 const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
@@ -28,17 +28,20 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
                           plan.discountPercentage > 0;
 
   // Calculate prices
-  const currentPriceNum = parseInt(plan.price.replace(/\D/g, "")) || 0;
-  const originalPriceNum = plan.originalPrice ? parseInt(plan.originalPrice.replace(/\D/g, "")) : 0;
-  
+  // Remove currency symbols and thousand separators, then parse to integer
+  const currentPriceNum = parseInt(plan.price.replace(/[^0-9]/g, "")) || 0;
+  const originalPriceNum = plan.originalPrice ? parseInt(plan.originalPrice.replace(/[^0-9]/g, "")) : 0;
+
   // For promotions, show the calculated discounted price, otherwise show the current price
+  // Format the price using Mexican locale
   const displayPrice = isValidPromotion && originalPriceNum > 0
-    ? (originalPriceNum * (1 - plan.discountPercentage / 100)).toLocaleString()
-    : currentPriceNum.toLocaleString();
+    ? (originalPriceNum * (1 - plan.discountPercentage / 100)).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : currentPriceNum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   // Show original price (crossed out) only if it's a valid promotion
+  // Format the original price using Mexican locale
   const displayOriginalPrice = isValidPromotion && originalPriceNum > 0
-    ? originalPriceNum.toLocaleString()
+    ? originalPriceNum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : null;
 
   return (
