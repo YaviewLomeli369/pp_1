@@ -595,56 +595,91 @@ function PagesContent() {
                       <CardTitle>Equipo</CardTitle>
                       <CardDescription>Miembros del equipo</CardDescription>
                     </div>
-                    <Button onClick={() => {
-                      setSelectedContent({
-                        id: crypto.randomUUID(), // Generate a unique ID for new members
-                        title: "",
-                        content: "",
-                        type: "team",
-                        metadata: { position: "", phone: "", email: "", image: "" }
-                      });
-                      setShowContentForm(true);
-                    }}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Agregar Miembro
-                    </Button>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="team-visibility"
+                          checked={pagesContent.conocenos.teamVisible !== false}
+                          onCheckedChange={(checked) => {
+                            const currentConfig = config?.config as any;
+                            const newConfig = {
+                              ...currentConfig,
+                              pagesContent: {
+                                ...currentConfig?.pagesContent,
+                                conocenos: {
+                                  ...pagesContent.conocenos,
+                                  teamVisible: checked
+                                }
+                              }
+                            };
+                            updateConfigMutation.mutate({ config: newConfig });
+                          }}
+                        />
+                        <Label htmlFor="team-visibility" className="text-sm">
+                          Mostrar sección
+                        </Label>
+                      </div>
+                      <Button 
+                        onClick={() => {
+                          setSelectedContent({
+                            id: crypto.randomUUID(), // Generate a unique ID for new members
+                            title: "",
+                            content: "",
+                            type: "team",
+                            metadata: { position: "", phone: "", email: "", image: "" }
+                          });
+                          setShowContentForm(true);
+                        }}
+                        disabled={pagesContent.conocenos.teamVisible === false}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar Miembro
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4">
-                    {pagesContent.conocenos.team?.map((member: any) => (
-                      <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium">{member.name} - {member.position}</h4>
-                          <p className="text-sm text-gray-600">{member.quote}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedContent({
-                                id: member.id,
-                                title: member.name,
-                                content: member.quote,
-                                type: "team",
-                                metadata: { position: member.position, phone: member.phone, email: member.email, image: member.image }
-                              });
-                              setShowContentForm(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDeleteTeamMember(member.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                    {pagesContent.conocenos.teamVisible === false ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>La sección del equipo está deshabilitada</p>
+                        <p className="text-sm">Active la sección para gestionar miembros del equipo</p>
                       </div>
-                    ))}
+                    ) : (
+                      pagesContent.conocenos.team?.map((member: any) => (
+                        <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">{member.name} - {member.position}</h4>
+                            <p className="text-sm text-gray-600">{member.quote}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedContent({
+                                  id: member.id,
+                                  title: member.name,
+                                  content: member.quote,
+                                  type: "team",
+                                  metadata: { position: member.position, phone: member.phone, email: member.email, image: member.image }
+                                });
+                                setShowContentForm(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteTeamMember(member.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>

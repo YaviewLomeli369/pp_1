@@ -350,92 +350,94 @@ function Conocenos() {
         </section>
       </AnimatedSection>
 
-      {/* Equipo */}
-      <AnimatedSection delay={0.5}>
-        <section className="py-20 bg-white">
-          <div className="max-w-5xl mx-auto px-6 text-center">
-            <h2 className="text-4xl font-extrabold mb-6 text-gray-800">Nuestro Equipo</h2>
-            <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Detrás de cada proyecto hay personas apasionadas, listas para ayudarte a crecer.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
-              {pagesContent.team?.map((member: any, i: number) => (
-                <AnimatedSection key={member.id} delay={0.6 + (i * 0.1)}>
-                  <Card className="group relative overflow-hidden rounded-3xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
-                    <CardContent className="p-8 text-center">
-                      <div className="relative w-32 h-32 mx-auto mb-6">
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 p-1">
-                          <img
-                            src={member.image}
-                            alt="Miembro del equipo"
-                            className="rounded-full object-cover w-full h-full border-4 border-white shadow-md"
-                            loading="lazy"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).style.display = "none";
-                            }}
-                          />
-                          <div className="flex items-center justify-center w-full h-full rounded-full bg-white">
-                            <User className="h-16 w-16 text-gray-400" />
+      {/* Equipo - Solo mostrar si teamVisible no es false */}
+      {pagesContent.teamVisible !== false && (
+        <AnimatedSection delay={0.5}>
+          <section className="py-20 bg-white">
+            <div className="max-w-5xl mx-auto px-6 text-center">
+              <h2 className="text-4xl font-extrabold mb-6 text-gray-800">Nuestro Equipo</h2>
+              <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+                Detrás de cada proyecto hay personas apasionadas, listas para ayudarte a crecer.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+                {pagesContent.team?.map((member: any, i: number) => (
+                  <AnimatedSection key={member.id} delay={0.6 + (i * 0.1)}>
+                    <Card className="group relative overflow-hidden rounded-3xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
+                      <CardContent className="p-8 text-center">
+                        <div className="relative w-32 h-32 mx-auto mb-6">
+                          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 p-1">
+                            <img
+                              src={member.image}
+                              alt="Miembro del equipo"
+                              className="rounded-full object-cover w-full h-full border-4 border-white shadow-md"
+                              loading="lazy"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                              }}
+                            />
+                            <div className="flex items-center justify-center w-full h-full rounded-full bg-white">
+                              <User className="h-16 w-16 text-gray-400" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      {isSuperuser ? (
-                        <InlineEditor
-                          value={member.name}
-                          onSave={(newValue) => updateTeamMemberName(member.id, newValue)}
-                          tag="h4"
-                          className="font-semibold text-xl text-gray-800"
-                        />
-                      ) : (
-                        <h4 className="font-semibold text-xl text-gray-800">{member.name}</h4>
-                      )}
-                      {isSuperuser ? (
-                        <InlineEditor
-                          value={member.position}
-                          onSave={(newValue) => updateTeamMemberPosition(member.id, newValue)}
-                          tag="p"
-                          className="text-sm text-gray-500 mb-4"
-                        />
-                      ) : (
-                        <p className="text-sm text-gray-500 mb-4">{member.position}</p>
-                      )}
-                      <div className="italic text-gray-600 mb-4 flex items-center justify-center gap-2">
-                        <Quote className="h-4 w-4 text-blue-500" />
                         {isSuperuser ? (
                           <InlineEditor
-                            value={member.quote}
-                            onSave={(newValue) => updateTeamMemberQuote(member.id, newValue)}
-                            tag="span"
-                            className="italic"
+                            value={member.name}
+                            onSave={(newValue) => updateTeamMemberName(member.id, newValue)}
+                            tag="h4"
+                            className="font-semibold text-xl text-gray-800"
                           />
                         ) : (
-                          <span>"{member.quote}"</span>
+                          <h4 className="font-semibold text-xl text-gray-800">{member.name}</h4>
                         )}
-                      </div>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        {member.phone && (
+                        {isSuperuser ? (
+                          <InlineEditor
+                            value={member.position}
+                            onSave={(newValue) => updateTeamMemberPosition(member.id, newValue)}
+                            tag="p"
+                            className="text-sm text-gray-500 mb-4"
+                          />
+                        ) : (
+                          <p className="text-sm text-gray-500 mb-4">{member.position}</p>
+                        )}
+                        <div className="italic text-gray-600 mb-4 flex items-center justify-center gap-2">
+                          <Quote className="h-4 w-4 text-blue-500" />
+                          {isSuperuser ? (
+                            <InlineEditor
+                              value={member.quote}
+                              onSave={(newValue) => updateTeamMemberQuote(member.id, newValue)}
+                              tag="span"
+                              className="italic"
+                            />
+                          ) : (
+                            <span>"{member.quote}"</span>
+                          )}
+                        </div>
+                        <div className="space-y-2 text-sm text-gray-600">
+                          {member.phone && (
+                            <div className="flex items-center justify-center gap-2">
+                              <Phone className="h-4 w-4 text-green-600" />
+                              <a href={`tel:${member.phone}`} className="hover:underline">
+                                {member.phone}
+                              </a>
+                            </div>
+                          )}
                           <div className="flex items-center justify-center gap-2">
-                            <Phone className="h-4 w-4 text-green-600" />
-                            <a href={`tel:${member.phone}`} className="hover:underline">
-                              {member.phone}
+                            <Mail className="h-4 w-4 text-blue-600" />
+                            <a href={`mailto:${member.email}`} className="hover:underline">
+                              {member.email}
                             </a>
                           </div>
-                        )}
-                        <div className="flex items-center justify-center gap-2">
-                          <Mail className="h-4 w-4 text-blue-600" />
-                          <a href={`mailto:${member.email}`} className="hover:underline">
-                            {member.email}
-                          </a>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </AnimatedSection>
-              ))}
+                      </CardContent>
+                    </Card>
+                  </AnimatedSection>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      </AnimatedSection>
+          </section>
+        </AnimatedSection>
+      )}
 
       <Footer />
     </div>
