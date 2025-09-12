@@ -55,6 +55,14 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
+  // Products query for cart functionality
+  const { data: products } = useQuery({
+    queryKey: ["/api/store/products"],
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
   // Cart mutations
   const updateCartMutation = useMutation({
     mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
@@ -324,8 +332,22 @@ export function Navbar() {
                                 <Button 
                                   variant="outline" 
                                   size="sm"
-                                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                                  disabled={updateCartMutation.isPending}
+                                  onClick={() => {
+                                    const product = products?.find(p => p.id === item.product.id);
+                                    if (product?.stock !== null && item.quantity >= product.stock) {
+                                      toast({
+                                        title: "Stock insuficiente",
+                                        description: `Solo hay ${product.stock} unidades disponibles`,
+                                        variant: "destructive"
+                                      });
+                                      return;
+                                    }
+                                    updateCartQuantity(item.id, item.quantity + 1);
+                                  }}
+                                  disabled={updateCartMutation.isPending || (() => {
+                                    const product = products?.find(p => p.id === item.product.id);
+                                    return product?.stock !== null && item.quantity >= product.stock;
+                                  })()}
                                 >
                                   <Plus className="h-3 w-3" />
                                 </Button>
