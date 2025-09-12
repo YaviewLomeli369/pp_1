@@ -14,6 +14,7 @@ import {
   MessageSquare,
   FileText,
   Settings,
+  Settings,
   Menu,
   X,
   CreditCard,
