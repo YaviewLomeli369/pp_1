@@ -81,14 +81,24 @@ export default function AdminNavbarConfig() {
     isVisible: true,
   });
 
+  const { data: config } = useQuery({
+    queryKey: ["/api/config"],
+    staleTime: 5 * 60 * 1000,
+  });
+
   const { data: navbarConfig, isLoading } = useQuery({
     queryKey: ["/api/navbar-config"],
     onSuccess: (data: NavbarConfig[]) => {
       if (data && data.length > 0) {
         setItems(data);
-      } else {
-        // Initialize with default items if no config exists
-        const defaultItems = defaultNavItems.map((item, index) => ({
+      } else if (config) {
+        // Initialize with items based on active modules
+        const modules = (config as any)?.config?.frontpage?.modulos || {};
+        const availableItems = defaultNavItems.filter(item => 
+          item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
+        );
+        
+        const defaultItems = availableItems.map((item, index) => ({
           id: `default-${item.moduleKey}`,
           moduleKey: item.moduleKey,
           label: item.label,
@@ -216,6 +226,47 @@ export default function AdminNavbarConfig() {
     }
   };
 
+  const handleRefreshFromModules = () => {
+    if (!config) return;
+    
+    const modules = (config as any)?.config?.frontpage?.modulos || {};
+    const availableItems = defaultNavItems.filter(item => 
+      item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
+    );
+
+    // Keep existing items that are still valid, add new ones
+    const existingModuleKeys = new Set(items.map(item => item.moduleKey));
+    const newItems = availableItems
+      .filter(item => !existingModuleKeys.has(item.moduleKey))
+      .map((item, index) => ({
+        id: `new-${item.moduleKey}-${Date.now()}`,
+        moduleKey: item.moduleKey,
+        label: item.label,
+        href: item.href,
+        isVisible: true,
+        order: items.length + index,
+        isRequired: item.isRequired,
+      }));
+
+    if (newItems.length > 0) {
+      // Create the new items in database
+      newItems.forEach(item => {
+        createMutation.mutate(item);
+      });
+      
+      setItems([...items, ...newItems]);
+      toast({ 
+        title: "Módulos actualizados", 
+        description: `Se agregaron ${newItems.length} nuevos elementos del navbar` 
+      });
+    } else {
+      toast({ 
+        title: "Sin cambios", 
+        description: "No hay nuevos módulos activos para agregar" 
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -237,13 +288,23 @@ export default function AdminNavbarConfig() {
               Configuración del Navbar
             </h1>
             <p className="text-gray-600 mt-1">
-              Gestiona el orden y visibilidad de los elementos en la barra de navegación
+              Gestiona el orden y visibilidad de los elementos en la barra de navegación basados en módulos activos
             </p>
           </div>
-          <Button onClick={handleSaveOrder} disabled={reorderMutation.isLoading}>
-            <Save className="mr-2 h-4 w-4" />
-            Guardar Orden
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleRefreshFromModules}
+              disabled={!config}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Actualizar desde Módulos
+            </Button>
+            <Button onClick={handleSaveOrder} disabled={reorderMutation.isLoading}>
+              <Save className="mr-2 h-4 w-4" />
+              Guardar Orden
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -331,59 +392,43 @@ export default function AdminNavbarConfig() {
             </Card>
           </div>
 
-          {/* Add New Item */}
+          {/* Module Status */}
           <div>
             <Card>
               <CardHeader>
-                <CardTitle>Agregar Nuevo Elemento</CardTitle>
+                <CardTitle>Estado de Módulos</CardTitle>
+                <p className="text-sm text-gray-600">
+                  Solo se pueden agregar elementos de módulos activos
+                </p>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="moduleKey">Clave del Módulo</Label>
-                  <Input
-                    id="moduleKey"
-                    value={newItem.moduleKey}
-                    onChange={(e) => setNewItem({ ...newItem, moduleKey: e.target.value })}
-                    placeholder="ej: mi-modulo"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="label">Etiqueta</Label>
-                  <Input
-                    id="label"
-                    value={newItem.label}
-                    onChange={(e) => setNewItem({ ...newItem, label: e.target.value })}
-                    placeholder="ej: Mi Módulo"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="href">Enlace</Label>
-                  <Input
-                    id="href"
-                    value={newItem.href}
-                    onChange={(e) => setNewItem({ ...newItem, href: e.target.value })}
-                    placeholder="ej: /mi-modulo"
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={newItem.isVisible}
-                    onCheckedChange={(checked) => setNewItem({ ...newItem, isVisible: checked })}
-                  />
-                  <Label>Visible</Label>
-                </div>
-
-                <Button 
-                  onClick={handleAddItem} 
-                  className="w-full"
-                  disabled={createMutation.isLoading}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Agregar Elemento
-                </Button>
+              <CardContent className="space-y-3">
+                {defaultNavItems.map((item) => {
+                  const isActive = item.isRequired || 
+                    (item.moduleKey && (config as any)?.config?.frontpage?.modulos?.[item.moduleKey]?.activo);
+                  const isInNavbar = items.some(navItem => navItem.moduleKey === item.moduleKey);
+                  
+                  return (
+                    <div key={item.moduleKey} className="flex items-center justify-between p-2 border rounded">
+                      <div className="flex items-center space-x-2">
+                        {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
+                        <span className="text-sm font-medium">{item.label}</span>
+                        {item.isRequired && (
+                          <Badge variant="secondary" className="text-xs">Requerido</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {isActive ? (
+                          <Badge variant="default" className="text-xs">Activo</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">Inactivo</Badge>
+                        )}
+                        {isInNavbar && (
+                          <Badge variant="outline" className="text-xs">En Navbar</Badge>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
 
@@ -393,10 +438,11 @@ export default function AdminNavbarConfig() {
                 <CardTitle className="text-lg">Instrucciones</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-gray-600">
-                <p>• Arrastra los elementos para cambiar el orden</p>
-                <p>• Usa el switch para mostrar/ocultar elementos</p>
-                <p>• Los elementos "Requeridos" no se pueden eliminar</p>
-                <p>• Guarda el orden cuando termines de reorganizar</p>
+                <p>• <strong>Actualizar desde Módulos:</strong> Agrega automáticamente elementos basados en módulos activos</p>
+                <p>• <strong>Arrastrar:</strong> Cambia el orden de los elementos</p>
+                <p>• <strong>Switch:</strong> Muestra/oculta elementos en el navbar público</p>
+                <p>• <strong>Elementos Requeridos:</strong> "Inicio", "Conócenos" y "Servicios" siempre están presentes</p>
+                <p>• <strong>Guardar Orden:</strong> Confirma los cambios de posición</p>
                 <p>• Los cambios se reflejan inmediatamente en el navbar público</p>
               </CardContent>
             </Card>
