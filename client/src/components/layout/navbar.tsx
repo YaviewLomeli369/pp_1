@@ -22,8 +22,13 @@ import {
 } from "@/components/ui/sheet";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ShoppingCart, User, LogOut, Settings, Menu } from "lucide-react";
+import { ShoppingCart, User, LogOut, Settings, Menu, Plus, Minus, X } from "lucide-react";
 import { useState, useCallback, useRef, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const [location, setLocation] = useLocation();
@@ -31,8 +36,11 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 1075);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const navRef = useRef(`navbar-${Date.now()}`);
   const isNavigatingRef = useRef(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
@@ -40,9 +48,97 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
+  // Cart queries
+  const { data: cart = [] } = useQuery({
+    queryKey: ["/api/store/cart"],
+    refetchOnWindowFocus: false,
+  });
+
+  // Cart mutations
+  const updateCartMutation = useMutation({
+    mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
+      return apiRequest(`/api/store/cart/${id}`, {
+        method: "PUT",
+        body: { quantity }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/store/cart"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el carrito",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const removeFromCartMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest(`/api/store/cart/${id}`, {
+        method: "DELETE"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/store/cart"] });
+      toast({
+        title: "Producto eliminado",
+        description: "El producto se eliminó del carrito"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el producto",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const clearCartMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("/api/store/cart/clear", {
+        method: "DELETE"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/store/cart"] });
+      toast({
+        title: "Carrito vaciado",
+        description: "Todos los productos fueron eliminados del carrito"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "No se pudo vaciar el carrito",
+        variant: "destructive"
+      });
+    }
+  });
+
   const configData = config?.config as any;
   const modules = configData?.frontpage?.modulos || {};
   const appearance = configData?.appearance || {};
+
+  // Cart helper functions
+  const cartTotal = cart.reduce((sum: number, item: any) => sum + ((item.product.price / 100) * item.quantity), 0);
+  const cartItemCount = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
+
+  const updateCartQuantity = (id: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCartMutation.mutate(id);
+    } else {
+      updateCartMutation.mutate({ id, quantity });
+    }
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    setIsCartOpen(false);
+    handleNavigation('/checkout');
+  };
 
   const navItems = [
     { href: "/", label: "Inicio", always: true },
@@ -175,12 +271,121 @@ export function Navbar() {
           {/* Right Side */}
           <div className="flex items-center space-x-3">
             {modules.tienda?.activo && (
-              <NavLink
-                href="/store"
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 hover:bg-gray-100"
-              >
-                <ShoppingCart className="h-5 w-5" />
-              </NavLink>
+              <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" className="relative gap-2" size="sm">
+                    <ShoppingCart className="h-5 w-5" />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {cartItemCount}
+                      </span>
+                    )}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Carrito de compras</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {cart.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground mb-4">Tu carrito está vacío</p>
+                        <Button 
+                          onClick={() => {
+                            setIsCartOpen(false);
+                            handleNavigation('/store');
+                          }}
+                        >
+                          Ir a la tienda
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="max-h-96 overflow-y-auto space-y-4">
+                          {cart.map((item: any) => (
+                            <div key={item.id} className="flex items-center justify-between space-x-4 p-4 border rounded-lg">
+                              <div className="flex-1">
+                                <h4 className="font-medium line-clamp-1">{item.product.name}</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  ${(item.product.price / 100).toFixed(2)} c/u
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                                  disabled={updateCartMutation.isPending}
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="w-8 text-center">{item.quantity}</span>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                                  disabled={updateCartMutation.isPending}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => removeFromCartMutation.mutate(item.id)}
+                                  disabled={removeFromCartMutation.isPending}
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium">
+                                  ${((item.product.price / 100) * item.quantity).toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="border-t pt-4 space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold">Total:</span>
+                            <span className="font-bold text-lg">${cartTotal.toFixed(2)}</span>
+                          </div>
+                          
+                          <div className="flex space-x-2">
+                            <Button 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => {
+                                setIsCartOpen(false);
+                                handleNavigation('/store');
+                              }}
+                            >
+                              Seguir comprando
+                            </Button>
+                            <Button 
+                              className="flex-1" 
+                              onClick={handleCheckout}
+                              disabled={cart.length === 0}
+                            >
+                              Checkout
+                            </Button>
+                          </div>
+                          
+                          <Button 
+                            variant="ghost" 
+                            className="w-full text-red-600 hover:text-red-700"
+                            onClick={() => clearCartMutation.mutate()}
+                            disabled={clearCartMutation.isPending}
+                          >
+                            Vaciar carrito
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
             )}
 
             {/* Auth Desktop */}
