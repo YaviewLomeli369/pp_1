@@ -384,21 +384,6 @@ function PagesContent() {
             <h1 className="text-2xl font-bold text-gray-900">Contenido de Páginas</h1>
             <p className="text-gray-600">Gestiona el contenido de las páginas Servicios y Conócenos</p>
           </div>
-          {selectedPage === "conocenos" && (
-            <Button onClick={() => {
-              setSelectedContent({
-                id: crypto.randomUUID(), // Generate a unique ID for new members
-                title: "",
-                content: "",
-                type: "team",
-                metadata: { position: "", phone: "", email: "", image: "" }
-              });
-              setShowContentForm(true);
-            }}>
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Miembro
-            </Button>
-          )}
         </div>
 
         <Tabs value={selectedPage} onValueChange={(value) => setSelectedPage(value as "servicios" | "conocenos")}>
@@ -605,8 +590,25 @@ function PagesContent() {
               {/* Team */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Equipo</CardTitle>
-                  <CardDescription>Miembros del equipo</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Equipo</CardTitle>
+                      <CardDescription>Miembros del equipo</CardDescription>
+                    </div>
+                    <Button onClick={() => {
+                      setSelectedContent({
+                        id: crypto.randomUUID(), // Generate a unique ID for new members
+                        title: "",
+                        content: "",
+                        type: "team",
+                        metadata: { position: "", phone: "", email: "", image: "" }
+                      });
+                      setShowContentForm(true);
+                    }}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar Miembro
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4">
