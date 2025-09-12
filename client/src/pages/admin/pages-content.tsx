@@ -212,6 +212,28 @@ function PagesContent() {
     updateConfigMutation.mutate({ config: newConfig });
   };
 
+  const handleDeleteValue = async (valueId: string) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar este valor?")) {
+      return;
+    }
+
+    const currentConfig = config?.config as any;
+    const updatedValues = pagesContent.conocenos.values?.filter((v: any) => v.id !== valueId) || [];
+    
+    const newConfig = {
+      ...currentConfig,
+      pagesContent: {
+        ...currentConfig?.pagesContent,
+        conocenos: {
+          ...pagesContent.conocenos,
+          values: updatedValues
+        }
+      }
+    };
+
+    updateConfigMutation.mutate({ config: newConfig });
+  };
+
   const handleSaveContent = async (formData: FormData) => {
     if (!selectedContent) return;
 
@@ -224,7 +246,7 @@ function PagesContent() {
         email: formData.get("email") as string,
         image: formData.get("image") as string,
       };
-    } else if (selectedContent.type === "service" || selectedContent.type === "value") {
+    } else if (selectedContent.type === "service") {
       const metadataString = formData.get("metadata") as string;
       try {
         metadata = metadataString ? JSON.parse(metadataString) : {};
@@ -237,6 +259,11 @@ function PagesContent() {
         });
         return;
       }
+    } else if (selectedContent.type === "value") {
+      metadata = {
+        icon: formData.get("icon") as string,
+        color: formData.get("color") as string,
+      };
     } else if (selectedContent.type === "plan") {
       const metadataString = formData.get("metadata") as string;
       try {
@@ -554,8 +581,25 @@ function PagesContent() {
               {/* Values */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Valores</CardTitle>
-                  <CardDescription>Misión, visión y valores de la empresa</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Valores</CardTitle>
+                      <CardDescription>Misión, visión y valores de la empresa</CardDescription>
+                    </div>
+                    <Button onClick={() => {
+                      setSelectedContent({
+                        id: crypto.randomUUID(),
+                        title: "",
+                        content: "",
+                        type: "value",
+                        metadata: { icon: "Target", color: "blue" }
+                      });
+                      setShowContentForm(true);
+                    }}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar Valor
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4">
@@ -564,23 +608,35 @@ function PagesContent() {
                         <div>
                           <h4 className="font-medium">{value.title}</h4>
                           <p className="text-sm text-gray-600">{value.description}</p>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Icono: {value.icon} | Color: {value.color}
+                          </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedContent({
-                              id: value.id,
-                              title: value.title,
-                              content: value.description,
-                              type: "value",
-                              metadata: { icon: value.icon, color: value.color }
-                            });
-                            setShowContentForm(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedContent({
+                                id: value.id,
+                                title: value.title,
+                                content: value.description,
+                                type: "value",
+                                metadata: { icon: value.icon, color: value.color }
+                              });
+                              setShowContentForm(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteValue(value.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -785,7 +841,7 @@ function PagesContent() {
                     required
                   />
                 </div>
-                {(selectedContent?.type === "service" || selectedContent?.type === "value") && (
+                {selectedContent?.type === "service" && (
                   <div>
                     <Label htmlFor="metadata">Configuración (JSON)</Label>
                     <Textarea
@@ -796,9 +852,50 @@ function PagesContent() {
                       rows={3}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      {selectedContent?.type === "service" && "Incluye: icon, color"}
-                      {selectedContent?.type === "value" && "Incluye: icon, color"}
+                      Incluye: icon, color
                     </p>
+                  </div>
+                )}
+                {selectedContent?.type === "value" && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="icon">Icono</Label>
+                      <Select name="icon" defaultValue={selectedContent?.metadata?.icon || "Target"}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un icono" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Target">Target (Objetivo)</SelectItem>
+                          <SelectItem value="Eye">Eye (Ojo/Visión)</SelectItem>
+                          <SelectItem value="Star">Star (Estrella)</SelectItem>
+                          <SelectItem value="Heart">Heart (Corazón)</SelectItem>
+                          <SelectItem value="Shield">Shield (Escudo)</SelectItem>
+                          <SelectItem value="Lightbulb">Lightbulb (Bombilla)</SelectItem>
+                          <SelectItem value="Users">Users (Usuarios)</SelectItem>
+                          <SelectItem value="Award">Award (Premio)</SelectItem>
+                          <SelectItem value="CheckCircle">CheckCircle (Check)</SelectItem>
+                          <SelectItem value="Zap">Zap (Rayo)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="color">Color</Label>
+                      <Select name="color" defaultValue={selectedContent?.metadata?.color || "blue"}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un color" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="blue">Azul</SelectItem>
+                          <SelectItem value="indigo">Índigo</SelectItem>
+                          <SelectItem value="purple">Morado</SelectItem>
+                          <SelectItem value="green">Verde</SelectItem>
+                          <SelectItem value="red">Rojo</SelectItem>
+                          <SelectItem value="yellow">Amarillo</SelectItem>
+                          <SelectItem value="pink">Rosa</SelectItem>
+                          <SelectItem value="gray">Gris</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 )}
                 {selectedContent?.type === "plan" && (
