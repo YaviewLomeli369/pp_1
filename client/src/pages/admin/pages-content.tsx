@@ -352,8 +352,8 @@ function PagesContent() {
       }
 
       metadata = {
-        price: finalPrice.toLocaleString() + " MXN",
-        originalPrice: originalPrice > 0 ? originalPrice.toLocaleString() + " MXN" : "",
+        price: finalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " MXN",
+        originalPrice: originalPrice > 0 ? originalPrice.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " MXN" : "",
         discountPercentage: discountPercentage,
         isPromotion: isPromotion,
         highlight: formData.get("highlight") === "on",
@@ -367,37 +367,31 @@ function PagesContent() {
       metadata: metadata,
     };
 
-    const newConfig = { ...pagesContent };
-
-    if (!newConfig.pagesContent) {
-      newConfig.pagesContent = {};
-    }
-    if (!newConfig.pagesContent[selectedPage]) {
-      newConfig.pagesContent[selectedPage] = pagesContent[selectedPage];
-    }
+    // PRESERVE ALL EXISTING CONFIGURATION - Only update pagesContent section
+    const currentConfig = config?.config as any;
+    const updatedPagesContent = { ...pagesContent };
 
     try {
       if (selectedContent.type === "hero") {
-        newConfig.pagesContent[selectedPage].hero = {
-          ...(newConfig.pagesContent[selectedPage].hero || {}),
+        updatedPagesContent[selectedPage].hero = {
+          ...(updatedPagesContent[selectedPage].hero || {}),
           title: contentData.title,
           subtitle: contentData.content
         };
       } else if (selectedContent.type === "service") {
-        if (!newConfig.pagesContent[selectedPage].services) {
-          newConfig.pagesContent[selectedPage].services = [];
+        if (!updatedPagesContent[selectedPage].services) {
+          updatedPagesContent[selectedPage].services = [];
         }
-        const serviceIndex = newConfig.pagesContent[selectedPage].services.findIndex((s: any) => s.id === selectedContent.id);
+        const serviceIndex = updatedPagesContent[selectedPage].services.findIndex((s: any) => s.id === selectedContent.id);
         if (serviceIndex !== -1) {
-          newConfig.pagesContent[selectedPage].services[serviceIndex] = {
-            ...newConfig.pagesContent[selectedPage].services[serviceIndex],
+          updatedPagesContent[selectedPage].services[serviceIndex] = {
+            ...updatedPagesContent[selectedPage].services[serviceIndex],
             title: contentData.title,
             description: contentData.content,
             ...contentData.metadata
           };
         } else {
-          // Add new service if not found (e.g., for a new team member)
-          newConfig.pagesContent[selectedPage].services.push({
+          updatedPagesContent[selectedPage].services.push({
             id: selectedContent.id,
             title: contentData.title,
             description: contentData.content,
@@ -405,19 +399,19 @@ function PagesContent() {
           });
         }
       } else if (selectedContent.type === "plan") {
-        if (!newConfig.pagesContent[selectedPage].plans) {
-          newConfig.pagesContent[selectedPage].plans = [];
+        if (!updatedPagesContent[selectedPage].plans) {
+          updatedPagesContent[selectedPage].plans = [];
         }
-        const planIndex = newConfig.pagesContent[selectedPage].plans.findIndex((p: any) => p.id === selectedContent.id);
+        const planIndex = updatedPagesContent[selectedPage].plans.findIndex((p: any) => p.id === selectedContent.id);
         if (planIndex !== -1) {
-          newConfig.pagesContent[selectedPage].plans[planIndex] = {
-            ...newConfig.pagesContent[selectedPage].plans[planIndex],
+          updatedPagesContent[selectedPage].plans[planIndex] = {
+            ...updatedPagesContent[selectedPage].plans[planIndex],
             name: contentData.title,
             description: contentData.content,
             ...contentData.metadata
           };
         } else {
-          newConfig.pagesContent[selectedPage].plans.push({
+          updatedPagesContent[selectedPage].plans.push({
             id: selectedContent.id,
             name: contentData.title,
             description: contentData.content,
@@ -425,19 +419,19 @@ function PagesContent() {
           });
         }
       } else if (selectedContent.type === "value") {
-        if (!newConfig.pagesContent[selectedPage].values) {
-          newConfig.pagesContent[selectedPage].values = [];
+        if (!updatedPagesContent[selectedPage].values) {
+          updatedPagesContent[selectedPage].values = [];
         }
-        const valueIndex = newConfig.pagesContent[selectedPage].values.findIndex((v: any) => v.id === selectedContent.id);
+        const valueIndex = updatedPagesContent[selectedPage].values.findIndex((v: any) => v.id === selectedContent.id);
         if (valueIndex !== -1) {
-          newConfig.pagesContent[selectedPage].values[valueIndex] = {
-            ...newConfig.pagesContent[selectedPage].values[valueIndex],
+          updatedPagesContent[selectedPage].values[valueIndex] = {
+            ...updatedPagesContent[selectedPage].values[valueIndex],
             title: contentData.title,
             description: contentData.content,
             ...contentData.metadata
           };
         } else {
-          newConfig.pagesContent[selectedPage].values.push({
+          updatedPagesContent[selectedPage].values.push({
             id: selectedContent.id,
             title: contentData.title,
             description: contentData.content,
@@ -445,14 +439,13 @@ function PagesContent() {
           });
         }
       } else if (selectedContent.type === "team") {
-        if (!newConfig.pagesContent[selectedPage].team) {
-          newConfig.pagesContent[selectedPage].team = [];
+        if (!updatedPagesContent[selectedPage].team) {
+          updatedPagesContent[selectedPage].team = [];
         }
-        const teamIndex = newConfig.pagesContent[selectedPage].team.findIndex((m: any) => m.id === selectedContent.id);
+        const teamIndex = updatedPagesContent[selectedPage].team.findIndex((m: any) => m.id === selectedContent.id);
         if (teamIndex !== -1) {
-          // Update existing team member
-          newConfig.pagesContent[selectedPage].team[teamIndex] = {
-            ...newConfig.pagesContent[selectedPage].team[teamIndex],
+          updatedPagesContent[selectedPage].team[teamIndex] = {
+            ...updatedPagesContent[selectedPage].team[teamIndex],
             name: contentData.title,
             quote: contentData.content,
             position: contentData.metadata.position || "",
@@ -461,8 +454,7 @@ function PagesContent() {
             image: contentData.metadata.image || "https://via.placeholder.com/200"
           };
         } else {
-          // Add new team member
-          newConfig.pagesContent[selectedPage].team.push({
+          updatedPagesContent[selectedPage].team.push({
             id: selectedContent.id,
             name: contentData.title,
             quote: contentData.content,
@@ -474,7 +466,13 @@ function PagesContent() {
         }
       }
 
-      updateConfigMutation.mutate({ config: newConfig });
+      // Create the final config preserving ALL existing configuration
+      const finalConfig = {
+        ...currentConfig,
+        pagesContent: updatedPagesContent
+      };
+
+      updateConfigMutation.mutate({ config: finalConfig });
     } catch (error) {
       console.error("Error saving content:", error);
       toast({
