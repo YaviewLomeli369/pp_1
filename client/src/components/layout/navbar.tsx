@@ -49,7 +49,7 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
-  // Cart queries
+  // Cart queries - Get cart from API
   const { data: cart = [] } = useQuery({
     queryKey: ["/api/store/cart"],
     refetchOnWindowFocus: false,
