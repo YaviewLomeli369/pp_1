@@ -22,7 +22,15 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
   const whatsappLink = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
 
   const priceValue = parseInt(plan.price.replace(/\D/g, ""));
-  const oldPrice = priceValue ? `${(priceValue * 1.30).toLocaleString()} MXN` : null;
+  // Calculate old price for display if it's a promotion
+  const oldPriceDisplay = plan.isPromotion && plan.originalPrice
+    ? `${parseInt(plan.originalPrice.replace(/\D/g, "")).toLocaleString()} MXN`
+    : null;
+
+  // Calculate discounted price
+  const discountedPrice = plan.isPromotion && plan.originalPrice
+    ? (parseInt(plan.originalPrice.replace(/\D/g, "")) * (1 - plan.discountPercentage / 100)).toLocaleString()
+    : plan.price;
 
   return (
     <AnimatedSection delay={0.1}>
@@ -45,12 +53,15 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
         <p className="text-gray-500 mb-4 text-center">{plan.description}</p>
 
         <div className="text-center mb-6">
-          {oldPrice && <span className="text-gray-400 line-through mr-2 text-lg">${oldPrice}</span>}
-          <br />  
-          <span className="text-4xl font-extrabold text-blue-600">${plan.price}</span>
+          {oldPriceDisplay && (
+            <span className="text-gray-400 line-through mr-2 text-lg">${oldPriceDisplay}</span>
+          )}
+          <br />
+          <span className="text-4xl font-extrabold text-blue-600">${discountedPrice}</span>
+          {plan.isPromotion && <span className="text-green-600 font-semibold ml-2">({plan.discountPercentage}%)</span>}
         </div>
 
-      
+
 
         <ul className="space-y-3 flex-1">
           {plan.features.map((feature, i) => (
@@ -82,7 +93,7 @@ function Servicios() {
   const { data: config, isLoading } = useQuery<SiteConfig>({ queryKey: ["/api/config"] });
   const { appearance, pagesContent } = useMemo(() => {
     const configData = config?.config as any;
-    return { 
+    return {
       appearance: configData?.appearance || {},
       pagesContent: configData?.pagesContent?.servicios || {
         hero: {
@@ -99,7 +110,7 @@ function Servicios() {
             color: "blue"
           },
           {
-            id: "2", 
+            id: "2",
             title: "Marketing Digital",
             description: "Estrategias para atraer clientes y crecer en línea.",
             icon: "Target",
@@ -107,7 +118,7 @@ function Servicios() {
           },
           {
             id: "3",
-            title: "Consultoría Tecnológica", 
+            title: "Consultoría Tecnológica",
             description: "Acompañamos a tu empresa en su transformación digital.",
             icon: "Users",
             color: "purple"
@@ -118,6 +129,9 @@ function Servicios() {
             id: "1",
             name: "Esencial",
             price: "6,499 MXN",
+            originalPrice: "",
+            discountPercentage: 0,
+            isPromotion: false,
             description: "Atrae nuevos clientes con un blog profesional que genera contenido de valor.",
             features: [
               "Diseño a medida: Apariencia profesional con tu logo, colores y tipografía.",
@@ -130,8 +144,11 @@ function Servicios() {
           },
           {
             id: "2",
-            name: "Profesional", 
-            price: "9,499 MXN",
+            name: "Profesional",
+            price: "7,599 MXN",
+            originalPrice: "9,499 MXN",
+            discountPercentage: 20,
+            isPromotion: true,
             description: "Un sitio web que se ve y funciona perfectamente en cualquier dispositivo, garantizando una experiencia de usuario ideal.",
             features: [
               "Construye confianza: Incluye 3 testimonios de clientes y una sección de Preguntas Frecuentes.",
@@ -144,7 +161,10 @@ function Servicios() {
           {
             id: "3",
             name: "Premium",
-            price: "15,499 MXN", 
+            price: "15,499 MXN",
+            originalPrice: "",
+            discountPercentage: 0,
+            isPromotion: false,
             description: "Ten el control total de tu stock para que nunca te quedes sin productos.",
             features: [
               "E-commerce completo: Tienda en línea para hasta 30 productos con categorías y gestión de inventario.",
@@ -180,7 +200,7 @@ function Servicios() {
   if (isLoading) return <PageLoader message="Cargando servicios..." />;
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-background overflow-x-hidden"
       style={{
         backgroundColor: appearance.backgroundColor || "inherit",
@@ -245,24 +265,26 @@ function Servicios() {
       </AnimatedSection>
 
       {/* Planes */}
-      <AnimatedSection delay={0.2}>
-        <section className="py-20 bg-gradient-to-b from-white to-gray-100">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6">
-              Planes a tu Medida
-            </h2>
-            <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
-              Escoge el plan que mejor se adapte a tus objetivos. Todos incluyen soporte y
-              optimización básica.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {pagesContent.plans?.map((plan: any) => (
-                <PlanCard key={plan.id} plan={plan} />
-              ))}
+      {pagesContent.plans && pagesContent.plans.length > 0 && (
+        <AnimatedSection delay={0.2}>
+          <section className="py-20 bg-gradient-to-b from-white to-gray-100">
+            <div className="max-w-7xl mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-6">
+                Planes a tu Medida
+              </h2>
+              <p className="text-center text-gray-500 mb-12 max-w-2xl mx-auto">
+                Escoge el plan que mejor se adapte a tus objetivos. Todos incluyen soporte y
+                optimización básica.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {pagesContent.plans?.map((plan: any) => (
+                  <PlanCard key={plan.id} plan={plan} />
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      </AnimatedSection>
+          </section>
+        </AnimatedSection>
+      )}
 
       <Footer />
     </div>

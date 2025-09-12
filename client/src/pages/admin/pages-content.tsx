@@ -197,7 +197,7 @@ function PagesContent() {
 
     const currentConfig = config?.config as any;
     const updatedTeam = pagesContent.conocenos.team?.filter((m: any) => m.id !== memberId) || [];
-    
+
     const newConfig = {
       ...currentConfig,
       pagesContent: {
@@ -219,7 +219,7 @@ function PagesContent() {
 
     const currentConfig = config?.config as any;
     const updatedValues = pagesContent.conocenos.values?.filter((v: any) => v.id !== valueId) || [];
-    
+
     const newConfig = {
       ...currentConfig,
       pagesContent: {
@@ -241,7 +241,7 @@ function PagesContent() {
 
     const currentConfig = config?.config as any;
     const updatedServices = pagesContent.servicios.services?.filter((s: any) => s.id !== serviceId) || [];
-    
+
     const newConfig = {
       ...currentConfig,
       pagesContent: {
@@ -263,7 +263,7 @@ function PagesContent() {
 
     const currentConfig = config?.config as any;
     const updatedPlans = pagesContent.servicios.plans?.filter((p: any) => p.id !== planId) || [];
-    
+
     const newConfig = {
       ...currentConfig,
       pagesContent: {
@@ -303,9 +303,22 @@ function PagesContent() {
     } else if (selectedContent.type === "plan") {
       const featuresString = formData.get("features") as string;
       const features = featuresString ? featuresString.split('\n').filter(f => f.trim()) : [];
-      
+      const price = parseInt(formData.get("price") as string) || 0;
+      const originalPrice = parseInt(formData.get("originalPrice") as string) || 0;
+      const discountPercentage = parseInt(formData.get("discountPercentage") as string) || 0;
+      const isPromotion = formData.get("isPromotion") === "on";
+
+      // Calculate final price based on discount percentage if provided
+      let finalPrice = price;
+      if (isPromotion && originalPrice > 0 && discountPercentage > 0) {
+        finalPrice = Math.round(originalPrice * (1 - discountPercentage / 100));
+      }
+
       metadata = {
-        price: formData.get("price") as string,
+        price: finalPrice.toLocaleString() + " MXN",
+        originalPrice: originalPrice > 0 ? originalPrice.toLocaleString() + " MXN" : "",
+        discountPercentage: discountPercentage,
+        isPromotion: isPromotion,
         highlight: formData.get("highlight") === "on",
         features: features,
       };
@@ -577,7 +590,7 @@ function PagesContent() {
                         title: "",
                         content: "",
                         type: "plan",
-                        metadata: { price: "", highlight: false, features: [] }
+                        metadata: { price: "", originalPrice: "", discountPercentage: 0, isPromotion: false, highlight: false, features: [] }
                       });
                       setShowContentForm(true);
                     }}>
@@ -592,7 +605,15 @@ function PagesContent() {
                       <div key={plan.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="font-medium">{plan.name} - {plan.price}</h4>
+                            <h4 className="font-medium">
+                              {plan.isPromotion && plan.originalPrice && (
+                                <span className="text-red-600 line-through mr-2">{plan.originalPrice}</span>
+                              )}
+                              {plan.price}
+                              {plan.isPromotion && plan.discountPercentage > 0 && (
+                                <span className="text-green-600 ml-2">({plan.discountPercentage}%)</span>
+                              )}
+                            </h4>
                             {plan.highlight && (
                               <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
                                 Destacado
@@ -614,7 +635,14 @@ function PagesContent() {
                                 title: plan.name,
                                 content: plan.description,
                                 type: "plan",
-                                metadata: { price: plan.price, highlight: plan.highlight, features: plan.features }
+                                metadata: {
+                                  price: plan.price,
+                                  originalPrice: plan.originalPrice,
+                                  discountPercentage: plan.discountPercentage,
+                                  isPromotion: plan.isPromotion,
+                                  highlight: plan.highlight,
+                                  features: plan.features
+                                }
                               });
                               setShowContentForm(true);
                             }}
@@ -772,7 +800,7 @@ function PagesContent() {
                           Mostrar sección
                         </Label>
                       </div>
-                      <Button 
+                      <Button
                         onClick={() => {
                           setSelectedContent({
                             id: crypto.randomUUID(), // Generate a unique ID for new members
@@ -1025,15 +1053,49 @@ function PagesContent() {
                 {selectedContent?.type === "plan" && (
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="price">Precio</Label>
+                      <Label htmlFor="price">Precio Actual</Label>
                       <Input
                         id="price"
                         name="price"
-                        defaultValue={selectedContent?.metadata?.price || ''}
-                        placeholder="9,499 MXN"
+                        defaultValue={selectedContent?.metadata?.price?.replace(' MXN', '') || ''}
+                        placeholder="9,499"
                         required
                       />
                     </div>
+                    <div>
+                      <Label htmlFor="originalPrice">Precio Oficial (Tachado)</Label>
+                      <Input
+                        id="originalPrice"
+                        name="originalPrice"
+                        defaultValue={selectedContent?.metadata?.originalPrice?.replace(' MXN', '') || ''}
+                        placeholder="12,000"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="isPromotion"
+                        name="isPromotion"
+                        checked={selectedContent?.metadata?.isPromotion || false}
+                        onCheckedChange={(checked) => {
+                          setSelectedContent(prev => prev ? { ...prev, metadata: { ...prev.metadata, isPromotion: checked } } : null);
+                        }}
+                      />
+                      <Label htmlFor="isPromotion">¿Es promoción?</Label>
+                    </div>
+                    {selectedContent?.metadata?.isPromotion && (
+                      <div>
+                        <Label htmlFor="discountPercentage">Porcentaje de Descuento (%)</Label>
+                        <Input
+                          id="discountPercentage"
+                          name="discountPercentage"
+                          type="number"
+                          min="0"
+                          max="100"
+                          defaultValue={selectedContent?.metadata?.discountPercentage || ''}
+                          placeholder="15"
+                        />
+                      </div>
+                    )}
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
