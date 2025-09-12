@@ -1,0 +1,145 @@
+Informe del 12 sept 2025, 15:53:28
+https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/
+Introduce una URL válida
+
+
+smartphone
+Móvil
+
+computer
+Ordenador
+
+Descubre lo que experimentan tus usuarios reales
+No hay datos
+
+Diagnostica problemas de rendimiento
+36
+Rendimiento
+100
+Accesibilidad
+93
+Prácticas recomendadas
+66
+SEO
+36
+FCP
++0
+LCP
++0
+TBT
++11
+CLS
++25
+SI
++0
+Rendimiento
+Los valores son estimaciones y pueden variar. La puntuación del rendimiento se calcula directamente a partir de estas métricas.Ver calculadora.
+0–49
+50–89
+90–100
+Final Screenshot
+
+Métricas
+Ampliar vista
+First Contentful Paint
+39,3 s
+Renderizado del mayor elemento con contenido
+76,2 s
+Total Blocking Time
+780 ms
+Cambios de diseño acumulados
+0
+Speed Index
+39,3 s
+Captured at 12 sept 2025, 15:53 GMT-6
+Moto G Power emulado with Lighthouse 12.8.2
+Sesión de una sola página
+Carga inicial de la página
+Limitación de 4G lenta
+Using HeadlessChromium 137.0.7151.119 with lr
+Ver gráfico de rectángulos
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Screenshot
+Later this year, insights will replace performance audits. Learn more and provide feedback here.
+Go back to audits
+Mostrar auditorías relacionadas con:
+
+All
+
+FCP
+
+LCP
+
+TBT
+Insights
+Redistribución forzada
+Árbol de dependencia de red
+Latencia de solicitud del documento Ahorro potencial de 30 KiB
+Optimizar tamaño del DOM
+LCP breakdown
+These insights are also available in the Chrome DevTools Performance Panel - record a trace to view more detailed information.
+Diagnósticos
+Reduce el tiempo de ejecución de JavaScript 1,5 s
+Minimiza el trabajo del hilo principal 5,0 s
+Minifica los recursos JavaScript Ahorro potencial de 4933 KiB
+Reduce el contenido JavaScript que no se use Ahorro potencial de 5555 KiB
+Evita usar JavaScript antiguo en navegadores modernos Ahorro potencial de 69 KiB
+Reduce el contenido CSS que no se use Ahorro potencial de 36 KiB
+Evita cargas útiles de red de gran tamaño Tamaño total: 12.490 KiB
+Evita tareas largas del hilo principal 20 tareas largas encontradas
+Consulta más información sobre el rendimiento de tu aplicación. Estos datos no afectan directamente a la puntuación del rendimiento.
+Auditorías aprobadas (17)
+Mostrar
+100
+Accesibilidad
+Estas comprobaciones permiten identificar oportunidades para mejorar la accesibilidad de tu aplicación web. La detección automática solo puede detectar un subconjunto de problemas y no garantiza la accesibilidad de tu aplicación web, por lo que también te recomendamos que hagas pruebas manuales.
+Elementos adicionales que se deben comprobar manualmente (10)
+Ocultar
+Interactive controls are keyboard focusable
+Interactive elements indicate their purpose and state
+The page has a logical tab order
+Visual order on the page follows DOM order
+User focus is not accidentally trapped in a region
+The user's focus is directed to new content added to the page
+HTML5 landmark elements are used to improve navigation
+Offscreen content is hidden from assistive technology
+Custom controls have associated labels
+Custom controls have ARIA roles
+Estos elementos se ocupan de áreas que las herramientas de prueba automáticas no pueden analizar. Consulta más información sobre cómo revisar la accesibilidad en nuestra guía.
+Auditorías aprobadas (24)
+Mostrar
+No aplicable (33)
+Mostrar
+93
+Prácticas recomendadas
+General
+Se han registrado errores del navegador en la consola
+Se han registrado problemas en el panel Issues de las herramientas para desarrolladores de Chrome
+Confianza y seguridad
+Asegura que la CSP sea efectiva frente a ataques XSS
+Usa una política de HSTS sólida
+Asegúrate de que el aislamiento de orígenes sea adecuado con COOP
+Mitigate DOM-based XSS with Trusted Types
+Auditorías aprobadas (13)
+Mostrar
+No aplicable (3)
+Mostrar
+66
+SEO
+Estas comprobaciones aseguran que tu página siga las recomendaciones básicas sobre optimización en buscadores. Hay muchos otros factores adicionales que Lighthouse no valora aquí y que pueden afectar a tu posicionamiento en las búsquedas, como el rendimiento en las Métricas web principales. Consulta más información sobre las Directrices básicas de la Búsqueda de Google.
+Rastrear e indexar
+Se ha bloqueado la indexación de la página
+Para aparecer en los resultados de búsqueda, los rastreadores necesitan acceder a tu aplicación.
+Elementos adicionales que se deben comprobar manualmente (1)
+Mostrar
+Ejecuta estos validadores adicionales en tu sitio web para comprobar más prácticas recomendadas de SEO.
+Auditorías aprobadas (8)
+Mostrar
+No aplicable (1)
+Mostrar
