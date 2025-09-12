@@ -278,8 +278,8 @@ function Servicios() {
         </section>
       </AnimatedSection>
 
-      {/* Planes */}
-      {modules.planes?.activo && pagesContent.plans && pagesContent.plans.length > 0 && (
+      {/* Planes - Solo mostrar si el módulo está activo */}
+      {modules.planes?.activo === true && pagesContent.plans && pagesContent.plans.length > 0 && (
         <AnimatedSection delay={0.2}>
           <section className="py-20 bg-gradient-to-b from-white to-gray-100">
             <div className="max-w-7xl mx-auto px-4">

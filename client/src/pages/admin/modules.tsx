@@ -241,11 +241,12 @@ export default function AdminModules() {
 
           <ModuleCard
             name="Planes"
-            description="Visualización de planes de servicios"
+            description="Visualización de planes de servicios en página pública"
             icon={Package}
             isActive={modules.planes?.activo || false}
             stats={{
-              "Planes disponibles": "5",
+              "Planes disponibles": "3",
+              "Visible en": "Servicios",
             }}
             onToggle={(active) => handleModuleToggle("planes", active)}
           />
