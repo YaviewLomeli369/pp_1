@@ -183,22 +183,6 @@ export function Navbar() {
     });
   }, [removeFromCart, products, toast, saveCartToStorage]);
 
-  const handleCheckout = useCallback(() => {
-    if (cart.length === 0) return;
-    try {
-      localStorage.setItem('checkoutItems', JSON.stringify(cart));
-      setIsCartOpen(false);
-      handleNavigation('/checkout');
-    } catch (error) {
-      console.error('Checkout error:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo procesar el carrito. Intenta de nuevo.",
-        variant: "destructive"
-      });
-    }
-  }, [cart, handleNavigation, toast]);
-
   const handleNavigation = useCallback((href: string) => {
     if (isNavigatingRef.current) return;
 
@@ -219,6 +203,22 @@ export function Navbar() {
       isNavigatingRef.current = false;
     }, 300);
   }, [location, setLocation]);
+
+  const handleCheckout = useCallback(() => {
+    if (cart.length === 0) return;
+    try {
+      localStorage.setItem('checkoutItems', JSON.stringify(cart));
+      setIsCartOpen(false);
+      handleNavigation('/checkout');
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo procesar el carrito. Intenta de nuevo.",
+        variant: "destructive"
+      });
+    }
+  }, [cart, handleNavigation, toast]);
 
   const navItems = [
     { href: "/", label: "Inicio", always: true },
