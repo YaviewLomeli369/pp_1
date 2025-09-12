@@ -3,7 +3,7 @@ import { AdminLayout } from "@/components/layout/admin-layout";
 import { ModuleCard } from "@/components/admin/module-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
+import {
   ShoppingCart,
   Quote,
   HelpCircle,
@@ -12,7 +12,8 @@ import {
   Mail,
   Puzzle,
   Download,
-  Upload
+  Upload,
+  Package,
 } from "lucide-react";
 import type { SiteConfig } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -55,7 +56,7 @@ export default function AdminModules() {
       });
 
       queryClient.invalidateQueries({ queryKey: ["/api/config"] });
-      
+
       toast({
         title: "Módulo actualizado",
         description: `El módulo ha sido ${active ? "activado" : "desactivado"} correctamente`,
@@ -71,7 +72,7 @@ export default function AdminModules() {
 
   const exportConfig = () => {
     if (!config) return;
-    
+
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config.config, null, 2));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
@@ -112,11 +113,11 @@ export default function AdminModules() {
               input.onchange = async (e) => {
                 const file = (e.target as HTMLInputElement).files?.[0];
                 if (!file) return;
-                
+
                 try {
                   const text = await file.text();
                   const importedConfig = JSON.parse(text);
-                  
+
                   await fetch("/api/config", {
                     method: "PUT",
                     headers: {
@@ -125,7 +126,7 @@ export default function AdminModules() {
                     },
                     body: JSON.stringify({ config: importedConfig }),
                   });
-                  
+
                   queryClient.invalidateQueries({ queryKey: ["/api/config"] });
                   toast({
                     title: "Configuración importada",
@@ -236,6 +237,17 @@ export default function AdminModules() {
               "Categorías": "0",
             }}
             onToggle={(active) => handleModuleToggle("blog", active)}
+          />
+
+          <ModuleCard
+            name="Planes"
+            description="Visualización de planes de servicios"
+            icon={Package}
+            isActive={modules.planes?.activo || false}
+            stats={{
+              "Planes disponibles": "5",
+            }}
+            onToggle={(active) => handleModuleToggle("planes", active)}
           />
         </div>
 

@@ -104,10 +104,11 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
 
 function Servicios() {
   const { data: config, isLoading } = useQuery<SiteConfig>({ queryKey: ["/api/config"] });
-  const { appearance, pagesContent } = useMemo(() => {
+  const { appearance, pagesContent, modules } = useMemo(() => {
     const configData = config?.config as any;
     return {
       appearance: configData?.appearance || {},
+      modules: configData?.frontpage?.modulos || {},
       pagesContent: configData?.pagesContent?.servicios || {
         hero: {
           title: "Servicios Digitales para Impulsar tu Negocio",
@@ -278,7 +279,7 @@ function Servicios() {
       </AnimatedSection>
 
       {/* Planes */}
-      {pagesContent.plans && pagesContent.plans.length > 0 && (
+      {modules.planes?.activo && pagesContent.plans && pagesContent.plans.length > 0 && (
         <AnimatedSection delay={0.2}>
           <section className="py-20 bg-gradient-to-b from-white to-gray-100">
             <div className="max-w-7xl mx-auto px-4">
