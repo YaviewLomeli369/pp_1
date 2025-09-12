@@ -49,12 +49,6 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
-  // Cart queries - Get cart from API
-  const { data: cart = [] } = useQuery({
-    queryKey: ["/api/store/cart"],
-    refetchOnWindowFocus: false,
-  });
-
   // Products query for cart functionality
   const { data: products } = useQuery({
     queryKey: ["/api/store/products"],
@@ -63,69 +57,88 @@ export function Navbar() {
     retry: 1,
   });
 
-  // Cart mutations
-  const updateCartMutation = useMutation({
-    mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
-      return apiRequest(`/api/store/cart/${id}`, {
-        method: "PUT",
-        body: { quantity }
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/store/cart"] });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el carrito",
-        variant: "destructive"
-      });
-    }
-  });
+  // Cart state - using localStorage like store.tsx
+  const [cart, setCart] = useState<Array<{ product: any; quantity: number }>>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
 
-  const removeFromCartMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return apiRequest(`/api/store/cart/${id}`, {
-        method: "DELETE"
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/store/cart"] });
-      toast({
-        title: "Producto eliminado",
-        description: "El producto se eliminó del carrito"
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el producto",
-        variant: "destructive"
-      });
+  // Cart helper functions
+  const saveCartToStorage = useCallback((cartData: Array<{ product: any; quantity: number }>) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem('shopping-cart', JSON.stringify(cartData));
+    } catch (error) {
+      console.warn('Error saving cart to localStorage:', error);
     }
-  });
+  }, []);
 
-  const clearCartMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("/api/store/cart/clear", {
-        method: "DELETE"
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/store/cart"] });
-      toast({
-        title: "Carrito vaciado",
-        description: "Todos los productos fueron eliminados del carrito"
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "No se pudo vaciar el carrito",
-        variant: "destructive"
-      });
+  const loadCartFromStorage = useCallback(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const savedCart = localStorage.getItem('shopping-cart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart)) {
+          return parsedCart.filter(item => 
+            item && 
+            typeof item === 'object' && 
+            item.product && 
+            typeof item.quantity === 'number' &&
+            item.quantity > 0
+          );
+        }
+      }
+    } catch (error) {
+      console.warn('Error loading cart from localStorage:', error);
     }
-  });
+    return [];
+  }, []);
+
+  const removeFromCart = useCallback((productId: string) => {
+    setCart(prev => {
+      const newCart = prev.filter(item => item.product.id !== productId);
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+    toast({
+      title: "Producto eliminado",
+      description: "El producto se eliminó del carrito"
+    });
+  }, [saveCartToStorage, toast]);
+
+  const clearCart = useCallback(() => {
+    setCart([]);
+    saveCartToStorage([]);
+    toast({
+      title: "Carrito vaciado",
+      description: "Todos los productos fueron eliminados del carrito"
+    });
+  }, [saveCartToStorage, toast]);
+
+  // Load cart from localStorage when products are available
+  useEffect(() => {
+    if (!cartLoaded && products && products.length > 0) {
+      const savedCart = loadCartFromStorage();
+      if (savedCart.length > 0) {
+        // Validate that products still exist and are active
+        const validCartItems = savedCart.filter(item => {
+          const product = products.find(p => p.id === item.product.id);
+          return product && product.isActive;
+        }).map(item => {
+          // Update product data in case it changed
+          const currentProduct = products.find(p => p.id === item.product.id);
+          return currentProduct ? { ...item, product: currentProduct } : item;
+        });
+        
+        if (validCartItems.length > 0) {
+          setCart(validCartItems);
+          if (validCartItems.length !== savedCart.length) {
+            saveCartToStorage(validCartItems);
+          }
+        }
+      }
+      setCartLoaded(true);
+    }
+  }, [products, cartLoaded, loadCartFromStorage, saveCartToStorage]);
 
   const configData = config?.config as any;
   const modules = configData?.frontpage?.modulos || {};
@@ -135,19 +148,56 @@ export function Navbar() {
   const cartTotal = cart.reduce((sum: number, item: any) => sum + ((item.product.price / 100) * item.quantity), 0);
   const cartItemCount = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
 
-  const updateCartQuantity = (id: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCartMutation.mutate(id);
-    } else {
-      updateCartMutation.mutate({ id, quantity });
+  const updateCartQuantity = useCallback((productId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeFromCart(productId);
+      return;
     }
-  };
 
-  const handleCheckout = () => {
+    const product = products?.find(p => p.id === productId);
+    if (!product) {
+      toast({
+        title: "Error",
+        description: "Producto no encontrado",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate stock if tracking is enabled
+    if (product.stock !== null && newQuantity > product.stock) {
+      toast({
+        title: "Stock insuficiente",
+        description: `Solo hay ${product.stock} unidades disponibles`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCart(prev => {
+      const newCart = prev.map(item =>
+        item.product.id === productId ? { ...item, quantity: newQuantity } : item
+      );
+      saveCartToStorage(newCart);
+      return newCart;
+    });
+  }, [removeFromCart, products, toast, saveCartToStorage]);
+
+  const handleCheckout = useCallback(() => {
     if (cart.length === 0) return;
-    setIsCartOpen(false);
-    handleNavigation('/checkout');
-  };
+    try {
+      localStorage.setItem('checkoutItems', JSON.stringify(cart));
+      setIsCartOpen(false);
+      handleNavigation('/checkout');
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo procesar el carrito. Intenta de nuevo.",
+        variant: "destructive"
+      });
+    }
+  }, [cart, handleNavigation, toast]);
 
   const navItems = [
     { href: "/", label: "Inicio", always: true },
@@ -312,7 +362,7 @@ export function Navbar() {
                       <>
                         <div className="max-h-96 overflow-y-auto space-y-4">
                           {cart.map((item: any) => (
-                            <div key={item.id} className="flex items-center justify-between space-x-4 p-4 border rounded-lg">
+                            <div key={item.product.id} className="flex items-center justify-between space-x-4 p-4 border rounded-lg">
                               <div className="flex-1">
                                 <h4 className="font-medium line-clamp-1">{item.product.name}</h4>
                                 <p className="text-sm text-muted-foreground">
@@ -323,8 +373,7 @@ export function Navbar() {
                                 <Button 
                                   variant="outline" 
                                   size="sm"
-                                  onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                                  disabled={updateCartMutation.isPending}
+                                  onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
                                 >
                                   <Minus className="h-3 w-3" />
                                 </Button>
@@ -342,9 +391,9 @@ export function Navbar() {
                                       });
                                       return;
                                     }
-                                    updateCartQuantity(item.id, item.quantity + 1);
+                                    updateCartQuantity(item.product.id, item.quantity + 1);
                                   }}
-                                  disabled={updateCartMutation.isPending || (() => {
+                                  disabled={(() => {
                                     const product = products?.find(p => p.id === item.product.id);
                                     return product?.stock !== null && item.quantity >= product.stock;
                                   })()}
@@ -354,8 +403,7 @@ export function Navbar() {
                                 <Button 
                                   variant="ghost" 
                                   size="sm"
-                                  onClick={() => removeFromCartMutation.mutate(item.id)}
-                                  disabled={removeFromCartMutation.isPending}
+                                  onClick={() => removeFromCart(item.product.id)}
                                 >
                                   <X className="h-3 w-3" />
                                 </Button>
@@ -398,8 +446,7 @@ export function Navbar() {
                           <Button 
                             variant="ghost" 
                             className="w-full text-red-600 hover:text-red-700"
-                            onClick={() => clearCartMutation.mutate()}
-                            disabled={clearCartMutation.isPending}
+                            onClick={clearCart}
                           >
                             Vaciar carrito
                           </Button>
