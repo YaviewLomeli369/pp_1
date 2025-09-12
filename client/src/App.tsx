@@ -20,7 +20,7 @@ import Contact from "@/pages/contact";
 import Store from "@/pages/store";
 import Blog from "@/pages/blog";
 import BlogPost from "@/pages/blog-post";
-import Reservations from "@/pages/reservas";
+import Reservations from "@/pages/reservations";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import CreateAdmin from "@/pages/auth/create-admin";
