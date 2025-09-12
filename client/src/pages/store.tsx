@@ -499,6 +499,35 @@ export default function Store() {
     }
   }, [products, cartLoaded, loadCartFromStorage, saveCartToStorage]);
 
+  // Periodic cart sync to ensure data consistency
+  useEffect(() => {
+    if (!cartLoaded || !products) return;
+
+    const syncInterval = setInterval(() => {
+      const currentCartString = JSON.stringify(cart);
+      const storageCartString = localStorage.getItem('shopping-cart') || '[]';
+      
+      // Only sync if there's a difference
+      if (currentCartString !== storageCartString) {
+        const storageCart = loadCartFromStorage();
+        if (storageCart.length > 0) {
+          const validCartItems = storageCart.filter(item => {
+            const product = products.find(p => p.id === item.product.id);
+            return product && product.isActive;
+          }).map(item => {
+            const currentProduct = products.find(p => p.id === item.product.id);
+            return currentProduct ? { ...item, product: currentProduct } : item;
+          });
+          setCart(validCartItems);
+        } else if (cart.length > 0) {
+          setCart([]);
+        }
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(syncInterval);
+  }, [cart, cartLoaded, products, loadCartFromStorage]);
+
   useEffect(() => {
     const handlePopState = () => {
       if (isMountedRef.current) {
@@ -516,16 +545,66 @@ export default function Store() {
       }
     };
 
+    // Listen for storage changes to sync cart across tabs/components
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'shopping-cart' && !isNavigating && isMountedRef.current) {
+        if (e.newValue === null || e.newValue === '[]') {
+          // Cart was cleared
+          setCart([]);
+        } else {
+          try {
+            const newCart = JSON.parse(e.newValue);
+            if (Array.isArray(newCart) && products) {
+              // Validate products still exist and are active
+              const validCartItems = newCart.filter(item => {
+                const product = products.find(p => p.id === item.product.id);
+                return product && product.isActive;
+              }).map(item => {
+                const currentProduct = products.find(p => p.id === item.product.id);
+                return currentProduct ? { ...item, product: currentProduct } : item;
+              });
+              setCart(validCartItems);
+            }
+          } catch (error) {
+            console.warn('Error parsing cart from storage:', error);
+          }
+        }
+      }
+    };
+
+    // Listen for cart updates from same page (custom event)
+    const handleCartUpdate = () => {
+      if (!isNavigating && isMountedRef.current) {
+        const updatedCart = loadCartFromStorage();
+        if (products && products.length > 0) {
+          // Validate that products still exist and are active
+          const validCartItems = updatedCart.filter(item => {
+            const product = products.find(p => p.id === item.product.id);
+            return product && product.isActive;
+          }).map(item => {
+            // Update product data in case it changed
+            const currentProduct = products.find(p => p.id === item.product.id);
+            return currentProduct ? { ...item, product: currentProduct } : item;
+          });
+          setCart(validCartItems);
+        }
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('cartUpdated', handleCartUpdate);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [performCleanup]);
+  }, [performCleanup, isNavigating, products, loadCartFromStorage]);
 
   useEffect(() => {
     if (products && categories) {
