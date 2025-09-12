@@ -190,9 +190,65 @@ function PagesContent() {
     },
   });
 
-  const handleSaveContent = (formData: FormData) => {
-    const configData = config?.config as any;
-    const newConfig = { ...configData };
+  const handleDeleteTeamMember = async (memberId: string) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar este miembro del equipo?")) {
+      return;
+    }
+
+    const newConfig = { ...pagesContent };
+    if (newConfig.conocenos && newConfig.conocenos.team) {
+      newConfig.conocenos.team = newConfig.conocenos.team.filter((m: any) => m.id !== memberId);
+      updateConfigMutation.mutate({ config: newConfig });
+    }
+  };
+
+  const handleSaveContent = async (formData: FormData) => {
+    if (!selectedContent) return;
+
+    let metadata = {};
+
+    if (selectedContent.type === "team") {
+      metadata = {
+        position: formData.get("position") as string,
+        phone: formData.get("phone") as string,
+        email: formData.get("email") as string,
+        image: formData.get("image") as string,
+      };
+    } else if (selectedContent.type === "service" || selectedContent.type === "value") {
+      const metadataString = formData.get("metadata") as string;
+      try {
+        metadata = metadataString ? JSON.parse(metadataString) : {};
+      } catch (e) {
+        console.error("Invalid JSON in metadata", e);
+        toast({
+          variant: "destructive",
+          title: "Error en Metadata",
+          description: "El formato del JSON para metadata es inválido.",
+        });
+        return;
+      }
+    } else if (selectedContent.type === "plan") {
+      const metadataString = formData.get("metadata") as string;
+      try {
+        metadata = metadataString ? JSON.parse(metadataString) : {};
+      } catch (e) {
+        console.error("Invalid JSON in metadata", e);
+        toast({
+          variant: "destructive",
+          title: "Error en Metadata",
+          description: "El formato del JSON para metadata es inválido.",
+        });
+        return;
+      }
+    }
+
+    const contentData = {
+      title: formData.get("title") as string,
+      content: formData.get("content") as string,
+      metadata: metadata,
+    };
+
+    const newConfig = { ...pagesContent };
 
     if (!newConfig.pagesContent) {
       newConfig.pagesContent = {};
@@ -201,66 +257,113 @@ function PagesContent() {
       newConfig.pagesContent[selectedPage] = pagesContent[selectedPage];
     }
 
-    let metadata = {};
-
-    // Handle team member fields separately
-    if (selectedContent?.type === "team") {
-      metadata = {
-        position: formData.get("position") as string,
-        phone: formData.get("phone") as string,
-        email: formData.get("email") as string,
-        image: formData.get("image") as string,
-      };
-    } else {
-      // For other types, use JSON metadata if present
-      const metadataString = formData.get("metadata") as string;
-      metadata = metadataString ? JSON.parse(metadataString) : {};
-    }
-
-    const contentData = {
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      content: formData.get("content") as string,
-      metadata: metadata,
-    };
-
-    // Update specific content based on context
-    if (selectedContent) {
-      // Update existing content logic here
-      const contentType = selectedContent.type;
-      if (contentType === "hero") {
+    try {
+      if (selectedContent.type === "hero") {
         newConfig.pagesContent[selectedPage].hero = {
-          ...newConfig.pagesContent[selectedPage].hero,
-          ...contentData
+          ...(newConfig.pagesContent[selectedPage].hero || {}),
+          title: contentData.title,
+          subtitle: contentData.content
         };
-      } else if (contentType === "service") {
-        newConfig.pagesContent[selectedPage].services = newConfig.pagesContent[selectedPage].services.map((s: any) =>
-          s.id === selectedContent.id ? { ...s, title: contentData.title, description: contentData.content, ...contentData.metadata } : s
-        );
-      } else if (contentType === "plan") {
-        newConfig.pagesContent[selectedPage].plans = newConfig.pagesContent[selectedPage].plans.map((p: any) =>
-          p.id === selectedContent.id ? { ...p, name: contentData.title, description: contentData.content, ...contentData.metadata } : p
-        );
-      } else if (contentType === "value") {
-        newConfig.pagesContent[selectedPage].values = newConfig.pagesContent[selectedPage].values.map((v: any) =>
-          v.id === selectedContent.id ? { ...v, title: contentData.title, description: contentData.content, ...contentData.metadata } : v
-        );
-      } else if (contentType === "team") {
-        newConfig.pagesContent[selectedPage].team = newConfig.pagesContent[selectedPage].team.map((m: any) =>
-          m.id === selectedContent.id ? {
-            ...m,
+      } else if (selectedContent.type === "service") {
+        if (!newConfig.pagesContent[selectedPage].services) {
+          newConfig.pagesContent[selectedPage].services = [];
+        }
+        const serviceIndex = newConfig.pagesContent[selectedPage].services.findIndex((s: any) => s.id === selectedContent.id);
+        if (serviceIndex !== -1) {
+          newConfig.pagesContent[selectedPage].services[serviceIndex] = {
+            ...newConfig.pagesContent[selectedPage].services[serviceIndex],
+            title: contentData.title,
+            description: contentData.content,
+            ...contentData.metadata
+          };
+        } else {
+          // Add new service if not found (e.g., for a new team member)
+          newConfig.pagesContent[selectedPage].services.push({
+            id: selectedContent.id,
+            title: contentData.title,
+            description: contentData.content,
+            ...contentData.metadata
+          });
+        }
+      } else if (selectedContent.type === "plan") {
+        if (!newConfig.pagesContent[selectedPage].plans) {
+          newConfig.pagesContent[selectedPage].plans = [];
+        }
+        const planIndex = newConfig.pagesContent[selectedPage].plans.findIndex((p: any) => p.id === selectedContent.id);
+        if (planIndex !== -1) {
+          newConfig.pagesContent[selectedPage].plans[planIndex] = {
+            ...newConfig.pagesContent[selectedPage].plans[planIndex],
+            name: contentData.title,
+            description: contentData.content,
+            ...contentData.metadata
+          };
+        } else {
+          newConfig.pagesContent[selectedPage].plans.push({
+            id: selectedContent.id,
+            name: contentData.title,
+            description: contentData.content,
+            ...contentData.metadata
+          });
+        }
+      } else if (selectedContent.type === "value") {
+        if (!newConfig.pagesContent[selectedPage].values) {
+          newConfig.pagesContent[selectedPage].values = [];
+        }
+        const valueIndex = newConfig.pagesContent[selectedPage].values.findIndex((v: any) => v.id === selectedContent.id);
+        if (valueIndex !== -1) {
+          newConfig.pagesContent[selectedPage].values[valueIndex] = {
+            ...newConfig.pagesContent[selectedPage].values[valueIndex],
+            title: contentData.title,
+            description: contentData.content,
+            ...contentData.metadata
+          };
+        } else {
+          newConfig.pagesContent[selectedPage].values.push({
+            id: selectedContent.id,
+            title: contentData.title,
+            description: contentData.content,
+            ...contentData.metadata
+          });
+        }
+      } else if (selectedContent.type === "team") {
+        if (!newConfig.pagesContent[selectedPage].team) {
+          newConfig.pagesContent[selectedPage].team = [];
+        }
+        const teamIndex = newConfig.pagesContent[selectedPage].team.findIndex((m: any) => m.id === selectedContent.id);
+        if (teamIndex !== -1) {
+          // Update existing team member
+          newConfig.pagesContent[selectedPage].team[teamIndex] = {
+            ...newConfig.pagesContent[selectedPage].team[teamIndex],
             name: contentData.title,
             quote: contentData.content,
-            position: contentData.metadata.position,
-            phone: contentData.metadata.phone,
-            email: contentData.metadata.email,
-            image: contentData.metadata.image
-          } : m
-        );
+            position: contentData.metadata.position || "",
+            phone: contentData.metadata.phone || "",
+            email: contentData.metadata.email || "",
+            image: contentData.metadata.image || "https://via.placeholder.com/200"
+          };
+        } else {
+          // Add new team member
+          newConfig.pagesContent[selectedPage].team.push({
+            id: selectedContent.id,
+            name: contentData.title,
+            quote: contentData.content,
+            position: contentData.metadata.position || "",
+            phone: contentData.metadata.phone || "",
+            email: contentData.metadata.email || "",
+            image: contentData.metadata.image || "https://via.placeholder.com/200"
+          });
+        }
       }
-    }
 
-    updateConfigMutation.mutate({ config: newConfig });
+      updateConfigMutation.mutate({ config: newConfig });
+    } catch (error) {
+      console.error("Error saving content:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al Guardar",
+        description: "Hubo un problema al guardar los cambios.",
+      });
+    }
   };
 
   return (
@@ -271,6 +374,21 @@ function PagesContent() {
             <h1 className="text-2xl font-bold text-gray-900">Contenido de Páginas</h1>
             <p className="text-gray-600">Gestiona el contenido de las páginas Servicios y Conócenos</p>
           </div>
+          {selectedPage === "conocenos" && (
+            <Button onClick={() => {
+              setSelectedContent({
+                id: crypto.randomUUID(), // Generate a unique ID for new members
+                title: "",
+                content: "",
+                type: "team",
+                metadata: { position: "", phone: "", email: "", image: "" }
+              });
+              setShowContentForm(true);
+            }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Agregar Miembro
+            </Button>
+          )}
         </div>
 
         <Tabs value={selectedPage} onValueChange={(value) => setSelectedPage(value as "servicios" | "conocenos")}>
@@ -488,22 +606,31 @@ function PagesContent() {
                           <h4 className="font-medium">{member.name} - {member.position}</h4>
                           <p className="text-sm text-gray-600">{member.quote}</p>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedContent({
-                              id: member.id,
-                              title: member.name,
-                              content: member.quote,
-                              type: "team",
-                              metadata: { position: member.position, phone: member.phone, email: member.email, image: member.image }
-                            });
-                            setShowContentForm(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedContent({
+                                id: member.id,
+                                title: member.name,
+                                content: member.quote,
+                                type: "team",
+                                metadata: { position: member.position, phone: member.phone, email: member.email, image: member.image }
+                              });
+                              setShowContentForm(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteTeamMember(member.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -514,11 +641,20 @@ function PagesContent() {
         </Tabs>
 
         {/* Edit Content Dialog */}
-        <Dialog open={showContentForm} onOpenChange={setShowContentForm}>
+        <Dialog open={showContentForm} onOpenChange={(isOpen) => {
+          setShowContentForm(isOpen);
+          if (!isOpen) {
+            setSelectedContent(null); // Clear selected content when dialog closes
+          }
+        }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
-                Editar Contenido - {selectedContent?.type}
+                {selectedContent?.id === "hero" ? "Editar Sección Hero" :
+                 selectedContent?.type === "team" ? (selectedContent.id ? "Editar Miembro del Equipo" : "Agregar Nuevo Miembro") :
+                 selectedContent?.type === "service" ? "Editar Servicio" :
+                 selectedContent?.type === "plan" ? "Editar Plan" :
+                 selectedContent?.type === "value" ? "Editar Valor" : "Editar Contenido"}
               </DialogTitle>
               <DialogDescription>
                 Modifica el contenido de la sección seleccionada
@@ -526,33 +662,22 @@ function PagesContent() {
             </DialogHeader>
             <form onSubmit={(e) => {
               e.preventDefault();
-              handleSaveContent(new FormData(e.currentTarget));
+              const formData = new FormData(e.currentTarget);
+              handleSaveContent(formData);
             }}>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="title">
                     {selectedContent?.type === "hero" ? "Título" :
                      selectedContent?.type === "team" ? "Nombre" :
-                     selectedContent?.type === "plan" ? "Nombre del Plan" : "Título"}
+                     selectedContent?.type === "plan" ? "Nombre del Plan" :
+                     selectedContent?.type === "service" ? "Título del Servicio" :
+                     selectedContent?.type === "value" ? "Título del Valor" : "Título"}
                   </Label>
                   <Input
                     id="title"
                     name="title"
                     defaultValue={selectedContent?.title}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="content">
-                    {selectedContent?.type === "hero" ? "Subtítulo" :
-                     selectedContent?.type === "team" ? "Frase/Quote" :
-                     selectedContent?.type === "plan" ? "Descripción del Plan" : "Descripción"}
-                  </Label>
-                  <Textarea
-                    id="content"
-                    name="content"
-                    defaultValue={selectedContent?.content}
-                    rows={4}
                     required
                   />
                 </div>
@@ -597,6 +722,22 @@ function PagesContent() {
                     </div>
                   </div>
                 )}
+                <div>
+                  <Label htmlFor="content">
+                    {selectedContent?.type === "hero" ? "Subtítulo" :
+                     selectedContent?.type === "team" ? "Frase/Quote" :
+                     selectedContent?.type === "plan" ? "Descripción del Plan" :
+                     selectedContent?.type === "service" ? "Descripción del Servicio" :
+                     selectedContent?.type === "value" ? "Descripción del Valor" : "Descripción"}
+                  </Label>
+                  <Textarea
+                    id="content"
+                    name="content"
+                    defaultValue={selectedContent?.content}
+                    rows={4}
+                    required
+                  />
+                </div>
                 {(selectedContent?.type === "service" || selectedContent?.type === "value") && (
                   <div>
                     <Label htmlFor="metadata">Configuración (JSON)</Label>
@@ -608,7 +749,8 @@ function PagesContent() {
                       rows={3}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Incluye: icon, color
+                      {selectedContent?.type === "service" && "Incluye: icon, color"}
+                      {selectedContent?.type === "value" && "Incluye: icon, color"}
                     </p>
                   </div>
                 )}
