@@ -21,7 +21,8 @@ import {
   LogOut,
   Home,
   Warehouse,
-  MapPin
+  MapPin,
+  MessageCircle // Added for WhatsApp configuration
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -56,7 +57,7 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/contact", label: "Contacto", icon: MessageSquare, section: "Módulos de Negocio", moduleRequired: "contacto" },
 
   { href: "/admin/contact-info", label: "Información de Contacto", icon: MapPin, section: "Módulos de Negocio", moduleRequired: "contacto" },
-
+  { href: "/admin/whatsapp-config", label: "Config. WhatsApp", icon: MessageCircle, section: "Módulos de Negocio" }, // Added WhatsApp config link
   { href: "/admin/email-config", label: "Config. Email", icon: Mail, section: "Módulos de Negocio" },
 ];
 

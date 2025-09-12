@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef } from "react";
+import React, { Suspense, lazy, useEffect, useRef } from "react";
 import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -55,6 +55,10 @@ import AdminInventory from "@/pages/admin/inventory";
 import AdminContactInfo from "@/pages/admin/contact-info";
 import AdminServiciosSections from "@/pages/admin/servicios-sections";
 import AdminPagesContent from "@/pages/admin/pages-content";
+
+const AdminWhatsAppConfig = lazy(() => import("./pages/admin/whatsapp-config"));
+
+const AdminEmailConfig = lazy(() => import("./pages/admin/email-config"));
 
 import NotFound from "@/pages/not-found";
 
@@ -144,7 +148,21 @@ function Router() {
       <Route path="/admin/blog" component={AdminBlog} />
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/email-config" component={AdminEmailConfig} />
-      <Route path="/admin/contact-info" component={AdminContactInfo} />
+      <Route path="/admin/contact-info">
+        <Suspense fallback={<LoadingPage />}>
+          <AdminContactInfo />
+        </Suspense>
+      </Route>
+      <Route path="/admin/whatsapp-config">
+        <Suspense fallback={<LoadingPage />}>
+          <AdminWhatsAppConfig />
+        </Suspense>
+      </Route>
+      <Route path="/admin/email-config">
+        <Suspense fallback={<LoadingPage />}>
+          <AdminEmailConfig />
+        </Suspense>
+      </Route>
       <Route path="/admin/servicios-sections">
         <Suspense fallback={<LoadingPage />}>
           <AdminServiciosSections />

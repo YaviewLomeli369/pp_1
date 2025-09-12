@@ -1,17 +1,23 @@
 import React from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import type { SiteConfig } from "@shared/schema";
 
 export default function WhatsAppWidget() {
   const [location] = useLocation();
   
-  // ✅ Solo cambiar aquí el número y el mensaje 
-  // EDTX CAMBIO WHATSAPP Y MENSAJE
-  const WHATSAPP_NUMBER = "525512345678"; // formato internacional sin "+"
-  const DEFAULT_MESSAGE = (
-      `Hola 👋, estoy interesado en conocer más sobre sus servicios de desarrollo de sitios web. 
-    Me gustaría recibir información sobre planes, precios y cómo podemos comenzar. ¡Gracias!`
-    );
+  const { data: config } = useQuery<SiteConfig>({
+    queryKey: ["/api/config"],
+  });
+
+  // Obtener configuración de WhatsApp desde la base de datos
+  const configData = config?.config as any;
+  const whatsappConfig = configData?.whatsapp || {};
   
+  const WHATSAPP_NUMBER = whatsappConfig.number || "525512345678"; // fallback
+  const DEFAULT_MESSAGE = whatsappConfig.message || 
+    `Hola 👋, estoy interesado en conocer más sobre sus servicios de desarrollo de sitios web. 
+    Me gustaría recibir información sobre planes, precios y cómo podemos comenzar. ¡Gracias!`;
 
   // No mostrar el widget en páginas de administración o auth
   const shouldHide = location.startsWith('/admin') || 
@@ -24,7 +30,6 @@ export default function WhatsAppWidget() {
     return null;
   }
 
-  
   const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
     DEFAULT_MESSAGE
   )}`;
