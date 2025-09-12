@@ -256,6 +256,28 @@ function PagesContent() {
     updateConfigMutation.mutate({ config: newConfig });
   };
 
+  const handleDeletePlan = async (planId: string) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar este plan?")) {
+      return;
+    }
+
+    const currentConfig = config?.config as any;
+    const updatedPlans = pagesContent.servicios.plans?.filter((p: any) => p.id !== planId) || [];
+    
+    const newConfig = {
+      ...currentConfig,
+      pagesContent: {
+        ...currentConfig?.pagesContent,
+        servicios: {
+          ...pagesContent.servicios,
+          plans: updatedPlans
+        }
+      }
+    };
+
+    updateConfigMutation.mutate({ config: newConfig });
+  };
+
   const handleSaveContent = async (formData: FormData) => {
     if (!selectedContent) return;
 
@@ -279,18 +301,14 @@ function PagesContent() {
         color: formData.get("color") as string,
       };
     } else if (selectedContent.type === "plan") {
-      const metadataString = formData.get("metadata") as string;
-      try {
-        metadata = metadataString ? JSON.parse(metadataString) : {};
-      } catch (e) {
-        console.error("Invalid JSON in metadata", e);
-        toast({
-          variant: "destructive",
-          title: "Error en Metadata",
-          description: "El formato del JSON para metadata es inválido.",
-        });
-        return;
-      }
+      const featuresString = formData.get("features") as string;
+      const features = featuresString ? featuresString.split('\n').filter(f => f.trim()) : [];
+      
+      metadata = {
+        price: formData.get("price") as string,
+        highlight: formData.get("highlight") === "on",
+        features: features,
+      };
     }
 
     const contentData = {
@@ -548,33 +566,69 @@ function PagesContent() {
               {/* Plans */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Planes</CardTitle>
-                  <CardDescription>Planes de servicio disponibles</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Planes</CardTitle>
+                      <CardDescription>Planes de servicio disponibles</CardDescription>
+                    </div>
+                    <Button onClick={() => {
+                      setSelectedContent({
+                        id: crypto.randomUUID(),
+                        title: "",
+                        content: "",
+                        type: "plan",
+                        metadata: { price: "", highlight: false, features: [] }
+                      });
+                      setShowContentForm(true);
+                    }}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar Plan
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4">
-                    {pagesContent.servicios.plans?.map((plan: any) => (
+                    {pagesContent.servicios.plans?.map((plan: any, index: number) => (
                       <div key={plan.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
-                          <h4 className="font-medium">{plan.name} - {plan.price}</h4>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">{plan.name} - {plan.price}</h4>
+                            {plan.highlight && (
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                                Destacado
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-gray-600">{plan.description}</p>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {plan.features?.length || 0} características
+                          </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedContent({
-                              id: plan.id,
-                              title: plan.name,
-                              content: plan.description,
-                              type: "plan",
-                              metadata: { price: plan.price, highlight: plan.highlight, features: plan.features }
-                            });
-                            setShowContentForm(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedContent({
+                                id: plan.id,
+                                title: plan.name,
+                                content: plan.description,
+                                type: "plan",
+                                metadata: { price: plan.price, highlight: plan.highlight, features: plan.features }
+                              });
+                              setShowContentForm(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeletePlan(plan.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -969,18 +1023,41 @@ function PagesContent() {
                   </div>
                 )}
                 {selectedContent?.type === "plan" && (
-                  <div>
-                    <Label htmlFor="metadata">Configuración del Plan (JSON)</Label>
-                    <Textarea
-                      id="metadata"
-                      name="metadata"
-                      defaultValue={selectedContent?.metadata ? JSON.stringify(selectedContent.metadata, null, 2) : ''}
-                      placeholder='{"price": "9,499 MXN", "highlight": true, "features": ["Feature 1", "Feature 2"]}'
-                      rows={4}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Incluye: price, highlight, features
-                    </p>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="price">Precio</Label>
+                      <Input
+                        id="price"
+                        name="price"
+                        defaultValue={selectedContent?.metadata?.price || ''}
+                        placeholder="9,499 MXN"
+                        required
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="highlight"
+                        name="highlight"
+                        defaultChecked={selectedContent?.metadata?.highlight || false}
+                        className="rounded"
+                      />
+                      <Label htmlFor="highlight">Plan destacado</Label>
+                    </div>
+                    <div>
+                      <Label htmlFor="features">Características (una por línea)</Label>
+                      <Textarea
+                        id="features"
+                        name="features"
+                        defaultValue={selectedContent?.metadata?.features?.join('\n') || ''}
+                        placeholder="Característica 1&#10;Característica 2&#10;Característica 3"
+                        rows={6}
+                        required
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Escriba cada característica en una línea separada
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
