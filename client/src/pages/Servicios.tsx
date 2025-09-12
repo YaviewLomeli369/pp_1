@@ -28,15 +28,17 @@ const PlanCard = ({ plan }: { plan: typeof plans[0] }) => {
                           plan.discountPercentage > 0;
 
   // Calculate prices
-  const currentPrice = plan.price.replace(/\D/g, "");
-  const originalPrice = plan.originalPrice ? plan.originalPrice.replace(/\D/g, "") : "";
+  const currentPriceNum = parseInt(plan.price.replace(/\D/g, "")) || 0;
+  const originalPriceNum = plan.originalPrice ? parseInt(plan.originalPrice.replace(/\D/g, "")) : 0;
   
-  const displayPrice = isValidPromotion && originalPrice
-    ? (parseInt(originalPrice) * (1 - plan.discountPercentage / 100)).toLocaleString()
-    : currentPrice.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  // For promotions, show the calculated discounted price, otherwise show the current price
+  const displayPrice = isValidPromotion && originalPriceNum > 0
+    ? (originalPriceNum * (1 - plan.discountPercentage / 100)).toLocaleString()
+    : currentPriceNum.toLocaleString();
 
-  const displayOriginalPrice = isValidPromotion && originalPrice
-    ? parseInt(originalPrice).toLocaleString()
+  // Show original price (crossed out) only if it's a valid promotion
+  const displayOriginalPrice = isValidPromotion && originalPriceNum > 0
+    ? originalPriceNum.toLocaleString()
     : null;
 
   return (
