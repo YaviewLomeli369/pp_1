@@ -50,7 +50,7 @@ import AdminReservationSettings from "@/pages/admin/reservation-settings";
 import AdminPayments from "@/pages/admin/payments";
 import AdminBlog from "@/pages/admin/blog";
 import AdminOrders from "@/pages/admin/orders";
-import AdminEmailConfig from "@/pages/admin/email-config";
+// import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminInventory from "@/pages/admin/inventory";
 import AdminContactInfo from "@/pages/admin/contact-info";
 import AdminServiciosSections from "@/pages/admin/servicios-sections";
