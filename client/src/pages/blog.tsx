@@ -11,6 +11,7 @@ import { Link } from "wouter";
 import { Calendar, User, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import AnimatedSection from "@/components/AnimatedSection";
+import HeroSection from "@/components/HeroSection";
 
 export default function Blog() {
   const { user } = useAuth();
@@ -63,37 +64,11 @@ export default function Blog() {
       <Navbar />
 
       {/* Hero Section */}
-      <AnimatedSection>
-        <section
-          className="relative py-20 text-white navbar-fixed-body"
-          style={{
-            backgroundImage: `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            fontFamily: appearance.fontFamily || "inherit",
-          }}
-        >
-          {/* Capa semitransparente */}
-          <div className="absolute inset-0 bg-black/50"></div>
-
-          {/* Contenido */}
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1
-              className="text-4xl md:text-5xl font-bold mb-4"
-              style={{ fontFamily: appearance.fontFamily || "inherit" }}
-            >
-              Blog
-            </h1>
-            <p
-              className="text-xl text-blue-100"
-              style={{ fontFamily: appearance.fontFamily || "inherit" }}
-            >
-              Artículos, noticias y actualizaciones
-            </p>
-          </div>
-        </section>
-      </AnimatedSection>
+      <HeroSection
+        title="Blog"
+        subtitle="Noticias, consejos y actualizaciones"
+        appearance={appearance}
+      />
 
       {/* Blog Posts */}
       <AnimatedSection delay={0.2}>

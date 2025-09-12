@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import AnimatedSection from "@/components/AnimatedSection";
+import HeroSection from "@/components/HeroSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -130,40 +131,12 @@ export default function Faqs() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* Header fuera del container para ocupar todo el ancho */}
-      <section
-        className="relative w-full min-h-[40vh] md:min-h-[50vh] flex items-center justify-center text-white navbar-fixed-body"
-        style={{
-          backgroundImage: `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundColor: appearance.heroBackgroundColor || "#000000",
-          color: appearance.heroTextColor || "#ffffff",
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-60"
-          style={{ backgroundColor: appearance.heroOverlayColor || "#000000" }}
-        ></div>
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <HelpCircle
-            className="h-14 w-14 mx-auto text-blue-400 mb-4 animate-bounce"
-            color={appearance.iconColor || "#93c5fd"}
-          />
-          <h1
-            className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg"
-            style={{ color: appearance.headingColor || "#ffffff" }}
-          >
-            Preguntas Frecuentes
-          </h1>
-          <p
-            className="text-lg md:text-xl text-gray-200"
-            style={{ color: appearance.subheadingColor || "#e5e7eb" }}
-          >
-            Encuentra respuestas rápidas a las preguntas más comunes
-          </p>
-        </div>
-      </section>
+      {/* HeroSection is now used here */}
+      <HeroSection
+        title="Preguntas Frecuentes"
+        subtitle="Encuentra respuestas a las dudas más comunes"
+        appearance={appearance}
+      />
 
       <AnimatedSection>
         <div className="container mx-auto px-4 py-16 flex-1">

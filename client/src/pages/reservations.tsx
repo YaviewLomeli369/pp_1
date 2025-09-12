@@ -15,6 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { SiteConfig, InsertReservation, ReservationSettings } from "@shared/schema";
 import { Calendar, Clock, Users, Phone, Mail, AlertCircle, CheckCircle } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
+import HeroSection from "@/components/HeroSection";
 import { Textarea } from "@/components/ui/textarea"
 
 export default function Reservations() {
@@ -156,37 +157,11 @@ export default function Reservations() {
       <Navbar />
 
       {/* Hero Section */}
-      <AnimatedSection>
-        <section
-          className="relative bg-primary text-white py-16 navbar-fixed-body"
-          style={{
-            backgroundImage: `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50"></div>
-
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <Calendar className="w-16 h-16 mx-auto mb-4" />
-            <h1
-              className="text-4xl md:text-5xl font-bold mb-4"
-              style={{ fontFamily: appearance.fontFamily || "inherit" }}
-            >
-              Sistema de Reservas
-            </h1>
-            <p
-              className="text-xl text-blue-100"
-              style={{ fontFamily: appearance.fontFamily || "inherit" }}
-            >
-              Reserve su cita de manera fácil y rápida con nuestro sistema automatizado
-            </p>
-          </div>
-        </section>
-      </AnimatedSection>
-
+      <HeroSection
+        title="Reservas"
+        subtitle="Agenda tu cita de manera fácil y rápida"
+        appearance={appearance}
+      />
 
       {/* Reservation Form */}
       <AnimatedSection delay={0.2}>

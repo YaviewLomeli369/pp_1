@@ -23,6 +23,7 @@ import type { Testimonial, SiteConfig } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import AnimatedSection from "@/components/AnimatedSection";
+import HeroSection from "@/components/HeroSection";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function Testimonials() {
@@ -92,36 +93,12 @@ export default function Testimonials() {
     >
       <Navbar />
 
-      <AnimatedSection>
-        {/* Hero/Header */}
-        <section
-          className="relative w-full min-h-[40vh] md:min-h-[50vh] flex items-center justify-center text-white navbar-fixed-body"
-          style={{
-            backgroundImage: `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <div className="absolute inset-0 bg-black/60"></div>
-          <div className="relative max-w-4xl mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-              Testimonios de Nuestros Clientes
-            </h1>
-            <p className="text-xl mb-8 text-gray-200">
-              Conoce las experiencias de quienes confían en nosotros
-            </p>
-            <Button 
-              size="lg" 
-              variant="secondary" 
-              className="shadow-lg"
-              onClick={() => setIsCreateOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Compartir tu Experiencia
-            </Button>
-          </div>
-        </section>
+      {/* Hero */}
+      <HeroSection
+        title="Testimonios"
+        subtitle="Lo que dicen nuestros clientes"
+        appearance={appearance}
+      />
 
         {/* Loading Spinner */}
         {isLoading ? (
@@ -277,7 +254,6 @@ export default function Testimonials() {
             </form>
           </DialogContent>
         </Dialog>
-      </AnimatedSection>
 
       <Footer />
     </div>
