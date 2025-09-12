@@ -43,7 +43,7 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/users", label: "Usuarios", icon: Users, section: "Configuración" },
   { href: "/admin/sections", label: "Secciones", icon: Layout, section: "Contenido", superuserOnly: true },
   { href: "/admin/pages-content", label: "Contenido de Páginas", icon: FileText, section: "Contenido" },
-  { href: "/admin/servicios-sections", label: "Servicios", icon: Settings, section: "Contenido" },
+  // { href: "/admin/servicios-sections", label: "Servicios", icon: Settings, section: "Contenido" },
   { href: "/admin/testimonials", label: "Testimonios", icon: Quote, section: "Contenido", moduleRequired: "testimonios" },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle, section: "Contenido", moduleRequired: "faqs" },
   { href: "/admin/blog", label: "Blog", icon: FileText, section: "Contenido", moduleRequired: "blog" },
