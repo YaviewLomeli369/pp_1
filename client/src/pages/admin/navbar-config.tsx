@@ -1,14 +1,10 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
@@ -20,8 +16,6 @@ import {
 import {
   Navigation,
   GripVertical,
-  Plus,
-  Trash2,
   Save,
   Eye,
   EyeOff,
@@ -36,7 +30,7 @@ import {
   Package,
 } from "lucide-react";
 
-type NavbarConfig = {
+type NavbarItem = {
   id: string;
   moduleKey: string;
   label: string;
@@ -73,97 +67,55 @@ const defaultNavItems = [
 export default function AdminNavbarConfig() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [items, setItems] = useState<NavbarConfig[]>([]);
-  const [newItem, setNewItem] = useState({
-    moduleKey: "",
-    label: "",
-    href: "",
-    isVisible: true,
-  });
+  const [items, setItems] = useState<NavbarItem[]>([]);
 
-  const { data: config } = useQuery({
+  const { data: config, isLoading } = useQuery({
     queryKey: ["/api/config"],
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: navbarConfig, isLoading } = useQuery({
-    queryKey: ["/api/navbar-config"],
-    onSuccess: (data: NavbarConfig[]) => {
-      if (data && data.length > 0) {
-        setItems(data);
-      } else if (config) {
-        // Initialize with items based on active modules
-        const modules = (config as any)?.config?.frontpage?.modulos || {};
-        const availableItems = defaultNavItems.filter(item => 
-          item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
-        );
-        
-        const defaultItems = availableItems.map((item, index) => ({
-          id: `default-${item.moduleKey}`,
+  // Initialize items based on active modules and existing navbar config
+  useEffect(() => {
+    if (config) {
+      const modules = (config as any)?.config?.frontpage?.modulos || {};
+      const navbarConfig = (config as any)?.config?.navbar || {};
+
+      // Get available items based on active modules
+      const availableItems = defaultNavItems.filter(item => 
+        item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
+      );
+
+      // Create items with existing navbar config or defaults
+      const configuredItems = availableItems.map((item, index) => {
+        const existingConfig = navbarConfig[item.moduleKey] || {};
+        return {
+          id: `${item.moduleKey}-${Date.now()}`, // Use moduleKey for ID, add timestamp to ensure uniqueness if needed
           moduleKey: item.moduleKey,
           label: item.label,
           href: item.href,
-          isVisible: true,
-          order: index,
+          isVisible: existingConfig.isVisible !== undefined ? existingConfig.isVisible : true,
+          order: existingConfig.order !== undefined ? existingConfig.order : index,
           isRequired: item.isRequired,
-        }));
-        setItems(defaultItems);
-      }
-    },
-  });
+        };
+      });
 
-  const createMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/navbar-config", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/navbar-config"] });
-      toast({ title: "Elemento creado", description: "El elemento del navbar ha sido creado correctamente" });
-    },
-    onError: () => {
-      toast({ variant: "destructive", title: "Error", description: "No se pudo crear el elemento" });
-    },
-  });
+      // Sort by order
+      configuredItems.sort((a, b) => a.order - b.order);
+      setItems(configuredItems);
+    }
+  }, [config]);
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => apiRequest(`/api/navbar-config/${id}`, {
+  const updateConfigMutation = useMutation({
+    mutationFn: (newConfig: any) => apiRequest("/api/config", {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: JSON.stringify({ config: newConfig }),
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/navbar-config"] });
-      toast({ title: "Actualizado", description: "El elemento ha sido actualizado correctamente" });
+      queryClient.invalidateQueries({ queryKey: ["/api/config"] });
+      toast({ title: "Configuración actualizada", description: "El navbar ha sido actualizado correctamente" });
     },
     onError: () => {
-      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el elemento" });
-    },
-  });
-
-  const reorderMutation = useMutation({
-    mutationFn: (items: { id: string; order: number }[]) => apiRequest("/api/navbar-config/reorder", {
-      method: "PUT",
-      body: JSON.stringify({ items }),
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/navbar-config"] });
-      toast({ title: "Orden actualizado", description: "El orden del navbar ha sido guardado" });
-    },
-    onError: () => {
-      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el orden" });
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/navbar-config/${id}`, {
-      method: "DELETE",
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/navbar-config"] });
-      toast({ title: "Eliminado", description: "El elemento ha sido eliminado correctamente" });
-    },
-    onError: () => {
-      toast({ variant: "destructive", title: "Error", description: "No se pudo eliminar el elemento" });
+      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar la configuración" });
     },
   });
 
@@ -183,52 +135,39 @@ export default function AdminNavbarConfig() {
     setItems(updatedItems);
   };
 
-  const handleSaveOrder = () => {
-    const orderData = items.map((item, index) => ({
-      id: item.id,
-      order: index,
-    }));
-    reorderMutation.mutate(orderData);
+  const handleToggleVisibility = (moduleKey: string, isVisible: boolean) => {
+    setItems(items.map(item => 
+      item.moduleKey === moduleKey ? { ...item, isVisible } : item
+    ));
   };
 
-  const handleToggleVisibility = (id: string, isVisible: boolean) => {
-    const item = items.find(i => i.id === id);
-    if (item && !item.isRequired) {
-      updateMutation.mutate({
-        id,
-        data: { ...item, isVisible },
-      });
-      setItems(items.map(i => i.id === id ? { ...i, isVisible } : i));
-    }
-  };
+  const handleSaveConfiguration = () => {
+    if (!config) return;
 
-  const handleAddItem = () => {
-    if (!newItem.moduleKey || !newItem.label || !newItem.href) {
-      toast({ variant: "destructive", title: "Error", description: "Todos los campos son obligatorios" });
-      return;
-    }
+    // Create navbar configuration object
+    const navbarConfig: { [key: string]: any } = {};
+    items.forEach(item => {
+      navbarConfig[item.moduleKey] = {
+        isVisible: item.isVisible,
+        order: item.order,
+        label: item.label,
+        href: item.href,
+        isRequired: item.isRequired
+      };
+    });
 
-    const itemData = {
-      ...newItem,
-      order: items.length,
-      isRequired: false,
+    // Update the existing config without resetting anything
+    const updatedConfig = {
+      ...(config as any).config,
+      navbar: navbarConfig
     };
 
-    createMutation.mutate(itemData);
-    setNewItem({ moduleKey: "", label: "", href: "", isVisible: true });
-  };
-
-  const handleDeleteItem = (id: string) => {
-    const item = items.find(i => i.id === id);
-    if (item && !item.isRequired) {
-      deleteMutation.mutate(id);
-      setItems(items.filter(i => i.id !== id));
-    }
+    updateConfigMutation.mutate(updatedConfig);
   };
 
   const handleRefreshFromModules = () => {
     if (!config) return;
-    
+
     const modules = (config as any)?.config?.frontpage?.modulos || {};
     const availableItems = defaultNavItems.filter(item => 
       item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
@@ -249,11 +188,6 @@ export default function AdminNavbarConfig() {
       }));
 
     if (newItems.length > 0) {
-      // Create the new items in database
-      newItems.forEach(item => {
-        createMutation.mutate(item);
-      });
-      
       setItems([...items, ...newItems]);
       toast({ 
         title: "Módulos actualizados", 
@@ -297,12 +231,14 @@ export default function AdminNavbarConfig() {
               onClick={handleRefreshFromModules}
               disabled={!config}
             >
-              <Plus className="mr-2 h-4 w-4" />
               Actualizar desde Módulos
             </Button>
-            <Button onClick={handleSaveOrder} disabled={reorderMutation.isLoading}>
+            <Button 
+              onClick={handleSaveConfiguration} 
+              disabled={updateConfigMutation.isLoading || !config}
+            >
               <Save className="mr-2 h-4 w-4" />
-              Guardar Orden
+              Guardar Configuración
             </Button>
           </div>
         </div>
@@ -318,76 +254,89 @@ export default function AdminNavbarConfig() {
                 </p>
               </CardHeader>
               <CardContent>
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <Droppable droppableId="navbar-items">
-                    {(provided) => (
-                      <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                        {items.map((item, index) => (
-                          <Draggable key={item.id} draggableId={item.id} index={index}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                className={`flex items-center justify-between p-4 border rounded-lg bg-white ${
-                                  snapshot.isDragging ? "shadow-lg border-primary" : "border-gray-200"
-                                }`}
-                              >
-                                <div className="flex items-center space-x-3">
-                                  <div {...provided.dragHandleProps}>
-                                    <GripVertical className="h-5 w-5 text-gray-400 cursor-grab" />
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
-                                    <span className="font-medium">{item.label}</span>
-                                  </div>
-                                  <Badge variant="outline" className="text-xs">
-                                    {item.href}
-                                  </Badge>
-                                  {item.isRequired && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      Requerido
+                {items.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No hay elementos configurados</p>
+                  </div>
+                ) : (
+                  <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="navbar-items">
+                      {(provided) => (
+                        <div 
+                          {...provided.droppableProps} 
+                          ref={provided.innerRef} 
+                          className="space-y-3"
+                        >
+                          {items.map((item, index) => (
+                            <Draggable 
+                              key={item.id} 
+                              draggableId={item.id} 
+                              index={index}
+                            >
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  className={`flex items-center justify-between p-4 border rounded-lg bg-white transition-all ${
+                                    snapshot.isDragging 
+                                      ? "shadow-lg border-primary scale-105" 
+                                      : "border-gray-200 hover:border-gray-300"
+                                  }`}
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <div 
+                                      {...provided.dragHandleProps}
+                                      className="cursor-grab active:cursor-grabbing"
+                                    >
+                                      <GripVertical className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
+                                      <span className="font-medium">{item.label}</span>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs">
+                                      {item.href}
                                     </Badge>
-                                  )}
-                                </div>
-
-                                <div className="flex items-center space-x-2">
-                                  <Switch
-                                    checked={item.isVisible}
-                                    onCheckedChange={(checked) => handleToggleVisibility(item.id, checked)}
-                                    disabled={item.isRequired}
-                                  />
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleToggleVisibility(item.id, !item.isVisible)}
-                                    disabled={item.isRequired}
-                                  >
-                                    {item.isVisible ? (
-                                      <Eye className="h-4 w-4" />
-                                    ) : (
-                                      <EyeOff className="h-4 w-4" />
+                                    {item.isRequired && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        Requerido
+                                      </Badge>
                                     )}
-                                  </Button>
-                                  {!item.isRequired && (
+                                  </div>
+
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      checked={item.isVisible}
+                                      onCheckedChange={(checked) => 
+                                        handleToggleVisibility(item.moduleKey, checked)
+                                      }
+                                      disabled={item.isRequired}
+                                    />
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      onClick={() => handleDeleteItem(item.id)}
-                                      className="text-red-600 hover:text-red-700"
+                                      onClick={() => 
+                                        handleToggleVisibility(item.moduleKey, !item.isVisible)
+                                      }
+                                      disabled={item.isRequired}
                                     >
-                                      <Trash2 className="h-4 w-4" />
+                                      {item.isVisible ? (
+                                        <Eye className="h-4 w-4" />
+                                      ) : (
+                                        <EyeOff className="h-4 w-4" />
+                                      )}
                                     </Button>
-                                  )}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -406,9 +355,9 @@ export default function AdminNavbarConfig() {
                   const isActive = item.isRequired || 
                     (item.moduleKey && (config as any)?.config?.frontpage?.modulos?.[item.moduleKey]?.activo);
                   const isInNavbar = items.some(navItem => navItem.moduleKey === item.moduleKey);
-                  
+
                   return (
-                    <div key={item.moduleKey} className="flex items-center justify-between p-2 border rounded">
+                    <div key={item.moduleKey} className="flex items-center justify-between p-3 border rounded">
                       <div className="flex items-center space-x-2">
                         {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
                         <span className="text-sm font-medium">{item.label}</span>
@@ -442,7 +391,7 @@ export default function AdminNavbarConfig() {
                 <p>• <strong>Arrastrar:</strong> Cambia el orden de los elementos</p>
                 <p>• <strong>Switch:</strong> Muestra/oculta elementos en el navbar público</p>
                 <p>• <strong>Elementos Requeridos:</strong> "Inicio", "Conócenos" y "Servicios" siempre están presentes</p>
-                <p>• <strong>Guardar Orden:</strong> Confirma los cambios de posición</p>
+                <p>• <strong>Guardar Configuración:</strong> Confirma los cambios en la configuración del sitio</p>
                 <p>• Los cambios se reflejan inmediatamente en el navbar público</p>
               </CardContent>
             </Card>

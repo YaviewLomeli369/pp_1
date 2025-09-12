@@ -257,38 +257,58 @@ export function Navbar() {
   }, [cart, handleNavigation, toast]);
 
   const navItems = useMemo(() => {
-    // Use navbar configuration from database if available
-    if (navbarConfig && navbarConfig.length > 0) {
-      return navbarConfig
-        .filter((item: any) => {
-          // Show if visible and either required or module is active
-          return item.isVisible && (
-            item.isRequired || 
-            (item.moduleKey && modules[item.moduleKey]?.activo)
-          );
-        })
-        .sort((a: any, b: any) => a.order - b.order)
-        .map((item: any) => ({
-          href: item.href,
-          label: item.label,
-          moduleKey: item.moduleKey,
-          always: item.isRequired
-        }));
-    }
-
-    // Fallback to default configuration if no database config
-    return [
-      { href: "/", label: "Inicio", always: true },
+    const navbarConfig = configData?.navbar || {};
+    
+    // Default navigation items
+    const defaultItems = [
+      { href: "/", label: "Inicio", moduleKey: "home", always: true },
       { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios" },
       { href: "/faqs", label: "FAQs", moduleKey: "faqs" },
       { href: "/contact", label: "Contacto", moduleKey: "contacto" },
       { href: "/store", label: "Tienda", moduleKey: "tienda" },
       { href: "/blog", label: "Blog", moduleKey: "blog" },
       { href: "/reservations", label: "Reservas", moduleKey: "reservas" },
-      { href: "/conocenos", label: "Conócenos", always: true },
-      { href: "/servicios", label: "Servicios", always: true }
-    ].filter(item => item.always || (item.moduleKey && modules[item.moduleKey]?.activo));
-  }, [navbarConfig, modules]);
+      { href: "/conocenos", label: "Conócenos", moduleKey: "conocenos", always: true },
+      { href: "/servicios", label: "Servicios", moduleKey: "servicios", always: true }
+    ];
+
+    // If navbar config exists, use it; otherwise use defaults
+    if (Object.keys(navbarConfig).length > 0) {
+      return defaultItems
+        .filter(item => {
+          const config = navbarConfig[item.moduleKey];
+          if (!config) return item.always;
+          
+          // Show if visible and either required or module is active
+          return config.isVisible && (
+            config.isRequired || 
+            item.always ||
+            (item.moduleKey && modules[item.moduleKey]?.activo)
+          );
+        })
+        .sort((a, b) => {
+          const configA = navbarConfig[a.moduleKey];
+          const configB = navbarConfig[b.moduleKey];
+          const orderA = configA?.order ?? 999;
+          const orderB = configB?.order ?? 999;
+          return orderA - orderB;
+        })
+        .map(item => {
+          const config = navbarConfig[item.moduleKey];
+          return {
+            href: config?.href || item.href,
+            label: config?.label || item.label,
+            moduleKey: item.moduleKey,
+            always: item.always || config?.isRequired
+          };
+        });
+    }
+
+    // Fallback to default configuration if no navbar config
+    return defaultItems.filter(item => 
+      item.always || (item.moduleKey && modules[item.moduleKey]?.activo)
+    );
+  }, [configData, modules]);
 
   useEffect(() => {
     const handleResize = () => {
