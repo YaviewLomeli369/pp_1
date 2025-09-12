@@ -195,11 +195,21 @@ function PagesContent() {
       return;
     }
 
-    const newConfig = { ...pagesContent };
-    if (newConfig.conocenos && newConfig.conocenos.team) {
-      newConfig.conocenos.team = newConfig.conocenos.team.filter((m: any) => m.id !== memberId);
-      updateConfigMutation.mutate({ config: newConfig });
-    }
+    const currentConfig = config?.config as any;
+    const updatedTeam = pagesContent.conocenos.team?.filter((m: any) => m.id !== memberId) || [];
+    
+    const newConfig = {
+      ...currentConfig,
+      pagesContent: {
+        ...currentConfig?.pagesContent,
+        conocenos: {
+          ...pagesContent.conocenos,
+          team: updatedTeam
+        }
+      }
+    };
+
+    updateConfigMutation.mutate({ config: newConfig });
   };
 
   const handleSaveContent = async (formData: FormData) => {
