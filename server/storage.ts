@@ -139,41 +139,49 @@ class MockDatabaseStorage implements IStorage {
   async getInventoryMovements(): Promise<any[]> {
     if (!db) return [];
     return await db.select().from(inventoryMovements);
-  },
+  }
+
   async addInventoryMovement(data: any): Promise<any> {
     if (!db) throw new Error("Database not available");
     const [movement] = await db.insert(inventoryMovements).values(data).returning();
     return movement;
-  },
+  }
+
   async updateInventoryMovement(id: string, data: any): Promise<any | null> {
     if (!db) return null;
     const [movement] = await db.update(inventoryMovements).set(data).where(eq(inventoryMovements.id, id)).returning();
     return movement;
-  },
+  }
+
   async deleteInventoryMovement(id: string): Promise<boolean> {
     if (!db) return false;
     const result = await db.delete(inventoryMovements).where(eq(inventoryMovements.id, id));
     return result.rowCount > 0;
-  },
+  }
+
   async getCartItems(): Promise<any[]> {
     if (!db) return [];
     return await db.select().from(cartItems);
-  },
+  }
+
   async addCartItem(data: any): Promise<any> {
     if (!db) throw new Error("Database not available");
     const [item] = await db.insert(cartItems).values(data).returning();
     return item;
-  },
+  }
+
   async updateCartItem(id: string, data: any): Promise<any | null> {
     if (!db) return null;
     const [item] = await db.update(cartItems).set(data).where(eq(cartItems.id, id)).returning();
     return item;
-  },
+  }
+
   async deleteCartItem(id: string): Promise<boolean> {
     if (!db) return false;
     const result = await db.delete(cartItems).where(eq(cartItems.id, id));
     return result.rowCount > 0;
-  },
+  }
+
   async clearCartItems(): Promise<boolean> {
     if (!db) return false;
     const result = await db.delete(cartItems);
