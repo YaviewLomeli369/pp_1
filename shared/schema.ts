@@ -590,3 +590,24 @@ export type PaymentConfig = typeof paymentConfig.$inferSelect;
 export type InsertPaymentConfig = typeof paymentConfig.$inferInsert;
 export type EmailConfig = typeof emailConfig.$inferSelect;
 export type InsertEmailConfig = z.infer<typeof insertEmailConfigSchema>;
+
+// Navbar Configuration
+export const navbarConfig = pgTable("navbar_config", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  moduleKey: text("module_key").notNull(),
+  label: text("label").notNull(),
+  href: text("href").notNull(),
+  isVisible: boolean("is_visible").default(true),
+  order: integer("order").default(0),
+  isRequired: boolean("is_required").default(false), // For required items like "Inicio"
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedBy: varchar("updated_by").references(() => users.id),
+});
+
+export const insertNavbarConfigSchema = createInsertSchema(navbarConfig).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type NavbarConfig = typeof navbarConfig.$inferSelect;
+export type InsertNavbarConfig = z.infer<typeof insertNavbarConfigSchema>;

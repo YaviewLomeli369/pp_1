@@ -22,7 +22,8 @@ import {
   Home,
   Warehouse,
   MapPin,
-  MessageCircle // Added for WhatsApp configuration
+  MessageCircle, // Added for WhatsApp configuration
+  Navigation // Added for Navbar configuration
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -57,7 +58,8 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/contact", label: "Contacto", icon: MessageSquare, section: "Módulos de Negocio", moduleRequired: "contacto" },
 
   { href: "/admin/contact-info", label: "Información de Contacto", icon: MapPin, section: "Módulos de Negocio", moduleRequired: "contacto" },
-  { href: "/admin/whatsapp-config", label: "Config. WhatsApp", icon: MessageCircle, section: "Módulos de Negocio" }, // Added WhatsApp config link
+  { href: "/admin/whatsapp-config", label: "WhatsApp", icon: MessageCircle, section: "Configuración General" }, // Added WhatsApp config link
+  { href: "/admin/navbar-config", label: "Navbar", icon: Navigation, section: "Configuración General" }, // Added Navbar config link
   { href: "/admin/email-config", label: "Config. Email", icon: Mail, section: "Módulos de Negocio" },
 ];
 

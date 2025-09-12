@@ -28,7 +28,8 @@ import type {
   PageCustomization, InsertPageCustomization,
   VisualCustomization, InsertVisualCustomization,
   PaymentConfig, InsertPaymentConfig,
-  EmailConfig, InsertEmailConfig
+  EmailConfig, InsertEmailConfig,
+  NavbarConfig, InsertNavbarConfig
 } from "@shared/schema";
 
 // Helper function to check if database is available
@@ -226,6 +227,13 @@ export interface IStorage {
   updateVisualCustomization(id: string, updates: Partial<VisualCustomization>): Promise<VisualCustomization | undefined>;
   deleteVisualCustomization(id: string): Promise<boolean>;
   deleteAllVisualCustomizations(pageId: string): Promise<boolean>;
+
+  // Navbar Configuration
+  getNavbarConfig(): Promise<NavbarConfig[]>;
+  createNavbarConfig(data: InsertNavbarConfig): Promise<NavbarConfig>;
+  updateNavbarConfig(id: string, data: Partial<InsertNavbarConfig>): Promise<NavbarConfig | undefined>;
+  deleteNavbarConfig(id: string): Promise<boolean>;
+  updateNavbarOrder(items: { id: string; order: number }[]): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -934,8 +942,8 @@ export class DatabaseStorage implements IStorage {
       throwDatabaseError('updateOrder');
     }
 
-    console.log('Database updateOrder called:', { 
-      id, 
+    console.log('Database updateOrder called:', {
+      id,
       updates,
       updatesType: typeof updates,
       updatesKeys: Object.keys(updates)
@@ -1792,6 +1800,60 @@ export class DatabaseStorage implements IStorage {
       return true;
     } catch (error) {
       console.error('Error deleting visual customizations:', error);
+      return false;
+    }
+  }
+
+  // Navbar Configuration
+  async getNavbarConfig(): Promise<NavbarConfig[]> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('getNavbarConfig');
+    }
+    return await db!.select().from(schema.navbarConfig).orderBy(asc(schema.navbarConfig.order));
+  }
+
+  async createNavbarConfig(data: InsertNavbarConfig): Promise<NavbarConfig> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('createNavbarConfig');
+    }
+    const id = randomUUID();
+    const [config] = await db!.insert(schema.navbarConfig).values({ id, ...data, createdAt: new Date(), updatedAt: new Date() }).returning();
+    return config;
+  }
+
+  async updateNavbarConfig(id: string, data: Partial<InsertNavbarConfig>): Promise<NavbarConfig | undefined> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('updateNavbarConfig');
+    }
+    const [config] = await db!.update(schema.navbarConfig)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(schema.navbarConfig.id, id))
+      .returning();
+    return config;
+  }
+
+  async deleteNavbarConfig(id: string): Promise<boolean> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('deleteNavbarConfig');
+    }
+    const result = await db!.delete(schema.navbarConfig).where(eq(schema.navbarConfig.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async updateNavbarOrder(items: { id: string; order: number }[]): Promise<boolean> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('updateNavbarOrder');
+    }
+    try {
+      const promises = items.map(item =>
+        db!.update(schema.navbarConfig)
+          .set({ order: item.order, updatedAt: new Date() })
+          .where(eq(schema.navbarConfig.id, item.id))
+      );
+      await Promise.all(promises);
+      return true;
+    } catch (error) {
+      console.error('Error updating navbar order:', error);
       return false;
     }
   }

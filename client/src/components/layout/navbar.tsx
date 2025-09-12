@@ -49,6 +49,12 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
+  const { data: navbarConfig } = useQuery({
+    queryKey: ["/api/navbar-config"],
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
   // Products query for cart functionality
   const { data: products } = useQuery({
     queryKey: ["/api/store/products"],
@@ -249,17 +255,39 @@ export function Navbar() {
     }
   }, [cart, handleNavigation, toast]);
 
-  const navItems = [
-    { href: "/", label: "Inicio", always: true },
-    { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios" },
-    { href: "/faqs", label: "FAQs", moduleKey: "faqs" },
-    { href: "/contact", label: "Contacto", moduleKey: "contacto" },
-    { href: "/store", label: "Tienda", moduleKey: "tienda" },
-    { href: "/blog", label: "Blog", moduleKey: "blog" },
-    { href: "/reservations", label: "Reservas", moduleKey: "reservas" },
-    { href: "/conocenos", label: "Conócenos", always: true },
-    { href: "/servicios", label: "Servicios", always: true }
-  ].filter(item => item.always || (item.moduleKey && modules[item.moduleKey]?.activo));
+  const navItems = useMemo(() => {
+    // Use navbar configuration from database if available
+    if (navbarConfig && navbarConfig.length > 0) {
+      return navbarConfig
+        .filter((item: any) => {
+          // Show if visible and either required or module is active
+          return item.isVisible && (
+            item.isRequired || 
+            (item.moduleKey && modules[item.moduleKey]?.activo)
+          );
+        })
+        .sort((a: any, b: any) => a.order - b.order)
+        .map((item: any) => ({
+          href: item.href,
+          label: item.label,
+          moduleKey: item.moduleKey,
+          always: item.isRequired
+        }));
+    }
+
+    // Fallback to default configuration if no database config
+    return [
+      { href: "/", label: "Inicio", always: true },
+      { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios" },
+      { href: "/faqs", label: "FAQs", moduleKey: "faqs" },
+      { href: "/contact", label: "Contacto", moduleKey: "contacto" },
+      { href: "/store", label: "Tienda", moduleKey: "tienda" },
+      { href: "/blog", label: "Blog", moduleKey: "blog" },
+      { href: "/reservations", label: "Reservas", moduleKey: "reservas" },
+      { href: "/conocenos", label: "Conócenos", always: true },
+      { href: "/servicios", label: "Servicios", always: true }
+    ].filter(item => item.always || (item.moduleKey && modules[item.moduleKey]?.activo));
+  }, [navbarConfig, modules]);
 
   useEffect(() => {
     const handleResize = () => {
