@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+// import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import type { SiteConfig } from "@shared/schema";
 
@@ -25,7 +26,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ShoppingCart, User, LogOut, Settings, Menu, Plus, Minus, X } from "lucide-react";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
