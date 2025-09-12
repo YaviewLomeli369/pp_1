@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 // import { useQuery } from "@tanstack/react-query";
+import { useMemo }  from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import type { SiteConfig } from "@shared/schema";
