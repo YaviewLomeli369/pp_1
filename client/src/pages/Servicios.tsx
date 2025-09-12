@@ -10,6 +10,7 @@ import { Link } from "wouter";
 import { Rocket, Users, Target, Check, Star } from "lucide-react";
 import type { SiteConfig } from "@shared/schema";
 import AnimatedSection from "@/components/AnimatedSection";
+import HeroSection from "@/components/HeroSection";
 import { Badge } from "@/components/ui/badge";
 
 
@@ -245,29 +246,15 @@ function Servicios() {
       <Navbar />
 
       {/* Hero */}
-      <AnimatedSection>
-        <section
-          className="relative py-20 text-white text-center"
-          style={{
-            backgroundImage: `url("${pagesContent.hero?.backgroundImage}")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="absolute inset-0 bg-black/60"></div>
-          <div className="relative max-w-4xl mx-auto px-4">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-              {pagesContent.hero?.title}
-            </h1>
-            <p className="text-lg md:text-xl text-gray-200 mb-8">
-              {pagesContent.hero?.subtitle}
-            </p>
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/contact">Solicitar cotización</Link>
-            </Button>
-          </div>
-        </section>
-      </AnimatedSection>
+      <HeroSection
+        title={pagesContent.hero?.title || "Nuestros Servicios"}
+        subtitle={pagesContent.hero?.subtitle || "Soluciones profesionales para tu negocio"}
+        appearance={appearance}
+      >
+        <Button size="lg" variant="secondary" asChild>
+          <Link href="/contact">Solicitar cotización</Link>
+        </Button>
+      </HeroSection>
 
       {/* Servicios */}
       <AnimatedSection delay={0.1}>

@@ -10,6 +10,7 @@ import { InlineEditor } from "@/components/inline-editor/InlineEditor";
 import { InlineTextarea } from "@/components/inline-editor/InlineTextarea";
 import AnimatedSection from "@/components/AnimatedSection";
 import AlternatingSection from "@/components/AlternatingSection";
+import HeroSection from "@/components/HeroSection";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
@@ -235,38 +236,22 @@ function Home() {
       <Navbar />
 
       {/* Hero */}
-      <AnimatedSection>
-        <section
-          className="relative py-20 text-white navbar-fixed-body"
-          style={{
-            backgroundImage: `url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            fontFamily: appearance.fontFamily || "inherit",
-          }}
-        >
-          <div className="absolute inset-0 bg-black/50"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-              {frontpage?.contenidos?.titulo || appearance.brandName || "Bienvenido a Nuestro Sistema"}
-            </h1>
-            <p className="text-xl mb-8 text-gray-200">
-              {frontpage?.contenidos?.subtitulo || appearance.tagline || "Calidad y Servicio a tu Alcance"}
-            </p>
-            <div className="space-x-4">
-              <Button size="lg" variant="secondary" asChild>
-                <Link href="/contact">Contáctanos</Link>
-              </Button>
-              {modules.tienda?.activo && (
-                <Button variant="ghost" className="text-white hover:bg-white hover:text-black border border-white">
-                  <Link href="/store">Ver Tienda</Link>
-                </Button>
-              )}
-            </div>
-          </div>
-        </section>
-      </AnimatedSection>
+      <HeroSection
+        title={frontpage?.contenidos?.titulo || appearance.brandName || "Bienvenido a Nuestro Sistema"}
+        subtitle={frontpage?.contenidos?.subtitulo || appearance.tagline || "Calidad y Servicio a tu Alcance"}
+        appearance={appearance}
+      >
+        <div className="space-x-4">
+          <Button size="lg" variant="secondary" asChild>
+            <Link href="/contact">Contáctanos</Link>
+          </Button>
+          {modules.tienda?.activo && (
+            <Button variant="ghost" className="text-white hover:bg-white hover:text-black border border-white">
+              <Link href="/store">Ver Tienda</Link>
+            </Button>
+          )}
+        </div>
+      </HeroSection>
 
 
       {/* Planes - Solo mostrar si el módulo está activo */}

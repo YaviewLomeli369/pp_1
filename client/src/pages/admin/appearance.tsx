@@ -19,6 +19,7 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import type { SiteConfig } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import ObjectUploader from "@/components/ObjectUploader";
 
 export default function AdminAppearance() {
   const queryClient = useQueryClient();
@@ -61,7 +62,21 @@ export default function AdminAppearance() {
     
     // Responsive
     mobileBreakpoint: "768",
-    tabletBreakpoint: "1024"
+    tabletBreakpoint: "1024",
+    
+    // Hero Background
+    heroBackgroundType: "image",
+    heroBackgroundImage: "",
+    heroBackgroundPosition: "center",
+    heroBackgroundSize: "cover",
+    heroGradientType: "linear",
+    heroGradientDirection: "to right",
+    heroGradientColor1: "#3B82F6",
+    heroGradientColor2: "#1E40AF",
+    heroGradientColor3: "",
+    heroGradientColor4: "",
+    heroOverlayColor: "#000000",
+    heroOverlayOpacity: 50
   });
 
   // Cargar configuración existente
@@ -93,6 +108,18 @@ export default function AdminAppearance() {
           ogImage: configData.appearance.ogImage || prev.ogImage,
           mobileBreakpoint: configData.appearance.mobileBreakpoint || prev.mobileBreakpoint,
           tabletBreakpoint: configData.appearance.tabletBreakpoint || prev.tabletBreakpoint,
+          heroBackgroundType: configData.appearance.heroBackgroundType || prev.heroBackgroundType,
+          heroBackgroundImage: configData.appearance.heroBackgroundImage || prev.heroBackgroundImage,
+          heroBackgroundPosition: configData.appearance.heroBackgroundPosition || prev.heroBackgroundPosition,
+          heroBackgroundSize: configData.appearance.heroBackgroundSize || prev.heroBackgroundSize,
+          heroGradientType: configData.appearance.heroGradientType || prev.heroGradientType,
+          heroGradientDirection: configData.appearance.heroGradientDirection || prev.heroGradientDirection,
+          heroGradientColor1: configData.appearance.heroGradientColor1 || prev.heroGradientColor1,
+          heroGradientColor2: configData.appearance.heroGradientColor2 || prev.heroGradientColor2,
+          heroGradientColor3: configData.appearance.heroGradientColor3 || prev.heroGradientColor3,
+          heroGradientColor4: configData.appearance.heroGradientColor4 || prev.heroGradientColor4,
+          heroOverlayColor: configData.appearance.heroOverlayColor || prev.heroOverlayColor,
+          heroOverlayOpacity: configData.appearance.heroOverlayOpacity !== undefined ? configData.appearance.heroOverlayOpacity : prev.heroOverlayOpacity,
         }));
       }
     }
@@ -152,7 +179,19 @@ export default function AdminAppearance() {
       metaDescription: "Descripción de mi sitio web",
       ogImage: "",
       mobileBreakpoint: "768",
-      tabletBreakpoint: "1024"
+      tabletBreakpoint: "1024",
+      heroBackgroundType: "image",
+      heroBackgroundImage: "",
+      heroBackgroundPosition: "center",
+      heroBackgroundSize: "cover",
+      heroGradientType: "linear",
+      heroGradientDirection: "to right",
+      heroGradientColor1: "#3B82F6",
+      heroGradientColor2: "#1E40AF",
+      heroGradientColor3: "",
+      heroGradientColor4: "",
+      heroOverlayColor: "#000000",
+      heroOverlayOpacity: 50
     });
   };
 
@@ -746,54 +785,382 @@ export default function AdminAppearance() {
 
           {/* Branding Tab */}
           <TabsContent value="branding" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Información de Marca</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              {/* Brand Information Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Información de Marca</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="brandName">Nombre de la Marca</Label>
+                      <Input
+                        id="brandName"
+                        value={appearance.brandName}
+                        onChange={(e) => setAppearance({...appearance, brandName: e.target.value})}
+                        placeholder="Mi Sitio Web"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="tagline">Eslogan</Label>
+                      <Input
+                        id="tagline"
+                        value={appearance.tagline}
+                        onChange={(e) => setAppearance({...appearance, tagline: e.target.value})}
+                        placeholder="Tu eslogan aquí"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="logoUrl">URL del Logo</Label>
+                      <Input
+                        id="logoUrl"
+                        value={appearance.logoUrl}
+                        onChange={(e) => setAppearance({...appearance, logoUrl: e.target.value})}
+                        placeholder="https://example.com/logo.png"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="faviconUrl">URL del Favicon</Label>
+                      <Input
+                        id="faviconUrl"
+                        value={appearance.faviconUrl}
+                        onChange={(e) => setAppearance({...appearance, faviconUrl: e.target.value})}
+                        placeholder="https://example.com/favicon.ico"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Hero Background Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Image className="h-5 w-5" />
+                    Fondo del Hero (Todas las páginas)
+                  </CardTitle>
+                  <CardDescription>
+                    Configura el fondo principal que aparece en inicio, servicios, conocenos, blog, testimonios, reservas y FAQs
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Background Type Selector */}
                   <div className="space-y-2">
-                    <Label htmlFor="brandName">Nombre de la Marca</Label>
-                    <Input
-                      id="brandName"
-                      value={appearance.brandName}
-                      onChange={(e) => setAppearance({...appearance, brandName: e.target.value})}
-                      placeholder="Mi Sitio Web"
-                    />
+                    <Label>Tipo de Fondo</Label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="heroBackgroundType"
+                          value="image"
+                          checked={(appearance as any).heroBackgroundType !== "gradient"}
+                          onChange={() => setAppearance({...appearance, heroBackgroundType: "image"} as any)}
+                        />
+                        <span>Imagen</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="heroBackgroundType"
+                          value="gradient"
+                          checked={(appearance as any).heroBackgroundType === "gradient"}
+                          onChange={() => setAppearance({...appearance, heroBackgroundType: "gradient"} as any)}
+                        />
+                        <span>Gradiente</span>
+                      </label>
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="tagline">Eslogan</Label>
-                    <Input
-                      id="tagline"
-                      value={appearance.tagline}
-                      onChange={(e) => setAppearance({...appearance, tagline: e.target.value})}
-                      placeholder="Tu eslogan aquí"
-                    />
+                  {/* Image Configuration */}
+                  {(appearance as any).heroBackgroundType !== "gradient" && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="heroBackgroundImage">URL de la Imagen de Fondo</Label>
+                        <Input
+                          id="heroBackgroundImage"
+                          value={(appearance as any).heroBackgroundImage || ""}
+                          onChange={(e) => setAppearance({...appearance, heroBackgroundImage: e.target.value} as any)}
+                          placeholder="https://example.com/hero-background.jpg"
+                        />
+                      </div>
+                      
+                      {/* Image Upload Component */}
+                      <div className="space-y-2">
+                        <Label>Subir Nueva Imagen</Label>
+                        <ObjectUploader
+                          onUploadSuccess={(result) => {
+                            if (result.successful && result.successful.length > 0) {
+                              const imageURL = result.successful[0].response?.body?.url;
+                              if (imageURL) {
+                                setAppearance({...appearance, heroBackgroundImage: imageURL} as any);
+                              }
+                            }
+                          }}
+                          acceptedFileTypes={['image/*']}
+                          maxNumberOfFiles={1}
+                          allowMultiple={false}
+                          note="Recomendado: 1920x1080px o superior para mejor calidad"
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="heroBackgroundPosition">Posición</Label>
+                          <select
+                            id="heroBackgroundPosition"
+                            value={(appearance as any).heroBackgroundPosition || "center"}
+                            onChange={(e) => setAppearance({...appearance, heroBackgroundPosition: e.target.value} as any)}
+                            className="w-full p-2 border rounded-md"
+                          >
+                            <option value="center">Centro</option>
+                            <option value="top">Arriba</option>
+                            <option value="bottom">Abajo</option>
+                            <option value="left">Izquierda</option>
+                            <option value="right">Derecha</option>
+                            <option value="top left">Arriba Izquierda</option>
+                            <option value="top right">Arriba Derecha</option>
+                            <option value="bottom left">Abajo Izquierda</option>
+                            <option value="bottom right">Abajo Derecha</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="heroBackgroundSize">Tamaño</Label>
+                          <select
+                            id="heroBackgroundSize"
+                            value={(appearance as any).heroBackgroundSize || "cover"}
+                            onChange={(e) => setAppearance({...appearance, heroBackgroundSize: e.target.value} as any)}
+                            className="w-full p-2 border rounded-md"
+                          >
+                            <option value="cover">Cubrir</option>
+                            <option value="contain">Contener</option>
+                            <option value="auto">Automático</option>
+                            <option value="100% 100%">Estirar</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Gradient Configuration */}
+                  {(appearance as any).heroBackgroundType === "gradient" && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="gradientType">Tipo de Gradiente</Label>
+                        <select
+                          id="gradientType"
+                          value={(appearance as any).heroGradientType || "linear"}
+                          onChange={(e) => setAppearance({...appearance, heroGradientType: e.target.value} as any)}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="linear">Lineal</option>
+                          <option value="radial">Radial</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="gradientDirection">Dirección</Label>
+                        <select
+                          id="gradientDirection"
+                          value={(appearance as any).heroGradientDirection || "to right"}
+                          onChange={(e) => setAppearance({...appearance, heroGradientDirection: e.target.value} as any)}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="to right">Izquierda → Derecha</option>
+                          <option value="to left">Derecha → Izquierda</option>
+                          <option value="to bottom">Arriba → Abajo</option>
+                          <option value="to top">Abajo → Arriba</option>
+                          <option value="to bottom right">Diagonal ↘</option>
+                          <option value="to bottom left">Diagonal ↙</option>
+                          <option value="to top right">Diagonal ↗</option>
+                          <option value="to top left">Diagonal ↖</option>
+                          <option value="45deg">45 grados</option>
+                          <option value="90deg">90 grados</option>
+                          <option value="135deg">135 grados</option>
+                          <option value="180deg">180 grados</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="gradientColor1">Color 1</Label>
+                          <div className="flex items-center space-x-3">
+                            <Input
+                              type="color"
+                              value={(appearance as any).heroGradientColor1 || "#3B82F6"}
+                              onChange={(e) => setAppearance({...appearance, heroGradientColor1: e.target.value} as any)}
+                              className="w-16 h-10 p-1"
+                            />
+                            <Input
+                              value={(appearance as any).heroGradientColor1 || "#3B82F6"}
+                              onChange={(e) => setAppearance({...appearance, heroGradientColor1: e.target.value} as any)}
+                              placeholder="#3B82F6"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="gradientColor2">Color 2</Label>
+                          <div className="flex items-center space-x-3">
+                            <Input
+                              type="color"
+                              value={(appearance as any).heroGradientColor2 || "#1E40AF"}
+                              onChange={(e) => setAppearance({...appearance, heroGradientColor2: e.target.value} as any)}
+                              className="w-16 h-10 p-1"
+                            />
+                            <Input
+                              value={(appearance as any).heroGradientColor2 || "#1E40AF"}
+                              onChange={(e) => setAppearance({...appearance, heroGradientColor2: e.target.value} as any)}
+                              placeholder="#1E40AF"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Colors */}
+                      <div className="space-y-2">
+                        <Label>Colores Adicionales (Opcional)</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="gradientColor3">Color 3</Label>
+                            <div className="flex items-center space-x-3">
+                              <Input
+                                type="color"
+                                value={(appearance as any).heroGradientColor3 || ""}
+                                onChange={(e) => setAppearance({...appearance, heroGradientColor3: e.target.value} as any)}
+                                className="w-16 h-10 p-1"
+                              />
+                              <Input
+                                value={(appearance as any).heroGradientColor3 || ""}
+                                onChange={(e) => setAppearance({...appearance, heroGradientColor3: e.target.value} as any)}
+                                placeholder="#8B5CF6"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="gradientColor4">Color 4</Label>
+                            <div className="flex items-center space-x-3">
+                              <Input
+                                type="color"
+                                value={(appearance as any).heroGradientColor4 || ""}
+                                onChange={(e) => setAppearance({...appearance, heroGradientColor4: e.target.value} as any)}
+                                className="w-16 h-10 p-1"
+                              />
+                              <Input
+                                value={(appearance as any).heroGradientColor4 || ""}
+                                onChange={(e) => setAppearance({...appearance, heroGradientColor4: e.target.value} as any)}
+                                placeholder="#EC4899"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Overlay Configuration */}
+                  <div className="space-y-4">
+                    <Label>Overlay (Capa Oscura)</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="heroOverlayOpacity">Opacidad del Overlay</Label>
+                      <div className="flex items-center space-x-4">
+                        <input
+                          type="range"
+                          id="heroOverlayOpacity"
+                          min="0"
+                          max="100"
+                          value={((appearance as any).heroOverlayOpacity || 50)}
+                          onChange={(e) => setAppearance({...appearance, heroOverlayOpacity: parseInt(e.target.value)} as any)}
+                          className="flex-1"
+                        />
+                        <span className="text-sm font-medium w-12">{(appearance as any).heroOverlayOpacity || 50}%</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="heroOverlayColor">Color del Overlay</Label>
+                      <div className="flex items-center space-x-3">
+                        <Input
+                          type="color"
+                          value={(appearance as any).heroOverlayColor || "#000000"}
+                          onChange={(e) => setAppearance({...appearance, heroOverlayColor: e.target.value} as any)}
+                          className="w-16 h-10 p-1"
+                        />
+                        <select
+                          value={(appearance as any).heroOverlayColor || "#000000"}
+                          onChange={(e) => setAppearance({...appearance, heroOverlayColor: e.target.value} as any)}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="#000000">Negro</option>
+                          <option value="#ffffff">Blanco</option>
+                          <option value="#3B82F6">Azul</option>
+                          <option value="#1E40AF">Azul Oscuro</option>
+                          <option value="#10B981">Verde</option>
+                          <option value="#F59E0B">Naranja</option>
+                          <option value="#EF4444">Rojo</option>
+                          <option value="#8B5CF6">Morado</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="logoUrl">URL del Logo</Label>
-                    <Input
-                      id="logoUrl"
-                      value={appearance.logoUrl}
-                      onChange={(e) => setAppearance({...appearance, logoUrl: e.target.value})}
-                      placeholder="https://example.com/logo.png"
-                    />
+                  {/* Preview */}
+                  <div className="border rounded-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4">Vista Previa del Hero</h3>
+                    <div 
+                      className="relative h-40 rounded-lg overflow-hidden flex items-center justify-center"
+                      style={{
+                        background: (appearance as any).heroBackgroundType === "gradient" 
+                          ? (() => {
+                              const color1 = (appearance as any).heroGradientColor1 || "#3B82F6";
+                              const color2 = (appearance as any).heroGradientColor2 || "#1E40AF";
+                              const color3 = (appearance as any).heroGradientColor3;
+                              const color4 = (appearance as any).heroGradientColor4;
+                              const direction = (appearance as any).heroGradientDirection || "to right";
+                              const type = (appearance as any).heroGradientType || "linear";
+                              
+                              let colors = [color1, color2];
+                              if (color3) colors.push(color3);
+                              if (color4) colors.push(color4);
+                              
+                              return type === "radial" 
+                                ? `radial-gradient(circle, ${colors.join(", ")})`
+                                : `linear-gradient(${direction}, ${colors.join(", ")})`;
+                            })()
+                          : (appearance as any).heroBackgroundImage 
+                            ? `url("${(appearance as any).heroBackgroundImage}")`
+                            : 'url("https://images.unsplash.com/photo-1516331138075-f3adc1e149cd?q=80&w=1208&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")',
+                        backgroundSize: (appearance as any).heroBackgroundSize || "cover",
+                        backgroundPosition: (appearance as any).heroBackgroundPosition || "center",
+                        backgroundRepeat: "no-repeat"
+                      }}
+                    >
+                      <div 
+                        className="absolute inset-0"
+                        style={{
+                          backgroundColor: (appearance as any).heroOverlayColor || "#000000",
+                          opacity: ((appearance as any).heroOverlayOpacity || 50) / 100
+                        }}
+                      ></div>
+                      <div className="relative text-white text-center">
+                        <h4 className="text-2xl font-bold mb-2">
+                          {appearance.brandName || "Tu Marca"}
+                        </h4>
+                        <p className="text-sm opacity-90">
+                          {appearance.tagline || "Tu eslogan aquí"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="faviconUrl">URL del Favicon</Label>
-                    <Input
-                      id="faviconUrl"
-                      value={appearance.faviconUrl}
-                      onChange={(e) => setAppearance({...appearance, faviconUrl: e.target.value})}
-                      placeholder="https://example.com/favicon.ico"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* SEO Tab */}
