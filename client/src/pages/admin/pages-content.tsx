@@ -248,7 +248,15 @@ function PagesContent() {
         );
       } else if (contentType === "team") {
         newConfig.pagesContent[selectedPage].team = newConfig.pagesContent[selectedPage].team.map((m: any) =>
-          m.id === selectedContent.id ? { ...m, name: contentData.title, quote: contentData.content, ...contentData.metadata } : m
+          m.id === selectedContent.id ? { 
+            ...m, 
+            name: contentData.title, 
+            quote: contentData.content,
+            position: contentData.metadata.position,
+            phone: contentData.metadata.phone,
+            email: contentData.metadata.email,
+            image: contentData.metadata.image
+          } : m
         );
       }
     }
