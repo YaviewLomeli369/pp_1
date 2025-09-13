@@ -149,7 +149,6 @@ function Router() {
       <Route path="/admin/payments" component={AdminPayments} />
       <Route path="/admin/blog" component={AdminBlog} />
       <Route path="/admin/orders" component={AdminOrders} />
-      <Route path="/admin/email-config" component={AdminEmailConfig} />
       <Route path="/admin/contact-info">
         <Suspense fallback={<LoadingPage />}>
           <AdminContactInfo />
