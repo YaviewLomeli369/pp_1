@@ -1,6 +1,18 @@
-uploads/
-uploads/**
-.cache/
-.env
-.local/
-node_modules/
+# Server uploads directory - ignore files but keep structure
+uploads/*.jpg
+uploads/*.png
+uploads/*.gif
+uploads/*.webp
+uploads/*.avif
+!uploads/.gitkeep
+
+# Public uploads directory - ignore files but keep structure  
+client/public/imgs/uploads/*.jpg
+client/public/imgs/uploads/*.png
+client/public/imgs/uploads/*.gif
+client/public/imgs/uploads/*.webp
+client/public/imgs/uploads/*.avif
+!client/public/imgs/uploads/.gitkeep
+
+# Conservar backups
+!image_backups/

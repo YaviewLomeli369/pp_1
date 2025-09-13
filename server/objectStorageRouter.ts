@@ -49,9 +49,16 @@ router.get("/api/objects/debug", (req, res) => {
 
 // Carpeta donde se almacenan archivos públicamente
 const uploadsDir = path.join(process.cwd(), "uploads");
+const publicUploadsDir = path.join(process.cwd(), "client", "public", "imgs", "uploads");
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log("✅ Created uploads directory:", uploadsDir);
+}
+
+if (!fs.existsSync(publicUploadsDir)) {
+  fs.mkdirSync(publicUploadsDir, { recursive: true });
+  console.log("✅ Created public uploads directory:", publicUploadsDir);
 }
 
 // Middleware para parsear JSON
@@ -177,13 +184,19 @@ router.put("/objects/:name", async (req, res) => {
           }
         }
 
-        // Guardar imagen procesada
+        // Guardar imagen procesada en uploads/
         fs.writeFileSync(finalPath, processedBuffer);
+
+        // También guardar en client/public/imgs/uploads/ para persistencia
+        const publicPath = path.join(publicUploadsDir, finalName);
+        fs.writeFileSync(publicPath, processedBuffer);
 
         // Limpiar archivo temporal
         fs.unlinkSync(tempPath);
 
-        console.log(`✅ Image processed and saved: ${finalName}, size: ${processedBuffer.length} bytes`);
+        console.log(`✅ Image processed and saved in both locations:`);
+        console.log(`   📁 Server: ${finalName}, size: ${processedBuffer.length} bytes`);
+        console.log(`   📁 Public: client/public/imgs/uploads/${finalName}`);
 
         return res.status(200).json({
           success: true,
@@ -197,8 +210,13 @@ router.put("/objects/:name", async (req, res) => {
 
         // Si falla el procesamiento, usar archivo original
         try {
+          // Copiar el archivo temporal a uploads/ 
           fs.renameSync(tempPath, finalPath);
-          console.log(`⚠️ Image processing failed, saved original: ${finalName}`);
+          // También copiarlo a public/
+          const publicPath = path.join(publicUploadsDir, finalName);
+          fs.copyFileSync(finalPath, publicPath);
+          
+          console.log(`⚠️ Image processing failed, saved original in both locations: ${finalName}`);
 
           return res.status(200).json({
             success: true,
@@ -318,9 +336,16 @@ router.post("/api/objects/direct-upload/upload", upload.single('file'), async (r
           }
         }
 
-        // Save file
+        // Save file en uploads/
         fs.writeFileSync(filePath, processedBuffer);
-        console.log(`✅ File saved: ${uniqueName}, size: ${processedBuffer.length} bytes`);
+        
+        // También guardarlo en client/public/imgs/uploads/
+        const publicFilePath = path.join(publicUploadsDir, uniqueName);
+        fs.writeFileSync(publicFilePath, processedBuffer);
+        
+        console.log(`✅ File saved in both locations:`);
+        console.log(`   📁 Server: ${uniqueName}, size: ${processedBuffer.length} bytes`);
+        console.log(`   📁 Public: client/public/imgs/uploads/${uniqueName}`);
 
         // Generate URLs
         const protocol = req.get('x-forwarded-proto') || req.protocol;
@@ -378,9 +403,16 @@ router.post("/api/objects/direct-upload/upload", upload.single('file'), async (r
         const uniqueName = `${uuidv4()}-${Date.now()}${ext}`;
         const filePath = path.join(uploadsDir, uniqueName);
 
-        // Save file directly without processing for raw uploads
+        // Save file directly without processing for raw uploads en uploads/
         fs.writeFileSync(filePath, fileBuffer);
-        console.log(`✅ File saved: ${uniqueName}, size: ${fileBuffer.length} bytes`);
+        
+        // También guardarlo en client/public/imgs/uploads/
+        const publicFilePath = path.join(publicUploadsDir, uniqueName);
+        fs.writeFileSync(publicFilePath, fileBuffer);
+        
+        console.log(`✅ File saved in both locations:`);
+        console.log(`   📁 Server: ${uniqueName}, size: ${fileBuffer.length} bytes`);
+        console.log(`   📁 Public: client/public/imgs/uploads/${uniqueName}`);
 
         // Generate URLs
         const protocol = req.get('x-forwarded-proto') || req.protocol;

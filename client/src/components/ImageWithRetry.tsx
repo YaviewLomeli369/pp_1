@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface ImageWithRetryProps {
@@ -58,6 +58,20 @@ export default function ImageWithRetry({
     setRetryCount(0);
   }, [src]);
 
+  const fallbackUrls = useMemo(() => {
+    const urls = [src];
+
+    // If the original URL is an objects URL, try some alternatives
+    if (src.startsWith('/objects/')) {
+      const filename = src.replace('/objects/', '');
+      urls.push(`/objects/${filename}`);
+      // Agregar fallback a public/imgs/uploads/
+      urls.push(`/imgs/uploads/${filename}`);
+    }
+
+    return urls;
+  }, [src]);
+
   const handleError = useCallback(() => {
     console.warn(`❌ Image failed to load: ${currentSrc}`);
 
@@ -76,6 +90,9 @@ export default function ImageWithRetry({
         } else if (retryCount === 1 && fallbackSrc) {
           // Segundo reintento: usar fallback si existe
           nextSrc = normalizeImageUrl(fallbackSrc);
+        } else if (fallbackUrls.length > retryCount) {
+          // Reintentos subsecuentes usando la lista de fallbacks
+          nextSrc = normalizeImageUrl(fallbackUrls[retryCount]);
         } else {
           // Último reintento: añadir timestamp para evitar cache
           const timestamp = Date.now();
@@ -92,7 +109,7 @@ export default function ImageWithRetry({
       setIsRetrying(false);
       onError?.(new Error(`Failed to load image after ${maxRetries} retries: ${currentSrc}`));
     }
-  }, [currentSrc, retryCount, maxRetries, retryDelay, fallbackSrc, src, onError]);
+  }, [currentSrc, retryCount, maxRetries, retryDelay, fallbackSrc, src, onError, fallbackUrls]);
 
 
   const handleLoad = () => {
