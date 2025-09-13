@@ -2934,74 +2934,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Navbar Configuration endpoints
   app.get("/api/navbar-config", async (req, res) => {
     try {
-      const config = await storage.getNavbarConfig();
-      res.json(config);
+      const siteConfig = await storage.getSiteConfig();
+      const navbarConfig = siteConfig?.config?.navbar || {};
+      res.json(navbarConfig);
     } catch (error) {
       console.error('Error getting navbar config:', error);
       res.status(500).json({ message: "Error getting navbar configuration" });
     }
   });
 
-  app.post("/api/navbar-config", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
-    try {
-      const configData = insertNavbarConfigSchema.parse({
-        ...req.body,
-        updatedBy: (req as any).userId
-      });
-      const config = await storage.createNavbarConfig(configData);
-      res.json(config);
-    } catch (error) {
-      console.error('Error creating navbar config:', error);
-      res.status(400).json({ message: error instanceof Error ? error.message : "Invalid data" });
-    }
-  });
-
-  app.put("/api/navbar-config/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updateData = {
-        ...req.body,
-        updatedBy: (req as any).userId
-      };
-      const config = await storage.updateNavbarConfig(id, updateData);
-      if (!config) {
-        return res.status(404).json({ message: "Navbar config not found" });
-      }
-      res.json(config);
-    } catch (error) {
-      console.error('Error updating navbar config:', error);
-      res.status(400).json({ message: error instanceof Error ? error.message : "Invalid data" });
-    }
-  });
-
-  app.put("/api/navbar-config/reorder", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
-    try {
-      const { items } = req.body;
-      if (!Array.isArray(items)) {
-        return res.status(400).json({ message: "Items must be an array" });
-      }
-      
-      await storage.updateNavbarOrder(items);
-      res.json({ message: "Navbar order updated successfully" });
-    } catch (error) {
-      console.error('Error updating navbar order:', error);
-      res.status(500).json({ message: "Error updating navbar order" });
-    }
-  });
-
-  app.delete("/api/navbar-config/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
-    try {
-      const { id } = req.params;
-      const deleted = await storage.deleteNavbarConfig(id);
-      if (!deleted) {
-        return res.status(404).json({ message: "Navbar config not found" });
-      }
-      res.json({ message: "Navbar config deleted successfully" });
-    } catch (error) {
-      console.error('Error deleting navbar config:', error);
-      res.status(500).json({ message: "Error deleting navbar config" });
-    }
-  });
+  // These endpoints are now handled through /api/config since navbar config is stored in site_config JSONB
+  // Keeping minimal endpoints for compatibility but they redirect to site_config management
 
   // Email Configuration endpoints
   app.get("/api/email/config", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
