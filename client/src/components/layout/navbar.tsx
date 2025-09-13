@@ -419,15 +419,13 @@ export function Navbar() {
   useEffect(() => {
     if (!navbarConfig) return;
 
-    const root = document.documentElement;
-
     // Apply navbar styles
     const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
     if (navElement && navbarStyles) {
       Object.assign(navElement.style, {
         position: navbarStyles.position || 'fixed',
         backgroundColor: navbarStyles.backgroundColor || '#ffffff',
-        backdropFilter: navbarStyles.backgroundBlur ? `blur(10px)` : 'none', // Fixed based on backgroundBlur
+        backdropFilter: navbarStyles.backgroundBlur ? `blur(10px)` : 'none',
         borderBottom: navbarStyles.borderBottom || '1px solid #e5e7eb',
         boxShadow: navbarStyles.boxShadow || '0 1px 3px rgba(0, 0, 0, 0.1)',
         zIndex: navbarStyles.zIndex || '1000',
@@ -437,35 +435,74 @@ export function Navbar() {
         transition: navbarStyles.transition || 'all 0.3s ease'
       });
 
-      // Function to update body padding
+      // Function to update body padding based on exact navbar height
       const updateBodyPadding = () => {
+        // Force a reflow to ensure accurate measurements
+        navElement.offsetHeight;
+        
         if (navbarStyles.position === 'fixed') {
-          const navHeight = navElement.offsetHeight;
+          // Get the actual computed height of the navbar
+          const navRect = navElement.getBoundingClientRect();
+          const navHeight = navRect.height;
+          
+          // Apply the exact height as padding
           document.body.style.paddingTop = `${navHeight}px`;
+          document.body.style.transition = 'padding-top 0.3s ease';
         } else {
           document.body.style.paddingTop = '0px';
+          document.body.style.transition = 'padding-top 0.3s ease';
         }
       };
 
-      // Initial padding update
-      updateBodyPadding();
+      // Initial padding update with a small delay to ensure styles are applied
+      setTimeout(updateBodyPadding, 10);
 
       // Set up ResizeObserver to watch for navbar size changes
-      const resizeObserver = new ResizeObserver(() => {
-        updateBodyPadding();
+      const resizeObserver = new ResizeObserver((entries) => {
+        // Use requestAnimationFrame for smooth updates
+        requestAnimationFrame(updateBodyPadding);
       });
 
       resizeObserver.observe(navElement);
 
+      // Also listen for window resize events
+      const handleResize = () => {
+        requestAnimationFrame(updateBodyPadding);
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      // Listen for font load events that might change navbar height
+      const handleFontLoad = () => {
+        setTimeout(updateBodyPadding, 100);
+      };
+
+      document.fonts.addEventListener('loadingdone', handleFontLoad);
+
       // Cleanup function
       return () => {
         resizeObserver.disconnect();
-        if (navbarStyles?.position === 'fixed') {
+        window.removeEventListener('resize', handleResize);
+        document.fonts.removeEventListener('loadingdone', handleFontLoad);
+        if (navbarStyles?.position !== 'fixed') {
           document.body.style.paddingTop = '0px';
         }
       };
     }
   }, [navbarConfig, navbarStyles]);
+
+  // Additional effect to handle immediate updates when navbar styles change
+  useEffect(() => {
+    const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
+    if (navElement && navbarStyles?.position === 'fixed') {
+      // Use requestAnimationFrame to ensure the style changes are applied first
+      requestAnimationFrame(() => {
+        const navRect = navElement.getBoundingClientRect();
+        const navHeight = navRect.height;
+        document.body.style.paddingTop = `${navHeight}px`;
+      });
+    }
+  }, [navbarStyles?.height, navbarStyles?.padding, navbarStyles?.fontSize, navbarStyles?.logoSize]);
 
 
   return (

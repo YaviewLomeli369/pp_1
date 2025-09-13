@@ -155,9 +155,14 @@ button {
   transition: all 0.3s ease;
 }
 
-/* Body margin when navbar is fixed */
-.navbar-fixed-body {
-  margin-top: 64px; /* Height of navbar (h-16 = 64px) */
+/* Body transition for smooth padding updates */
+body {
+  transition: padding-top 0.3s ease;
+}
+
+/* Ensure body doesn't have default margins that interfere */
+body.navbar-body-adjusted {
+  margin-top: 0 !important;
 }
 
 /* Navbar scroll effect */
