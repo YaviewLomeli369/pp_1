@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, startTransition } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -158,11 +158,15 @@ export default function Faqs() {
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                     <Input
-                      placeholder="Buscar en las preguntas y respuestas..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300"
-                    />
+                    placeholder="Buscar en las preguntas y respuestas..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      startTransition(() => {
+                        setSearchTerm(e.target.value);
+                      });
+                    }}
+                    className="pl-10 border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300"
+                  />
                   </div>
                   <div className="sm:w-64">
                     <Select
