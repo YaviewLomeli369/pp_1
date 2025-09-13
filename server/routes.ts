@@ -533,6 +533,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "FAQ deleted successfully" });
   });
 
+  // Contact endpoint (used by contact form)
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const messageData = insertContactMessageSchema.parse(req.body);
+      const message = await storage.createContactMessage(messageData);
+
+      // Send email notification to configured email
+      try {
+        const emailConfig = await storage.getEmailConfig();
+        if (emailConfig && emailConfig.isActive && emailConfig.fromEmail) {
+          const { sendEmail } = await import('./email');
+          
+          const emailSubject = messageData.subject 
+            ? `Nuevo mensaje de contacto: ${messageData.subject}`
+            : 'Nuevo mensaje de contacto desde el sitio web';
+
+          const emailContent = `
+Has recibido un nuevo mensaje de contacto desde tu sitio web:
+
+Nombre: ${messageData.name}
+Email: ${messageData.email}
+${messageData.phone ? `Teléfono: ${messageData.phone}` : ''}
+${messageData.subject ? `Asunto: ${messageData.subject}` : ''}
+
+Mensaje:
+${messageData.message}
+
+---
+Este mensaje fue enviado desde el formulario de contacto de tu sitio web.
+Puedes responder directamente a este email o gestionar el mensaje desde el panel de administración.
+          `;
+
+          const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h2 style="color: #333; margin-top: 0;">Nuevo mensaje de contacto</h2>
+                <p style="color: #666; margin-bottom: 0;">Has recibido un nuevo mensaje desde tu sitio web</p>
+              </div>
+
+              <div style="background-color: white; padding: 20px; border: 1px solid #e9ecef; border-radius: 8px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Nombre:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Email:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.email}</td>
+                  </tr>
+                  ${messageData.phone ? `
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Teléfono:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.phone}</td>
+                  </tr>
+                  ` : ''}
+                  ${messageData.subject ? `
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Asunto:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.subject}</td>
+                  </tr>
+                  ` : ''}
+                </table>
+
+                <div style="margin-top: 20px;">
+                  <strong>Mensaje:</strong>
+                  <div style="margin-top: 10px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; white-space: pre-wrap;">${messageData.message}</div>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 14px;">
+                <p>Este mensaje fue enviado desde el formulario de contacto de tu sitio web.</p>
+                <p>Puedes responder directamente a este email o gestionar el mensaje desde el panel de administración.</p>
+              </div>
+            </div>
+          `;
+
+          await sendEmail({
+            to: emailConfig.fromEmail,
+            subject: emailSubject,
+            text: emailContent,
+            html: emailHtml,
+            replyTo: messageData.email
+          });
+
+          console.log(`📧 Contact notification email sent to: ${emailConfig.fromEmail}`);
+        }
+      } catch (emailError) {
+        console.error('Error sending contact notification email:', emailError);
+        // Don't fail the request if email fails - message is still saved
+      }
+
+      res.json(message);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : "Invalid data" });
+    }
+  });
+
   // Contact messages routes
   app.get("/api/contact/messages", async (req, res) => {
     const messages = await storage.getAllContactMessages();
@@ -543,6 +640,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const messageData = insertContactMessageSchema.parse(req.body);
       const message = await storage.createContactMessage(messageData);
+
+      // Send email notification to configured email
+      try {
+        const emailConfig = await storage.getEmailConfig();
+        if (emailConfig && emailConfig.isActive && emailConfig.fromEmail) {
+          const { sendEmail } = await import('./email');
+          
+          const emailSubject = messageData.subject 
+            ? `Nuevo mensaje de contacto: ${messageData.subject}`
+            : 'Nuevo mensaje de contacto desde el sitio web';
+
+          const emailContent = `
+Has recibido un nuevo mensaje de contacto desde tu sitio web:
+
+Nombre: ${messageData.name}
+Email: ${messageData.email}
+${messageData.phone ? `Teléfono: ${messageData.phone}` : ''}
+${messageData.subject ? `Asunto: ${messageData.subject}` : ''}
+
+Mensaje:
+${messageData.message}
+
+---
+Este mensaje fue enviado desde el formulario de contacto de tu sitio web.
+Puedes responder directamente a este email o gestionar el mensaje desde el panel de administración.
+          `;
+
+          const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h2 style="color: #333; margin-top: 0;">Nuevo mensaje de contacto</h2>
+                <p style="color: #666; margin-bottom: 0;">Has recibido un nuevo mensaje desde tu sitio web</p>
+              </div>
+
+              <div style="background-color: white; padding: 20px; border: 1px solid #e9ecef; border-radius: 8px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Nombre:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Email:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.email}</td>
+                  </tr>
+                  ${messageData.phone ? `
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Teléfono:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.phone}</td>
+                  </tr>
+                  ` : ''}
+                  ${messageData.subject ? `
+                  <tr>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;"><strong>Asunto:</strong></td>
+                    <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">${messageData.subject}</td>
+                  </tr>
+                  ` : ''}
+                </table>
+
+                <div style="margin-top: 20px;">
+                  <strong>Mensaje:</strong>
+                  <div style="margin-top: 10px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; white-space: pre-wrap;">${messageData.message}</div>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 14px;">
+                <p>Este mensaje fue enviado desde el formulario de contacto de tu sitio web.</p>
+                <p>Puedes responder directamente a este email o gestionar el mensaje desde el panel de administración.</p>
+              </div>
+            </div>
+          `;
+
+          await sendEmail({
+            to: emailConfig.fromEmail,
+            subject: emailSubject,
+            text: emailContent,
+            html: emailHtml,
+            replyTo: messageData.email
+          });
+
+          console.log(`📧 Contact notification email sent to: ${emailConfig.fromEmail}`);
+        }
+      } catch (emailError) {
+        console.error('Error sending contact notification email:', emailError);
+        // Don't fail the request if email fails
+      }
+
       res.json(message);
     } catch (error) {
       res.status(400).json({ message: error instanceof Error ? error.message : "Invalid data" });
