@@ -2294,6 +2294,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const objectPath = req.params.objectPath;
       console.log(`🖼️ Serving public object: ${objectPath}`);
+      console.log(`📁 Current working directory: ${process.cwd()}`);
+      console.log(`📂 Looking for file in uploads directory...`);
+      
+      // Check if uploads directory exists and list files
+      const fs = require('fs');
+      const path = require('path');
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      
+      if (fs.existsSync(uploadsDir)) {
+        const files = fs.readdirSync(uploadsDir);
+        console.log(`📋 Files in uploads (${files.length}):`, files.slice(0, 10).join(', '));
+        
+        const targetFile = path.join(uploadsDir, objectPath);
+        console.log(`🎯 Target file path: ${targetFile}`);
+        console.log(`✅ File exists: ${fs.existsSync(targetFile)}`);
+      } else {
+        console.log(`❌ Uploads directory does not exist: ${uploadsDir}`);
+      }
+      
       await objectStorageService.downloadObject(objectPath, res);
     } catch (error) {
       console.error("Error serving object:", error);
