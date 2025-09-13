@@ -544,8 +544,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const emailConfig = await storage.getEmailConfig();
         if (emailConfig && emailConfig.isActive && emailConfig.fromEmail) {
           const { sendEmail } = await import('./email');
-          
-          const emailSubject = messageData.subject 
+
+          const emailSubject = messageData.subject
             ? `Nuevo mensaje de contacto: ${messageData.subject}`
             : 'Nuevo mensaje de contacto desde el sitio web';
 
@@ -646,8 +646,8 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
         const emailConfig = await storage.getEmailConfig();
         if (emailConfig && emailConfig.isActive && emailConfig.fromEmail) {
           const { sendEmail } = await import('./email');
-          
-          const emailSubject = messageData.subject 
+
+          const emailSubject = messageData.subject
             ? `Nuevo mensaje de contacto: ${messageData.subject}`
             : 'Nuevo mensaje de contacto desde el sitio web';
 
@@ -862,30 +862,12 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
 
   // Contact info routes
   app.get("/api/contact/info", async (req, res) => {
-    const info = await storage.getContactInfo();
-    res.json(info);
-  });
-
-  app.put("/api/contact/info", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
-      const infoData = insertContactInfoSchema.parse(req.body);
-
-      const info = await storage.getContactInfo();
-      let updatedInfo;
-
-      if (info) {
-        updatedInfo = await storage.updateContactInfo(info.id, infoData);
-      } else {
-        updatedInfo = await storage.createContactInfo(infoData);
-      }
-
-      res.json(updatedInfo);
+      const contactInfo = await storage.getContactInfo();
+      res.json(contactInfo || {});
     } catch (error) {
-      if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
-      } else {
-        res.status(500).json({ message: "Internal server error" });
-      }
+      console.error("Error fetching contact info:", error);
+      res.status(500).json({ message: "Error fetching contact info" });
     }
   });
 
@@ -1447,14 +1429,14 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
 
       // Check if product has associated orders
       const orders = await storage.getAllOrders();
-      const hasOrders = orders.some(order => 
-        Array.isArray(order.items) && 
+      const hasOrders = orders.some(order =>
+        Array.isArray(order.items) &&
         order.items.some((item: any) => item.productId === id)
       );
 
       // If product has orders and force is not specified, suggest soft delete
       if (hasOrders && force !== 'true') {
-        return res.status(409).json({ 
+        return res.status(409).json({
           message: "Este producto tiene pedidos asociados y no puede eliminarse completamente",
           suggestion: "¿Deseas desactivarlo en su lugar? Esto lo ocultará de la tienda pero mantendrá el historial de pedidos.",
           hasOrders: true,
@@ -1467,17 +1449,17 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
         // First, delete all related inventory movements
         const inventoryMovements = await storage.getInventoryMovements(id);
         console.log(`Found ${inventoryMovements.length} inventory movements to delete for product ${product.name}`);
-        
+
         for (const movement of inventoryMovements) {
           await storage.deleteInventoryMovement(movement.id);
         }
-        
+
         console.log(`Successfully deleted ${inventoryMovements.length} inventory movements for product ${product.name}`);
       } catch (inventoryError) {
         console.error("Error deleting inventory movements:", inventoryError);
-        return res.status(500).json({ 
-          message: "Failed to delete related inventory movements", 
-          error: inventoryError instanceof Error ? inventoryError.message : "Unknown error" 
+        return res.status(500).json({
+          message: "Failed to delete related inventory movements",
+          error: inventoryError instanceof Error ? inventoryError.message : "Unknown error"
         });
       }
 
@@ -1557,7 +1539,7 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
     try {
       const { id } = req.params;
 
-      const updatedProduct = await storage.updateProduct(id, { 
+      const updatedProduct = await storage.updateProduct(id, {
         isActive: false,
         updatedAt: new Date()
       });
@@ -1584,13 +1566,13 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
         console.error("Error deactivating product in Stripe:", stripeError);
       }
 
-      res.json({ 
-        message: "Producto desactivado correctamente", 
-        product: updatedProduct 
+      res.json({
+        message: "Producto desactivado correctamente",
+        product: updatedProduct
       });
     } catch (error) {
       console.error("Error deactivating product:", error);
-      res.status(500).json({ message: error instanceof Error ? error.message : "Failed to deactivate product" });
+      res.status(500).json({ message: "Failed to deactivate product" });
     }
   });
 
@@ -1599,7 +1581,7 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
     try {
       const { id } = req.params;
 
-      const updatedProduct = await storage.updateProduct(id, { 
+      const updatedProduct = await storage.updateProduct(id, {
         isActive: true,
         updatedAt: new Date()
       });
@@ -1626,13 +1608,13 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
         console.error("Error reactivating product in Stripe:", stripeError);
       }
 
-      res.json({ 
-        message: "Producto reactivado correctamente", 
-        product: updatedProduct 
+      res.json({
+        message: "Producto reactivado correctamente",
+        product: updatedProduct
       });
     } catch (error) {
       console.error("Error reactivating product:", error);
-      res.status(500).json({ message: error instanceof Error ? error.message : "Failed to reactivate product" });
+      res.status(500).json({ message: "Failed to reactivate product" });
     }
   });
 
@@ -2479,32 +2461,32 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
       console.log(`🖼️ Serving public object: ${objectPath}`);
       console.log(`📁 Current working directory: ${process.cwd()}`);
       console.log(`📂 Looking for file in uploads directory...`);
-      
+
       // Check if uploads directory exists and list files
       const fs = require('fs');
       const path = require('path');
       const uploadsDir = path.join(process.cwd(), 'uploads');
-      
+
       if (fs.existsSync(uploadsDir)) {
         const files = fs.readdirSync(uploadsDir);
         console.log(`📋 Files in uploads (${files.length}):`, files.slice(0, 10).join(', '));
-        
+
         const targetFile = path.join(uploadsDir, objectPath);
         console.log(`🎯 Target file path: ${targetFile}`);
         console.log(`✅ File exists: ${fs.existsSync(targetFile)}`);
       } else {
         console.log(`❌ Uploads directory does not exist: ${uploadsDir}`);
       }
-      
+
       await objectStorageService.downloadObject(objectPath, res);
     } catch (error) {
       console.error("Error serving object:", error);
       if (error instanceof ObjectNotFoundError) {
         // Return a placeholder image or 404 response
-        res.status(404).json({ 
-          error: "Object not found", 
+        res.status(404).json({
+          error: "Object not found",
           path: req.params.objectPath,
-          message: "The requested image could not be found" 
+          message: "The requested image could not be found"
         });
         return;
       }

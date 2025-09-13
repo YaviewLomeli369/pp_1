@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useRef } from "react";
+import React, { Suspense, lazy, useEffect, useRef, startTransition } from "react";
 import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -34,7 +34,6 @@ import OrderTracking from "@/pages/order-tracking";
 import AvisoPrivacidad from "@/pages/aviso-privacidad";
 import Conocenos from "@/pages/Conocenos";
 import Servicios from "@/pages/Servicios";
-// import TiendaPrueba from "@/pages/tienda-prueba";
 
 // Admin pages
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -51,17 +50,14 @@ import AdminReservationSettings from "@/pages/admin/reservation-settings";
 import AdminPayments from "@/pages/admin/payments";
 import AdminBlog from "@/pages/admin/blog";
 import AdminOrders from "@/pages/admin/orders";
-// import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminInventory from "@/pages/admin/inventory";
 import AdminContactInfo from "@/pages/admin/contact-info";
 import AdminServiciosSections from "@/pages/admin/servicios-sections";
 import AdminPagesContent from "@/pages/admin/pages-content";
-
-const AdminWhatsAppConfig = lazy(() => import("./pages/admin/whatsapp-config"));
-const AdminNavbarConfig = lazy(() => import("./pages/admin/navbar-config"));
-const AdminSidebarConfig = lazy(() => import("./pages/admin/sidebar-config"));
-
-const AdminEmailConfig = lazy(() => import("./pages/admin/email-config"));
+import AdminWhatsAppConfig from "@/pages/admin/whatsapp-config";
+import AdminNavbarConfig from "@/pages/admin/navbar-config";
+import AdminSidebarConfig from "@/pages/admin/sidebar-config";
+import AdminEmailConfig from "@/pages/admin/email-config";
 
 import NotFound from "@/pages/not-found";
 
@@ -150,33 +146,13 @@ function Router() {
       <Route path="/admin/payments" component={AdminPayments} />
       <Route path="/admin/blog" component={AdminBlog} />
       <Route path="/admin/orders" component={AdminOrders} />
-      <Route path="/admin/contact-info">
-        <Suspense fallback={<LoadingPage />}>
-          <AdminContactInfo />
-        </Suspense>
-      </Route>
-      <Route path="/admin/whatsapp-config">
-        <Suspense fallback={<LoadingPage />}>
-          <AdminWhatsAppConfig />
-        </Suspense>
-      </Route>
-      <Route path="/admin/navbar-config" component={lazy(() => import("@/pages/admin/navbar-config"))} />
-        <Route path="/admin/sidebar-config" component={lazy(() => import("@/pages/admin/sidebar-config"))} />
-      <Route path="/admin/email-config">
-        <Suspense fallback={<LoadingPage />}>
-          <AdminEmailConfig />
-        </Suspense>
-      </Route>
-      <Route path="/admin/servicios-sections">
-        <Suspense fallback={<LoadingPage />}>
-          <AdminServiciosSections />
-        </Suspense>
-      </Route>
-      <Route path="/admin/pages-content">
-        <Suspense fallback={<LoadingPage />}>
-          <AdminPagesContent />
-        </Suspense>
-      </Route>
+      <Route path="/admin/contact-info" component={AdminContactInfo} />
+      <Route path="/admin/whatsapp-config" component={AdminWhatsAppConfig} />
+      <Route path="/admin/navbar-config" component={AdminNavbarConfig} />
+      <Route path="/admin/sidebar-config" component={AdminSidebarConfig} />
+      <Route path="/admin/email-config" component={AdminEmailConfig} />
+      <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
+      <Route path="/admin/pages-content" component={AdminPagesContent} />
 
       <Route component={NotFound} />
     </Switch>

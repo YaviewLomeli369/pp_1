@@ -81,14 +81,21 @@ export function AdminSidebar() {
     queryKey: ["/api/config"],
   });
 
-  // Filter items based on user role and active modules
+  // Filter items based on user role, active modules, and sidebar configuration
   const isSuperuser = (currentUser as any)?.role === 'superuser';
   const modules = (config as any)?.config?.frontpage?.modulos || {};
+  const sidebarConfig = (config as any)?.config?.sidebar || {};
 
   const sidebarItems = useMemo(() => {
     const allItems = getAllSidebarItems();
     const filteredItems = allItems.filter(item => {
-      // Superuser sees everything
+      // Check sidebar configuration for visibility
+      const itemConfig = sidebarConfig[item.href];
+      if (itemConfig && itemConfig.isVisible === false) {
+        return false;
+      }
+
+      // Superuser sees everything (unless explicitly hidden)
       if (isSuperuser) {
         return true;
       }
@@ -106,8 +113,19 @@ export function AdminSidebar() {
       return true;
     });
 
+    // Apply sidebar configuration (custom labels, order, etc.)
+    const configuredItems = filteredItems.map(item => {
+      const itemConfig = sidebarConfig[item.href];
+      return {
+        ...item,
+        label: itemConfig?.label || item.label,
+        order: itemConfig?.order !== undefined ? itemConfig.order : item.order,
+        isVisible: itemConfig?.isVisible !== undefined ? itemConfig.isVisible : true
+      };
+    });
+
     // Sort items by order, then by label
-    filteredItems.sort((a, b) => {
+    configuredItems.sort((a, b) => {
       if (a.order !== undefined && b.order !== undefined) {
         return a.order - b.order;
       }
@@ -116,8 +134,8 @@ export function AdminSidebar() {
       return 0;
     });
 
-    return filteredItems;
-  }, [currentUser, config]);
+    return configuredItems;
+  }, [currentUser, config, sidebarConfig]);
 
 
   const groupedItems = sidebarItems.reduce((acc, item) => {
