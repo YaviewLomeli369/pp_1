@@ -68,6 +68,12 @@ app.use((req, res, next) => {
   // doesn't interfere with the other routes
   // Enhanced file serving for uploaded objects
   const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+  
+  // Ensure uploads directory exists with proper permissions
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true, mode: 0o755 });
+    console.log('✅ Created uploads directory:', UPLOADS_DIR);
+  }
 
   // 1) Serve static files from the uploads folder (with specific Content-Type headers)
   app.use('/uploads', express.static(UPLOADS_DIR, {
