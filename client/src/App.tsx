@@ -11,6 +11,7 @@ import { ModuleRoute } from "@/components/module-route";
 import { LoadingPage } from "@/components/loading-page";
 import type { SiteConfig } from "@shared/schema";
 import ReloadOnStore from "@/components/ReloadOnStore";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Public pages
 import Home from "@/pages/home";
@@ -191,10 +192,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Router />
-        <InlineEditor value="" onSave={async () => {}} />
-        <WhatsAppWidget />
-        <Toaster />
+        <ErrorBoundary>
+          <Router />
+          <InlineEditor value="" onSave={async () => {}} />
+          <WhatsAppWidget />
+          <Toaster />
+        </ErrorBoundary>
       </TooltipProvider>
     </QueryClientProvider>
   );

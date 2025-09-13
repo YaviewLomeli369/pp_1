@@ -171,7 +171,11 @@ export default function Faqs() {
                   <div className="sm:w-64">
                     <Select
                       value={selectedCategory}
-                      onValueChange={setSelectedCategory}
+                      onValueChange={(value) => {
+                        startTransition(() => {
+                          setSelectedCategory(value);
+                        });
+                      }}
                     >
                       <SelectTrigger className="border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300">
                         <SelectValue placeholder="Filtrar por categoría" />
@@ -204,7 +208,11 @@ export default function Faqs() {
                     <div
                       key={cat.id}
                       className="p-5 border rounded-2xl shadow hover:shadow-xl hover:bg-blue-50 cursor-pointer transition-all duration-300"
-                      onClick={() => setSelectedCategory(cat.id)}
+                      onClick={() => {
+                        startTransition(() => {
+                          setSelectedCategory(cat.id);
+                        });
+                      }}
                     >
                       <h3 className="font-bold text-lg text-gray-900 mb-1">
                         {cat.name}
@@ -327,7 +335,11 @@ export default function Faqs() {
                     </div>
                     <Button
                       variant="outline"
-                      onClick={() => setSelectedCategory("all")}
+                      onClick={() => {
+                        startTransition(() => {
+                          setSelectedCategory("all");
+                        });
+                      }}
                       style={{
                         borderColor: appearance.primaryColor || "#000000",
                         color: appearance.primaryColor || "#000000",
@@ -379,8 +391,10 @@ export default function Faqs() {
                     {(searchTerm || selectedCategory !== "all") && (
                       <Button
                         onClick={() => {
-                          setSearchTerm("");
-                          setSelectedCategory("all");
+                          startTransition(() => {
+                            setSearchTerm("");
+                            setSelectedCategory("all");
+                          });
                         }}
                         className="bg-blue-600 text-white hover:bg-blue-700"
                         style={{ backgroundColor: appearance.primaryColor || "#000000" }}
