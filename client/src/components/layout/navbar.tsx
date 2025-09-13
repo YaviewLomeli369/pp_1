@@ -56,6 +56,34 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
+  // Get navbar styles from config
+  const navbarStyles = useMemo(() => {
+    const configData = config?.config as any;
+    const styles = configData?.navbarStyles || {};
+    
+    return {
+      height: styles.height || '64px',
+      backgroundColor: styles.backgroundColor || '#ffffff',
+      backgroundBlur: styles.backgroundBlur !== false,
+      backgroundOpacity: styles.backgroundOpacity || '0.95',
+      borderBottom: styles.borderBottom || '1px solid rgba(229, 231, 235, 0.8)',
+      fontSize: styles.fontSize || '16px',
+      fontWeight: styles.fontWeight || '500',
+      fontFamily: styles.fontFamily || 'inherit',
+      textColor: styles.textColor || '#374151',
+      textHoverColor: styles.textHoverColor || '#059669',
+      activeTextColor: styles.activeTextColor || '#059669',
+      logoSize: styles.logoSize || '40px',
+      boxShadow: styles.boxShadow || '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      borderRadius: styles.borderRadius || '0px',
+      transition: styles.transition || 'all 0.3s ease',
+      maxWidth: styles.maxWidth || '1280px',
+      padding: styles.padding || '0 16px',
+      position: styles.position || 'fixed',
+      customCSS: styles.customCSS || ''
+    };
+  }, [config]);
+
   // Products query for cart functionality
   const { data: products } = useQuery({
     queryKey: ["/api/store/products"],
@@ -374,7 +402,7 @@ export function Navbar() {
     onClick?: () => void;
   }) => (
     <div
-      className={`cursor-pointer ${className}`}
+      className={`cursor-pointer ${className} ${location === href ? 'active' : ''}`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -383,35 +411,76 @@ export function Navbar() {
       }}
       style={isNavigatingRef.current ? { pointerEvents: "none", opacity: 0.6 } : {}}
     >
-      <span
-        className={`${
-          location === href
-            ? "text-primary font-semibold"
-            : "text-gray-800 hover:text-primary"
-        } transition-colors`}
-      >
-        {children}
-      </span>
+      {children}
     </div>
   ), [handleNavigation, location]);
 
   return (
-    <nav
-      className={`fixed top-0 w-full z-50 transition-all ${
-        isScrolled
-          ? "bg-white/80 backdrop-blur-xl shadow-md border-b border-white/30"
-          : "bg-white"
-      }`}
-      key={navRef.current}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <>
+      {/* Inject custom styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .navbar-custom {
+            height: ${navbarStyles.height} !important;
+            background-color: ${navbarStyles.backgroundColor} !important;
+            ${navbarStyles.backgroundBlur ? `backdrop-filter: blur(10px) !important;` : ''}
+            ${navbarStyles.backgroundOpacity !== '1' ? `background-color: ${navbarStyles.backgroundColor}${Math.round(parseFloat(navbarStyles.backgroundOpacity) * 255).toString(16).padStart(2, '0')} !important;` : ''}
+            border-bottom: ${navbarStyles.borderBottom} !important;
+            box-shadow: ${isScrolled ? navbarStyles.boxShadow : 'none'} !important;
+            border-radius: ${navbarStyles.borderRadius} !important;
+            transition: ${navbarStyles.transition} !important;
+            position: ${navbarStyles.position} !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 50 !important;
+          }
+
+          .navbar-custom .navbar-container {
+            max-width: ${navbarStyles.maxWidth} !important;
+            padding: ${navbarStyles.padding} !important;
+            margin: 0 auto !important;
+            height: 100% !important;
+          }
+
+          .navbar-custom .navbar-link {
+            font-size: ${navbarStyles.fontSize} !important;
+            font-weight: ${navbarStyles.fontWeight} !important;
+            font-family: ${navbarStyles.fontFamily} !important;
+            color: ${navbarStyles.textColor} !important;
+            transition: ${navbarStyles.transition} !important;
+          }
+
+          .navbar-custom .navbar-link:hover {
+            color: ${navbarStyles.textHoverColor} !important;
+          }
+
+          .navbar-custom .navbar-link.active {
+            color: ${navbarStyles.activeTextColor} !important;
+            font-weight: 600 !important;
+          }
+
+          .navbar-custom .navbar-logo {
+            height: ${navbarStyles.logoSize} !important;
+            width: auto !important;
+          }
+
+          ${navbarStyles.customCSS}
+        `
+      }} />
+      
+      <nav
+        className="navbar-custom w-full z-50"
+        key={navRef.current}
+      >
+      <div className="navbar-container">
+        <div className="flex items-center justify-between h-full">
           {/* Logo + Brand */}
           <NavLink href="/" className="flex items-center space-x-3">
             <img
               src={logoSvg}
               alt="Logo"
-              className="h-10 w-auto object-contain"
+              className="navbar-logo object-contain"
             />
           </NavLink>
 
@@ -421,7 +490,7 @@ export function Navbar() {
               <NavLink
                 key={`${item.href}-${navRef.current}`}
                 href={item.href}
-                className="text-base font-medium"
+                className="navbar-link"
               >
                 {item.label}
               </NavLink>
@@ -708,5 +777,6 @@ export function Navbar() {
         </div>
       </div>
     </nav>
+    </>
   );
 }
