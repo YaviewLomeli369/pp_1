@@ -60,7 +60,7 @@ export function Navbar() {
   const navbarStyles = useMemo(() => {
     const configData = config?.config as any;
     const styles = configData?.navbarStyles || {};
-    
+
     return {
       height: styles.height || '64px',
       backgroundColor: styles.backgroundColor || '#ffffff',
@@ -163,7 +163,7 @@ export function Navbar() {
           const currentProduct = products.find(p => p.id === item.product.id);
           return currentProduct ? { ...item, product: currentProduct } : item;
         });
-        
+
         if (validCartItems.length > 0) {
           setCart(validCartItems);
           if (validCartItems.length !== savedCart.length) {
@@ -182,7 +182,7 @@ export function Navbar() {
     const syncInterval = setInterval(() => {
       const currentCartString = JSON.stringify(cart);
       const storageCartString = localStorage.getItem('shopping-cart') || '[]';
-      
+
       // Only sync if there's a difference
       if (currentCartString !== storageCartString) {
         const storageCart = loadCartFromStorage();
@@ -286,7 +286,7 @@ export function Navbar() {
 
   const navItems = useMemo(() => {
     const navbarConfig = configData?.navbar || {};
-    
+
     // Default navigation items
     const defaultItems = [
       { href: "/", label: "Inicio", moduleKey: "home", always: true, order: 0 },
@@ -317,7 +317,7 @@ export function Navbar() {
       .filter(item => {
         // Show if always visible or if module is active
         if (item.always || item.isRequired) return item.isVisible;
-        
+
         // Check if module is active and item is visible
         const moduleActive = item.moduleKey && modules[item.moduleKey]?.activo;
         return moduleActive && item.isVisible;
@@ -415,6 +415,59 @@ export function Navbar() {
     </div>
   ), [handleNavigation, location]);
 
+  // Update navbar styles and body padding on mount and config changes
+  useEffect(() => {
+    if (!navbarConfig) return;
+
+    const root = document.documentElement;
+
+    // Apply navbar styles
+    const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
+    if (navElement && navbarStyles) {
+      Object.assign(navElement.style, {
+        position: navbarStyles.position || 'fixed',
+        backgroundColor: navbarStyles.backgroundColor || '#ffffff',
+        backdropFilter: navbarStyles.backgroundBlur ? `blur(10px)` : 'none', // Fixed based on backgroundBlur
+        borderBottom: navbarStyles.borderBottom || '1px solid #e5e7eb',
+        boxShadow: navbarStyles.boxShadow || '0 1px 3px rgba(0, 0, 0, 0.1)',
+        zIndex: navbarStyles.zIndex || '1000',
+        width: navbarStyles.width || '100%',
+        height: navbarStyles.height || 'auto',
+        padding: navbarStyles.padding || '0.75rem 1rem',
+        transition: navbarStyles.transition || 'all 0.3s ease'
+      });
+
+      // Function to update body padding
+      const updateBodyPadding = () => {
+        if (navbarStyles.position === 'fixed') {
+          const navHeight = navElement.offsetHeight;
+          document.body.style.paddingTop = `${navHeight}px`;
+        } else {
+          document.body.style.paddingTop = '0px';
+        }
+      };
+
+      // Initial padding update
+      updateBodyPadding();
+
+      // Set up ResizeObserver to watch for navbar size changes
+      const resizeObserver = new ResizeObserver(() => {
+        updateBodyPadding();
+      });
+
+      resizeObserver.observe(navElement);
+
+      // Cleanup function
+      return () => {
+        resizeObserver.disconnect();
+        if (navbarStyles?.position === 'fixed') {
+          document.body.style.paddingTop = '0px';
+        }
+      };
+    }
+  }, [navbarConfig, navbarStyles]);
+
+
   return (
     <>
       {/* Inject custom styles */}
@@ -468,10 +521,11 @@ export function Navbar() {
           ${navbarStyles.customCSS}
         `
       }} />
-      
+
       <nav
         className="navbar-custom w-full z-50"
         key={navRef.current}
+        data-navbar="true"
       >
       <div className="navbar-container">
         <div className="flex items-center justify-between h-full">
@@ -600,13 +654,13 @@ export function Navbar() {
                             </div>
                           ))}
                         </div>
-                        
+
                         <div className="border-t pt-4 space-y-4">
                           <div className="flex justify-between items-center">
                             <span className="font-semibold">Total:</span>
                             <span className="font-bold text-lg">${cartTotal.toFixed(2)}</span>
                           </div>
-                          
+
                           <div className="flex space-x-2">
                             <Button 
                               variant="outline" 
@@ -626,7 +680,7 @@ export function Navbar() {
                               Checkout
                             </Button>
                           </div>
-                          
+
                           <Button 
                             variant="ghost" 
                             className="w-full text-red-600 hover:text-red-700"
