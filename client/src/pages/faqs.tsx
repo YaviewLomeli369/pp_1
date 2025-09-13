@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { Search, HelpCircle, Filter } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { Faq, FaqCategory, SiteConfig } from "@shared/schema";
