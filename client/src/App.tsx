@@ -148,9 +148,9 @@ function Router() {
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/contact-info" component={AdminContactInfo} />
       <Route path="/admin/whatsapp-config" component={AdminWhatsAppConfig} />
-      <Route path="/admin/navbar-config" component={AdminNavbarConfig} />
-      <Route path="/admin/sidebar-config" component={AdminSidebarConfig} />
+      <Route path="/admin/navbar-config" component={lazy(() => import("@/pages/admin/navbar-config"))} />
       <Route path="/admin/email-config" component={AdminEmailConfig} />
+      <Route path="/admin/sidebar-config" component={AdminSidebarConfig} />
       <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
       <Route path="/admin/pages-content" component={AdminPagesContent} />
 

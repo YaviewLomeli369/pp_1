@@ -61,9 +61,9 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/contact", label: "Contacto", icon: MessageSquare, section: "Módulos de Negocio", moduleRequired: "contacto" },
 
   { href: "/admin/contact-info", label: "Información de Contacto", icon: MapPin, section: "Módulos de Negocio", moduleRequired: "contacto" },
-  { href: "/admin/whatsapp-config", label: "WhatsApp", icon: MessageCircle, section: "Configuración General" }, // Added WhatsApp config link
-  { href: "/admin/navbar-config", label: "Navbar", icon: Navigation, section: "Configuración General" }, // Added Navbar config link
-  { href: "/admin/email-config", label: "Config. Email", icon: Mail, section: "Módulos de Negocio" },
+  { href: "/admin/whatsapp-config", label: "WhatsApp", icon: MessageCircle, section: "Configuración General", order: 16 },
+  { href: "/admin/navbar-config", label: "Config. Navbar", icon: Navigation, section: "Configuración General", order: 17 },
+  { href: "/admin/email-config", label: "Config. Email", icon: Mail, section: "Módulos de Negocio", order: 18 },
 ];
 
 export function AdminSidebar() {
