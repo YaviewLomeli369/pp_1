@@ -64,9 +64,10 @@ const resolveImageUrl = (img?: string | null) => {
 /**
  * ImageWithRetry component
  * - Intenta cargar la URL resuelta, si falla prueba variantes:
- *    1. base
- *    2. base + '?download=true'
- *    3. base + '?raw=true'
+ *    1. base (objects)
+ *    2. fallback a /imgs/uploads/
+ *    3. base + '?download=true'
+ *    4. base + '?raw=true'
  * - Si al final falla, hace console.error con todos los intentos.
  */
 function ImageWithRetry({
@@ -85,10 +86,23 @@ function ImageWithRetry({
 
   const attempts = useMemo(() => {
     if (!base) return [""];
-    // Avoid duplicate query strings if base already has '?'
+    
+    const urls = [base];
+
+    // If the original URL is an objects URL, try some alternatives
+    if (src && src.includes('/objects/')) {
+      const filename = src.replace('/objects/', '');
+      // Agregar fallback a public/imgs/uploads/
+      urls.push(`${window.location.origin}/imgs/uploads/${filename}`);
+    }
+
+    // Add query parameter variants
     const sep = base.includes("?") ? "&" : "?";
-    return [base, `${base}${sep}download=true`, `${base}${sep}raw=true`];
-  }, [base]);
+    urls.push(`${base}${sep}download=true`);
+    urls.push(`${base}${sep}raw=true`);
+    
+    return urls;
+  }, [base, src]);
 
   useEffect(() => {
     // reset attempt when src changes
@@ -118,8 +132,14 @@ function ImageWithRetry({
             console.error("❌ Image failed to load after retries. Attempts:", attempts);
             return attempts.length - 1;
           }
+          console.log(`🔄 Retry attempt ${next}/${attempts.length}: ${attempts[next]}`);
           return next;
         });
+      }}
+      onLoad={() => {
+        if (attempt > 0) {
+          console.log(`✅ Image loaded successfully on attempt ${attempt + 1}: ${currentSrc}`);
+        }
       }}
     />
   );
