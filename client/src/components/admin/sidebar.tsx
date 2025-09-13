@@ -28,14 +28,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from 'react';
 
 interface SidebarItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   section?: string;
-  superuserOnly?: boolean;
   moduleRequired?: string;
+  superuserOnly?: boolean;
+  order?: number;
+  isVisible?: boolean;
 }
 
 const getAllSidebarItems = (): SidebarItem[] => [
@@ -82,24 +85,40 @@ export function AdminSidebar() {
   const isSuperuser = (currentUser as any)?.role === 'superuser';
   const modules = (config as any)?.config?.frontpage?.modulos || {};
 
-  const sidebarItems = getAllSidebarItems().filter(item => {
-    // Superuser sees everything
-    if (isSuperuser) {
+  const sidebarItems = useMemo(() => {
+    const allItems = getAllSidebarItems();
+    const filteredItems = allItems.filter(item => {
+      // Superuser sees everything
+      if (isSuperuser) {
+        return true;
+      }
+
+      // Hide superuser-only items from admin
+      if (item.superuserOnly) {
+        return false;
+      }
+
+      // For admin users, check if module is active
+      if (item.moduleRequired) {
+        return modules[item.moduleRequired]?.activo || false;
+      }
+
       return true;
-    }
+    });
 
-    // Hide superuser-only items from admin
-    if (item.superuserOnly) {
-      return false;
-    }
+    // Sort items by order, then by label
+    filteredItems.sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      }
+      if (a.label < b.label) return -1;
+      if (a.label > b.label) return 1;
+      return 0;
+    });
 
-    // For admin users, check if module is active
-    if (item.moduleRequired) {
-      return modules[item.moduleRequired]?.activo || false;
-    }
+    return filteredItems;
+  }, [currentUser, config]);
 
-    return true;
-  });
 
   const groupedItems = sidebarItems.reduce((acc, item) => {
     const section = item.section || "main";
@@ -111,7 +130,7 @@ export function AdminSidebar() {
   const SidebarContent = () => (
       <nav className="p-4 space-y-2">
         {/* Main items (no section) */}
-        {groupedItems.main?.map((item) => {
+        {groupedItems.main?.filter(item => item.isVisible !== false).map((item) => {
           const Icon = item.icon;
           return (
             <Link
@@ -139,7 +158,7 @@ export function AdminSidebar() {
               <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                 {section}
               </h3>
-              {items.map((item) => {
+              {items.filter(item => item.isVisible !== false).map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link

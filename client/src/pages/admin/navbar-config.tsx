@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
@@ -5,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
@@ -28,6 +31,8 @@ import {
   HelpCircle,
   Users,
   Package,
+  Edit2,
+  RefreshCw,
 } from "lucide-react";
 
 type NavbarItem = {
@@ -53,21 +58,24 @@ const iconMap: { [key: string]: React.ReactNode } = {
 };
 
 const defaultNavItems = [
-  { moduleKey: "home", label: "Inicio", href: "/", isRequired: true },
-  { moduleKey: "testimonios", label: "Testimonios", href: "/testimonials", isRequired: false },
-  { moduleKey: "faqs", label: "FAQs", href: "/faqs", isRequired: false },
-  { moduleKey: "contacto", label: "Contacto", href: "/contact", isRequired: false },
-  { moduleKey: "tienda", label: "Tienda", href: "/store", isRequired: false },
-  { moduleKey: "blog", label: "Blog", href: "/blog", isRequired: false },
-  { moduleKey: "reservas", label: "Reservas", href: "/reservations", isRequired: false },
-  { moduleKey: "conocenos", label: "Conócenos", href: "/conocenos", isRequired: true },
-  { moduleKey: "servicios", label: "Servicios", href: "/servicios", isRequired: true },
+  { moduleKey: "home", label: "Inicio", href: "/", isRequired: true, order: 0 },
+  { moduleKey: "testimonios", label: "Testimonios", href: "/testimonials", isRequired: false, order: 1 },
+  { moduleKey: "faqs", label: "FAQs", href: "/faqs", isRequired: false, order: 2 },
+  { moduleKey: "contacto", label: "Contacto", href: "/contact", isRequired: false, order: 3 },
+  { moduleKey: "tienda", label: "Tienda", href: "/store", isRequired: false, order: 4 },
+  { moduleKey: "blog", label: "Blog", href: "/blog", isRequired: false, order: 5 },
+  { moduleKey: "reservas", label: "Reservas", href: "/reservations", isRequired: false, order: 6 },
+  { moduleKey: "conocenos", label: "Conócenos", href: "/conocenos", isRequired: true, order: 7 },
+  { moduleKey: "servicios", label: "Servicios", href: "/servicios", isRequired: true, order: 8 },
 ];
 
 export default function AdminNavbarConfig() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [items, setItems] = useState<NavbarItem[]>([]);
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editHref, setEditHref] = useState("");
 
   const { data: config, isLoading } = useQuery({
     queryKey: ["/api/config"],
@@ -80,7 +88,7 @@ export default function AdminNavbarConfig() {
       const modules = (config as any)?.config?.frontpage?.modulos || {};
       const navbarConfig = (config as any)?.config?.navbar || {};
 
-      // Get available items based on active modules
+      // Get available items based on active modules or required status
       const availableItems = defaultNavItems.filter(item => 
         item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
       );
@@ -89,12 +97,12 @@ export default function AdminNavbarConfig() {
       const configuredItems = availableItems.map((item, index) => {
         const existingConfig = navbarConfig[item.moduleKey] || {};
         return {
-          id: `${item.moduleKey}-${Date.now()}`, // Use moduleKey for ID, add timestamp to ensure uniqueness if needed
+          id: `${item.moduleKey}-${Date.now()}`,
           moduleKey: item.moduleKey,
-          label: item.label,
-          href: item.href,
+          label: existingConfig.label || item.label,
+          href: existingConfig.href || item.href,
           isVisible: existingConfig.isVisible !== undefined ? existingConfig.isVisible : true,
-          order: existingConfig.order !== undefined ? existingConfig.order : index,
+          order: existingConfig.order !== undefined ? existingConfig.order : item.order,
           isRequired: item.isRequired,
         };
       });
@@ -139,6 +147,31 @@ export default function AdminNavbarConfig() {
     setItems(items.map(item => 
       item.moduleKey === moduleKey ? { ...item, isVisible } : item
     ));
+  };
+
+  const handleEditItem = (item: NavbarItem) => {
+    setEditingItem(item.moduleKey);
+    setEditLabel(item.label);
+    setEditHref(item.href);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingItem) {
+      setItems(items.map(item => 
+        item.moduleKey === editingItem 
+          ? { ...item, label: editLabel, href: editHref }
+          : item
+      ));
+      setEditingItem(null);
+      setEditLabel("");
+      setEditHref("");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItem(null);
+    setEditLabel("");
+    setEditHref("");
   };
 
   const handleSaveConfiguration = () => {
@@ -201,6 +234,31 @@ export default function AdminNavbarConfig() {
     }
   };
 
+  const handleResetToDefaults = () => {
+    if (!config) return;
+
+    const modules = (config as any)?.config?.frontpage?.modulos || {};
+    const availableItems = defaultNavItems.filter(item => 
+      item.isRequired || (item.moduleKey && modules[item.moduleKey]?.activo)
+    );
+
+    const resetItems = availableItems.map((item, index) => ({
+      id: `reset-${item.moduleKey}-${Date.now()}`,
+      moduleKey: item.moduleKey,
+      label: item.label,
+      href: item.href,
+      isVisible: true,
+      order: item.order,
+      isRequired: item.isRequired,
+    }));
+
+    setItems(resetItems);
+    toast({ 
+      title: "Configuración restablecida", 
+      description: "Se han restaurado los valores por defecto" 
+    });
+  };
+
   if (isLoading) {
     return (
       <AdminLayout>
@@ -219,10 +277,10 @@ export default function AdminNavbarConfig() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <Navigation className="h-6 w-6" />
-              Configuración del Navbar
+              Configuración Avanzada del Navbar
             </h1>
             <p className="text-gray-600 mt-1">
-              Gestiona el orden y visibilidad de los elementos en la barra de navegación basados en módulos activos
+              Gestiona el orden, visibilidad, etiquetas y enlaces de los elementos en la barra de navegación
             </p>
           </div>
           <div className="flex gap-2">
@@ -231,11 +289,19 @@ export default function AdminNavbarConfig() {
               onClick={handleRefreshFromModules}
               disabled={!config}
             >
+              <RefreshCw className="mr-2 h-4 w-4" />
               Actualizar desde Módulos
             </Button>
             <Button 
+              variant="outline" 
+              onClick={handleResetToDefaults}
+              disabled={!config}
+            >
+              Restablecer
+            </Button>
+            <Button 
               onClick={handleSaveConfiguration} 
-              disabled={updateConfigMutation.isLoading || !config}
+              disabled={updateConfigMutation.isPending || !config}
             >
               <Save className="mr-2 h-4 w-4" />
               Guardar Configuración
@@ -250,7 +316,7 @@ export default function AdminNavbarConfig() {
               <CardHeader>
                 <CardTitle>Elementos del Navbar</CardTitle>
                 <p className="text-sm text-gray-600">
-                  Arrastra para reordenar. Los elementos marcados como requeridos no se pueden eliminar.
+                  Arrastra para reordenar. Haz clic en el ícono de editar para modificar etiquetas y enlaces.
                 </p>
               </CardHeader>
               <CardContent>
@@ -277,56 +343,95 @@ export default function AdminNavbarConfig() {
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
-                                  className={`flex items-center justify-between p-4 border rounded-lg bg-white transition-all ${
+                                  className={`border rounded-lg bg-white transition-all ${
                                     snapshot.isDragging 
                                       ? "shadow-lg border-primary scale-105" 
                                       : "border-gray-200 hover:border-gray-300"
                                   }`}
                                 >
-                                  <div className="flex items-center space-x-3">
-                                    <div 
-                                      {...provided.dragHandleProps}
-                                      className="cursor-grab active:cursor-grabbing"
-                                    >
-                                      <GripVertical className="h-5 w-5 text-gray-400" />
+                                  {editingItem === item.moduleKey ? (
+                                    <div className="p-4 space-y-4">
+                                      <div className="space-y-2">
+                                        <Label>Etiqueta</Label>
+                                        <Input
+                                          value={editLabel}
+                                          onChange={(e) => setEditLabel(e.target.value)}
+                                          placeholder="Nombre que aparece en el navbar"
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label>Enlace</Label>
+                                        <Input
+                                          value={editHref}
+                                          onChange={(e) => setEditHref(e.target.value)}
+                                          placeholder="Ruta del enlace (ej: /contacto)"
+                                        />
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button size="sm" onClick={handleSaveEdit}>
+                                          Guardar
+                                        </Button>
+                                        <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                                          Cancelar
+                                        </Button>
+                                      </div>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                      {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
-                                      <span className="font-medium">{item.label}</span>
-                                    </div>
-                                    <Badge variant="outline" className="text-xs">
-                                      {item.href}
-                                    </Badge>
-                                    {item.isRequired && (
-                                      <Badge variant="secondary" className="text-xs">
-                                        Requerido
-                                      </Badge>
-                                    )}
-                                  </div>
+                                  ) : (
+                                    <div className="flex items-center justify-between p-4">
+                                      <div className="flex items-center space-x-3">
+                                        <div 
+                                          {...provided.dragHandleProps}
+                                          className="cursor-grab active:cursor-grabbing"
+                                        >
+                                          <GripVertical className="h-5 w-5 text-gray-400" />
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                          {iconMap[item.moduleKey] || <Package className="h-4 w-4" />}
+                                          <div>
+                                            <span className="font-medium">{item.label}</span>
+                                            <div className="text-xs text-gray-500">{item.href}</div>
+                                          </div>
+                                        </div>
+                                        {item.isRequired && (
+                                          <Badge variant="secondary" className="text-xs">
+                                            Requerido
+                                          </Badge>
+                                        )}
+                                      </div>
 
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      checked={item.isVisible}
-                                      onCheckedChange={(checked) => 
-                                        handleToggleVisibility(item.moduleKey, checked)
-                                      }
-                                      disabled={item.isRequired}
-                                    />
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => 
-                                        handleToggleVisibility(item.moduleKey, !item.isVisible)
-                                      }
-                                      disabled={item.isRequired}
-                                    >
-                                      {item.isVisible ? (
-                                        <Eye className="h-4 w-4" />
-                                      ) : (
-                                        <EyeOff className="h-4 w-4" />
-                                      )}
-                                    </Button>
-                                  </div>
+                                      <div className="flex items-center space-x-2">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleEditItem(item)}
+                                          className="text-blue-600 hover:text-blue-700"
+                                        >
+                                          <Edit2 className="h-4 w-4" />
+                                        </Button>
+                                        <Switch
+                                          checked={item.isVisible}
+                                          onCheckedChange={(checked) => 
+                                            handleToggleVisibility(item.moduleKey, checked)
+                                          }
+                                          disabled={item.isRequired}
+                                        />
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => 
+                                            handleToggleVisibility(item.moduleKey, !item.isVisible)
+                                          }
+                                          disabled={item.isRequired}
+                                        >
+                                          {item.isVisible ? (
+                                            <Eye className="h-4 w-4" />
+                                          ) : (
+                                            <EyeOff className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </Draggable>
@@ -341,7 +446,7 @@ export default function AdminNavbarConfig() {
             </Card>
           </div>
 
-          {/* Module Status */}
+          {/* Module Status & Instructions */}
           <div>
             <Card>
               <CardHeader>
@@ -387,12 +492,13 @@ export default function AdminNavbarConfig() {
                 <CardTitle className="text-lg">Instrucciones</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-gray-600">
-                <p>• <strong>Actualizar desde Módulos:</strong> Agrega automáticamente elementos basados en módulos activos</p>
                 <p>• <strong>Arrastrar:</strong> Cambia el orden de los elementos</p>
+                <p>• <strong>Editar:</strong> Modifica etiquetas y enlaces personalizados</p>
                 <p>• <strong>Switch:</strong> Muestra/oculta elementos en el navbar público</p>
                 <p>• <strong>Elementos Requeridos:</strong> "Inicio", "Conócenos" y "Servicios" siempre están presentes</p>
-                <p>• <strong>Guardar Configuración:</strong> Confirma los cambios en la configuración del sitio</p>
-                <p>• Los cambios se reflejan inmediatamente en el navbar público</p>
+                <p>• <strong>Actualizar desde Módulos:</strong> Agrega automáticamente elementos basados en módulos activos</p>
+                <p>• <strong>Restablecer:</strong> Vuelve a la configuración por defecto</p>
+                <p>• Los cambios se reflejan inmediatamente en el navbar público al guardar</p>
               </CardContent>
             </Card>
           </div>

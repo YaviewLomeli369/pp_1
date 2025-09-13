@@ -59,6 +59,7 @@ import AdminPagesContent from "@/pages/admin/pages-content";
 
 const AdminWhatsAppConfig = lazy(() => import("./pages/admin/whatsapp-config"));
 const AdminNavbarConfig = lazy(() => import("./pages/admin/navbar-config"));
+const AdminSidebarConfig = lazy(() => import("./pages/admin/sidebar-config"));
 
 const AdminEmailConfig = lazy(() => import("./pages/admin/email-config"));
 
@@ -159,11 +160,8 @@ function Router() {
           <AdminWhatsAppConfig />
         </Suspense>
       </Route>
-      <Route path="/admin/navbar-config">
-        <Suspense fallback={<LoadingPage />}>
-          <AdminNavbarConfig />
-        </Suspense>
-      </Route>
+      <Route path="/admin/navbar-config" component={lazy(() => import("@/pages/admin/navbar-config"))} />
+        <Route path="/admin/sidebar-config" component={lazy(() => import("@/pages/admin/sidebar-config"))} />
       <Route path="/admin/email-config">
         <Suspense fallback={<LoadingPage />}>
           <AdminEmailConfig />

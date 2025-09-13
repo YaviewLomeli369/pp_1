@@ -261,53 +261,42 @@ export function Navbar() {
     
     // Default navigation items
     const defaultItems = [
-      { href: "/", label: "Inicio", moduleKey: "home", always: true },
-      { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios" },
-      { href: "/faqs", label: "FAQs", moduleKey: "faqs" },
-      { href: "/contact", label: "Contacto", moduleKey: "contacto" },
-      { href: "/store", label: "Tienda", moduleKey: "tienda" },
-      { href: "/blog", label: "Blog", moduleKey: "blog" },
-      { href: "/reservations", label: "Reservas", moduleKey: "reservas" },
-      { href: "/conocenos", label: "Conócenos", moduleKey: "conocenos", always: true },
-      { href: "/servicios", label: "Servicios", moduleKey: "servicios", always: true }
+      { href: "/", label: "Inicio", moduleKey: "home", always: true, order: 0 },
+      { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios", order: 1 },
+      { href: "/faqs", label: "FAQs", moduleKey: "faqs", order: 2 },
+      { href: "/contact", label: "Contacto", moduleKey: "contacto", order: 3 },
+      { href: "/store", label: "Tienda", moduleKey: "tienda", order: 4 },
+      { href: "/blog", label: "Blog", moduleKey: "blog", order: 5 },
+      { href: "/reservations", label: "Reservas", moduleKey: "reservas", order: 6 },
+      { href: "/conocenos", label: "Conócenos", moduleKey: "conocenos", always: true, order: 7 },
+      { href: "/servicios", label: "Servicios", moduleKey: "servicios", always: true, order: 8 }
     ];
 
-    // If navbar config exists, use it; otherwise use defaults
-    if (Object.keys(navbarConfig).length > 0) {
-      return defaultItems
-        .filter(item => {
-          const config = navbarConfig[item.moduleKey];
-          if (!config) return item.always;
-          
-          // Show if visible and either required or module is active
-          return config.isVisible && (
-            config.isRequired || 
-            item.always ||
-            (item.moduleKey && modules[item.moduleKey]?.activo)
-          );
-        })
-        .sort((a, b) => {
-          const configA = navbarConfig[a.moduleKey];
-          const configB = navbarConfig[b.moduleKey];
-          const orderA = configA?.order ?? 999;
-          const orderB = configB?.order ?? 999;
-          return orderA - orderB;
-        })
-        .map(item => {
-          const config = navbarConfig[item.moduleKey];
-          return {
-            href: config?.href || item.href,
-            label: config?.label || item.label,
-            moduleKey: item.moduleKey,
-            always: item.always || config?.isRequired
-          };
-        });
-    }
+    // Build navigation items from config or defaults
+    const items = defaultItems
+      .map(item => {
+        const config = navbarConfig[item.moduleKey];
+        return {
+          href: config?.href || item.href,
+          label: config?.label || item.label,
+          moduleKey: item.moduleKey,
+          always: item.always,
+          isVisible: config?.isVisible !== undefined ? config.isVisible : true,
+          isRequired: config?.isRequired || item.always,
+          order: config?.order !== undefined ? config.order : item.order
+        };
+      })
+      .filter(item => {
+        // Show if always visible or if module is active
+        if (item.always || item.isRequired) return item.isVisible;
+        
+        // Check if module is active and item is visible
+        const moduleActive = item.moduleKey && modules[item.moduleKey]?.activo;
+        return moduleActive && item.isVisible;
+      })
+      .sort((a, b) => a.order - b.order);
 
-    // Fallback to default configuration if no navbar config
-    return defaultItems.filter(item => 
-      item.always || (item.moduleKey && modules[item.moduleKey]?.activo)
-    );
+    return items;
   }, [configData, modules]);
 
   useEffect(() => {
