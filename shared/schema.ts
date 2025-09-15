@@ -357,14 +357,15 @@ export const sections = pgTable("sections", {
   config: jsonb("config"), // additional configuration for the section
 });
 
-// Media Storage - Imágenes en la base de datos
+// Media Storage - Referencias a imágenes en Object Storage
 export const mediaFiles = pgTable("media_files", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   filename: text("filename").notNull(),
   originalName: text("original_name").notNull(),
   mimeType: text("mime_type").notNull(),
   size: integer("size").notNull(), // in bytes
-  data: sql`bytea`.notNull(), // Binary data
+  url: text("url").notNull(), // URL to object storage
+  objectKey: text("object_key").notNull(), // Key in object storage
   alt: text("alt"),
   description: text("description"),
   uploadedBy: varchar("uploaded_by").references(() => users.id),
