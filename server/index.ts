@@ -9,6 +9,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { initializeStoreData } from "./store-setup";
 import { initializeSiteConfig } from "./site-config-setup";
 import objectStorageRouter from "./objectStorageRouter";
+import mediaStorageRouter from "./mediaStorageRouter";
 
 const app = express();
 app.use(express.json());
@@ -47,6 +48,7 @@ app.use((req, res, next) => {
 (async () => {
   // Mount object storage router first
   app.use(objectStorageRouter);
+  app.use(mediaStorageRouter);
 
   // Register API routes and get HTTP server
   const httpServer = await registerRoutes(app);

@@ -154,10 +154,10 @@ export default function ObjectUploader({
           },
         });
 
-        // Configurar XHRUpload para usar el endpoint directo
+        // Configurar XHRUpload para usar el nuevo endpoint de media
         uppy.use(XHRUpload, {
           id: 'XHRUpload',
-          endpoint: `${BASE_URL}/api/objects/direct-upload/upload`,
+          endpoint: `${BASE_URL}/api/media/upload`,
           method: 'POST',
           fieldName: 'file',
           headers: (file) => {
