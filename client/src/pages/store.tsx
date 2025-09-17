@@ -975,7 +975,7 @@ export default function Store() {
                             <ImageWithRetry
                               src={selectedProduct.images[currentImageIndex]}
                               alt={`${selectedProduct.name} ${currentImageIndex + 1}`}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 cursor-zoom-in"
                             />
                             
                             {/* Navegación de imágenes */}
@@ -1029,16 +1029,19 @@ export default function Store() {
                           {/* Thumbnails para navegación */}
                           <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
                             {selectedProduct.images.map((img, idx) => (
-                              <div key={idx} className="flex-shrink-0">
+                              <div 
+                                key={idx} 
+                                className="flex-shrink-0 cursor-pointer"
+                                onClick={() => setCurrentImageIndex(idx)}
+                              >
                                 <ImageWithRetry
                                   src={img}
                                   alt={`Thumbnail ${idx + 1}`}
-                                  className={`w-16 h-16 object-cover rounded-md border-2 cursor-pointer transition-all ${
+                                  className={`w-16 h-16 object-cover rounded-md border-2 transition-all hover:scale-105 ${
                                     idx === currentImageIndex
                                       ? 'border-primary opacity-100 ring-2 ring-primary/30'
                                       : 'border-transparent opacity-70 hover:opacity-100 hover:border-primary/50'
                                   }`}
-                                  onClick={() => setCurrentImageIndex(idx)}
                                 />
                               </div>
                             ))}
