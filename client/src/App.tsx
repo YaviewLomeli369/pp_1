@@ -13,28 +13,6 @@ import type { SiteConfig } from "@shared/schema";
 import ReloadOnStore from "@/components/ReloadOnStore";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-// Public pages
-import Home from "@/pages/home";
-import Testimonials from "@/pages/testimonials";
-import Faqs from "@/pages/faqs";
-import Contact from "@/pages/contact";
-import Store from "@/pages/store";
-import Blog from "@/pages/blog";
-import BlogPost from "@/pages/blog-post";
-import Reservations from "@/pages/reservations";
-import Login from "@/pages/auth/login";
-import Register from "@/pages/auth/register";
-import CreateAdmin from "@/pages/auth/create-admin";
-import Setup from "@/pages/setup";
-import Profile from "@/pages/profile";
-import Checkout from "@/pages/checkout";
-import CheckoutSuccess from "@/pages/checkout-success";
-import ShippingInfo from "@/pages/shipping-info";
-import OrderTracking from "@/pages/order-tracking";
-import AvisoPrivacidad from "@/pages/aviso-privacidad";
-import Conocenos from "@/pages/Conocenos";
-import Servicios from "@/pages/Servicios";
-
 // Admin pages
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminModules from "@/pages/admin/modules";
@@ -60,9 +38,43 @@ import AdminSidebarConfig from "@/pages/admin/sidebar-config";
 import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminThemes from "@/pages/admin/themes";
 
-import NotFound from "@/pages/not-found";
+// Lazy load components with proper error boundaries
+const createLazyComponent = (importFn: () => Promise<any>) => {
+  return lazy(() => {
+    return new Promise((resolve) => {
+      startTransition(() => {
+        importFn().then(resolve).catch((error) => {
+          console.error('Error loading lazy component:', error);
+          resolve({ default: () => <LoadingPage /> });
+        });
+      });
+    });
+  });
+};
 
-// import ReloadOnStore from "./ReloadOnStore";
+const Home = createLazyComponent(() => import("./pages/home"));
+const Testimonials = createLazyComponent(() => import("./pages/testimonials"));
+const Faqs = createLazyComponent(() => import("./pages/faqs"));
+const Contact = createLazyComponent(() => import("./pages/contact"));
+const Store = createLazyComponent(() => import("./pages/store"));
+const Blog = createLazyComponent(() => import("./pages/blog"));
+const BlogPost = createLazyComponent(() => import("./pages/blog-post"));
+const Reservations = createLazyComponent(() => import("./pages/reservations"));
+const Login = createLazyComponent(() => import("./pages/auth/login"));
+const Register = createLazyComponent(() => import("./pages/auth/register"));
+const CreateAdmin = createLazyComponent(() => import("./pages/auth/create-admin"));
+const Setup = createLazyComponent(() => import("./pages/setup"));
+const Profile = createLazyComponent(() => import("./pages/profile"));
+const Checkout = createLazyComponent(() => import("./pages/checkout"));
+const CheckoutSuccess = createLazyComponent(() => import("./pages/checkout-success"));
+const ShippingInfo = createLazyComponent(() => import("./pages/shipping-info"));
+const OrderTracking = createLazyComponent(() => import("./pages/order-tracking"));
+const AvisoPrivacidad = createLazyComponent(() => import("./pages/aviso-privacidad"));
+const Conocenos = createLazyComponent(() => import("./pages/Conocenos"));
+const Servicios = createLazyComponent(() => import("./pages/Servicios"));
+
+const NotFound = createLazyComponent(() => import("./pages/not-found"));
+
 
 function Router() {
   useTheme();
@@ -105,61 +117,82 @@ function Router() {
   }
 
   return (
-    <>
-      {/* Este componente controla la recarga para /store */}
+    <div>
       <ReloadOnStore />
-    <Switch>
-      <Route path="/" component={Home} />
-      <ModuleRoute path="/testimonials" component={Testimonials} moduleKey="testimonios" />
-      <ModuleRoute path="/faqs" component={Faqs} moduleKey="faqs" />
-      <ModuleRoute path="/contact" component={Contact} moduleKey="contacto" />
-      <ModuleRoute path="/store" component={Store} moduleKey="tienda" />
-      <ModuleRoute path="/blog" component={Blog} moduleKey="blog" />
-      <Route path="/blog/:slug" component={BlogPost} />
-      <ModuleRoute path="/reservations" component={Reservations} moduleKey="reservas" />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-      <Route path="/create-admin" component={CreateAdmin} />
-      <Route path="/setup" component={Setup} />
-      <Route path="/profile" component={Profile} />
-      <Route path="/shipping-info" component={ShippingInfo} />
-      <Route path="/checkout" component={Checkout} />
-      <Route path="/checkout/success" component={CheckoutSuccess} />
-      <Route path="/track-order" component={OrderTracking} />
-      <Route path="/aviso-privacidad" component={AvisoPrivacidad} />
-      <Route path="/conocenos" component={Conocenos} />
-      <Route path="/servicios" component={Servicios} />
-      {/* <Route path="/tienda-prueba" component={TiendaPrueba} /> */}
+      <Suspense fallback={<LoadingPage />}>
+        <Switch>
+          {/* Public Routes */}
+          <Route path="/" component={Home} />
 
-      {/* Admin routes */}
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/modules" component={AdminModules} />
-      <Route path="/admin/testimonials" component={AdminTestimonials} />
-      <Route path="/admin/faqs" component={AdminFaqs} />
-      <Route path="/admin/contact" component={AdminContact} />
-      <Route path="/admin/store" component={AdminStore} />
-      <Route path="/admin/inventory" component={AdminInventory} />
-      <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/sections" component={AdminSections} />
-      <Route path="/admin/appearance" component={lazy(() => import("./pages/admin/appearance"))} />
-      <Route path="/admin/themes" component={lazy(() => import("./pages/admin/themes"))} />
-      <Route path="/admin/reservations" component={AdminReservations} />
-      <Route path="/admin/reservation-settings" component={AdminReservationSettings} />
-      <Route path="/admin/payments" component={AdminPayments} />
-      <Route path="/admin/blog" component={AdminBlog} />
-      <Route path="/admin/orders" component={AdminOrders} />
-      <Route path="/admin/contact-info" component={AdminContactInfo} />
-      <Route path="/admin/whatsapp-config" component={AdminWhatsAppConfig} />
-      <Route path="/admin/navbar-config" component={AdminNavbarConfig} />
-      <Route path="/admin/email-config" component={AdminEmailConfig} />
-      <Route path="/admin/sidebar-config" component={AdminSidebarConfig} />
-      <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
-      <Route path="/admin/pages-content" component={AdminPagesContent} />
+          {/* Module-based routes */}
+          <ModuleRoute path="/servicios" component={Servicios} moduleName="services" />
+          <ModuleRoute path="/conocenos" component={Conocenos} moduleName="about" />
+          <ModuleRoute path="/tienda" component={Store} moduleName="store" />
+          <ModuleRoute path="/store" component={Store} moduleName="store" />
+          <ModuleRoute path="/blog" component={Blog} moduleName="blog" />
+          <ModuleRoute path="/blog/:slug" component={BlogPost} moduleName="blog" />
+          <ModuleRoute path="/contacto" component={Contact} moduleName="contact" />
+          <ModuleRoute path="/testimonios" component={Testimonials} moduleName="testimonials" />
+          <ModuleRoute path="/preguntas-frecuentes" component={Faqs} moduleName="faqs" />
+          <ModuleRoute path="/faqs" component={Faqs} moduleName="faqs" />
+          <ModuleRoute path="/reservaciones" component={Reservations} moduleName="reservations" />
 
-      <Route component={NotFound} />
-    </Switch>
+          {/* Store & Checkout */}
+          <Route path="/checkout" component={Checkout} />
+          <Route path="/checkout-success" component={CheckoutSuccess} />
+          <Route path="/shipping-info" component={ShippingInfo} />
+          <Route path="/order-tracking" component={OrderTracking} />
 
-  </>
+          {/* User Profile */}
+          <Route path="/profile" component={Profile} />
+
+          {/* Legal */}
+          <Route path="/aviso-privacidad" component={AvisoPrivacidad} />
+
+          {/* Example */}
+          <Route path="/example" component={createLazyComponent(() => import("./pages/example-alternating"))} />
+
+          {/* Auth Routes - Only show if not enabled in modules */}
+          {!config?.modules?.auth && (
+            <>
+              <Route path="/login" component={createLazyComponent(() => import("./pages/auth/login"))} />
+              <Route path="/register" component={createLazyComponent(() => import("./pages/auth/register"))} />
+            </>
+          )}
+
+          {/* Admin Routes */}
+          <Route path="/setup" component={createLazyComponent(() => import("./pages/setup"))} />
+          <Route path="/admin/login" component={createLazyComponent(() => import("./pages/auth/login"))} />
+          <Route path="/admin/create-admin" component={createLazyComponent(() => import("./pages/auth/create-admin"))} />
+          <Route path="/admin/dashboard" component={createLazyComponent(() => import("./pages/admin/dashboard"))} />
+          <Route path="/admin/modules" component={createLazyComponent(() => import("./pages/admin/modules"))} />
+          <Route path="/admin/appearance" component={createLazyComponent(() => import("./pages/admin/appearance"))} />
+          <Route path="/admin/themes" component={createLazyComponent(() => import("./pages/admin/themes"))} />
+          <Route path="/admin/users" component={createLazyComponent(() => import("./pages/admin/users"))} />
+          <Route path="/admin/sections" component={createLazyComponent(() => import("./pages/admin/sections"))} />
+          <Route path="/admin/servicios-sections" component={createLazyComponent(() => import("./pages/admin/servicios-sections"))} />
+          <Route path="/admin/pages-content" component={createLazyComponent(() => import("./pages/admin/pages-content"))} />
+          <Route path="/admin/testimonials" component={createLazyComponent(() => import("./pages/admin/testimonials"))} />
+          <Route path="/admin/faqs" component={createLazyComponent(() => import("./pages/admin/faqs"))} />
+          <Route path="/admin/blog" component={createLazyComponent(() => import("./pages/admin/blog"))} />
+          <Route path="/admin/contact" component={createLazyComponent(() => import("./pages/admin/contact"))} />
+          <Route path="/admin/contact-info" component={createLazyComponent(() => import("./pages/admin/contact-info"))} />
+          <Route path="/admin/store" component={createLazyComponent(() => import("./pages/admin/store"))} />
+          <Route path="/admin/inventory" component={createLazyComponent(() => import("./pages/admin/inventory"))} />
+          <Route path="/admin/orders" component={createLazyComponent(() => import("./pages/admin/orders"))} />
+          <Route path="/admin/payments" component={createLazyComponent(() => import("./pages/admin/payments"))} />
+          <Route path="/admin/reservations" component={createLazyComponent(() => import("./pages/admin/reservations"))} />
+          <Route path="/admin/reservation-settings" component={createLazyComponent(() => import("./pages/admin/reservation-settings"))} />
+          <Route path="/admin/whatsapp-config" component={createLazyComponent(() => import("./pages/admin/whatsapp-config"))} />
+          <Route path="/admin/navbar-config" component={createLazyComponent(() => import("./pages/admin/navbar-config"))} />
+          <Route path="/admin/sidebar-config" component={createLazyComponent(() => import("./pages/admin/sidebar-config"))} />
+          <Route path="/admin/email-config" component={createLazyComponent(() => import("./pages/admin/email-config"))} />
+
+          {/* 404 Route */}
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
+    </div>
   );
 }
 

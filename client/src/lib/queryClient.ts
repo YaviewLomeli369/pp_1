@@ -87,8 +87,12 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
+      refetchIntervalInBackground: false,
+      refetchOnMount: false,
+      refetchOnReconnect: 'always',
       staleTime: 5 * 60 * 1000, // 5 minutes cache for better performance
       gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+      suspense: false, // Disable suspense to prevent synchronous suspension
       retry: (failureCount, error: any) => {
         // Only retry on network errors, not on 4xx/5xx responses
         if (error?.message?.includes('NetworkError') || error?.message?.includes('fetch')) {
