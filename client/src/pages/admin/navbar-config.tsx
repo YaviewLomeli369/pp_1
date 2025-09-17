@@ -102,10 +102,10 @@ const defaultNavItems = [
   { moduleKey: "home", label: "Inicio", href: "/", isRequired: true, order: 0 },
   { moduleKey: "testimonios", label: "Testimonios", href: "/testimonials", isRequired: false, order: 1 },
   { moduleKey: "faqs", label: "FAQs", href: "/faqs", isRequired: false, order: 2 },
-  { moduleKey: "contacto", label: "Contacto", href: "/contact", isRequired: false, order: 3 },
+  { moduleKey: "contacto", label: "Contacto", href: "/contacto", isRequired: true, order: 3 },
   { moduleKey: "tienda", label: "Tienda", href: "/store", isRequired: false, order: 4 },
   { moduleKey: "blog", label: "Blog", href: "/blog", isRequired: false, order: 5 },
-  { moduleKey: "reservas", label: "Reservas", href: "/reservations", isRequired: false, order: 6 },
+  { moduleKey: "reservas", label: "Reservas", href: "/reservaciones", isRequired: false, order: 6 },
   { moduleKey: "conocenos", label: "Conócenos", href: "/conocenos", isRequired: true, order: 7 },
   { moduleKey: "servicios", label: "Servicios", href: "/servicios", isRequired: true, order: 8 },
 ];
