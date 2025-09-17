@@ -28,20 +28,8 @@ export function ModuleRoute({ path, component: Component, moduleName }: ModuleRo
     const configData = config.config as any;
     const modules = configData?.frontpage?.modulos || {};
 
-    // Map module names to their config keys
-    const moduleKeyMap: Record<string, string> = {
-      'store': 'tienda',
-      'testimonials': 'testimonios',
-      'faqs': 'faqs',
-      'contact': 'contacto',
-      'blog': 'blog',
-      'reservations': 'reservas',
-      'services': 'servicios',
-      'about': 'conocenos'
-    };
-
-    const configKey = moduleKeyMap[moduleName] || moduleName;
-    return modules[configKey]?.activo !== false;
+    // Direct module key mapping - use exact module names as they appear in config
+    return modules[moduleName]?.activo !== false;
   }, [config, moduleName]);
 
   // Component lifecycle management
