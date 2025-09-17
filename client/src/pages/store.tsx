@@ -23,6 +23,24 @@ import { useToast } from "@/hooks/use-toast";
 import AnimatedSection from "@/components/AnimatedSection";
 import { Spinner } from "@/components/ui/spinner";
 
+// Añadir estilos para ocultar scrollbar
+const scrollbarHideStyles = `
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+// Inyectar estilos en el head
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = scrollbarHideStyles;
+  document.head.appendChild(styleSheet);
+}
+
 /**
  * Helper: resolveImageUrl
  * - Convierte distintas formas de image identifiers en URLs absolutas.
@@ -971,12 +989,20 @@ export default function Store() {
                       ) : (
                         <div className="relative">
                           {/* Imagen principal */}
-                          <div className="aspect-square w-full overflow-hidden rounded-lg shadow-lg relative group">
-                            <ImageWithRetry
-                              src={selectedProduct.images[currentImageIndex]}
-                              alt={`${selectedProduct.name} ${currentImageIndex + 1}`}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 cursor-zoom-in"
-                            />
+                          <div className="aspect-square w-full overflow-hidden rounded-lg shadow-lg relative group bg-gray-100">
+                            <div className="relative w-full h-full overflow-hidden">
+                              <ImageWithRetry
+                                src={selectedProduct.images[currentImageIndex]}
+                                alt={`${selectedProduct.name} ${currentImageIndex + 1}`}
+                                className="w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-125 cursor-zoom-in"
+                                style={{
+                                  transformOrigin: 'center center'
+                                }}
+                              />
+                              
+                              {/* Overlay sutil para mejor contraste */}
+                              <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                            </div>
                             
                             {/* Navegación de imágenes */}
                             {selectedProduct.images.length > 1 && (
@@ -984,41 +1010,44 @@ export default function Store() {
                                 <Button
                                   variant="secondary"
                                   size="sm"
-                                  className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white shadow-lg"
-                                  onClick={() => {
-                                    setCurrentImageIndex(prev => 
-                                      prev === 0 ? selectedProduct.images!.length - 1 : prev - 1
-                                    );
+                                  className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-white/95 hover:bg-white shadow-xl border-0 backdrop-blur-sm h-10 w-10 rounded-full"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newIndex = currentImageIndex === 0 ? selectedProduct.images!.length - 1 : currentImageIndex - 1;
+                                    setCurrentImageIndex(newIndex);
                                   }}
                                   disabled={isNavigating}
                                 >
-                                  <ChevronLeft className="h-4 w-4" />
+                                  <ChevronLeft className="h-5 w-5" />
                                 </Button>
                                 <Button
                                   variant="secondary"
                                   size="sm"
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white shadow-lg"
-                                  onClick={() => {
-                                    setCurrentImageIndex(prev => 
-                                      prev === selectedProduct.images!.length - 1 ? 0 : prev + 1
-                                    );
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-white/95 hover:bg-white shadow-xl border-0 backdrop-blur-sm h-10 w-10 rounded-full"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const newIndex = currentImageIndex === selectedProduct.images!.length - 1 ? 0 : currentImageIndex + 1;
+                                    setCurrentImageIndex(newIndex);
                                   }}
                                   disabled={isNavigating}
                                 >
-                                  <ChevronRight className="h-4 w-4" />
+                                  <ChevronRight className="h-5 w-5" />
                                 </Button>
                                 
-                                {/* Indicadores de puntos */}
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                {/* Indicadores de puntos mejorados */}
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-sm rounded-full px-3 py-2">
                                   {selectedProduct.images.map((_, idx) => (
                                     <button
                                       key={idx}
-                                      className={`w-2 h-2 rounded-full transition-all ${
+                                      className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
                                         idx === currentImageIndex 
-                                          ? 'bg-white scale-125' 
-                                          : 'bg-white/50 hover:bg-white/75'
+                                          ? 'bg-white scale-125 shadow-lg' 
+                                          : 'bg-white/60 hover:bg-white/80 hover:scale-110'
                                       }`}
-                                      onClick={() => setCurrentImageIndex(idx)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCurrentImageIndex(idx);
+                                      }}
                                     />
                                   ))}
                                 </div>
@@ -1026,23 +1055,33 @@ export default function Store() {
                             )}
                           </div>
                           
-                          {/* Thumbnails para navegación */}
-                          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                          {/* Thumbnails para navegación mejorados */}
+                          <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide">
                             {selectedProduct.images.map((img, idx) => (
                               <div 
                                 key={idx} 
-                                className="flex-shrink-0 cursor-pointer"
-                                onClick={() => setCurrentImageIndex(idx)}
+                                className="flex-shrink-0 cursor-pointer group/thumb"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCurrentImageIndex(idx);
+                                }}
                               >
-                                <ImageWithRetry
-                                  src={img}
-                                  alt={`Thumbnail ${idx + 1}`}
-                                  className={`w-16 h-16 object-cover rounded-md border-2 transition-all hover:scale-105 ${
+                                <div className={`relative overflow-hidden rounded-lg transition-all duration-200 ${
+                                  idx === currentImageIndex
+                                    ? 'ring-2 ring-primary shadow-lg scale-105'
+                                    : 'ring-1 ring-gray-200 hover:ring-primary/50 hover:scale-105'
+                                }`}>
+                                  <ImageWithRetry
+                                    src={img}
+                                    alt={`Thumbnail ${idx + 1}`}
+                                    className="w-18 h-18 object-cover"
+                                  />
+                                  <div className={`absolute inset-0 transition-opacity duration-200 ${
                                     idx === currentImageIndex
-                                      ? 'border-primary opacity-100 ring-2 ring-primary/30'
-                                      : 'border-transparent opacity-70 hover:opacity-100 hover:border-primary/50'
-                                  }`}
-                                />
+                                      ? 'bg-black/0'
+                                      : 'bg-black/20 group-hover/thumb:bg-black/10'
+                                  }`}></div>
+                                </div>
                               </div>
                             ))}
                           </div>
