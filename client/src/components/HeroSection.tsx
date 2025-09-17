@@ -60,11 +60,17 @@ export default function HeroSection({
           className="relative max-w-4xl mx-auto px-4"
           style={{ color: appearance.heroTextColor || '#ffffff' }}
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
+          <h1 
+            className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg"
+            style={{ color: appearance.heroTextColor || '#ffffff' }}
+          >
             {title}
           </h1>
           {subtitle && (
-            <p className="text-lg md:text-xl mb-8 opacity-90">
+            <p 
+              className="text-lg md:text-xl mb-8 opacity-90"
+              style={{ color: appearance.heroTextColor || '#ffffff' }}
+            >
               {subtitle}
             </p>
           )}
