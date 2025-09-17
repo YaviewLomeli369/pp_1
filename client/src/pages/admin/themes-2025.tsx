@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
@@ -18,9 +19,21 @@ import {
   Eye,
   Settings,
   Save,
-  RefreshCw
+  RefreshCw,
+  Zap,
+  Crown,
+  Leaf,
+  Grid
 } from "lucide-react";
 import type { SiteConfig } from "@shared/schema";
+
+const themesByCategory = {
+  'Trending': ['glassmorphic', 'aurora'],
+  'Bold & Dramatic': ['brutal', 'cyberpunk', 'retro80s'],
+  'Clean & Minimal': ['minimal2025', 'neumorphic'],
+  'Premium & Elegant': ['luxury', 'organic'],
+  'Tech & Developer': ['monospace']
+};
 
 export default function Themes2025() {
   const { currentTheme, setTheme, availableThemes } = useTheme2025();
@@ -52,9 +65,11 @@ export default function Themes2025() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/config"] });
+      setPreviewTheme(null);
       toast({
         title: "Tema aplicado",
-        description: "El nuevo tema se ha aplicado correctamente.",
+        description: "El nuevo tema se ha aplicado correctamente y es visible en el sitio público.",
+        duration: 5000,
       });
     },
     onError: (error) => {
@@ -74,6 +89,11 @@ export default function Themes2025() {
   const handlePreview = (themeId: string) => {
     setPreviewTheme(themeId);
     setTheme(themeId);
+    toast({
+      title: "Vista previa activada",
+      description: "Abre el sitio público en otra pestaña para ver los cambios. Usa 'Aplicar' para guardar permanentemente.",
+      duration: 4000,
+    });
   };
 
   const handleResetPreview = () => {
@@ -81,6 +101,21 @@ export default function Themes2025() {
       const originalTheme = (config?.config as any)?.theme2025?.currentTheme || 'glassmorphic';
       setTheme(originalTheme);
       setPreviewTheme(null);
+      toast({
+        title: "Vista previa cancelada",
+        description: "Se ha restaurado el tema original.",
+      });
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Trending': return <Sparkles className="h-5 w-5" />;
+      case 'Bold & Dramatic': return <Zap className="h-5 w-5" />;
+      case 'Clean & Minimal': return <Grid className="h-5 w-5" />;
+      case 'Premium & Elegant': return <Crown className="h-5 w-5" />;
+      case 'Tech & Developer': return <Settings className="h-5 w-5" />;
+      default: return <Palette className="h-5 w-5" />;
     }
   };
 
@@ -92,10 +127,10 @@ export default function Themes2025() {
           <div className="space-y-1">
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Sparkles className="h-8 w-8 text-primary" />
-              Temas 2025
+              Temas 2025 - Tendencias de Diseño Web
             </h1>
             <p className="text-muted-foreground">
-              Transforma tu sitio con las últimas tendencias de diseño web 2025
+              10 temas únicos que transforman completamente el aspecto de tu sitio web público
             </p>
           </div>
           
@@ -103,11 +138,11 @@ export default function Themes2025() {
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-orange-600 border-orange-200">
                 <Eye className="h-3 w-3 mr-1" />
-                Modo Vista Previa
+                Vista Previa: {availableThemes.find(t => t.id === previewTheme)?.name}
               </Badge>
               <Button variant="outline" size="sm" onClick={handleResetPreview}>
                 <RefreshCw className="h-4 w-4 mr-1" />
-                Resetear
+                Cancelar
               </Button>
             </div>
           )}
@@ -126,14 +161,19 @@ export default function Themes2025() {
               <div>
                 <h3 className="font-semibold text-lg">{currentTheme.name}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Aplicado: {previewTheme ? 'Vista previa activa' : 'Guardado'}
+                  {previewTheme ? 'Vista previa activa - no guardado' : 'Tema guardado y público'}
                 </p>
+                <Badge variant="secondary" className="mt-2">
+                  {currentTheme.category}
+                </Badge>
               </div>
               
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">Layout: {currentTheme.styles.layout}</Badge>
-                <Badge variant="secondary">Estilo: {currentTheme.styles.cardStyle}</Badge>
-                <Badge variant="secondary">Animaciones: {currentTheme.styles.animations}</Badge>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">{currentTheme.description}</p>
+                <div className="flex flex-wrap gap-1">
+                  <Badge variant="outline" className="text-xs">Layout: {currentTheme.styles.layout}</Badge>
+                  <Badge variant="outline" className="text-xs">Estilo: {currentTheme.styles.cardStyle}</Badge>
+                </div>
               </div>
               
               <div className="flex gap-2">
@@ -143,15 +183,15 @@ export default function Themes2025() {
                   onClick={() => window.open('/', '_blank')}
                 >
                   <Monitor className="h-4 w-4 mr-1" />
-                  Vista Desktop
+                  Ver Sitio
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => window.open('/', '_blank')}
+                  onClick={() => window.open('/testimonials', '_blank')}
                 >
-                  <Smartphone className="h-4 w-4 mr-1" />
-                  Vista Mobile
+                  <Eye className="h-4 w-4 mr-1" />
+                  Ver Testimonials
                 </Button>
               </div>
             </div>
@@ -161,115 +201,77 @@ export default function Themes2025() {
         <Separator />
 
         {/* Theme Categories */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           <h2 className="text-2xl font-semibold flex items-center gap-2">
             <Palette className="h-6 w-6" />
-            Temas Disponibles
+            Catálogo de Temas 2025
           </h2>
           
-          {/* Trending Themes */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-medium">🔥 Tendencias 2025</h3>
-              <Badge className="bg-gradient-to-r from-pink-500 to-violet-500 text-white">
-                Nuevo
-              </Badge>
+          {Object.entries(themesByCategory).map(([category, themeIds]) => (
+            <div key={category} className="space-y-4">
+              <div className="flex items-center gap-2">
+                {getCategoryIcon(category)}
+                <h3 className="text-xl font-medium">{category}</h3>
+                <Badge variant="secondary">{themeIds.length} temas</Badge>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                {themeIds.map((themeId) => (
+                  <div key={themeId} className="space-y-2">
+                    <ThemeCard2025
+                      themeId={themeId}
+                      isActive={currentTheme.id === themeId && !previewTheme}
+                      onSelect={handleThemeSelect}
+                    />
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs"
+                      onClick={() => handlePreview(themeId)}
+                      disabled={currentTheme.id === themeId}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Vista Previa
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {availableThemes.map((theme) => (
-                <div key={theme.id} className="space-y-2">
-                  <ThemeCard2025
-                    themeId={theme.id}
-                    isActive={currentTheme.id === theme.id && !previewTheme}
-                    onSelect={handleThemeSelect}
-                  />
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full text-xs"
-                    onClick={() => handlePreview(theme.id)}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    Vista Previa
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Theme Customization */}
-        <Card>
+        {/* Instructions */}
+        <Card className="bg-blue-50 border-blue-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Configuración Avanzada
-            </CardTitle>
+            <CardTitle className="text-blue-900">¿Cómo usar los temas 2025?</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Estilo de Navegación</label>
-                <select className="w-full p-2 border rounded-md">
-                  <option>Tradicional</option>
-                  <option>Flotante</option>
-                  <option>Sidebar</option>
-                  <option>Oculto</option>
-                  <option>Mega Menu</option>
-                </select>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Espaciado</label>
-                <select className="w-full p-2 border rounded-md">
-                  <option>Compacto</option>
-                  <option>Normal</option>
-                  <option>Espacioso</option>
-                  <option>Extremo</option>
-                </select>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Animaciones</label>
-                <select className="w-full p-2 border rounded-md">
-                  <option>Sin animaciones</option>
-                  <option>Sutiles</option>
-                  <option>Suaves</option>
-                  <option>Dinámicas</option>
-                  <option>Dramáticas</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="flex justify-end">
-              <Button>
-                <Save className="h-4 w-4 mr-1" />
-                Guardar Configuración
-              </Button>
-            </div>
+          <CardContent className="text-blue-800 text-sm space-y-2">
+            <p><strong>Vista Previa:</strong> Haz clic en "Vista Previa" para ver el tema temporalmente. Abre el sitio público en otra pestaña.</p>
+            <p><strong>Aplicar Tema:</strong> Haz clic en "Aplicar" para guardar el tema permanentemente en tu sitio público.</p>
+            <p><strong>Páginas afectadas:</strong> Los temas cambian el diseño de todas las páginas públicas (inicio, testimonials, FAQs, contacto, etc.)</p>
+            <p><strong>Compatibilidad:</strong> Todos los temas son responsivos y funcionan en móvil y desktop.</p>
           </CardContent>
         </Card>
 
-        {/* Theme Performance */}
+        {/* Theme Performance Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Rendimiento del Tema</CardTitle>
+            <CardTitle>Rendimiento y Características</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-green-600">95%</div>
-                <div className="text-sm text-muted-foreground">Performance</div>
+                <div className="text-2xl font-bold text-green-600">10</div>
+                <div className="text-sm text-muted-foreground">Temas Únicos</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-blue-600">A+</div>
-                <div className="text-sm text-muted-foreground">Accesibilidad</div>
+                <div className="text-2xl font-bold text-blue-600">100%</div>
+                <div className="text-sm text-muted-foreground">Responsivo</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-purple-600">Fast</div>
-                <div className="text-sm text-muted-foreground">Carga</div>
+                <div className="text-2xl font-bold text-purple-600">CSS3</div>
+                <div className="text-sm text-muted-foreground">Tecnología</div>
               </div>
               <div className="space-y-1">
                 <div className="text-2xl font-bold text-orange-600">SEO</div>
@@ -282,3 +284,4 @@ export default function Themes2025() {
     </AdminLayout>
   );
 }
+

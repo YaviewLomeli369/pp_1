@@ -141,6 +141,7 @@ function Router() {
           <ModuleRoute path="/blog/:slug" component={BlogPost} moduleName="blog" />
           <ModuleRoute path="/contacto" component={Contact} moduleName="contact" />
           <ModuleRoute path="/testimonios" component={Testimonials} moduleName="testimonials" />
+          <ModuleRoute path="/testimonials" component={Testimonials} moduleName="testimonials" />
           <ModuleRoute path="/preguntas-frecuentes" component={Faqs} moduleName="faqs" />
           <ModuleRoute path="/faqs" component={Faqs} moduleName="faqs" />
           <ModuleRoute path="/reservaciones" component={Reservations} moduleName="reservations" />
