@@ -1,0 +1,151 @@
+Para lograrlo, necesitamos reestructurar tu theme-provider y tu CSS/JSX para soportar temas completos con sets de estilos.
+
+1️⃣ Estrategia general
+
+ThemeProvider → Contendrá objetos de tema completos, no solo colores:
+
+export type Theme = {
+  colors: Record<string, string>;
+  fonts: Record<string, string>;
+  spacing: Record<string, string>;
+  borders: Record<string, string>;
+  shadows: Record<string, string>;
+  buttons: any;
+  cards: any;
+  navbar: any;
+  hero: any;
+  sections: any;
+  footer: any;
+  animations: any;
+};
+
+
+Crear temas completos → Ejemplo de 3 temas iniciales:
+
+export const AstraTheme: Theme = {
+  colors: { primary: "#0d6efd", secondary: "#6c757d", background: "#fff", text: "#212529" },
+  fonts: { heading: "Roboto, sans-serif", body: "Roboto, sans-serif" },
+  spacing: { sm: "0.5rem", md: "1rem", lg: "2rem" },
+  borders: { radius: "8px", card: "1px solid #ddd" },
+  shadows: { card: "0 2px 4px rgba(0,0,0,0.1)" },
+  buttons: { primary: { bg: "#0d6efd", color: "#fff", padding: "0.75rem 1.5rem", borderRadius: "6px" } },
+  cards: { bg: "#fff", padding: "1rem", borderRadius: "8px", shadow: "0 2px 6px rgba(0,0,0,0.1)" },
+  navbar: { bg: "#fff", linkColor: "#0d6efd", linkHover: "#0a58ca", padding: "1rem" },
+  hero: { bg: "#f8f9fa", color: "#212529", padding: "4rem" },
+  sections: { padding: "2rem", bg: "#fff" },
+  footer: { bg: "#212529", color: "#fff", padding: "2rem" },
+  animations: { fade: "fadeIn 0.5s ease-in-out" }
+};
+
+
+Hacer que los componentes lean del theme:
+
+// Button.tsx
+import { useTheme } from "../theme-provider";
+
+export const Button = ({ label }: { label: string }) => {
+  const theme = useTheme();
+  const styles = theme.buttons.primary;
+  return (
+    <button style={{ background: styles.bg, color: styles.color, padding: styles.padding, borderRadius: styles.borderRadius }}>
+      {label}
+    </button>
+  );
+};
+
+// Card.tsx
+export const Card = ({ children }: any) => {
+  const theme = useTheme();
+  return (
+    <div style={{
+      background: theme.cards.bg,
+      padding: theme.cards.padding,
+      borderRadius: theme.cards.borderRadius,
+      boxShadow: theme.cards.shadow
+    }}>
+      {children}
+    </div>
+  );
+};
+
+
+HeroSection con tema completo:
+
+export const HeroSection = ({ title, subtitle }: any) => {
+  const theme = useTheme();
+  return (
+    <section style={{
+      backgroundColor: theme.hero.bg,
+      color: theme.hero.color,
+      padding: theme.hero.padding,
+      textAlign: "center"
+    }}>
+      <h1 style={{ fontFamily: theme.fonts.heading }}>{title}</h1>
+      <p style={{ fontFamily: theme.fonts.body }}>{subtitle}</p>
+    </section>
+  );
+};
+
+
+Layout completo:
+
+export const Navbar = () => {
+  const theme = useTheme();
+  return (
+    <nav style={{ backgroundColor: theme.navbar.bg, padding: theme.navbar.padding }}>
+      <ul style={{ display: "flex", gap: theme.spacing.md }}>
+        <li style={{ color: theme.navbar.linkColor }}>Home</li>
+        <li style={{ color: theme.navbar.linkColor }}>Blog</li>
+        <li style={{ color: theme.navbar.linkColor }}>Store</li>
+      </ul>
+    </nav>
+  );
+};
+
+2️⃣ Cómo cambiar de tema con un click
+
+Crear un hook para manejar el tema:
+
+import { useState, createContext, useContext } from "react";
+import { AstraTheme, DiviTheme, OceanWPTheme } from "./themes";
+
+const ThemeContext = createContext(AstraTheme);
+
+export const ThemeProvider = ({ children }: any) => {
+  const [theme, setTheme] = useState(AstraTheme);
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  return context.theme;
+};
+
+export const useSetTheme = () => {
+  const context = useContext(ThemeContext);
+  return context.setTheme;
+};
+
+
+Botón de cambio de tema:
+
+import { useSetTheme } from "../theme-provider";
+import { AstraTheme, DiviTheme, OceanWPTheme } from "../theme-provider/themes";
+
+export const ThemeSwitcher = () => {
+  const setTheme = useSetTheme();
+  return (
+    <div>
+      <button onClick={() => setTheme(AstraTheme)}>Astra</button>
+      <button onClick={() => setTheme(DiviTheme)}>Divi</button>
+      <button onClick={() => setTheme(OceanWPTheme)}>OceanWP</button>
+    </div>
+  );
+};
+
+
+✅ Con esto, todos los componentes leen el tema dinámicamente, por lo que un solo clic cambia todo el estilo global: navbar, hero, cards, botones, secciones y footer.
