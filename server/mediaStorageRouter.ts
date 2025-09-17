@@ -51,7 +51,7 @@ router.post("/api/media/upload", upload.single('file'), async (req, res) => {
     const url = `/api/media/${fileId}`;
     const objectKey = `media/${fileId}-${originalname}`;
 
-    // Save to database
+    // Save to database - encode binary data as base64
     const [savedFile] = await db.insert(mediaFiles).values({
       id: fileId,
       filename: `${fileId}-${originalname}`,
@@ -60,7 +60,7 @@ router.post("/api/media/upload", upload.single('file'), async (req, res) => {
       size: processedBuffer.length,
       url: url,
       objectKey: objectKey,
-      data: processedBuffer,
+      data: processedBuffer.toString('base64'),
     }).returning();
 
     console.log(`✅ Media saved to database: ${savedFile.filename}, size: ${processedBuffer.length} bytes`);
@@ -102,8 +102,9 @@ router.get("/api/media/:id", async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
     res.setHeader('Content-Disposition', `inline; filename="${file.originalName}"`);
 
-    // Send binary data
-    res.send(file.data);
+    // Decode base64 data and send as buffer
+    const binaryData = Buffer.from(file.data, 'base64');
+    res.send(binaryData);
 
   } catch (error) {
     console.error('❌ Error serving media:', error);
