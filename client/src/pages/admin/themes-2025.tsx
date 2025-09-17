@@ -1,5 +1,3 @@
-
-
 import { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
@@ -133,7 +131,7 @@ export default function Themes2025() {
               10 temas únicos que transforman completamente el aspecto de tu sitio web público
             </p>
           </div>
-          
+
           {previewTheme && (
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-orange-600 border-orange-200">
@@ -167,15 +165,16 @@ export default function Themes2025() {
                   {currentTheme.category}
                 </Badge>
               </div>
-              
+
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">{currentTheme.description}</p>
                 <div className="flex flex-wrap gap-1">
-                  <Badge variant="outline" className="text-xs">Layout: {currentTheme.styles.layout}</Badge>
-                  <Badge variant="outline" className="text-xs">Estilo: {currentTheme.styles.cardStyle}</Badge>
+                  <Badge variant="outline" className="text-xs">Ancho: {currentTheme.layout.containerWidth}</Badge>
+                  <Badge variant="outline" className="text-xs">Font: {currentTheme.typography.fontFamily}</Badge>
+                  <Badge variant="outline" className="text-xs">Cards: {currentTheme.components.card.borderRadius}</Badge>
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <Button 
                   variant="outline" 
@@ -206,7 +205,7 @@ export default function Themes2025() {
             <Palette className="h-6 w-6" />
             Catálogo de Temas 2025
           </h2>
-          
+
           {Object.entries(themesByCategory).map(([category, themeIds]) => (
             <div key={category} className="space-y-4">
               <div className="flex items-center gap-2">
@@ -214,7 +213,7 @@ export default function Themes2025() {
                 <h3 className="text-xl font-medium">{category}</h3>
                 <Badge variant="secondary">{themeIds.length} temas</Badge>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                 {themeIds.map((themeId) => (
                   <div key={themeId} className="space-y-2">
@@ -223,7 +222,7 @@ export default function Themes2025() {
                       isActive={currentTheme.id === themeId && !previewTheme}
                       onSelect={handleThemeSelect}
                     />
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -284,4 +283,3 @@ export default function Themes2025() {
     </AdminLayout>
   );
 }
-
