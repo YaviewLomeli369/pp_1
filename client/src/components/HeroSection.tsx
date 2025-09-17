@@ -56,12 +56,15 @@ export default function HeroSection({
           }}
         ></div>
         
-        <div className="relative max-w-4xl mx-auto px-4">
+        <div 
+          className="relative max-w-4xl mx-auto px-4"
+          style={{ color: appearance.heroTextColor || '#ffffff' }}
+        >
           <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-lg md:text-xl text-gray-200 mb-8">
+            <p className="text-lg md:text-xl mb-8 opacity-90">
               {subtitle}
             </p>
           )}

@@ -76,7 +76,8 @@ export default function AdminAppearance() {
     heroGradientColor3: "",
     heroGradientColor4: "",
     heroOverlayColor: "#000000",
-    heroOverlayOpacity: 50
+    heroOverlayOpacity: 50,
+    heroTextColor: "#ffffff"
   });
 
   // Cargar configuración existente
@@ -120,6 +121,7 @@ export default function AdminAppearance() {
           heroGradientColor4: configData.appearance.heroGradientColor4 || prev.heroGradientColor4,
           heroOverlayColor: configData.appearance.heroOverlayColor || prev.heroOverlayColor,
           heroOverlayOpacity: configData.appearance.heroOverlayOpacity !== undefined ? configData.appearance.heroOverlayOpacity : prev.heroOverlayOpacity,
+          heroTextColor: configData.appearance.heroTextColor || prev.heroTextColor,
         }));
       }
     }
@@ -191,7 +193,8 @@ export default function AdminAppearance() {
       heroGradientColor3: "",
       heroGradientColor4: "",
       heroOverlayColor: "#000000",
-      heroOverlayOpacity: 50
+      heroOverlayOpacity: 50,
+      heroTextColor: "#ffffff"
     });
   };
 
@@ -1110,6 +1113,39 @@ export default function AdminAppearance() {
                     </div>
                   </div>
 
+                  {/* Text Color Configuration */}
+                  <div className="space-y-4">
+                    <Label>Color del Texto del Hero</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="heroTextColor">Color del Texto</Label>
+                      <div className="flex items-center space-x-3">
+                        <Input
+                          type="color"
+                          value={(appearance as any).heroTextColor || "#ffffff"}
+                          onChange={(e) => setAppearance({...appearance, heroTextColor: e.target.value} as any)}
+                          className="w-16 h-10 p-1"
+                        />
+                        <select
+                          value={(appearance as any).heroTextColor || "#ffffff"}
+                          onChange={(e) => setAppearance({...appearance, heroTextColor: e.target.value} as any)}
+                          className="w-full p-2 border rounded-md"
+                        >
+                          <option value="#ffffff">Blanco</option>
+                          <option value="#000000">Negro</option>
+                          <option value="#374151">Gris Oscuro</option>
+                          <option value="#6B7280">Gris</option>
+                          <option value="#F3F4F6">Gris Claro</option>
+                          <option value="#3B82F6">Azul</option>
+                          <option value="#1E40AF">Azul Oscuro</option>
+                          <option value="#10B981">Verde</option>
+                          <option value="#F59E0B">Amarillo</option>
+                          <option value="#EF4444">Rojo</option>
+                          <option value="#8B5CF6">Morado</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Preview */}
                   <div className="border rounded-lg p-6">
                     <h3 className="text-lg font-semibold mb-4">Vista Previa del Hero</h3>
@@ -1148,7 +1184,7 @@ export default function AdminAppearance() {
                           opacity: ((appearance as any).heroOverlayOpacity || 50) / 100
                         }}
                       ></div>
-                      <div className="relative text-white text-center">
+                      <div className="relative text-center" style={{ color: (appearance as any).heroTextColor || "#ffffff" }}>
                         <h4 className="text-2xl font-bold mb-2">
                           {appearance.brandName || "Tu Marca"}
                         </h4>

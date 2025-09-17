@@ -179,6 +179,11 @@ export function useTheme() {
       const overlayOpacity = (appearance.heroOverlayOpacity || 50) / 100;
       const overlayColor = appearance.heroOverlayColor || '#000000';
       root.style.setProperty('--hero-overlay', `${overlayColor}${Math.round(overlayOpacity * 255).toString(16).padStart(2, '0')}`);
+      
+      // Hero text color configuration
+      if (appearance.heroTextColor) {
+        root.style.setProperty('--hero-text-color', appearance.heroTextColor);
+      }
     }
   }, [config, appearance, isTheme2025Active, currentTheme]);
 
