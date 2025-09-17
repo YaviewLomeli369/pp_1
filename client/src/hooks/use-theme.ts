@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import type { SiteConfig } from "@shared/schema";
@@ -6,6 +7,9 @@ export function useTheme() {
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
     staleTime: 5 * 60 * 1000, // 5 minutes
+    suspense: false,
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 
   const configData = (config?.config as any) || {};

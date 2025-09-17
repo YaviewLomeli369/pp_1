@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, startTransition } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
@@ -53,20 +54,23 @@ function FaqsContent() {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: 1,
+    suspense: false,
   });
-  const { data: categories, isLoading: categoriesLoading } =
-    useQuery<FaqCategory[]>({ 
-      queryKey: ["/api/faq-categories"],
-      staleTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      retry: 1,
-    });
+  
+  const { data: categories, isLoading: categoriesLoading } = useQuery<FaqCategory[]>({ 
+    queryKey: ["/api/faq-categories"],
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 1,
+    suspense: false,
+  });
 
   const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
     retry: 1,
+    suspense: false,
   });
 
   const { appearance } = useMemo(() => {
@@ -83,7 +87,9 @@ function FaqsContent() {
         body: JSON.stringify({}),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
+      startTransition(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
+      });
     },
   });
 
@@ -97,11 +103,13 @@ function FaqsContent() {
       });
     },
     onSuccess: (data, faqId) => {
-      const newVotedFaqs = new Set(votedFaqs);
-      newVotedFaqs.add(faqId);
-      setVotedFaqs(newVotedFaqs);
-      localStorage.setItem("faq-votes", JSON.stringify([...newVotedFaqs]));
-      queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
+      startTransition(() => {
+        const newVotedFaqs = new Set(votedFaqs);
+        newVotedFaqs.add(faqId);
+        setVotedFaqs(newVotedFaqs);
+        localStorage.setItem("faq-votes", JSON.stringify([...newVotedFaqs]));
+        queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
+      });
       toast({
         title: "¡Gracias por tu voto!",
         description: "Tu voto ha sido registrado correctamente.",
@@ -138,6 +146,7 @@ function FaqsContent() {
       .filter((group) => group.faqs.length > 0) || [];
 
   const uncategorizedFaqs = filteredFaqs.filter((faq) => !faq.categoryId);
+  
   const handleFaqClick = (faqId: string) => {
     startTransition(() => {
       incrementViewsMutation.mutate(faqId);
@@ -149,13 +158,43 @@ function FaqsContent() {
       voteHelpfulMutation.mutate(faqId);
     });
   };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    startTransition(() => {
+      setSearchTerm(value);
+    });
+  };
+
+  const handleCategoryChange = (value: string) => {
+    startTransition(() => {
+      setSelectedCategory(value);
+    });
+  };
+
+  const handleClearFilters = () => {
+    startTransition(() => {
+      setSearchTerm("");
+      setSelectedCategory("all");
+    });
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
+    startTransition(() => {
+      setSelectedCategory(categoryId);
+    });
+  };
+
   const isLoading = faqsLoading || categoriesLoading || configLoading;
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      {/* HeroSection is now used here */}
       <HeroSection
         title="Preguntas Frecuentes"
         subtitle="Encuentra respuestas a las dudas más comunes"
@@ -181,16 +220,16 @@ function FaqsContent() {
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                     <Input
-                    placeholder="Buscar en las preguntas y respuestas..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300"
-                  />
+                      placeholder="Buscar en las preguntas y respuestas..."
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      className="pl-10 border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300"
+                    />
                   </div>
                   <div className="sm:w-64">
                     <Select
                       value={selectedCategory}
-                      onValueChange={setSelectedCategory}
+                      onValueChange={handleCategoryChange}
                     >
                       <SelectTrigger className="border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300">
                         <SelectValue placeholder="Filtrar por categoría" />
@@ -223,7 +262,7 @@ function FaqsContent() {
                     <div
                       key={cat.id}
                       className="p-5 border rounded-2xl shadow hover:shadow-xl hover:bg-blue-50 cursor-pointer transition-all duration-300"
-                      onClick={() => setSelectedCategory(cat.id)}
+                      onClick={() => handleCategoryClick(cat.id)}
                     >
                       <h3 className="font-bold text-lg text-gray-900 mb-1">
                         {cat.name}
@@ -250,168 +289,159 @@ function FaqsContent() {
             )}
 
           {/* FAQs */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {selectedCategory === "all" ? (
-                <>
-                  {faqsByCategory.map(({ category, faqs }) => (
-                    <section key={category.id}>
-                      <div className="mb-6">
-                        <h2
-                          className="text-2xl font-semibold text-gray-900 mb-2"
-                          style={{ color: appearance.headingColor || "#000000" }}
-                        >
-                          {category.name}
-                        </h2>
-                        {category.description && (
-                          <p className="text-gray-600">
-                            {category.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="space-y-4">
-                        {faqs.map((faq) =>
-                          isSuperuser ? (
-                            <FaqCardEditable key={faq.id} faq={faq} />
-                          ) : (
-                            <FaqItem
-                              key={faq.id}
-                              faq={faq}
-                              onIncrementViews={() => handleFaqClick(faq.id)}
-                              onVoteHelpful={() => handleVoteHelpful(faq.id)}
-                              hasVoted={votedFaqs.has(faq.id)}
-                              className="rounded-xl shadow-sm hover:shadow-md transition-all duration-300 bg-white p-5"
-                            />
-                          )
-                        )}
-                      </div>
-                    </section>
-                  ))}
-
-                  {uncategorizedFaqs.length > 0 && (
-                    <section>
-                      <div className="mb-6">
-                        <h2
-                          className="text-2xl font-semibold text-gray-900 mb-2"
-                          style={{ color: appearance.headingColor || "#000000" }}
-                        >
-                          Preguntas Generales
-                        </h2>
-                      </div>
-                      <div className="space-y-4">
-                        {uncategorizedFaqs.map((faq) =>
-                          isSuperuser ? (
-                            <FaqCardEditable key={faq.id} faq={faq} />
-                          ) : (
-                            <FaqItem
-                              key={faq.id}
-                              faq={faq}
-                              onIncrementViews={() => handleFaqClick(faq.id)}
-                              onVoteHelpful={() => handleVoteHelpful(faq.id)}
-                              hasVoted={votedFaqs.has(faq.id)}
-                              className="rounded-xl shadow-sm hover:shadow-md transition-all duration-300 bg-white p-5"
-                            />
-                          )
-                        )}
-                      </div>
-                    </section>
-                  )}
-                </>
-              ) : (
-                <section>
-                  <div className="mb-6 flex items-center justify-between">
-                    <div>
+          <div className="space-y-8">
+            {selectedCategory === "all" ? (
+              <>
+                {faqsByCategory.map(({ category, faqs }) => (
+                  <section key={category.id}>
+                    <div className="mb-6">
                       <h2
                         className="text-2xl font-semibold text-gray-900 mb-2"
                         style={{ color: appearance.headingColor || "#000000" }}
                       >
-                        {
-                          categories?.find((c) => c.id === selectedCategory)
-                            ?.name
-                        }
+                        {category.name}
                       </h2>
-                      {categories?.find((c) => c.id === selectedCategory)
-                        ?.description && (
+                      {category.description && (
                         <p className="text-gray-600">
-                          {
-                            categories.find((c) => c.id === selectedCategory)
-                              ?.description
-                          }
+                          {category.description}
                         </p>
                       )}
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedCategory("all")}
-                      style={{
-                        borderColor: appearance.primaryColor || "#000000",
-                        color: appearance.primaryColor || "#000000",
-                      }}
-                    >
-                      Ver Todas las Categorías
-                    </Button>
-                  </div>
-                  <div className="space-y-4">
-                    {filteredFaqs.map((faq) =>
-                      isSuperuser ? (
-                        <FaqCardEditable key={faq.id} faq={faq} />
-                      ) : (
-                        <FaqItem
-                          key={faq.id}
-                          faq={faq}
-                          onIncrementViews={() => handleFaqClick(faq.id)}
-                          onVoteHelpful={() => handleVoteHelpful(faq.id)}
-                          hasVoted={votedFaqs.has(faq.id)}
-                          className="rounded-xl shadow-sm hover:shadow-md transition-all duration-300 bg-white p-5"
-                        />
-                      )
-                    )}
-                  </div>
-                </section>
-              )}
+                    <div className="space-y-4">
+                      {faqs.map((faq) =>
+                        isSuperuser ? (
+                          <FaqCardEditable key={faq.id} faq={faq} />
+                        ) : (
+                          <FaqItem
+                            key={faq.id}
+                            faq={faq}
+                            onIncrementViews={() => handleFaqClick(faq.id)}
+                            onVoteHelpful={() => handleVoteHelpful(faq.id)}
+                            hasVoted={votedFaqs.has(faq.id)}
+                            className="rounded-xl shadow-sm hover:shadow-md transition-all duration-300 bg-white p-5"
+                          />
+                        )
+                      )}
+                    </div>
+                  </section>
+                ))}
 
-              {/* Empty State */}
-              {filteredFaqs.length === 0 && (
-                <Card className="text-center py-20 bg-blue-50 rounded-xl shadow-lg">
-                  <CardContent>
-                    <HelpCircle
-                      className="h-20 w-20 mx-auto text-blue-400 mb-6 animate-pulse"
-                      color={appearance.iconColor || "#93c5fd"}
-                    />
-                    <h3
-                      className="text-2xl font-bold text-gray-900 mb-2"
+                {uncategorizedFaqs.length > 0 && (
+                  <section>
+                    <div className="mb-6">
+                      <h2
+                        className="text-2xl font-semibold text-gray-900 mb-2"
+                        style={{ color: appearance.headingColor || "#000000" }}
+                      >
+                        Preguntas Generales
+                      </h2>
+                    </div>
+                    <div className="space-y-4">
+                      {uncategorizedFaqs.map((faq) =>
+                        isSuperuser ? (
+                          <FaqCardEditable key={faq.id} faq={faq} />
+                        ) : (
+                          <FaqItem
+                            key={faq.id}
+                            faq={faq}
+                            onIncrementViews={() => handleFaqClick(faq.id)}
+                            onVoteHelpful={() => handleVoteHelpful(faq.id)}
+                            hasVoted={votedFaqs.has(faq.id)}
+                            className="rounded-xl shadow-sm hover:shadow-md transition-all duration-300 bg-white p-5"
+                          />
+                        )
+                      )}
+                    </div>
+                  </section>
+                )}
+              </>
+            ) : (
+              <section>
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h2
+                      className="text-2xl font-semibold text-gray-900 mb-2"
                       style={{ color: appearance.headingColor || "#000000" }}
                     >
-                      {searchTerm || selectedCategory !== "all"
-                        ? "No se encontraron preguntas"
-                        : "Aún no hay preguntas frecuentes"}
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      {searchTerm || selectedCategory !== "all"
-                        ? "Intenta ajustar tus filtros de búsqueda"
-                        : "Las preguntas frecuentes aparecerán aquí una vez que estén disponibles"}
-                    </p>
-                    {(searchTerm || selectedCategory !== "all") && (
-                      <Button
-                        onClick={() => {
-                          setSearchTerm("");
-                          setSelectedCategory("all");
-                        }}
-                        className="bg-blue-600 text-white hover:bg-blue-700"
-                        style={{ backgroundColor: appearance.primaryColor || "#000000" }}
-                      >
-                        Limpiar Filtros
-                      </Button>
+                      {
+                        categories?.find((c) => c.id === selectedCategory)
+                          ?.name
+                      }
+                    </h2>
+                    {categories?.find((c) => c.id === selectedCategory)
+                      ?.description && (
+                      <p className="text-gray-600">
+                        {
+                          categories.find((c) => c.id === selectedCategory)
+                            ?.description
+                        }
+                      </p>
                     )}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCategoryChange("all")}
+                    style={{
+                      borderColor: appearance.primaryColor || "#000000",
+                      color: appearance.primaryColor || "#000000",
+                    }}
+                  >
+                    Ver Todas las Categorías
+                  </Button>
+                </div>
+                <div className="space-y-4">
+                  {filteredFaqs.map((faq) =>
+                    isSuperuser ? (
+                      <FaqCardEditable key={faq.id} faq={faq} />
+                    ) : (
+                      <FaqItem
+                        key={faq.id}
+                        faq={faq}
+                        onIncrementViews={() => handleFaqClick(faq.id)}
+                        onVoteHelpful={() => handleVoteHelpful(faq.id)}
+                        hasVoted={votedFaqs.has(faq.id)}
+                        className="rounded-xl shadow-sm hover:shadow-md transition-all duration-300 bg-white p-5"
+                      />
+                    )
+                  )}
+                </div>
+              </section>
+            )}
+
+            {/* Empty State */}
+            {filteredFaqs.length === 0 && (
+              <Card className="text-center py-20 bg-blue-50 rounded-xl shadow-lg">
+                <CardContent>
+                  <HelpCircle
+                    className="h-20 w-20 mx-auto text-blue-400 mb-6 animate-pulse"
+                    color={appearance.iconColor || "#93c5fd"}
+                  />
+                  <h3
+                    className="text-2xl font-bold text-gray-900 mb-2"
+                    style={{ color: appearance.headingColor || "#000000" }}
+                  >
+                    {searchTerm || selectedCategory !== "all"
+                      ? "No se encontraron preguntas"
+                      : "Aún no hay preguntas frecuentes"}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {searchTerm || selectedCategory !== "all"
+                      ? "Intenta ajustar tus filtros de búsqueda"
+                      : "Las preguntas frecuentes aparecerán aquí una vez que estén disponibles"}
+                  </p>
+                  {(searchTerm || selectedCategory !== "all") && (
+                    <Button
+                      onClick={handleClearFilters}
+                      className="bg-blue-600 text-white hover:bg-blue-700"
+                      style={{ backgroundColor: appearance.primaryColor || "#000000" }}
+                    >
+                      Limpiar Filtros
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </AnimatedSection>
 
