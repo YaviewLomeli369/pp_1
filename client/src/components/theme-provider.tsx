@@ -1,726 +1,1080 @@
 
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { SiteConfig } from '@shared/schema';
 
-type Theme2025 = {
+type CompleteTheme = {
   id: string;
   name: string;
   description: string;
   category: string;
-  styles: {
-    // Layout & Structure
-    layout: 'traditional' | 'asymmetric' | 'floating' | 'minimal' | 'bold' | 'grid' | 'masonry';
-    spacing: 'tight' | 'normal' | 'spacious' | 'extreme';
-    
-    // Visual Effects
-    cardStyle: 'flat' | 'elevated' | 'glassmorphic' | 'neumorphic' | 'brutal' | 'outlined';
-    borderRadius: 'none' | 'subtle' | 'rounded' | 'extreme' | 'organic';
-    shadows: 'none' | 'subtle' | 'dramatic' | 'floating' | 'neon' | 'colorful';
-    
-    // Typography
-    typographyScale: 'standard' | 'large' | 'oversized' | 'minimal' | 'display';
-    fontWeight: 'light' | 'normal' | 'medium' | 'bold' | 'ultra';
-    
-    // Colors & Gradients
-    colorScheme: 'monochrome' | 'vibrant' | 'pastel' | 'neon' | 'earth' | 'ocean' | 'sunset';
-    gradientStyle: 'none' | 'subtle' | 'bold' | 'complex' | 'animated' | 'mesh';
-    
-    // Interactions
-    animations: 'none' | 'subtle' | 'smooth' | 'bouncy' | 'dramatic' | 'morphing';
-    hoverEffects: 'minimal' | 'lift' | 'glow' | 'transform' | 'morph' | 'scale';
-    
-    // Layout specific
-    heroStyle: 'traditional' | 'split' | 'asymmetric' | 'fullscreen' | 'minimal' | 'video';
-    navigationStyle: 'traditional' | 'floating' | 'sidebar' | 'hidden' | 'mega' | 'sticky';
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    surface: string;
+    text: string;
+    textSecondary: string;
+    link: string;
+    linkHover: string;
+    border: string;
+    success: string;
+    warning: string;
+    error: string;
   };
-  cssVariables: Record<string, string>;
-  customCSS: string;
+  typography: {
+    fontFamily: string;
+    headingFont: string;
+    fontSize: string;
+    lineHeight: string;
+    headingWeight: string;
+    bodyWeight: string;
+  };
+  layout: {
+    containerWidth: string;
+    spacing: {
+      xs: string;
+      sm: string;
+      md: string;
+      lg: string;
+      xl: string;
+    };
+    borderRadius: {
+      sm: string;
+      md: string;
+      lg: string;
+      xl: string;
+    };
+  };
+  components: {
+    navbar: {
+      background: string;
+      color: string;
+      padding: string;
+      shadow: string;
+      borderBottom: string;
+      height: string;
+    };
+    hero: {
+      background: string;
+      backgroundImage?: string;
+      color: string;
+      padding: string;
+      textAlign: string;
+      overlay?: string;
+    };
+    button: {
+      primary: {
+        background: string;
+        color: string;
+        border: string;
+        padding: string;
+        borderRadius: string;
+        fontSize: string;
+        fontWeight: string;
+        shadow: string;
+      };
+      secondary: {
+        background: string;
+        color: string;
+        border: string;
+        padding: string;
+        borderRadius: string;
+        fontSize: string;
+        fontWeight: string;
+        shadow: string;
+      };
+    };
+    card: {
+      background: string;
+      border: string;
+      borderRadius: string;
+      padding: string;
+      shadow: string;
+      hover: {
+        shadow: string;
+        transform: string;
+      };
+    };
+    footer: {
+      background: string;
+      color: string;
+      padding: string;
+      borderTop: string;
+    };
+  };
+  animations: {
+    transition: string;
+    hover: string;
+    focus: string;
+  };
 };
 
-const themes2025: Record<string, Theme2025> = {
-  glassmorphic: {
-    id: 'glassmorphic',
-    name: 'Glassmorphic 2025',
-    description: 'Efectos de vidrio, transparencias y gradientes complejos. Perfecto para apps modernas.',
-    category: 'Trending',
-    styles: {
-      layout: 'floating',
-      spacing: 'spacious',
-      cardStyle: 'glassmorphic',
-      borderRadius: 'rounded',
-      shadows: 'floating',
-      typographyScale: 'large',
-      fontWeight: 'medium',
-      colorScheme: 'vibrant',
-      gradientStyle: 'complex',
-      animations: 'smooth',
-      hoverEffects: 'glow',
-      heroStyle: 'fullscreen',
-      navigationStyle: 'floating'
+// Theme definitions based on popular WordPress themes
+const completeThemes: Record<string, CompleteTheme> = {
+  astra: {
+    id: 'astra',
+    name: 'Astra (Lightweight Pro)',
+    description: 'Tema ligero y rápido inspirado en Astra Pro. Perfecto para cualquier tipo de sitio web.',
+    category: 'Popular',
+    colors: {
+      primary: '#0073aa',
+      secondary: '#005177',
+      accent: '#00a0d2',
+      background: '#ffffff',
+      surface: '#f8f9fa',
+      text: '#333333',
+      textSecondary: '#666666',
+      link: '#0073aa',
+      linkHover: '#005177',
+      border: '#e0e0e0',
+      success: '#28a745',
+      warning: '#ffc107',
+      error: '#dc3545',
     },
-    cssVariables: {
-      '--glass-bg': 'rgba(255, 255, 255, 0.1)',
-      '--glass-border': 'rgba(255, 255, 255, 0.2)',
-      '--blur-strength': '20px',
-      '--primary-color': '#667eea',
-      '--secondary-color': '#764ba2',
-      '--accent-color': '#f093fb',
-      '--background-color': '#f8fafc',
-      '--text-color': '#1e293b',
-      '--card-bg': 'rgba(255, 255, 255, 0.25)',
-      '--nav-bg': 'rgba(255, 255, 255, 0.1)',
+    typography: {
+      fontFamily: 'Inter',
+      headingFont: 'Inter',
+      fontSize: '16',
+      lineHeight: '1.6',
+      headingWeight: '600',
+      bodyWeight: '400',
     },
-    customCSS: `
-      .theme-glassmorphic {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        backdrop-filter: blur(20px);
-        min-height: 100vh;
-      }
-      
-      .theme-glassmorphic .navbar {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-      }
-      
-      .theme-glassmorphic .card {
-        background: rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      }
-      
-      .theme-glassmorphic .hero {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
-        backdrop-filter: blur(10px);
-      }
-      
-      .theme-glassmorphic .testimonials-section {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(15px);
-        border-radius: 32px;
-        margin: 2rem;
-        padding: 3rem;
-      }
-    `
+    layout: {
+      containerWidth: '1200px',
+      spacing: { xs: '0.25rem', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '3rem' },
+      borderRadius: { sm: '4px', md: '8px', lg: '12px', xl: '16px' },
+    },
+    components: {
+      navbar: {
+        background: '#ffffff',
+        color: '#333333',
+        padding: '1rem 0',
+        shadow: '0 2px 4px rgba(0,0,0,0.1)',
+        borderBottom: 'none',
+        height: '70px',
+      },
+      hero: {
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        color: '#333333',
+        padding: '5rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: '#0073aa',
+          color: '#ffffff',
+          border: 'none',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '6px',
+          fontSize: '16px',
+          fontWeight: '500',
+          shadow: '0 2px 4px rgba(0,115,170,0.3)',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#0073aa',
+          border: '2px solid #0073aa',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '6px',
+          fontSize: '16px',
+          fontWeight: '500',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: '1px solid #e0e0e0',
+        borderRadius: '8px',
+        padding: '1.5rem',
+        shadow: '0 2px 8px rgba(0,0,0,0.1)',
+        hover: {
+          shadow: '0 4px 16px rgba(0,0,0,0.15)',
+          transform: 'translateY(-2px)',
+        },
+      },
+      footer: {
+        background: '#333333',
+        color: '#ffffff',
+        padding: '3rem 0 2rem',
+        borderTop: 'none',
+      },
+    },
+    animations: {
+      transition: 'all 0.3s ease',
+      hover: 'all 0.2s ease',
+      focus: 'all 0.15s ease',
+    },
   },
-  
-  neumorphic: {
-    id: 'neumorphic',
-    name: 'Neumorphic Soft UI',
-    description: 'Diseño suave con sombras internas y externas. Elegante y minimalista.',
-    category: 'Elegant',
-    styles: {
-      layout: 'minimal',
-      spacing: 'normal',
-      cardStyle: 'neumorphic',
-      borderRadius: 'extreme',
-      shadows: 'subtle',
-      typographyScale: 'standard',
-      fontWeight: 'normal',
-      colorScheme: 'monochrome',
-      gradientStyle: 'subtle',
-      animations: 'subtle',
-      hoverEffects: 'lift',
-      heroStyle: 'minimal',
-      navigationStyle: 'traditional'
+
+  divi: {
+    id: 'divi',
+    name: 'Divi (Visual Builder)',
+    description: 'Inspirado en Divi Theme. Diseño vibrante y visual con elementos llamativos.',
+    category: 'Creative',
+    colors: {
+      primary: '#2ea3f2',
+      secondary: '#ff6f61',
+      accent: '#ffa726',
+      background: '#ffffff',
+      surface: '#f7f9fc',
+      text: '#333333',
+      textSecondary: '#555555',
+      link: '#2ea3f2',
+      linkHover: '#1e88e5',
+      border: '#e1e5e9',
+      success: '#4caf50',
+      warning: '#ff9800',
+      error: '#f44336',
     },
-    cssVariables: {
-      '--neu-bg': '#e6e6e6',
-      '--primary-color': '#667eea',
-      '--secondary-color': '#f1f5f9',
-      '--text-color': '#374151',
-      '--shadow-light': '#ffffff',
-      '--shadow-dark': '#c7c7c7',
+    typography: {
+      fontFamily: 'Open Sans',
+      headingFont: 'Montserrat',
+      fontSize: '16',
+      lineHeight: '1.7',
+      headingWeight: '700',
+      bodyWeight: '400',
     },
-    customCSS: `
-      .theme-neumorphic {
-        background: #e6e6e6;
-        color: #374151;
-        font-family: 'Inter', -apple-system, sans-serif;
-      }
-      
-      .theme-neumorphic .card {
-        background: #e6e6e6;
-        border-radius: 30px;
-        box-shadow: 9px 9px 16px #c7c7c7, -9px -9px 16px #ffffff;
-        border: none;
-        padding: 2rem;
-      }
-      
-      .theme-neumorphic .navbar {
-        background: #e6e6e6;
-        box-shadow: inset 5px 5px 10px #c7c7c7, inset -5px -5px 10px #ffffff;
-        border-radius: 0 0 25px 25px;
-      }
-      
-      .theme-neumorphic .hero {
-        background: #e6e6e6;
-        box-shadow: inset 20px 20px 40px #c7c7c7, inset -20px -20px 40px #ffffff;
-      }
-      
-      .theme-neumorphic .testimonials-section .card:hover {
-        box-shadow: inset 9px 9px 16px #c7c7c7, inset -9px -9px 16px #ffffff;
-      }
-    `
+    layout: {
+      containerWidth: '1280px',
+      spacing: { xs: '0.5rem', sm: '1rem', md: '1.5rem', lg: '2rem', xl: '4rem' },
+      borderRadius: { sm: '8px', md: '12px', lg: '16px', xl: '24px' },
+    },
+    components: {
+      navbar: {
+        background: '#ffffff',
+        color: '#333333',
+        padding: '1.5rem 0',
+        shadow: '0 4px 12px rgba(0,0,0,0.1)',
+        borderBottom: 'none',
+        height: '80px',
+      },
+      hero: {
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: '#ffffff',
+        padding: '6rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: 'linear-gradient(45deg, #2ea3f2, #1e88e5)',
+          color: '#ffffff',
+          border: 'none',
+          padding: '1rem 2rem',
+          borderRadius: '50px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: '0 4px 15px rgba(46,163,242,0.4)',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#2ea3f2',
+          border: '2px solid #2ea3f2',
+          padding: '1rem 2rem',
+          borderRadius: '50px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: 'none',
+        borderRadius: '16px',
+        padding: '2rem',
+        shadow: '0 8px 30px rgba(0,0,0,0.12)',
+        hover: {
+          shadow: '0 12px 40px rgba(0,0,0,0.18)',
+          transform: 'translateY(-4px)',
+        },
+      },
+      footer: {
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: '#ffffff',
+        padding: '4rem 0 2rem',
+        borderTop: 'none',
+      },
+    },
+    animations: {
+      transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      hover: 'all 0.3s ease',
+      focus: 'all 0.2s ease',
+    },
   },
-  
-  brutal: {
-    id: 'brutal',
-    name: 'Brutalist 2025',
-    description: 'Colores neón, tipografías oversized y layouts asimétricos. Máximo impacto visual.',
-    category: 'Bold',
-    styles: {
-      layout: 'asymmetric',
-      spacing: 'extreme',
-      cardStyle: 'brutal',
-      borderRadius: 'none',
-      shadows: 'dramatic',
-      typographyScale: 'oversized',
-      fontWeight: 'ultra',
-      colorScheme: 'neon',
-      gradientStyle: 'bold',
-      animations: 'dramatic',
-      hoverEffects: 'transform',
-      heroStyle: 'asymmetric',
-      navigationStyle: 'mega'
+
+  oceanwp: {
+    id: 'oceanwp',
+    name: 'OceanWP (eCommerce Pro)',
+    description: 'Inspirado en OceanWP. Perfecto para tiendas online y sitios de comercio electrónico.',
+    category: 'eCommerce',
+    colors: {
+      primary: '#13aff0',
+      secondary: '#1e293b',
+      accent: '#f59e0b',
+      background: '#ffffff',
+      surface: '#f8fafc',
+      text: '#334155',
+      textSecondary: '#64748b',
+      link: '#13aff0',
+      linkHover: '#0ea5e9',
+      border: '#e2e8f0',
+      success: '#10b981',
+      warning: '#f59e0b',
+      error: '#ef4444',
     },
-    cssVariables: {
-      '--brutal-primary': '#ff0066',
-      '--brutal-secondary': '#00ff66',
-      '--brutal-accent': '#6600ff',
-      '--brutal-yellow': '#ffff00',
-      '--brutal-cyan': '#00ffff',
+    typography: {
+      fontFamily: 'Source Sans Pro',
+      headingFont: 'Roboto',
+      fontSize: '16',
+      lineHeight: '1.6',
+      headingWeight: '700',
+      bodyWeight: '400',
     },
-    customCSS: `
-      .theme-brutal {
-        background: #ffffff;
-        color: #000000;
-        font-family: 'Arial Black', Arial, sans-serif;
-      }
-      
-      .theme-brutal .navbar {
-        background: #ff0066;
-        color: white;
-        border: 4px solid #000000;
-        transform: rotate(-1deg);
-        margin: 10px;
-        border-radius: 0;
-      }
-      
-      .theme-brutal .card {
-        background: #00ff66;
-        border: 4px solid #000000;
-        box-shadow: 8px 8px 0px #000000;
-        transform: rotate(1deg);
-        margin: 1rem;
-      }
-      
-      .theme-brutal .hero {
-        background: linear-gradient(45deg, #ff0066 0%, #6600ff 50%, #00ff66 100%);
-        color: white;
-        text-transform: uppercase;
-        border: 8px solid #000000;
-      }
-      
-      .theme-brutal .testimonials-section {
-        background: #ffff00;
-        border: 6px solid #000000;
-        transform: rotate(-2deg);
-        margin: 2rem;
-      }
-      
-      .theme-brutal .testimonials-section .card:nth-child(even) {
-        background: #00ffff;
-        transform: rotate(-3deg);
-      }
-    `
+    layout: {
+      containerWidth: '1200px',
+      spacing: { xs: '0.25rem', sm: '0.75rem', md: '1.25rem', lg: '2rem', xl: '3rem' },
+      borderRadius: { sm: '6px', md: '8px', lg: '12px', xl: '16px' },
+    },
+    components: {
+      navbar: {
+        background: '#1e293b',
+        color: '#ffffff',
+        padding: '1rem 0',
+        shadow: '0 4px 8px rgba(0,0,0,0.15)',
+        borderBottom: 'none',
+        height: '75px',
+      },
+      hero: {
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+        color: '#ffffff',
+        padding: '6rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: '#13aff0',
+          color: '#ffffff',
+          border: 'none',
+          padding: '0.875rem 1.75rem',
+          borderRadius: '8px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: '0 4px 12px rgba(19,175,240,0.3)',
+        },
+        secondary: {
+          background: '#f8fafc',
+          color: '#13aff0',
+          border: '2px solid #13aff0',
+          padding: '0.875rem 1.75rem',
+          borderRadius: '8px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        padding: '1.5rem',
+        shadow: '0 4px 16px rgba(0,0,0,0.08)',
+        hover: {
+          shadow: '0 8px 24px rgba(0,0,0,0.12)',
+          transform: 'translateY(-3px)',
+        },
+      },
+      footer: {
+        background: '#1e293b',
+        color: '#e2e8f0',
+        padding: '3rem 0 2rem',
+        borderTop: '4px solid #13aff0',
+      },
+    },
+    animations: {
+      transition: 'all 0.3s ease-in-out',
+      hover: 'all 0.2s ease',
+      focus: 'all 0.15s ease',
+    },
   },
-  
-  minimal2025: {
-    id: 'minimal2025',
-    name: 'Ultra Minimal 2025',
-    description: 'Espacios extremos, tipografías ligeras y enfoque en el contenido.',
-    category: 'Clean',
-    styles: {
-      layout: 'minimal',
-      spacing: 'extreme',
-      cardStyle: 'flat',
-      borderRadius: 'subtle',
-      shadows: 'none',
-      typographyScale: 'large',
-      fontWeight: 'light',
-      colorScheme: 'monochrome',
-      gradientStyle: 'none',
-      animations: 'subtle',
-      hoverEffects: 'minimal',
-      heroStyle: 'minimal',
-      navigationStyle: 'hidden'
+
+  kadence: {
+    id: 'kadence',
+    name: 'Kadence (Modern Minimal)',
+    description: 'Inspirado en Kadence Theme. Diseño minimalista y moderno para sitios profesionales.',
+    category: 'Minimal',
+    colors: {
+      primary: '#2563eb',
+      secondary: '#64748b',
+      accent: '#10b981',
+      background: '#ffffff',
+      surface: '#f9fafb',
+      text: '#1f2937',
+      textSecondary: '#6b7280',
+      link: '#2563eb',
+      linkHover: '#1d4ed8',
+      border: '#e5e7eb',
+      success: '#059669',
+      warning: '#d97706',
+      error: '#dc2626',
     },
-    cssVariables: {
-      '--minimal-bg': '#fafafa',
-      '--minimal-text': '#1a1a1a',
-      '--minimal-accent': '#007aff',
-      '--minimal-border': '#e0e0e0',
+    typography: {
+      fontFamily: 'Inter',
+      headingFont: 'Inter',
+      fontSize: '16',
+      lineHeight: '1.65',
+      headingWeight: '600',
+      bodyWeight: '400',
     },
-    customCSS: `
-      .theme-minimal2025 {
-        background: #fafafa;
-        color: #1a1a1a;
-        font-family: 'Inter', -apple-system, sans-serif;
-        font-weight: 300;
-        line-height: 1.8;
-      }
-      
-      .theme-minimal2025 .navbar {
-        background: transparent;
-        border-bottom: 1px solid #e0e0e0;
-        backdrop-filter: blur(10px);
-      }
-      
-      .theme-minimal2025 .card {
-        background: transparent;
-        border: 1px solid #e0e0e0;
-        border-radius: 2px;
-        padding: 4rem 3rem;
-      }
-      
-      .theme-minimal2025 .hero {
-        background: #fafafa;
-        padding: 12rem 0;
-      }
-      
-      .theme-minimal2025 .testimonials-section {
-        background: transparent;
-        padding: 8rem 0;
-      }
-    `
+    layout: {
+      containerWidth: '1140px',
+      spacing: { xs: '0.5rem', sm: '0.75rem', md: '1rem', lg: '1.5rem', xl: '2.5rem' },
+      borderRadius: { sm: '4px', md: '6px', lg: '8px', xl: '12px' },
+    },
+    components: {
+      navbar: {
+        background: '#ffffff',
+        color: '#1f2937',
+        padding: '1rem 0',
+        shadow: 'none',
+        borderBottom: '1px solid #e5e7eb',
+        height: '70px',
+      },
+      hero: {
+        background: '#f9fafb',
+        color: '#1f2937',
+        padding: '4rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: '#2563eb',
+          color: '#ffffff',
+          border: 'none',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '6px',
+          fontSize: '16px',
+          fontWeight: '500',
+          shadow: '0 1px 3px rgba(0,0,0,0.12)',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#2563eb',
+          border: '1px solid #2563eb',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '6px',
+          fontSize: '16px',
+          fontWeight: '500',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        padding: '1.5rem',
+        shadow: '0 1px 3px rgba(0,0,0,0.12)',
+        hover: {
+          shadow: '0 4px 12px rgba(0,0,0,0.15)',
+          transform: 'translateY(-1px)',
+        },
+      },
+      footer: {
+        background: '#f9fafb',
+        color: '#6b7280',
+        padding: '2.5rem 0',
+        borderTop: '1px solid #e5e7eb',
+      },
+    },
+    animations: {
+      transition: 'all 0.2s ease',
+      hover: 'all 0.15s ease',
+      focus: 'all 0.1s ease',
+    },
   },
-  
-  cyberpunk: {
-    id: 'cyberpunk',
-    name: 'Cyberpunk Neon',
-    description: 'Estética futurista con neones, glitch effects y tipografía techno.',
-    category: 'Futuristic',
-    styles: {
-      layout: 'grid',
-      spacing: 'normal',
-      cardStyle: 'outlined',
-      borderRadius: 'subtle',
-      shadows: 'neon',
-      typographyScale: 'display',
-      fontWeight: 'bold',
-      colorScheme: 'neon',
-      gradientStyle: 'animated',
-      animations: 'morphing',
-      hoverEffects: 'glow',
-      heroStyle: 'video',
-      navigationStyle: 'floating'
+
+  storefront: {
+    id: 'storefront',
+    name: 'Storefront (WooCommerce)',
+    description: 'Inspirado en Storefront de WooCommerce. Optimizado para tiendas online.',
+    category: 'eCommerce',
+    colors: {
+      primary: '#96588a',
+      secondary: '#43454b',
+      accent: '#00a693',
+      background: '#ffffff',
+      surface: '#fafafa',
+      text: '#43454b',
+      textSecondary: '#6d6d6d',
+      link: '#96588a',
+      linkHover: '#7f4d7a',
+      border: '#dddddd',
+      success: '#0f834d',
+      warning: '#ffba00',
+      error: '#e2401c',
     },
-    cssVariables: {
-      '--cyber-primary': '#00ffff',
-      '--cyber-secondary': '#ff00ff',
-      '--cyber-accent': '#ffff00',
-      '--cyber-bg': '#0a0a0a',
-      '--cyber-text': '#00ff41',
+    typography: {
+      fontFamily: 'Source Sans Pro',
+      headingFont: 'Source Sans Pro',
+      fontSize: '16',
+      lineHeight: '1.6',
+      headingWeight: '600',
+      bodyWeight: '400',
     },
-    customCSS: `
-      .theme-cyberpunk {
-        background: linear-gradient(45deg, #0a0a0a 0%, #1a0033 100%);
-        color: #00ff41;
-        font-family: 'Orbitron', 'Courier New', monospace;
-      }
-      
-      .theme-cyberpunk .navbar {
-        background: rgba(0, 255, 255, 0.1);
-        border: 1px solid #00ffff;
-        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-      }
-      
-      .theme-cyberpunk .card {
-        background: rgba(255, 0, 255, 0.05);
-        border: 1px solid #ff00ff;
-        box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .theme-cyberpunk .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
-        animation: scan 3s infinite;
-      }
-      
-      .theme-cyberpunk .hero {
-        background: radial-gradient(circle at center, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
-        position: relative;
-      }
-      
-      .theme-cyberpunk .testimonials-section {
-        background: rgba(255, 255, 0, 0.05);
-        border-top: 2px solid #ffff00;
-        border-bottom: 2px solid #ffff00;
-      }
-      
-      @keyframes scan {
-        0% { left: -100%; }
-        100% { left: 100%; }
-      }
-    `
+    layout: {
+      containerWidth: '1140px',
+      spacing: { xs: '0.5rem', sm: '0.75rem', md: '1rem', lg: '1.5rem', xl: '3rem' },
+      borderRadius: { sm: '3px', md: '5px', lg: '8px', xl: '12px' },
+    },
+    components: {
+      navbar: {
+        background: '#ffffff',
+        color: '#43454b',
+        padding: '1rem 0',
+        shadow: 'none',
+        borderBottom: '1px solid #dddddd',
+        height: '70px',
+      },
+      hero: {
+        background: '#f6f6f6',
+        color: '#43454b',
+        padding: '5rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: '#96588a',
+          color: '#ffffff',
+          border: 'none',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '3px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: 'none',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#96588a',
+          border: '2px solid #96588a',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '3px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: '1px solid #dddddd',
+        borderRadius: '5px',
+        padding: '1.5rem',
+        shadow: 'none',
+        hover: {
+          shadow: '0 2px 8px rgba(0,0,0,0.1)',
+          transform: 'none',
+        },
+      },
+      footer: {
+        background: '#43454b',
+        color: '#ffffff',
+        padding: '3rem 0 2rem',
+        borderTop: 'none',
+      },
+    },
+    animations: {
+      transition: 'all 0.3s ease',
+      hover: 'all 0.2s ease',
+      focus: 'all 0.15s ease',
+    },
   },
-  
-  organic: {
-    id: 'organic',
-    name: 'Organic Flow',
-    description: 'Formas orgánicas, colores tierra y transiciones fluidas inspiradas en la naturaleza.',
-    category: 'Nature',
-    styles: {
-      layout: 'asymmetric',
-      spacing: 'spacious',
-      cardStyle: 'elevated',
-      borderRadius: 'organic',
-      shadows: 'colorful',
-      typographyScale: 'large',
-      fontWeight: 'medium',
-      colorScheme: 'earth',
-      gradientStyle: 'mesh',
-      animations: 'smooth',
-      hoverEffects: 'morph',
-      heroStyle: 'split',
-      navigationStyle: 'sticky'
+
+  betheme: {
+    id: 'betheme',
+    name: 'BeTheme (Multipurpose)',
+    description: 'Inspirado en BeTheme. Tema multipropósito elegante y versátil.',
+    category: 'Business',
+    colors: {
+      primary: '#0089ff',
+      secondary: '#2c3e50',
+      accent: '#e74c3c',
+      background: '#ffffff',
+      surface: '#f5f5f5',
+      text: '#2c3e50',
+      textSecondary: '#7f8c8d',
+      link: '#0089ff',
+      linkHover: '#006dd6',
+      border: '#bdc3c7',
+      success: '#27ae60',
+      warning: '#f39c12',
+      error: '#e74c3c',
     },
-    cssVariables: {
-      '--organic-primary': '#8b5a3c',
-      '--organic-secondary': '#6b8e23',
-      '--organic-accent': '#daa520',
-      '--organic-bg': '#f5f5dc',
+    typography: {
+      fontFamily: 'Lato',
+      headingFont: 'Roboto',
+      fontSize: '16',
+      lineHeight: '1.65',
+      headingWeight: '700',
+      bodyWeight: '400',
     },
-    customCSS: `
-      .theme-organic {
-        background: linear-gradient(135deg, #f5f5dc 0%, #e6ddd4 100%);
-        color: #3e2723;
-        font-family: 'Georgia', serif;
-      }
-      
-      .theme-organic .navbar {
-        background: rgba(139, 90, 60, 0.9);
-        border-radius: 0 0 50% 50% / 0 0 20px 20px;
-        color: white;
-      }
-      
-      .theme-organic .card {
-        background: rgba(245, 245, 220, 0.8);
-        border-radius: 30px 10px 30px 10px;
-        box-shadow: 0 8px 32px rgba(139, 90, 60, 0.3);
-        border: 2px solid rgba(107, 142, 35, 0.2);
-      }
-      
-      .theme-organic .hero {
-        background: radial-gradient(ellipse at top left, rgba(107, 142, 35, 0.2) 0%, transparent 50%),
-                    radial-gradient(ellipse at bottom right, rgba(218, 165, 32, 0.2) 0%, transparent 50%);
-        border-radius: 0 0 50% 30% / 0 0 100px 50px;
-      }
-      
-      .theme-organic .testimonials-section {
-        background: rgba(107, 142, 35, 0.1);
-        border-radius: 80px 20px 80px 20px;
-        margin: 2rem;
-      }
-    `
+    layout: {
+      containerWidth: '1200px',
+      spacing: { xs: '0.5rem', sm: '1rem', md: '1.5rem', lg: '2rem', xl: '4rem' },
+      borderRadius: { sm: '5px', md: '10px', lg: '15px', xl: '20px' },
+    },
+    components: {
+      navbar: {
+        background: '#2c3e50',
+        color: '#ffffff',
+        padding: '1.25rem 0',
+        shadow: '0 2px 10px rgba(0,0,0,0.15)',
+        borderBottom: 'none',
+        height: '80px',
+      },
+      hero: {
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: '#ffffff',
+        padding: '6rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: '#0089ff',
+          color: '#ffffff',
+          border: 'none',
+          padding: '1rem 2rem',
+          borderRadius: '25px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: '0 4px 15px rgba(0,137,255,0.4)',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#0089ff',
+          border: '2px solid #0089ff',
+          padding: '1rem 2rem',
+          borderRadius: '25px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: 'none',
+        borderRadius: '15px',
+        padding: '2rem',
+        shadow: '0 10px 30px rgba(0,0,0,0.1)',
+        hover: {
+          shadow: '0 15px 40px rgba(0,0,0,0.15)',
+          transform: 'translateY(-5px)',
+        },
+      },
+      footer: {
+        background: '#34495e',
+        color: '#ecf0f1',
+        padding: '4rem 0 2rem',
+        borderTop: 'none',
+      },
+    },
+    animations: {
+      transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+      hover: 'all 0.3s ease',
+      focus: 'all 0.2s ease',
+    },
   },
-  
-  retro80s: {
-    id: 'retro80s',
-    name: 'Retro 80s Synthwave',
-    description: 'Estética retro de los 80s con colores neón, gradientes y tipografía synthwave.',
-    category: 'Retro',
-    styles: {
-      layout: 'grid',
-      spacing: 'normal',
-      cardStyle: 'elevated',
-      borderRadius: 'rounded',
-      shadows: 'neon',
-      typographyScale: 'oversized',
-      fontWeight: 'bold',
-      colorScheme: 'sunset',
-      gradientStyle: 'bold',
-      animations: 'smooth',
-      hoverEffects: 'glow',
-      heroStyle: 'fullscreen',
-      navigationStyle: 'floating'
-    },
-    cssVariables: {
-      '--retro-primary': '#ff0080',
-      '--retro-secondary': '#0080ff',
-      '--retro-accent': '#ffff00',
-      '--retro-bg': '#1a0033',
-    },
-    customCSS: `
-      .theme-retro80s {
-        background: linear-gradient(45deg, #1a0033 0%, #330066 50%, #660099 100%);
-        color: #ffffff;
-        font-family: 'Orbitron', sans-serif;
-      }
-      
-      .theme-retro80s .navbar {
-        background: linear-gradient(90deg, #ff0080 0%, #0080ff 100%);
-        box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
-      }
-      
-      .theme-retro80s .card {
-        background: rgba(26, 0, 51, 0.8);
-        border: 2px solid #ff0080;
-        box-shadow: 0 0 20px rgba(255, 0, 128, 0.3), inset 0 0 20px rgba(0, 128, 255, 0.1);
-        border-radius: 15px;
-      }
-      
-      .theme-retro80s .hero {
-        background: 
-          radial-gradient(circle at 20% 80%, rgba(255, 0, 128, 0.3) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(0, 128, 255, 0.3) 0%, transparent 50%);
-      }
-      
-      .theme-retro80s .testimonials-section {
-        background: linear-gradient(135deg, rgba(255, 0, 128, 0.1) 0%, rgba(0, 128, 255, 0.1) 100%);
-        border: 1px solid rgba(255, 255, 0, 0.3);
-        border-radius: 20px;
-        margin: 2rem;
-      }
-    `
-  },
-  
-  aurora: {
-    id: 'aurora',
-    name: 'Aurora Borealis',
-    description: 'Inspirado en las auroras boreales con gradientes dinámicos y efectos de luz.',
-    category: 'Magical',
-    styles: {
-      layout: 'floating',
-      spacing: 'spacious',
-      cardStyle: 'glassmorphic',
-      borderRadius: 'rounded',
-      shadows: 'floating',
-      typographyScale: 'large',
-      fontWeight: 'medium',
-      colorScheme: 'ocean',
-      gradientStyle: 'animated',
-      animations: 'smooth',
-      hoverEffects: 'glow',
-      heroStyle: 'fullscreen',
-      navigationStyle: 'floating'
-    },
-    cssVariables: {
-      '--aurora-primary': '#00ffaa',
-      '--aurora-secondary': '#0088ff',
-      '--aurora-accent': '#aa00ff',
-      '--aurora-bg': '#001122',
-    },
-    customCSS: `
-      .theme-aurora {
-        background: 
-          radial-gradient(ellipse at bottom, #001122 0%, #003366 100%),
-          linear-gradient(45deg, rgba(0, 255, 170, 0.1) 0%, rgba(0, 136, 255, 0.1) 50%, rgba(170, 0, 255, 0.1) 100%);
-        color: #ffffff;
-        font-family: 'Inter', sans-serif;
-        animation: aurora-bg 10s ease-in-out infinite alternate;
-      }
-      
-      .theme-aurora .navbar {
-        background: rgba(0, 17, 34, 0.8);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(0, 255, 170, 0.2);
-      }
-      
-      .theme-aurora .card {
-        background: rgba(0, 17, 34, 0.4);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(0, 255, 170, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 255, 170, 0.1);
-        border-radius: 20px;
-      }
-      
-      .theme-aurora .hero {
-        background: 
-          radial-gradient(circle at 30% 30%, rgba(0, 255, 170, 0.3) 0%, transparent 50%),
-          radial-gradient(circle at 70% 70%, rgba(0, 136, 255, 0.3) 0%, transparent 50%);
-        animation: aurora-glow 8s ease-in-out infinite alternate;
-      }
-      
-      @keyframes aurora-bg {
-        0% { filter: hue-rotate(0deg); }
-        100% { filter: hue-rotate(60deg); }
-      }
-      
-      @keyframes aurora-glow {
-        0% { box-shadow: 0 0 50px rgba(0, 255, 170, 0.3); }
-        100% { box-shadow: 0 0 80px rgba(0, 136, 255, 0.4); }
-      }
-    `
-  },
-  
-  monospace: {
-    id: 'monospace',
-    name: 'Developer Terminal',
-    description: 'Estética de terminal con tipografía monospace y colores de código.',
-    category: 'Tech',
-    styles: {
-      layout: 'traditional',
-      spacing: 'tight',
-      cardStyle: 'outlined',
-      borderRadius: 'subtle',
-      shadows: 'none',
-      typographyScale: 'standard',
-      fontWeight: 'normal',
-      colorScheme: 'monochrome',
-      gradientStyle: 'none',
-      animations: 'none',
-      hoverEffects: 'minimal',
-      heroStyle: 'traditional',
-      navigationStyle: 'traditional'
-    },
-    cssVariables: {
-      '--term-bg': '#0d1117',
-      '--term-text': '#c9d1d9',
-      '--term-green': '#7c3aed',
-      '--term-blue': '#2563eb',
-      '--term-border': '#30363d',
-    },
-    customCSS: `
-      .theme-monospace {
-        background: #0d1117;
-        color: #c9d1d9;
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
-        line-height: 1.6;
-      }
-      
-      .theme-monospace .navbar {
-        background: #161b22;
-        border-bottom: 1px solid #30363d;
-        font-family: 'JetBrains Mono', monospace;
-      }
-      
-      .theme-monospace .card {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 6px;
-        padding: 1.5rem;
-      }
-      
-      .theme-monospace .hero {
-        background: #0d1117;
-        border: 1px solid #30363d;
-        font-family: 'JetBrains Mono', monospace;
-      }
-      
-      .theme-monospace .testimonials-section {
-        background: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        margin: 1rem;
-        padding: 2rem;
-      }
-      
-      .theme-monospace pre {
-        background: #0d1117;
-        border: 1px solid #30363d;
-        color: #7c3aed;
-      }
-    `
-  },
-  
-  luxury: {
-    id: 'luxury',
-    name: 'Luxury Gold',
-    description: 'Elegancia premium con dorados, mármol y tipografía serif clásica.',
+
+  avada: {
+    id: 'avada',
+    name: 'Avada (Premium Modern)',
+    description: 'Inspirado en Avada Theme. Tema premium con diseño moderno y sofisticado.',
     category: 'Premium',
-    styles: {
-      layout: 'traditional',
-      spacing: 'spacious',
-      cardStyle: 'elevated',
-      borderRadius: 'subtle',
-      shadows: 'dramatic',
-      typographyScale: 'large',
-      fontWeight: 'medium',
-      colorScheme: 'earth',
-      gradientStyle: 'subtle',
-      animations: 'subtle',
-      hoverEffects: 'lift',
-      heroStyle: 'traditional',
-      navigationStyle: 'traditional'
+    colors: {
+      primary: '#65bc7b',
+      secondary: '#1d1d1d',
+      accent: '#ff6b35',
+      background: '#ffffff',
+      surface: '#f9f9f9',
+      text: '#1d1d1d',
+      textSecondary: '#616161',
+      link: '#65bc7b',
+      linkHover: '#4a9960',
+      border: '#e0e0e0',
+      success: '#4caf50',
+      warning: '#ff9800',
+      error: '#f44336',
     },
-    cssVariables: {
-      '--luxury-gold': '#d4af37',
-      '--luxury-dark': '#1a1a1a',
-      '--luxury-cream': '#faf7f0',
-      '--luxury-accent': '#8b4513',
+    typography: {
+      fontFamily: 'PT Sans',
+      headingFont: 'PT Sans',
+      fontSize: '16',
+      lineHeight: '1.7',
+      headingWeight: '700',
+      bodyWeight: '400',
     },
-    customCSS: `
-      .theme-luxury {
-        background: linear-gradient(135deg, #faf7f0 0%, #f5f0e8 100%);
-        color: #1a1a1a;
-        font-family: 'Playfair Display', serif;
-      }
-      
-      .theme-luxury .navbar {
-        background: rgba(26, 26, 26, 0.95);
-        color: #d4af37;
-        border-bottom: 2px solid #d4af37;
-        backdrop-filter: blur(10px);
-      }
-      
-      .theme-luxury .card {
-        background: rgba(250, 247, 240, 0.9);
-        border: 1px solid rgba(212, 175, 55, 0.3);
-        box-shadow: 0 8px 40px rgba(212, 175, 55, 0.15);
-        border-radius: 8px;
-        position: relative;
-      }
-      
-      .theme-luxury .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #d4af37 0%, #f4e17c 100%);
-        border-radius: 8px 8px 0 0;
-      }
-      
-      .theme-luxury .hero {
-        background: 
-          radial-gradient(ellipse at center, rgba(212, 175, 55, 0.1) 0%, transparent 70%),
-          linear-gradient(135deg, #faf7f0 0%, #f0e6d2 100%);
-      }
-      
-      .theme-luxury .testimonials-section {
-        background: rgba(212, 175, 55, 0.05);
-        border-top: 1px solid rgba(212, 175, 55, 0.3);
-        border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-        padding: 4rem 2rem;
-      }
-    `
-  }
+    layout: {
+      containerWidth: '1200px',
+      spacing: { xs: '0.5rem', sm: '1rem', md: '1.5rem', lg: '2.5rem', xl: '4rem' },
+      borderRadius: { sm: '6px', md: '12px', lg: '18px', xl: '24px' },
+    },
+    components: {
+      navbar: {
+        background: '#1d1d1d',
+        color: '#ffffff',
+        padding: '1.25rem 0',
+        shadow: '0 3px 15px rgba(0,0,0,0.2)',
+        borderBottom: 'none',
+        height: '80px',
+      },
+      hero: {
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: '#ffffff',
+        padding: '6rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: 'linear-gradient(45deg, #65bc7b, #4a9960)',
+          color: '#ffffff',
+          border: 'none',
+          padding: '1rem 2rem',
+          borderRadius: '30px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: '0 6px 20px rgba(101,188,123,0.4)',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#65bc7b',
+          border: '2px solid #65bc7b',
+          padding: '1rem 2rem',
+          borderRadius: '30px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: '1px solid #e0e0e0',
+        borderRadius: '18px',
+        padding: '2rem',
+        shadow: '0 8px 25px rgba(0,0,0,0.08)',
+        hover: {
+          shadow: '0 15px 35px rgba(0,0,0,0.12)',
+          transform: 'translateY(-3px) scale(1.02)',
+        },
+      },
+      footer: {
+        background: '#1d1d1d',
+        color: '#ffffff',
+        padding: '4rem 0 2rem',
+        borderTop: '3px solid #65bc7b',
+      },
+    },
+    animations: {
+      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+      hover: 'all 0.3s ease',
+      focus: 'all 0.2s ease',
+    },
+  },
+
+  hestia: {
+    id: 'hestia',
+    name: 'Hestia (Material Design)',
+    description: 'Inspirado en Hestia Theme. Diseño elegante con Material Design para startups.',
+    category: 'Startup',
+    colors: {
+      primary: '#e91e63',
+      secondary: '#9c27b0',
+      accent: '#00bcd4',
+      background: '#ffffff',
+      surface: '#fafafa',
+      text: '#3c4858',
+      textSecondary: '#999999',
+      link: '#e91e63',
+      linkHover: '#d81b60',
+      border: '#e5e5e5',
+      success: '#4caf50',
+      warning: '#ff9800',
+      error: '#f44336',
+    },
+    typography: {
+      fontFamily: 'Roboto',
+      headingFont: 'Roboto Slab',
+      fontSize: '16',
+      lineHeight: '1.7',
+      headingWeight: '700',
+      bodyWeight: '400',
+    },
+    layout: {
+      containerWidth: '1140px',
+      spacing: { xs: '0.5rem', sm: '1rem', md: '1.5rem', lg: '2rem', xl: '3rem' },
+      borderRadius: { sm: '4px', md: '8px', lg: '12px', xl: '16px' },
+    },
+    components: {
+      navbar: {
+        background: '#ffffff',
+        color: '#3c4858',
+        padding: '1rem 0',
+        shadow: '0 4px 18px 0 rgba(0,0,0,.12)',
+        borderBottom: 'none',
+        height: '70px',
+      },
+      hero: {
+        background: 'linear-gradient(60deg, #ab47bc, #8e24aa)',
+        color: '#ffffff',
+        padding: '6rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: 'linear-gradient(60deg, #ec407a, #d81b60)',
+          color: '#ffffff',
+          border: 'none',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '3px',
+          fontSize: '16px',
+          fontWeight: '500',
+          shadow: '0 2px 2px 0 rgba(233,30,99,.14), 0 3px 1px -2px rgba(233,30,99,.2), 0 1px 5px 0 rgba(233,30,99,.12)',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#e91e63',
+          border: '1px solid #e91e63',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '3px',
+          fontSize: '16px',
+          fontWeight: '500',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: 'none',
+        borderRadius: '6px',
+        padding: '1.5rem',
+        shadow: '0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12)',
+        hover: {
+          shadow: '0 14px 26px -12px rgba(0,0,0,.42), 0 4px 23px 0 rgba(0,0,0,.12), 0 8px 10px -5px rgba(0,0,0,.2)',
+          transform: 'translateY(-3px)',
+        },
+      },
+      footer: {
+        background: '#3c4858',
+        color: '#ffffff',
+        padding: '3rem 0 2rem',
+        borderTop: 'none',
+      },
+    },
+    animations: {
+      transition: 'all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)',
+      hover: 'all 0.3s ease',
+      focus: 'all 0.2s ease',
+    },
+  },
+
+  sydney: {
+    id: 'sydney',
+    name: 'Sydney (Business Corporate)',
+    description: 'Inspirado en Sydney Theme. Tema corporativo profesional para empresas.',
+    category: 'Corporate',
+    colors: {
+      primary: '#d65050',
+      secondary: '#1e3a5f',
+      accent: '#3498db',
+      background: '#ffffff',
+      surface: '#f4f4f4',
+      text: '#1e3a5f',
+      textSecondary: '#7a7a7a',
+      link: '#d65050',
+      linkHover: '#c44040',
+      border: '#dddddd',
+      success: '#27ae60',
+      warning: '#f39c12',
+      error: '#e74c3c',
+    },
+    typography: {
+      fontFamily: 'Source Sans Pro',
+      headingFont: 'Raleway',
+      fontSize: '16',
+      lineHeight: '1.6',
+      headingWeight: '600',
+      bodyWeight: '400',
+    },
+    layout: {
+      containerWidth: '1170px',
+      spacing: { xs: '0.5rem', sm: '0.75rem', md: '1rem', lg: '1.5rem', xl: '3rem' },
+      borderRadius: { sm: '3px', md: '6px', lg: '10px', xl: '15px' },
+    },
+    components: {
+      navbar: {
+        background: '#ffffff',
+        color: '#1e3a5f',
+        padding: '1rem 0',
+        shadow: '0 1px 3px rgba(0,0,0,0.1)',
+        borderBottom: '1px solid #dddddd',
+        height: '70px',
+      },
+      hero: {
+        background: 'linear-gradient(135deg, #1e3a5f 0%, #2c5f7f 100%)',
+        color: '#ffffff',
+        padding: '5rem 0',
+        textAlign: 'center',
+      },
+      button: {
+        primary: {
+          background: '#d65050',
+          color: '#ffffff',
+          border: 'none',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '3px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: '0 3px 6px rgba(214,80,80,0.3)',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#d65050',
+          border: '2px solid #d65050',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '3px',
+          fontSize: '16px',
+          fontWeight: '600',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: '1px solid #dddddd',
+        borderRadius: '6px',
+        padding: '1.5rem',
+        shadow: '0 2px 6px rgba(0,0,0,0.1)',
+        hover: {
+          shadow: '0 4px 12px rgba(0,0,0,0.15)',
+          transform: 'translateY(-2px)',
+        },
+      },
+      footer: {
+        background: '#1e3a5f',
+        color: '#ffffff',
+        padding: '3rem 0 2rem',
+        borderTop: '3px solid #d65050',
+      },
+    },
+    animations: {
+      transition: 'all 0.3s ease-in-out',
+      hover: 'all 0.2s ease',
+      focus: 'all 0.15s ease',
+    },
+  },
+
+  hello: {
+    id: 'hello',
+    name: 'Hello Elementor (Ultra Minimal)',
+    description: 'Inspirado en Hello Elementor. Tema minimalista extremo para máxima personalización.',
+    category: 'Minimal',
+    colors: {
+      primary: '#007cba',
+      secondary: '#000000',
+      accent: '#666666',
+      background: '#ffffff',
+      surface: '#ffffff',
+      text: '#000000',
+      textSecondary: '#666666',
+      link: '#007cba',
+      linkHover: '#005a87',
+      border: '#dddddd',
+      success: '#46b450',
+      warning: '#ffb900',
+      error: '#dc3232',
+    },
+    typography: {
+      fontFamily: 'Roboto',
+      headingFont: 'Roboto',
+      fontSize: '16',
+      lineHeight: '1.6',
+      headingWeight: '600',
+      bodyWeight: '400',
+    },
+    layout: {
+      containerWidth: '1140px',
+      spacing: { xs: '0.25rem', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2rem' },
+      borderRadius: { sm: '2px', md: '4px', lg: '6px', xl: '8px' },
+    },
+    components: {
+      navbar: {
+        background: '#ffffff',
+        color: '#000000',
+        padding: '1rem 0',
+        shadow: 'none',
+        borderBottom: 'none',
+        height: '60px',
+      },
+      hero: {
+        background: '#ffffff',
+        color: '#000000',
+        padding: '4rem 0',
+        textAlign: 'left',
+      },
+      button: {
+        primary: {
+          background: '#007cba',
+          color: '#ffffff',
+          border: 'none',
+          padding: '0.5rem 1rem',
+          borderRadius: '4px',
+          fontSize: '16px',
+          fontWeight: '400',
+          shadow: 'none',
+        },
+        secondary: {
+          background: 'transparent',
+          color: '#007cba',
+          border: '1px solid #007cba',
+          padding: '0.5rem 1rem',
+          borderRadius: '4px',
+          fontSize: '16px',
+          fontWeight: '400',
+          shadow: 'none',
+        },
+      },
+      card: {
+        background: '#ffffff',
+        border: 'none',
+        borderRadius: '0px',
+        padding: '1rem',
+        shadow: 'none',
+        hover: {
+          shadow: 'none',
+          transform: 'none',
+        },
+      },
+      footer: {
+        background: '#ffffff',
+        color: '#000000',
+        padding: '2rem 0',
+        borderTop: '1px solid #dddddd',
+      },
+    },
+    animations: {
+      transition: 'none',
+      hover: 'none',
+      focus: 'none',
+    },
+  },
 };
 
 type ThemeContextType = {
-  currentTheme: Theme2025;
+  currentTheme: CompleteTheme;
   setTheme: (themeId: string) => void;
-  availableThemes: Theme2025[];
+  availableThemes: CompleteTheme[];
+  applyThemeStyles: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function Theme2025Provider({ children }: { children: React.ReactNode }) {
-  const [currentThemeId, setCurrentThemeId] = useState('glassmorphic');
+  const [currentThemeId, setCurrentThemeId] = useState('astra');
   
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
@@ -728,12 +1082,13 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
     refetchOnWindowFocus: false,
   });
 
-  const currentTheme = themes2025[currentThemeId] || themes2025.glassmorphic;
-  const availableThemes = Object.values(themes2025);
+  const currentTheme = completeThemes[currentThemeId] || completeThemes.astra;
+  const availableThemes = Object.values(completeThemes);
 
   // Apply theme styles to document
-  useEffect(() => {
+  const applyThemeStyles = () => {
     const root = document.documentElement;
+    const theme = currentTheme;
     
     // Remove previous theme classes
     document.body.className = document.body.className
@@ -742,22 +1097,48 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
       .join(' ');
     
     // Add current theme class
-    document.body.classList.add(`theme-${currentTheme.id}`);
+    document.body.classList.add(`theme-${theme.id}`);
     
-    // Apply CSS variables
-    Object.entries(currentTheme.cssVariables).forEach(([key, value]) => {
-      root.style.setProperty(key, value);
+    // Apply CSS variables for colors
+    Object.entries(theme.colors).forEach(([key, value]) => {
+      root.style.setProperty(`--theme-color-${key}`, value);
     });
-    
-    // Apply custom CSS
-    let styleElement = document.getElementById('theme-2025-styles');
-    if (!styleElement) {
-      styleElement = document.createElement('style');
-      styleElement.id = 'theme-2025-styles';
-      document.head.appendChild(styleElement);
-    }
-    styleElement.textContent = currentTheme.customCSS;
-    
+
+    // Apply typography variables
+    Object.entries(theme.typography).forEach(([key, value]) => {
+      root.style.setProperty(`--theme-typography-${key}`, value);
+    });
+
+    // Apply layout variables
+    root.style.setProperty('--theme-container-width', theme.layout.containerWidth);
+    Object.entries(theme.layout.spacing).forEach(([key, value]) => {
+      root.style.setProperty(`--theme-spacing-${key}`, value);
+    });
+    Object.entries(theme.layout.borderRadius).forEach(([key, value]) => {
+      root.style.setProperty(`--theme-radius-${key}`, value);
+    });
+
+    // Apply component-specific variables
+    Object.entries(theme.components).forEach(([componentName, componentStyles]) => {
+      Object.entries(componentStyles).forEach(([styleKey, styleValue]) => {
+        if (typeof styleValue === 'string') {
+          root.style.setProperty(`--theme-${componentName}-${styleKey}`, styleValue);
+        } else if (typeof styleValue === 'object') {
+          Object.entries(styleValue).forEach(([subKey, subValue]) => {
+            root.style.setProperty(`--theme-${componentName}-${styleKey}-${subKey}`, subValue as string);
+          });
+        }
+      });
+    });
+
+    // Apply animation variables
+    Object.entries(theme.animations).forEach(([key, value]) => {
+      root.style.setProperty(`--theme-animation-${key}`, value);
+    });
+  };
+
+  useEffect(() => {
+    applyThemeStyles();
   }, [currentTheme]);
 
   // Load theme from config
@@ -765,20 +1146,20 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
     if (config?.config) {
       const configData = config.config as any;
       const savedTheme = configData?.theme2025?.currentTheme;
-      if (savedTheme && themes2025[savedTheme]) {
+      if (savedTheme && completeThemes[savedTheme]) {
         setCurrentThemeId(savedTheme);
       }
     }
   }, [config]);
 
   const setTheme = (themeId: string) => {
-    if (themes2025[themeId]) {
+    if (completeThemes[themeId]) {
       setCurrentThemeId(themeId);
     }
   };
 
   return (
-    <ThemeContext.Provider value={{ currentTheme, setTheme, availableThemes }}>
+    <ThemeContext.Provider value={{ currentTheme, setTheme, availableThemes, applyThemeStyles }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -792,3 +1173,7 @@ export function useTheme2025() {
   return context;
 }
 
+export function useCurrentTheme() {
+  const { currentTheme } = useTheme2025();
+  return currentTheme;
+}
