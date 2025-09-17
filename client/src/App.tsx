@@ -139,7 +139,7 @@ function Router() {
           <ModuleRoute path="/store" component={Store} moduleName="tienda" />
           <ModuleRoute path="/blog" component={Blog} moduleName="blog" />
           <ModuleRoute path="/blog/:slug" component={BlogPost} moduleName="blog" />
-          <ModuleRoute path="/contacto" component={Contact} moduleName="contacto" />
+          <Route path="/contacto" component={Contact} />
           <ModuleRoute path="/testimonios" component={Testimonials} moduleName="testimonios" />
           <ModuleRoute path="/testimonials" component={Testimonials} moduleName="testimonios" />
           <ModuleRoute path="/preguntas-frecuentes" component={Faqs} moduleName="faqs" />

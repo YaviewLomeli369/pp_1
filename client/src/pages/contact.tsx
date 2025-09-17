@@ -63,7 +63,7 @@ export default function Contact() {
 
   // ✅ COMPUTED VALUES
   const { appearance, isContactEnabled } = useMemo(() => {
-    if (!config) return { appearance: {}, isContactEnabled: false };
+    if (!config) return { appearance: {}, isContactEnabled: true };
 
     const configData = config?.config as any;
     const modules = configData?.frontpage?.modulos || {};
@@ -71,7 +71,7 @@ export default function Contact() {
 
     return {
       appearance,
-      isContactEnabled: modules.contacto?.activo !== false,
+      isContactEnabled: true, // Always enable contact
     };
   }, [config]);
 
