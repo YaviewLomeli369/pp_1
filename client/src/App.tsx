@@ -58,6 +58,7 @@ import AdminWhatsAppConfig from "@/pages/admin/whatsapp-config";
 import AdminNavbarConfig from "@/pages/admin/navbar-config";
 import AdminSidebarConfig from "@/pages/admin/sidebar-config";
 import AdminEmailConfig from "@/pages/admin/email-config";
+import AdminThemes from "@/pages/admin/themes";
 
 import NotFound from "@/pages/not-found";
 
@@ -141,8 +142,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/sections" component={AdminSections} />
       <Route path="/admin/appearance" component={lazy(() => import("./pages/admin/appearance"))} />
-          <Route path="/admin/themes" component={lazy(() => import("./pages/admin/themes"))} />
-          <Route path="/admin/users" component={lazy(() => import("./pages/admin/users"))} />
+      <Route path="/admin/themes" component={lazy(() => import("./pages/admin/themes"))} />
       <Route path="/admin/reservations" component={AdminReservations} />
       <Route path="/admin/reservation-settings" component={AdminReservationSettings} />
       <Route path="/admin/payments" component={AdminPayments} />
