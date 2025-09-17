@@ -38,7 +38,9 @@ export default function Faqs() {
     if (savedVotes) {
       try {
         const votedIds = JSON.parse(savedVotes);
-        setVotedFaqs(new Set(votedIds));
+        startTransition(() => {
+          setVotedFaqs(new Set(votedIds));
+        });
       } catch (error) {
         console.error("Error loading saved votes:", error);
       }
@@ -47,12 +49,20 @@ export default function Faqs() {
 
   const { data: faqs, isLoading: faqsLoading } = useQuery<Faq[]>({
     queryKey: ["/api/faqs"],
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
   const { data: categories, isLoading: categoriesLoading } =
-    useQuery<FaqCategory[]>({ queryKey: ["/api/faq-categories"] });
+    useQuery<FaqCategory[]>({ 
+      queryKey: ["/api/faq-categories"],
+      staleTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    });
 
   const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { appearance } = useMemo(() => {
@@ -68,7 +78,11 @@ export default function Faqs() {
         method: "PUT",
         body: JSON.stringify({}),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/faqs"] }),
+    onSuccess: () => {
+      startTransition(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
+      });
+    },
   });
 
   const voteHelpfulMutation = useMutation({
@@ -81,14 +95,16 @@ export default function Faqs() {
       });
     },
     onSuccess: (data, faqId) => {
-      const newVotedFaqs = new Set(votedFaqs);
-      newVotedFaqs.add(faqId);
-      setVotedFaqs(newVotedFaqs);
-      localStorage.setItem("faq-votes", JSON.stringify([...newVotedFaqs]));
-      queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
-      toast({
-        title: "¡Gracias por tu voto!",
-        description: "Tu voto ha sido registrado correctamente.",
+      startTransition(() => {
+        const newVotedFaqs = new Set(votedFaqs);
+        newVotedFaqs.add(faqId);
+        setVotedFaqs(newVotedFaqs);
+        localStorage.setItem("faq-votes", JSON.stringify([...newVotedFaqs]));
+        queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
+        toast({
+          title: "¡Gracias por tu voto!",
+          description: "Tu voto ha sido registrado correctamente.",
+        });
       });
     },
     onError: (error) =>
