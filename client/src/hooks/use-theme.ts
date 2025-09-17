@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { useTheme2025 } from "@/components/theme-provider";
 import type { SiteConfig } from "@shared/schema";
 
 export function useTheme() {
@@ -12,6 +13,8 @@ export function useTheme() {
     retry: 1,
   });
 
+  const { currentTheme, isTheme2025Active } = useTheme2025();
+  
   const configData = (config?.config as any) || {};
   const appearance = configData?.appearance || {};
   const themeConfig = configData?.theme || {};
@@ -20,7 +23,71 @@ export function useTheme() {
     if (config?.config && typeof config.config === 'object') {
       const root = document.documentElement;
 
-      // Update color variables with HSL conversion for better CSS compatibility
+      // Check if theme 2025 is active and apply its styles
+      if (isTheme2025Active && currentTheme) {
+        // Apply theme 2025 colors
+        if (currentTheme.colors?.primary) {
+          const hsl = hexToHsl(currentTheme.colors.primary);
+          root.style.setProperty('--primary', hsl);
+          root.style.setProperty('--color-primary', currentTheme.colors.primary);
+        }
+        if (currentTheme.colors?.secondary) {
+          const hsl = hexToHsl(currentTheme.colors.secondary);
+          root.style.setProperty('--secondary', hsl);
+          root.style.setProperty('--color-secondary', currentTheme.colors.secondary);
+        }
+        if (currentTheme.colors?.accent) {
+          const hsl = hexToHsl(currentTheme.colors.accent);
+          root.style.setProperty('--accent', hsl);
+          root.style.setProperty('--color-accent', currentTheme.colors.accent);
+        }
+        if (currentTheme.colors?.background) {
+          const hsl = hexToHsl(currentTheme.colors.background);
+          root.style.setProperty('--background', hsl);
+          root.style.setProperty('--color-background', currentTheme.colors.background);
+        }
+        if (currentTheme.colors?.text) {
+          const hsl = hexToHsl(currentTheme.colors.text);
+          root.style.setProperty('--foreground', hsl);
+          root.style.setProperty('--color-text', currentTheme.colors.text);
+        }
+        if (currentTheme.colors?.link) {
+          const hsl = hexToHsl(currentTheme.colors.link);
+          root.style.setProperty('--color-link', currentTheme.colors.link);
+        }
+
+        // Apply theme 2025 typography
+        if (currentTheme.typography?.fontFamily) {
+          root.style.setProperty('--font-sans', `'${currentTheme.typography.fontFamily}', sans-serif`);
+          root.style.setProperty('--font-family', currentTheme.typography.fontFamily);
+        }
+        if (currentTheme.typography?.fontSize) {
+          root.style.setProperty('--base-font-size', currentTheme.typography.fontSize + 'px');
+          root.style.setProperty('--font-size-base', `${currentTheme.typography.fontSize}px`);
+        }
+        if (currentTheme.typography?.lineHeight) {
+          root.style.setProperty('--base-line-height', currentTheme.typography.lineHeight);
+          root.style.setProperty('--line-height', currentTheme.typography.lineHeight);
+        }
+        if (currentTheme.typography?.headingFont) {
+          root.style.setProperty('--font-heading', `'${currentTheme.typography.headingFont}', serif`);
+        }
+
+        // Apply theme 2025 layout
+        if (currentTheme.layout?.containerWidth) {
+          root.style.setProperty('--container-width', currentTheme.layout.containerWidth);
+        }
+        if (currentTheme.components?.navbar?.height) {
+          root.style.setProperty('--header-height', currentTheme.components.navbar.height);
+        }
+
+        // Apply theme 2025 specific CSS classes
+        document.body.className = `theme-${currentTheme.id} ${document.body.className.replace(/theme-\w+/g, '')}`;
+
+        return; // Exit early if theme 2025 is active
+      }
+
+      // Fallback to regular appearance settings
       if (appearance.primaryColor) {
         const hsl = hexToHsl(appearance.primaryColor);
         root.style.setProperty('--primary', hsl);
@@ -104,7 +171,7 @@ export function useTheme() {
       const overlayColor = appearance.heroOverlayColor || '#000000';
       root.style.setProperty('--hero-overlay', `${overlayColor}${Math.round(overlayOpacity * 255).toString(16).padStart(2, '0')}`);
     }
-  }, [config, appearance]);
+  }, [config, appearance, isTheme2025Active, currentTheme]);
 
   const applyThemeToDocument = () => {
     // This function is now handled by the useEffect above automatically
@@ -113,12 +180,14 @@ export function useTheme() {
 
   return {
     config,
-    appearance,
+    appearance: isTheme2025Active && currentTheme ? currentTheme.colors : appearance,
     themeConfig,
     isLoading: !config,
     applyThemeToDocument,
-    currentTheme: themeConfig?.name || 'Custom',
-    themeId: themeConfig?.id || 'custom'
+    currentTheme: isTheme2025Active ? currentTheme?.name : (themeConfig?.name || 'Custom'),
+    themeId: isTheme2025Active ? currentTheme?.id : (themeConfig?.id || 'custom'),
+    isTheme2025Active,
+    theme2025Data: currentTheme
   };
 }
 

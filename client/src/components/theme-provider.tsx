@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { SiteConfig } from '@shared/schema';
@@ -1069,13 +1068,16 @@ type ThemeContextType = {
   setTheme: (themeId: string) => void;
   availableThemes: CompleteTheme[];
   applyThemeStyles: () => void;
+  isActive: boolean;
+  isTheme2025Active: boolean;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function Theme2025Provider({ children }: { children: React.ReactNode }) {
   const [currentThemeId, setCurrentThemeId] = useState('astra');
-  
+  const [isActive, setIsActive] = useState(false);
+
   const { data: config } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
     staleTime: 5 * 60 * 1000,
@@ -1089,16 +1091,16 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
   const applyThemeStyles = () => {
     const root = document.documentElement;
     const theme = currentTheme;
-    
+
     // Remove previous theme classes
     document.body.className = document.body.className
       .split(' ')
       .filter(cls => !cls.startsWith('theme-'))
       .join(' ');
-    
+
     // Add current theme class
     document.body.classList.add(`theme-${theme.id}`);
-    
+
     // Apply CSS variables for colors
     Object.entries(theme.colors).forEach(([key, value]) => {
       root.style.setProperty(`--theme-color-${key}`, value);
@@ -1138,6 +1140,35 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem('theme2025-current');
+    if (savedTheme && availableThemes.find(t => t.id === savedTheme)) {
+      setCurrentThemeId(savedTheme);
+    }
+  }, []);
+
+  // Apply theme CSS class to body
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const body = document.body;
+
+      // Remove all existing theme classes
+      body.classList.forEach(className => {
+        if (className.startsWith('theme-')) {
+          body.classList.remove(className);
+        }
+      });
+
+      // Add current theme class and active indicator
+      if (currentTheme && isActive) {
+        body.classList.add(`theme-${currentTheme.id}`);
+        body.classList.add('theme-2025-active');
+      } else {
+        body.classList.remove('theme-2025-active');
+      }
+    }
+  }, [currentTheme, isActive]);
+
+  useEffect(() => {
     applyThemeStyles();
   }, [currentTheme]);
 
@@ -1148,18 +1179,31 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
       const savedTheme = configData?.theme2025?.currentTheme;
       if (savedTheme && completeThemes[savedTheme]) {
         setCurrentThemeId(savedTheme);
+        setIsActive(true);
+      } else {
+        setIsActive(false);
       }
+    } else {
+      setIsActive(false);
     }
   }, [config]);
 
   const setTheme = (themeId: string) => {
     if (completeThemes[themeId]) {
       setCurrentThemeId(themeId);
+      setIsActive(true);
+      localStorage.setItem('theme2025-current', themeId);
     }
   };
 
   return (
-    <ThemeContext.Provider value={{ currentTheme, setTheme, availableThemes, applyThemeStyles }}>
+    <ThemeContext.Provider value={{
+      currentTheme,
+      setTheme,
+      availableThemes,
+      isActive,
+      isTheme2025Active: isActive
+    }}>
       {children}
     </ThemeContext.Provider>
   );
