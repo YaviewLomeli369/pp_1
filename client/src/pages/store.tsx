@@ -1056,7 +1056,7 @@ export default function Store() {
                           </div>
                           
                           {/* Thumbnails para navegación mejorados */}
-                          <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+                          <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
                             {selectedProduct.images.map((img, idx) => (
                               <div 
                                 key={idx} 
@@ -1066,20 +1066,20 @@ export default function Store() {
                                   setCurrentImageIndex(idx);
                                 }}
                               >
-                                <div className={`relative overflow-hidden rounded-lg transition-all duration-200 ${
+                                <div className={`relative overflow-hidden rounded-md transition-all duration-200 border-2 ${
                                   idx === currentImageIndex
-                                    ? 'ring-2 ring-primary shadow-lg scale-105'
-                                    : 'ring-1 ring-gray-200 hover:ring-primary/50 hover:scale-105'
+                                    ? 'border-primary shadow-lg scale-105'
+                                    : 'border-gray-200 hover:border-primary/50 hover:scale-105'
                                 }`}>
                                   <ImageWithRetry
                                     src={img}
                                     alt={`Thumbnail ${idx + 1}`}
-                                    className="w-18 h-18 object-cover"
+                                    className="w-20 h-20 object-cover"
                                   />
                                   <div className={`absolute inset-0 transition-opacity duration-200 ${
                                     idx === currentImageIndex
-                                      ? 'bg-black/0'
-                                      : 'bg-black/20 group-hover/thumb:bg-black/10'
+                                      ? 'bg-transparent'
+                                      : 'bg-black/10 group-hover/thumb:bg-transparent'
                                   }`}></div>
                                 </div>
                               </div>
