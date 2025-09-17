@@ -1,0 +1,120 @@
+Este error en React puede ser muy persistente, sobre todo cuando React Query, lazy loading y Wouter se combinan. Voy a explicarte exactamente lo que está pasando y por qué las soluciones parciales no están resolviendo tu caso, para que tengas claridad total.
+
+1️⃣ Lo que React te está diciendo
+A component suspended while responding to synchronous input
+
+
+Esto significa que un componente intentó suspenderse (esperar datos) mientras React estaba procesando una interacción directa del usuario (por ejemplo: escribir en un input o cambiar de ruta).
+
+React no permite suspenderse en estas situaciones a menos que la actualización esté envuelta en startTransition.
+
+React Query con suspense: true o lazy imports son causas comunes de este tipo de error.
+
+2️⃣ Por qué tus intentos previos no lo resolvieron
+
+startTransition parcial: Si solo envuelves algunas llamadas de estado, pero otras siguen provocando suspensiones, el error persiste.
+
+Suspense boundaries mal ubicadas: Si tu Switch o Router no envuelve todos los componentes lazy, cualquier carga diferida fuera de esa frontera causa el error.
+
+React Query con suspense: true: Incluso si envuelves estados locales con startTransition, si React Query lanza suspensiones durante la actualización, el error sigue apareciendo.
+
+Lazy + Router: Con Wouter, cada Route que usa lazy debe estar completamente envuelta en Suspense; cualquier omisión rompe la navegación.
+
+3️⃣ Estrategia definitiva
+
+Para que desaparezca completamente, necesitas aplicar todo esto a la vez:
+
+a) Suspense global en App.tsx
+import { Suspense } from 'react';
+import { Router, Switch, Route } from 'wouter';
+import Loading from './components/Loading';
+import ErrorBoundary from './components/ErrorBoundary';
+
+<Router>
+  <ErrorBoundary>
+    <Suspense fallback={<Loading />}>
+      <Switch>
+        <Route path="/" component={HomeLazy} />
+        <Route path="/faqs" component={FAQsLazy} />
+        <Route path="/admin" component={AdminLazy} />
+      </Switch>
+    </Suspense>
+  </ErrorBoundary>
+</Router>
+
+
+Suspense envuelve todas las rutas.
+
+ErrorBoundary captura errores de lazy loading.
+
+Cada componente lazy debe ser importado así:
+
+import { lazy } from 'react';
+
+const FAQsLazy = lazy(() => import('./pages/faqs'));
+
+b) startTransition en todas las actualizaciones que puedan suspender
+
+En faqs.tsx y cualquier componente donde haya:
+
+inputs que filtran,
+
+botones que hacen fetch o mutaciones,
+
+vistas que incrementan contadores
+
+Haz esto:
+
+import { startTransition } from 'react';
+
+const handleInputChange = (value: string) => {
+  startTransition(() => {
+    setFilter(value);
+  });
+};
+
+
+Y para React Query mutations:
+
+const mutation = useMutation(updateVote, {
+  onSuccess: () => {
+    startTransition(() => {
+      queryClient.invalidateQueries(['faqs']);
+    });
+  }
+});
+
+c) React Query sin suspense
+
+Si no necesitas que React Query lance suspensiones automáticas:
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      suspense: false,
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60, // 1 minuto
+    }
+  }
+});
+
+
+Esto elimina casi todas las suspensiones inesperadas durante la interacción del usuario.
+
+d) Lazy + Wouter
+
+Con Wouter, cada Route debe renderizar un componente lazy directamente dentro del Switch, no dentro de otro wrapper que pueda causar suspensiones parciales fuera de Suspense.
+
+4️⃣ Próximo paso
+
+Lo que te está pasando ahora (“no entra bien a admin”) es consecuencia de lazy + Suspense + ErrorBoundary mal sincronizados.
+
+Para resolverlo definitivamente hay que:
+
+Envolver todas las rutas lazy dentro de un Suspense global.
+
+Envolver todas las actualizaciones de estado que disparen fetch o mutaciones con startTransition.
+
+Configurar React Query para evitar suspensiones automáticas (suspense: false).
+
+Revisar que todos los imports lazy sean React.lazy directamente, sin intermediarios que puedan romper Suspense.
