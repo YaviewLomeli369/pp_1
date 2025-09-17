@@ -18,16 +18,20 @@ class ErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): State {
     // Check if it's a suspension error that should be handled differently
-    if (error.message.includes('suspended while responding to synchronous input')) {
-      // Don't treat suspension errors as fatal errors, let React handle them
+    if (error.message.includes('suspended while responding to synchronous input') ||
+        error.message.includes('startTransition') ||
+        error.name === 'ChunkLoadError') {
+      // Don't treat suspension/chunk errors as fatal errors, let React handle them
       return { hasError: false };
     }
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    // Don't log suspension errors as they're expected React behavior
-    if (!error.message.includes('suspended while responding to synchronous input')) {
+    // Don't log suspension/chunk errors as they're expected React behavior
+    if (!error.message.includes('suspended while responding to synchronous input') &&
+        !error.message.includes('startTransition') &&
+        error.name !== 'ChunkLoadError') {
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
   }

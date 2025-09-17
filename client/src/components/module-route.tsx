@@ -58,10 +58,8 @@ export function ModuleRoute({ path, component: Component, moduleName }: ModuleRo
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        startTransition(() => {
-          // Cleanup any module-specific states when page becomes hidden
-          document.body.classList.remove('modal-open', 'overflow-hidden');
-        });
+        // Cleanup any module-specific states when page becomes hidden
+        document.body.classList.remove('modal-open', 'overflow-hidden');
       }
     };
 
