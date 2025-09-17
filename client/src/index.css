@@ -167,17 +167,57 @@
   padding: var(--spacing-lg) !important;
 }
 
-/* Structural Theme Overrides - Dramatic Visual Changes */
+/* Structural Theme Overrides - Modern Navbar Variations */
 
-/* ASTRA Theme - Clean & Professional */
+/* ASTRA Theme - Classic Horizontal Professional */
 .theme-astra .navbar-custom {
-  height: 60px !important;
-  border-bottom: 2px solid #0073aa !important;
-  box-shadow: 0 2px 8px rgba(0,115,170,0.15) !important;
+  height: 70px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  backdrop-filter: none !important;
+}
+
+.theme-astra .navbar-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 1.5rem !important;
+}
+
+.theme-astra .navbar-nav {
+  display: flex !important;
+  gap: 2rem !important;
+  align-items: center !important;
+}
+
+.theme-astra .navbar-link {
+  position: relative !important;
+  padding: 0.5rem 0 !important;
+  font-weight: 500 !important;
+  transition: color 0.3s ease !important;
+}
+
+.theme-astra .navbar-link::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -2px !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 2px !important;
+  background: #0073aa !important;
+  transition: width 0.3s ease !important;
+}
+
+.theme-astra .navbar-link:hover::after,
+.theme-astra .navbar-link.active::after {
+  width: 100% !important;
 }
 
 .theme-astra .card {
-  border: 2px solid #e0e0e0 !important;
+  border: 1px solid #e5e7eb !important;
   border-radius: 8px !important;
   padding: 1.5rem !important;
   margin-bottom: 1rem !important;
@@ -193,11 +233,49 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
 }
 
-/* DIVI Theme - Bold & Creative */
+/* DIVI Theme - Modern Glass Morphism */
 .theme-divi .navbar-custom {
-  height: 90px !important;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
-  border-radius: 0 0 20px 20px !important;
+  height: 80px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
+}
+
+.theme-divi .navbar-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+}
+
+.theme-divi .navbar-nav {
+  display: flex !important;
+  gap: 2.5rem !important;
+  align-items: center !important;
+}
+
+.theme-divi .navbar-link {
+  position: relative !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 25px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  background: transparent !important;
+}
+
+.theme-divi .navbar-link:hover {
+  background: rgba(46, 163, 242, 0.1) !important;
+  color: #2ea3f2 !important;
+  transform: translateY(-2px) !important;
+}
+
+.theme-divi .navbar-link.active {
+  background: linear-gradient(45deg, #2ea3f2, #1e88e5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(46, 163, 242, 0.4) !important;
 }
 
 .theme-divi .card {
@@ -238,11 +316,60 @@
   animation: float 20s infinite linear !important;
 }
 
-/* OCEANWP Theme - eCommerce Professional */
+/* OCEANWP Theme - eCommerce Mega Menu Style */
 .theme-oceanwp .navbar-custom {
-  height: 80px !important;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-  border-bottom: 4px solid #13aff0 !important;
+  height: 90px !important;
+  background: #ffffff !important;
+  border-bottom: 3px solid #13aff0 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+.theme-oceanwp .navbar-container {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  max-width: 1300px !important;
+  margin: 0 auto !important;
+  padding: 0 1.5rem !important;
+  gap: 2rem !important;
+}
+
+.theme-oceanwp .navbar-nav {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 3rem !important;
+  align-items: center !important;
+}
+
+.theme-oceanwp .navbar-link {
+  position: relative !important;
+  padding: 1rem 0 !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s ease !important;
+}
+
+.theme-oceanwp .navbar-link::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 0 !important;
+  height: 3px !important;
+  background: #13aff0 !important;
+  transition: width 0.3s ease !important;
+}
+
+.theme-oceanwp .navbar-link:hover::before,
+.theme-oceanwp .navbar-link.active::before {
+  width: 100% !important;
+}
+
+.theme-oceanwp .navbar-link:hover {
+  color: #13aff0 !important;
 }
 
 .theme-oceanwp .card {
@@ -275,14 +402,53 @@
   position: relative !important;
 }
 
-/* KADENCE Theme - Ultra Minimal */
+/* KADENCE Theme - Minimal Centered Navigation */
 .theme-kadence .navbar-custom {
-  height: 50px !important;
-  background: rgba(255,255,255,0.95) !important;
-  backdrop-filter: blur(10px) !important;
+  height: 60px !important;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
   border: none !important;
   box-shadow: none !important;
-  border-bottom: 1px solid #f3f4f6 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.theme-kadence .navbar-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  padding: 0.75rem !important;
+}
+
+.theme-kadence .navbar-nav {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 3rem !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.theme-kadence .navbar-link {
+  padding: 0.5rem 0 !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+  color: #64748b !important;
+  transition: color 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.theme-kadence .navbar-link:hover {
+  color: #2563eb !important;
+}
+
+.theme-kadence .navbar-link.active {
+  color: #2563eb !important;
+  font-weight: 500 !important;
+}
+
+.theme-kadence .navbar-logo {
+  margin-bottom: 0.5rem !important;
 }
 
 .theme-kadence .card {
@@ -311,12 +477,45 @@
   gap: 1rem !important;
 }
 
-/* STOREFRONT Theme - WooCommerce Style */
+/* STOREFRONT Theme - Classic eCommerce Header */
 .theme-storefront .navbar-custom {
-  height: 65px !important;
-  background: #f8f8f8 !important;
-  border-bottom: 2px solid #e0e0e0 !important;
+  height: 70px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #dddddd !important;
   box-shadow: none !important;
+}
+
+.theme-storefront .navbar-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  max-width: 1170px !important;
+  margin: 0 auto !important;
+  padding: 0 1rem !important;
+}
+
+.theme-storefront .navbar-nav {
+  display: flex !important;
+  gap: 2rem !important;
+  align-items: center !important;
+}
+
+.theme-storefront .navbar-link {
+  padding: 0.75rem 0 !important;
+  font-weight: 400 !important;
+  font-size: 16px !important;
+  color: #43454b !important;
+  transition: color 0.3s ease !important;
+  text-decoration: none !important;
+}
+
+.theme-storefront .navbar-link:hover {
+  color: #96588a !important;
+}
+
+.theme-storefront .navbar-link.active {
+  color: #96588a !important;
+  font-weight: 600 !important;
 }
 
 .theme-storefront .card {
@@ -338,12 +537,55 @@
   border-bottom: 3px solid #96588a !important;
 }
 
-/* BETHEME Theme - Premium Modern */
+/* BETHEME Theme - Modern Pill Navigation */
 .theme-betheme .navbar-custom {
-  height: 100px !important;
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
-  border-radius: 0 0 25px 25px !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+  height: 85px !important;
+  background: #ffffff !important;
+  border-bottom: none !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+  position: relative !important;
+}
+
+.theme-betheme .navbar-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  max-width: 1300px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+}
+
+.theme-betheme .navbar-nav {
+  display: flex !important;
+  gap: 0.5rem !important;
+  align-items: center !important;
+  background: #f8f9fa !important;
+  padding: 0.5rem !important;
+  border-radius: 50px !important;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06) !important;
+}
+
+.theme-betheme .navbar-link {
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 25px !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+  color: #2c3e50 !important;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+}
+
+.theme-betheme .navbar-link:hover {
+  background: rgba(0, 137, 255, 0.1) !important;
+  color: #0089ff !important;
+  transform: translateY(-1px) !important;
+}
+
+.theme-betheme .navbar-link.active {
+  background: linear-gradient(45deg, #0089ff, #006dd6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(0, 137, 255, 0.4) !important;
 }
 
 .theme-betheme .card {
@@ -366,12 +608,70 @@
   position: relative !important;
 }
 
-/* AVADA Theme - Premium Corporate */
+/* AVADA Theme - Premium Floating Navigation */
 .theme-avada .navbar-custom {
-  height: 85px !important;
-  background: linear-gradient(135deg, #1d1d1d 0%, #2a2a2a 100%) !important;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3) !important;
-  border-top: 3px solid #65bc7b !important;
+  height: 80px !important;
+  background: #ffffff !important;
+  border-bottom: none !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+  margin: 1rem 2rem 0 !important;
+  border-radius: 15px !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+}
+
+.theme-avada .navbar-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  max-width: 1250px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+}
+
+.theme-avada .navbar-nav {
+  display: flex !important;
+  gap: 1rem !important;
+  align-items: center !important;
+}
+
+.theme-avada .navbar-link {
+  padding: 0.875rem 1.25rem !important;
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+  color: #1d1d1d !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.theme-avada .navbar-link::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(45deg, #65bc7b, #4a9960) !important;
+  transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  z-index: -1 !important;
+}
+
+.theme-avada .navbar-link:hover::before,
+.theme-avada .navbar-link.active::before {
+  left: 0 !important;
+}
+
+.theme-avada .navbar-link:hover,
+.theme-avada .navbar-link.active {
+  color: #ffffff !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 6px 20px rgba(101, 188, 123, 0.4) !important;
 }
 
 .theme-avada .card {
@@ -394,13 +694,68 @@
   padding: 0 1.5rem !important;
 }
 
-/* HESTIA Theme - Material Design */
+/* HESTIA Theme - Material Design Tabs Navigation */
 .theme-hestia .navbar-custom {
-  height: 75px !important;
-  background: rgba(255,255,255,0.98) !important;
-  backdrop-filter: blur(10px) !important;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.15) !important;
-  border-radius: 0 0 12px 12px !important;
+  height: 70px !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e5e5 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.theme-hestia .navbar-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 1.5rem !important;
+}
+
+.theme-hestia .navbar-nav {
+  display: flex !important;
+  gap: 0 !important;
+  align-items: center !important;
+  border-bottom: 2px solid #e5e5e5 !important;
+}
+
+.theme-hestia .navbar-link {
+  padding: 1rem 2rem !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+  color: #3c4858 !important;
+  text-decoration: none !important;
+  border-bottom: 3px solid transparent !important;
+  transition: all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1) !important;
+  position: relative !important;
+}
+
+.theme-hestia .navbar-link:hover {
+  color: #e91e63 !important;
+  border-bottom-color: rgba(233, 30, 99, 0.3) !important;
+}
+
+.theme-hestia .navbar-link.active {
+  color: #e91e63 !important;
+  border-bottom-color: #e91e63 !important;
+  background: rgba(233, 30, 99, 0.05) !important;
+}
+
+.theme-hestia .navbar-link::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(233, 30, 99, 0.1) !important;
+  transform: scaleX(0) !important;
+  transition: transform 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1) !important;
+  z-index: -1 !important;
+}
+
+.theme-hestia .navbar-link:hover::before,
+.theme-hestia .navbar-link.active::before {
+  transform: scaleX(1) !important;
 }
 
 .theme-hestia .card {
@@ -422,12 +777,85 @@
   padding: 0 1.5rem !important;
 }
 
-/* SYDNEY Theme - Corporate Professional */
+/* SYDNEY Theme - Corporate Navigation with Search */
 .theme-sydney .navbar-custom {
-  height: 70px !important;
+  height: 80px !important;
   background: #ffffff !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-  border-bottom: 3px solid #d65050 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  border-bottom: 2px solid #d65050 !important;
+}
+
+.theme-sydney .navbar-container {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  max-width: 1170px !important;
+  margin: 0 auto !important;
+  padding: 0 1rem !important;
+  gap: 2rem !important;
+}
+
+.theme-sydney .navbar-nav {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 2.5rem !important;
+  align-items: center !important;
+}
+
+.theme-sydney .navbar-link {
+  padding: 1rem 0 !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: #1e3a5f !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  text-decoration: none !important;
+  position: relative !important;
+  transition: color 0.3s ease !important;
+}
+
+.theme-sydney .navbar-link::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -2px !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 2px !important;
+  background: #d65050 !important;
+  transition: width 0.3s ease !important;
+}
+
+.theme-sydney .navbar-link:hover::after,
+.theme-sydney .navbar-link.active::after {
+  width: 100% !important;
+}
+
+.theme-sydney .navbar-link:hover,
+.theme-sydney .navbar-link.active {
+  color: #d65050 !important;
+}
+
+.theme-sydney .navbar-search {
+  display: flex !important;
+  align-items: center !important;
+  background: #f8f9fa !important;
+  border: 1px solid #e9ecef !important;
+  border-radius: 20px !important;
+  padding: 0.5rem 1rem !important;
+  min-width: 200px !important;
+}
+
+.theme-sydney .navbar-search input {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  flex: 1 !important;
+  font-size: 14px !important;
+  color: #1e3a5f !important;
+}
+
+.theme-sydney .navbar-search input::placeholder {
+  color: #6c757d !important;
 }
 
 .theme-sydney .card {
@@ -453,12 +881,64 @@
   padding: 0 1rem !important;
 }
 
-/* HELLO Theme - Ultra Minimal */
+/* HELLO Theme - Invisible Minimal Navigation */
 .theme-hello .navbar-custom {
-  height: 45px !important;
-  background: #ffffff !important;
+  height: 50px !important;
+  background: transparent !important;
   box-shadow: none !important;
   border: none !important;
+  backdrop-filter: none !important;
+}
+
+.theme-hello .navbar-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  max-width: 1140px !important;
+  margin: 0 auto !important;
+  padding: 1rem 0.5rem !important;
+}
+
+.theme-hello .navbar-nav {
+  display: flex !important;
+  gap: 4rem !important;
+  align-items: center !important;
+}
+
+.theme-hello .navbar-link {
+  padding: 0.25rem 0 !important;
+  font-weight: 400 !important;
+  font-size: 16px !important;
+  color: #000000 !important;
+  text-decoration: none !important;
+  transition: opacity 0.2s ease !important;
+  position: relative !important;
+}
+
+.theme-hello .navbar-link:hover {
+  opacity: 0.6 !important;
+}
+
+.theme-hello .navbar-link.active {
+  font-weight: 500 !important;
+  opacity: 1 !important;
+}
+
+.theme-hello .navbar-link.active::after {
+  content: '•' !important;
+  position: absolute !important;
+  top: -8px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  color: #007cba !important;
+  font-size: 12px !important;
+}
+
+.theme-hello .navbar-logo {
+  position: absolute !important;
+  left: 1rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
 }
 
 .theme-hello .card {
@@ -490,15 +970,66 @@
   100% { transform: translateX(-50px) translateY(-50px) translateX(100vw); }
 }
 
-/* Responsive adjustments for themes */
+/* Responsive adjustments for modern navbar themes */
 @media (max-width: 768px) {
+  /* General navbar mobile adjustments */
   .theme-divi .navbar-custom,
   .theme-betheme .navbar-custom,
-  .theme-avada .navbar-custom {
-    height: 70px !important;
+  .theme-avada .navbar-custom,
+  .theme-oceanwp .navbar-custom,
+  .theme-hestia .navbar-custom,
+  .theme-sydney .navbar-custom {
+    height: 60px !important;
     border-radius: 0 !important;
+    margin: 0 !important;
   }
   
+  /* Hide complex navigation patterns on mobile */
+  .theme-betheme .navbar-nav,
+  .theme-oceanwp .navbar-nav,
+  .theme-sydney .navbar-nav,
+  .theme-hestia .navbar-nav {
+    display: none !important;
+  }
+  
+  /* Kadence theme mobile - stack logo and nav */
+  .theme-kadence .navbar-container {
+    padding: 0.5rem !important;
+  }
+  
+  .theme-kadence .navbar-nav {
+    gap: 1.5rem !important;
+  }
+  
+  /* Hello theme mobile adjustments */
+  .theme-hello .navbar-nav {
+    gap: 2rem !important;
+  }
+  
+  .theme-hello .navbar-logo {
+    position: static !important;
+    transform: none !important;
+  }
+  
+  /* Avada floating navbar on mobile */
+  .theme-avada .navbar-custom {
+    position: fixed !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    top: 0 !important;
+  }
+  
+  /* Sydney search integration on mobile */
+  .theme-sydney .navbar-container {
+    grid-template-columns: auto 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .theme-sydney .navbar-search {
+    min-width: 150px !important;
+  }
+  
+  /* Card adjustments */
   .theme-divi .card,
   .theme-betheme .card,
   .theme-avada .card {
@@ -506,6 +1037,7 @@
     border-radius: 12px !important;
   }
   
+  /* Hero section adjustments */
   .theme-divi .hero-section,
   .theme-betheme .hero-section {
     padding: 4rem 0 !important;
