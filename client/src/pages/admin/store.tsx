@@ -77,6 +77,7 @@ function AdminStoreContent() {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [uploadingImage, setUploadingImage] = useState<string | null>(null);
+  const [tempImageUrls, setTempImageUrls] = useState<string[]>([]);
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null);
   const [showProductDetails, setShowProductDetails] = useState(false); // State for product details dialog
   const [showOrderEdit, setShowOrderEdit] = useState(false); // State for order edit dialog
@@ -398,19 +399,22 @@ function AdminStoreContent() {
 
   // Image upload mutation
   const updateProductImageMutation = useMutation({
-    mutationFn: ({ id, imageURL }: { id: string; imageURL: string }) =>
-      apiRequest(`/api/store/products/${id}`, { method: "PUT", body: JSON.stringify({ images: [imageURL] }) }),
+    mutationFn: ({ id, imageURL }: { id: string; imageURL: string | string[] }) => {
+      const images = Array.isArray(imageURL) ? imageURL : [imageURL];
+      return apiRequest(`/api/store/products/${id}`, { method: "PUT", body: JSON.stringify({ images }) });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/store/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/store/stats"] }); // Refresh stats
-      toast({ title: "Imagen actualizada exitosamente" });
+      toast({ title: "Imágenes actualizadas exitosamente" });
       setUploadingImage(null);
       setTempImageUrl(null);
+      setTempImageUrls([]);
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Error al actualizar imagen",
+        description: error.message || "Error al actualizar imágenes",
         variant: "destructive"
       });
     },
@@ -442,7 +446,7 @@ function AdminStoreContent() {
 
     if (!result.successful || result.successful.length === 0) {
       console.error("❌ Upload failed:", result);
-      let errorMessage = "Error al subir la imagen";
+      let errorMessage = "Error al subir las imágenes";
       if (result.failed && result.failed.length > 0) {
         const failedFile = result.failed[0];
         if (failedFile.error) {
@@ -455,59 +459,55 @@ function AdminStoreContent() {
       }
 
       toast({
-        title: "Error al subir imagen",
+        title: "Error al subir imágenes",
         description: errorMessage,
         variant: "destructive",
       });
       return;
     }
 
-    const file = result.successful[0];
-    console.log("COMPLETE-1. File name:", file?.name);
-    console.log("COMPLETE-3. File.response:", file?.response);
+    // Procesar todas las imágenes exitosas
+    const newImageUrls: string[] = [];
 
-    if (file?.response?.error) {
-      console.error("❌ Server error in response:", file.response.error);
+    result.successful.forEach((file, index) => {
+      console.log(`COMPLETE-${index + 1}. File name:`, file?.name);
+      console.log(`COMPLETE-${index + 1}. File.response:`, file?.response);
+
+      if (file?.response?.error) {
+        console.error("❌ Server error in response:", file.response.error);
+        return;
+      }
+
+      const serverResponse = file?.response?.body || {};
+      console.log(`COMPLETE-${index + 1}. Server response:`, serverResponse);
+
+      const imageURL = serverResponse.url ||
+                       serverResponse.location ||
+                       serverResponse.uploadURL ||
+                       null;
+
+      if (!imageURL) {
+        console.error(`❌ No se encontró URL para el archivo ${index + 1}`, serverResponse);
+        return;
+      }
+
+      const finalURL = imageURL.trim();
+      console.log(`COMPLETE-${index + 1}. ✅ Final URL:`, finalURL);
+
+      // Validar formato
+      const urlPattern = /^(https?:\/\/|\/)/;
+      if (!urlPattern.test(finalURL)) {
+        console.error(`❌ Invalid URL format for file ${index + 1}:`, finalURL);
+        return;
+      }
+
+      newImageUrls.push(finalURL);
+    });
+
+    if (newImageUrls.length === 0) {
       toast({
-        title: "Error al subir imagen",
-        description: String(file.response.error),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Extraer URL de la primera imagen exitosa
-    const firstSuccessfulFile = result.successful[0];
-    const serverResponse = firstSuccessfulFile?.response?.body || {};
-
-    console.log("COMPLETE-2. Server response:", serverResponse);
-
-    // Try different response properties
-    const imageURL = serverResponse.url ||
-                     serverResponse.location ||
-                     serverResponse.uploadURL ||
-                     null;
-
-    if (!imageURL) {
-      console.error("❌ No se encontró ninguna URL en la respuesta", serverResponse);
-      toast({
-        title: "Error al subir imagen",
-        description: "No se encontró URL válida en la respuesta del servidor",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const finalURL = imageURL.trim();
-    console.log("COMPLETE-4. ✅ Final URL:", finalURL);
-
-    // Validar formato
-    const urlPattern = /^(https?:\/\/|\/)/;
-    if (!urlPattern.test(finalURL)) {
-      console.error("❌ Invalid URL format:", finalURL);
-      toast({
-        title: "Error al subir imagen",
-        description: "Formato de URL inválido recibido",
+        title: "Error al procesar imágenes",
+        description: "No se pudieron procesar las URLs de las imágenes",
         variant: "destructive",
       });
       return;
@@ -515,17 +515,22 @@ function AdminStoreContent() {
 
     // Guardar según el caso (producto existente o nuevo)
     if (selectedProduct?.id) {
-      console.log("COMPLETE-5. Updating product with image:", finalURL);
+      console.log("COMPLETE-FINAL. Updating product with images:", newImageUrls);
+      
+      // Combinar imágenes existentes con las nuevas (máximo 5)
+      const existingImages = selectedProduct.images || [];
+      const allImages = [...existingImages, ...newImageUrls].slice(0, 5);
+      
       updateProductImageMutation.mutate({
         id: selectedProduct.id,
-        imageURL: finalURL,
+        imageURL: allImages,
       });
     } else {
-      console.log("COMPLETE-6. Setting tempImageUrl:", finalURL);
-      setTempImageUrl(finalURL);
+      console.log("COMPLETE-FINAL. Setting tempImageUrls:", newImageUrls);
+      setTempImageUrls(prev => [...prev, ...newImageUrls].slice(0, 5));
       toast({
-        title: "Imagen subida exitosamente",
-        description: "Se aplicará al guardar el producto",
+        title: `${newImageUrls.length} imagen(es) subida(s) exitosamente`,
+        description: "Se aplicarán al guardar el producto",
       });
     }
 
@@ -537,6 +542,7 @@ function AdminStoreContent() {
     setShowProductForm(false);
     setSelectedProduct(null);
     setTempImageUrl(null);
+    setTempImageUrls([]);
     setUploadingImage(null);
   };
 
@@ -573,8 +579,10 @@ function AdminStoreContent() {
       tags: (formData.get("tags") as string)?.split(",").map(tag => tag.trim()),
       seoTitle: formData.get("seoTitle"),
       seoDescription: formData.get("seoDescription"),
-      // For new products: include tempImageUrl if it exists and is valid
-      ...(tempImageUrl && !selectedProduct ? { images: [tempImageUrl] } : {}),
+      // For new products: include all temp images if they exist
+      ...(!selectedProduct && (tempImageUrl || tempImageUrls.length > 0) 
+          ? { images: tempImageUrl ? [tempImageUrl, ...tempImageUrls] : tempImageUrls } 
+          : {}),
     };
 
     console.log("=== PRODUCT SUBMISSION DEBUG ===");
@@ -778,15 +786,22 @@ function AdminStoreContent() {
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-4">
                           {product.images && product.images.length > 0 && (
-                            <img
-                              src={product.images[0]}
-                              alt={product.name}
-                              className="w-16 h-16 object-cover rounded-md"
-                              onError={(e) => {
-                                console.error('Image failed to load:', product.images[0]);
-                                e.currentTarget.src = '/imgs/placeholder.png';
-                              }}
-                            />
+                            <div className="flex-shrink-0">
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-16 h-16 object-cover rounded-md"
+                                onError={(e) => {
+                                  console.error('Image failed to load:', product.images[0]);
+                                  e.currentTarget.src = '/imgs/placeholder.png';
+                                }}
+                              />
+                              {product.images.length > 1 && (
+                                <div className="text-xs text-center mt-1 text-gray-500">
+                                  +{product.images.length - 1} más
+                                </div>
+                              )}
+                            </div>
                           )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -1101,75 +1116,110 @@ function AdminStoreContent() {
               />
             </div>
 
-            {/* Sección de subida de imagen */}
+            {/* Sección de subida de múltiples imágenes */}
             <div className="space-y-2">
-              <Label>Imagen del Producto</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                <div className="flex items-center gap-2 justify-center">
-                  {/* Preview de imagen */}
-                  {(tempImageUrl || selectedProduct?.images?.[0]) && (
-                    <img
-                      src={tempImageUrl || selectedProduct?.images?.[0]}
-                      alt="Producto"
-                      className="w-20 h-20 object-cover rounded"
-                      onLoad={() => {
-                        console.log("✅ Image preview loaded:", tempImageUrl || selectedProduct?.images?.[0]);
-                      }}
-                      onError={(e) => {
-                        console.error("❌ Image preview failed to load:", tempImageUrl || selectedProduct?.images?.[0]);
-                      }}
-                    />
-                  )}
-
-                  <div className="flex-1 text-center">
-                    {tempImageUrl || selectedProduct?.images?.[0] ? (
-                      <p className="text-sm text-gray-600">
-                        {tempImageUrl ? "Imagen seleccionada (temporal)" : "Imagen actual del producto"}
-                      </p>
-                    ) : (
-                      <>
-                        <div className="text-gray-400 mb-2">
-                          <svg
-                            className="w-12 h-12 mx-auto"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1.5}
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
-                        </div>
-                        <p className="text-gray-600 mb-2">No hay imagen</p>
-                      </>
-                    )}
-
-                    {/* ObjectUploader */}
-                    <ObjectUploader
-                      onUploadSuccess={handleUploadComplete}
-                      onUploadError={(error) => {
-                        console.error("Upload error:", error);
-                        toast({
-                          title: "Error al subir imagen",
-                          description: "No se pudo subir la imagen",
-                          variant: "destructive",
-                        });
-                      }}
-                      acceptedFileTypes={['image/*']}
-                      maxFileSize={10 * 1024 * 1024}
-                      maxNumberOfFiles={1}
-                      allowMultiple={false}
-                      note="Formatos soportados: JPG, PNG, GIF. Máximo 10MB"
-                      className={`${
-                        (tempImageUrl || selectedProduct?.images?.[0])
-                          ? "text-blue-600 hover:text-blue-800 text-sm underline bg-transparent border-none p-0"
-                          : "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                      }`}
-                    />
+              <Label>Imágenes del Producto (máximo 5)</Label>
+              
+              {/* Preview de imágenes existentes */}
+              {(selectedProduct?.images && selectedProduct.images.length > 0) && (
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600 mb-2">Imágenes actuales:</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedProduct.images.map((imageUrl, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={imageUrl}
+                          alt={`Producto ${index + 1}`}
+                          className="w-full h-20 object-cover rounded border"
+                          onError={(e) => {
+                            console.error("❌ Image preview failed to load:", imageUrl);
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Remover imagen específica
+                            const updatedImages = selectedProduct.images?.filter((_, i) => i !== index) || [];
+                            if (selectedProduct.id) {
+                              updateProductImageMutation.mutate({
+                                id: selectedProduct.id,
+                                imageURL: updatedImages.length > 0 ? updatedImages : []
+                              });
+                            }
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
+                </div>
+              )}
+
+              {/* Preview de imágenes temporales (nuevas) */}
+              {tempImageUrl && (
+                <div className="mb-4">
+                  <p className="text-sm text-green-600 mb-2">Nueva imagen seleccionada:</p>
+                  <div className="inline-block relative group">
+                    <img
+                      src={tempImageUrl}
+                      alt="Nueva imagen"
+                      className="w-20 h-20 object-cover rounded border border-green-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setTempImageUrl(null)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div className="space-y-4">
+                  <div className="text-gray-400">
+                    <svg
+                      className="w-12 h-12 mx-auto"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 mb-2">Agregar imágenes del producto</p>
+                    <p className="text-xs text-gray-500">
+                      {selectedProduct?.images?.length || 0} de 5 imágenes
+                    </p>
+                  </div>
+
+                  {/* ObjectUploader para múltiples imágenes */}
+                  <ObjectUploader
+                    onUploadSuccess={handleUploadComplete}
+                    onUploadError={(error) => {
+                      console.error("Upload error:", error);
+                      toast({
+                        title: "Error al subir imágenes",
+                        description: "No se pudieron subir las imágenes",
+                        variant: "destructive",
+                      });
+                    }}
+                    acceptedFileTypes={['image/*']}
+                    maxFileSize={10 * 1024 * 1024}
+                    maxNumberOfFiles={5}
+                    allowMultiple={true}
+                    note="Formatos: JPG, PNG, GIF. Máximo 10MB por imagen. Hasta 5 imágenes."
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  />
                 </div>
               </div>
             </div>
