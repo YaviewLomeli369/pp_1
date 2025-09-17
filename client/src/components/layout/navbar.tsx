@@ -439,12 +439,12 @@ export function Navbar() {
       const updateBodyPadding = () => {
         // Force a reflow to ensure accurate measurements
         navElement.offsetHeight;
-        
+
         if (navbarStyles.position === 'fixed') {
           // Get the actual computed height of the navbar
           const navRect = navElement.getBoundingClientRect();
           const navHeight = navRect.height;
-          
+
           // Apply the exact height as padding
           document.body.style.paddingTop = `${navHeight}px`;
           document.body.style.transition = 'padding-top 0.3s ease';

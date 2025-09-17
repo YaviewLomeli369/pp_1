@@ -140,12 +140,14 @@ function Home() {
     [testimonials]
   );
 
-  const { appearance, frontpage, modules, pagesContent } = useMemo(() => {
+  const { appearance, frontpage, modules, pagesContent, themeConfig } = useMemo(() => {
     const configData = config?.config as any;
+    const currentTheme = configData?.theme || {};
     return {
       appearance: configData?.appearance || {},
       frontpage: configData?.frontpage || {},
       modules: configData?.frontpage?.modulos || {},
+      themeConfig: currentTheme,
       pagesContent: configData?.pagesContent?.servicios || {
         plans: [
           {

@@ -4,6 +4,136 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme Custom Properties */
+:root {
+  --color-primary: #3B82F6;
+  --color-secondary: #10B981;
+  --color-accent: #F59E0B;
+  --color-background: #FFFFFF;
+  --color-text: #111827;
+  --color-link: #3B82F6;
+  
+  --font-family: Inter, sans-serif;
+  --font-heading: Inter, sans-serif;
+  --font-size-base: 16px;
+  --line-height: 1.6;
+  
+  --container-width: 1200px;
+  --header-height: 80px;
+  
+  --hero-background: linear-gradient(to right, #3B82F6, #1E40AF);
+  --hero-background-size: cover;
+  --hero-background-position: center;
+  --hero-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Apply theme variables */
+body {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.container-themed {
+  max-width: var(--container-width);
+}
+
+.navbar-themed {
+  height: var(--header-height);
+}
+
+.hero-themed {
+  background: var(--hero-background);
+  background-size: var(--hero-background-size);
+  background-position: var(--hero-background-position);
+}
+
+.hero-themed::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--hero-overlay);
+  pointer-events: none;
+}
+
+.text-primary-themed {
+  color: var(--color-primary);
+}
+
+.text-secondary-themed {
+  color: var(--color-secondary);
+}
+
+.text-accent-themed {
+  color: var(--color-accent);
+}
+
+.bg-primary-themed {
+  background-color: var(--color-primary);
+}
+
+.bg-secondary-themed {
+  background-color: var(--color-secondary);
+}
+
+.bg-accent-themed {
+  background-color: var(--color-accent);
+}
+
+.border-primary-themed {
+  border-color: var(--color-primary);
+}
+
+/* Button theme variants */
+.btn-primary-themed {
+  background-color: var(--color-primary);
+  color: white;
+  border: 1px solid var(--color-primary);
+}
+
+.btn-primary-themed:hover {
+  background-color: var(--color-primary);
+  opacity: 0.9;
+}
+
+.btn-secondary-themed {
+  background-color: var(--color-secondary);
+  color: white;
+  border: 1px solid var(--color-secondary);
+}
+
+.btn-secondary-themed:hover {
+  background-color: var(--color-secondary);
+  opacity: 0.9;
+}
+
+.btn-outline-themed {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.btn-outline-themed:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* Link theming */
+a {
+  color: var(--color-link);
+}
+
+a:hover {
+  color: var(--color-link);
+  opacity: 0.8;
+}
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(222.2 84% 4.9%);

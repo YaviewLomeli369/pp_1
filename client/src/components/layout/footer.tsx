@@ -11,46 +11,47 @@ export function Footer() {
     queryKey: ["/api/config"],
   });
 
-  const configData = config?.config as any;
+  const configData = (config?.config as any) || {};
   const appearance = configData?.appearance || {};
+  const themeConfig = configData?.theme || {};
 
-  
+
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className={`${themeConfig.backgroundColor || "bg-gray-900"} ${themeConfig.textColor || "text-white"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">{appearance.brandName || "Sistema Modular"}</h3>
-            <p className="text-gray-300 text-sm">
+            <h3 className={`${themeConfig.brandNameColor || "text-lg font-semibold mb-4"}`}>{appearance.brandName || "Sistema Modular"}</h3>
+            <p className={`${themeConfig.taglineColor || "text-gray-300 text-sm"}`}>
               {appearance.tagline || "Plantilla web modular y reutilizable para crear sitios completos configurables por JSON."}
             </p>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contacto</h3>
-            <div className="space-y-2 text-sm text-gray-300">
+            <h3 className={`${themeConfig.headingColor || "text-lg font-semibold mb-4"}`}>Contacto</h3>
+            <div className="space-y-2 text-sm">
               {contactInfo?.email && (
-                <p>Email: {contactInfo.email}</p>
+                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Email: {contactInfo.email}</p>
               )}
               {contactInfo?.phone && (
-                <p>Teléfono: {contactInfo.phone}</p>
+                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Teléfono: {contactInfo.phone}</p>
               )}
               {contactInfo?.address && (
-                <p>Dirección: {contactInfo.address}</p>
+                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Dirección: {contactInfo.address}</p>
               )}
               {contactInfo?.hours && (
-                <p>Horarios: {contactInfo.hours}</p>
+                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Horarios: {contactInfo.hours}</p>
               )}
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Redes Sociales</h3>
+            <h3 className={`${themeConfig.headingColor || "text-lg font-semibold mb-4"}`}>Redes Sociales</h3>
             <div className="flex space-x-4">
               {contactInfo?.socialLinks && (contactInfo.socialLinks as any)?.facebook && (
                 <a
                   href={(contactInfo.socialLinks as any).facebook}
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className={`${themeConfig.socialLinkColor || "text-gray-300 hover:text-white transition-colors"}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -60,7 +61,7 @@ export function Footer() {
               {contactInfo?.socialLinks && (contactInfo.socialLinks as any)?.instagram && (
                 <a
                   href={(contactInfo.socialLinks as any).instagram}
-                  className="text-gray-300 hover:text-white transition-colors"
+                  className={`${themeConfig.socialLinkColor || "text-gray-300 hover:text-white transition-colors"}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -71,13 +72,13 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-300">
+        <div className={`border-t ${themeConfig.footerBorderColor || "border-gray-800"} mt-8 pt-8 text-center text-sm`}>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <p>&copy; 2024 {appearance.brandName || "Sistema Modular"}. Todos los derechos reservados.</p>
+            <p className={themeConfig.copyrightColor || "text-gray-300"}>&copy; 2024 {appearance.brandName || "Sistema Modular"}. Todos los derechos reservados.</p>
             <div className="flex gap-4">
               <Link
                 href="/aviso-privacidad"
-                className="text-gray-300 hover:text-white transition-colors underline"
+                className={`${themeConfig.linkColor || "text-gray-300 hover:text-white transition-colors underline"}`}
               >
                 Aviso de Privacidad
               </Link>

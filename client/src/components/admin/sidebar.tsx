@@ -45,6 +45,7 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/modules", label: "Módulos", icon: Puzzle, section: "Configuración", superuserOnly: true },
   { href: "/admin/appearance", label: "Apariencia", icon: Palette, section: "Configuración" },
+  { href: "/admin/themes", label: "Temas y Plantillas", icon: Palette, section: "Configuración" },
   { href: "/admin/users", label: "Usuarios", icon: Users, section: "Configuración" },
   { href: "/admin/sections", label: "Secciones", icon: Layout, section: "Contenido", superuserOnly: true },
   { href: "/admin/pages-content", label: "Contenido de Páginas", icon: FileText, section: "Contenido" },

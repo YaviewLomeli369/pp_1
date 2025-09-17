@@ -101,3 +101,78 @@ function hexToHsl(hex: string): string {
   
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
+import { useQuery } from "@tanstack/react-query";
+import type { SiteConfig } from "@shared/schema";
+
+export const useTheme = () => {
+  const { data: config } = useQuery<SiteConfig>({
+    queryKey: ["/api/config"],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const configData = (config?.config as any) || {};
+  const appearance = configData?.appearance || {};
+  const themeConfig = configData?.theme || {};
+
+  // CSS custom properties para aplicar dinámicamente
+  const applyThemeToDocument = () => {
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      
+      // Colores principales
+      root.style.setProperty('--color-primary', appearance.primaryColor || '#3B82F6');
+      root.style.setProperty('--color-secondary', appearance.secondaryColor || '#10B981');
+      root.style.setProperty('--color-accent', appearance.accentColor || '#F59E0B');
+      root.style.setProperty('--color-background', appearance.backgroundColor || '#FFFFFF');
+      root.style.setProperty('--color-text', appearance.textColor || '#111827');
+      root.style.setProperty('--color-link', appearance.linkColor || '#3B82F6');
+      
+      // Tipografía
+      root.style.setProperty('--font-family', appearance.fontFamily || 'Inter, sans-serif');
+      root.style.setProperty('--font-heading', appearance.headingFont || appearance.fontFamily || 'Inter, sans-serif');
+      root.style.setProperty('--font-size-base', `${appearance.fontSize || 16}px`);
+      root.style.setProperty('--line-height', appearance.lineHeight || '1.6');
+      
+      // Layout
+      root.style.setProperty('--container-width', `${appearance.containerWidth || 1200}px`);
+      root.style.setProperty('--header-height', `${appearance.headerHeight || 80}px`);
+      
+      // Hero background
+      if (appearance.heroBackgroundType === 'gradient') {
+        const colors = [
+          appearance.heroGradientColor1 || '#3B82F6',
+          appearance.heroGradientColor2 || '#1E40AF'
+        ];
+        if (appearance.heroGradientColor3) colors.push(appearance.heroGradientColor3);
+        if (appearance.heroGradientColor4) colors.push(appearance.heroGradientColor4);
+        
+        const gradientType = appearance.heroGradientType || 'linear';
+        const direction = appearance.heroGradientDirection || 'to right';
+        
+        const gradient = gradientType === 'radial' 
+          ? `radial-gradient(circle, ${colors.join(', ')})`
+          : `linear-gradient(${direction}, ${colors.join(', ')})`;
+          
+        root.style.setProperty('--hero-background', gradient);
+      } else if (appearance.heroBackgroundImage) {
+        root.style.setProperty('--hero-background', `url("${appearance.heroBackgroundImage}")`);
+        root.style.setProperty('--hero-background-size', appearance.heroBackgroundSize || 'cover');
+        root.style.setProperty('--hero-background-position', appearance.heroBackgroundPosition || 'center');
+      }
+      
+      // Overlay
+      const overlayOpacity = (appearance.heroOverlayOpacity || 50) / 100;
+      const overlayColor = appearance.heroOverlayColor || '#000000';
+      root.style.setProperty('--hero-overlay', `${overlayColor}${Math.round(overlayOpacity * 255).toString(16).padStart(2, '0')}`);
+    }
+  };
+
+  return {
+    appearance,
+    themeConfig,
+    isLoading: !config,
+    applyThemeToDocument,
+    currentTheme: themeConfig?.name || 'Custom',
+    themeId: themeConfig?.id || 'custom'
+  };
+};
