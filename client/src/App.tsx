@@ -171,6 +171,7 @@ function Router() {
           <Route path="/setup" component={Setup} />
           <Route path="/admin/login" component={Login} />
           <Route path="/admin/create-admin" component={CreateAdmin} />
+          <Route path="/admin" component={() => { window.location.href = "/admin/dashboard"; return null; }} />
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/modules" component={AdminModules} />
           <Route path="/admin/appearance" component={AdminAppearance} />
