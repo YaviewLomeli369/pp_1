@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo, startTransition } from "react";
+import { useState, useEffect, useMemo, startTransition, Suspense } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import AnimatedSection from "@/components/AnimatedSection";
 import HeroSection from "@/components/HeroSection";
+import { LoadingPage } from "@/components/loading-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ import type { Faq, FaqCategory, SiteConfig } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
-export default function Faqs() {
+function FaqsContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [votedFaqs, setVotedFaqs] = useState<Set<string>>(new Set());
@@ -51,18 +52,24 @@ export default function Faqs() {
     queryKey: ["/api/faqs"],
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    suspense: false,
+    retry: 1,
   });
   const { data: categories, isLoading: categoriesLoading } =
     useQuery<FaqCategory[]>({ 
       queryKey: ["/api/faq-categories"],
       staleTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
+      suspense: false,
+      retry: 1,
     });
 
   const { data: config, isLoading: configLoading } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
+    suspense: false,
+    retry: 1,
   });
 
   const { appearance } = useMemo(() => {
@@ -79,9 +86,7 @@ export default function Faqs() {
         body: JSON.stringify({}),
       }),
     onSuccess: () => {
-      startTransition(() => {
-        queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
     },
   });
 
@@ -95,16 +100,14 @@ export default function Faqs() {
       });
     },
     onSuccess: (data, faqId) => {
-      startTransition(() => {
-        const newVotedFaqs = new Set(votedFaqs);
-        newVotedFaqs.add(faqId);
-        setVotedFaqs(newVotedFaqs);
-        localStorage.setItem("faq-votes", JSON.stringify([...newVotedFaqs]));
-        queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
-        toast({
-          title: "¡Gracias por tu voto!",
-          description: "Tu voto ha sido registrado correctamente.",
-        });
+      const newVotedFaqs = new Set(votedFaqs);
+      newVotedFaqs.add(faqId);
+      setVotedFaqs(newVotedFaqs);
+      localStorage.setItem("faq-votes", JSON.stringify([...newVotedFaqs]));
+      queryClient.invalidateQueries({ queryKey: ["/api/faqs"] });
+      toast({
+        title: "¡Gracias por tu voto!",
+        description: "Tu voto ha sido registrado correctamente.",
       });
     },
     onError: (error) =>
@@ -138,10 +141,17 @@ export default function Faqs() {
       .filter((group) => group.faqs.length > 0) || [];
 
   const uncategorizedFaqs = filteredFaqs.filter((faq) => !faq.categoryId);
-  const handleFaqClick = (faqId: string) =>
-    incrementViewsMutation.mutate(faqId);
-  const handleVoteHelpful = (faqId: string) =>
-    voteHelpfulMutation.mutate(faqId);
+  const handleFaqClick = (faqId: string) => {
+    startTransition(() => {
+      incrementViewsMutation.mutate(faqId);
+    });
+  };
+  
+  const handleVoteHelpful = (faqId: string) => {
+    startTransition(() => {
+      voteHelpfulMutation.mutate(faqId);
+    });
+  };
   const isLoading = faqsLoading || categoriesLoading || configLoading;
 
   return (
@@ -428,5 +438,13 @@ export default function Faqs() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function Faqs() {
+  return (
+    <Suspense fallback={<LoadingPage />}>
+      <FaqsContent />
+    </Suspense>
   );
 }
