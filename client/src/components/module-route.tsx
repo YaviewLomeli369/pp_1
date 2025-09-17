@@ -1,5 +1,5 @@
 
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo, useEffect, useRef, startTransition } from "react";
 import { Route } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingPage } from "@/components/loading-page";
@@ -9,11 +9,11 @@ import type { SiteConfig } from "@shared/schema";
 interface ModuleRouteProps {
   path: string;
   component: React.ComponentType<any>;
-  moduleKey: string;
+  moduleName: string;
 }
 
-export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRouteProps) {
-  const routeInstanceRef = useRef(`module-route-${moduleKey}-${Date.now()}`);
+export function ModuleRoute({ path, component: Component, moduleName }: ModuleRouteProps) {
+  const routeInstanceRef = useRef(`module-route-${moduleName}-${Date.now()}`);
   const isMountedRef = useRef(true);
   
   const { data: config, isLoading } = useQuery<SiteConfig>({
@@ -28,8 +28,22 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
     if (!config || !isMountedRef.current) return false;
     const configData = config.config as any;
     const modules = configData?.frontpage?.modulos || {};
-    return modules[moduleKey]?.activo;
-  }, [config, moduleKey]);
+    
+    // Map module names to their config keys
+    const moduleKeyMap: Record<string, string> = {
+      'store': 'tienda',
+      'testimonials': 'testimonios',
+      'faqs': 'faqs',
+      'contact': 'contacto',
+      'blog': 'blog',
+      'reservations': 'reservas',
+      'services': 'servicios',
+      'about': 'conocenos'
+    };
+    
+    const configKey = moduleKeyMap[moduleName] || moduleName;
+    return modules[configKey]?.activo;
+  }, [config, moduleName]);
 
   // Component lifecycle management
   useEffect(() => {
@@ -44,8 +58,10 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        // Cleanup any module-specific states when page becomes hidden
-        document.body.classList.remove('modal-open', 'overflow-hidden');
+        startTransition(() => {
+          // Cleanup any module-specific states when page becomes hidden
+          document.body.classList.remove('modal-open', 'overflow-hidden');
+        });
       }
     };
 
@@ -71,7 +87,7 @@ export function ModuleRoute({ path, component: Component, moduleKey }: ModuleRou
           return <NotFound key={`${routeInstanceRef.current}-not-found`} />;
         }
 
-        return <Component key={`${routeInstanceRef.current}-component-${moduleKey}`} />;
+        return <Component key={`${routeInstanceRef.current}-component-${moduleName}`} />;
       }}
     </Route>
   );
