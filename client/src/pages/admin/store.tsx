@@ -28,6 +28,7 @@ import {
   Filter,
   RefreshCw,
   AlertTriangle,
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
