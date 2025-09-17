@@ -366,7 +366,7 @@ export const mediaFiles = pgTable("media_files", {
   size: integer("size").notNull(), // in bytes
   url: text("url").notNull(), // URL to serve the media
   objectKey: text("object_key").notNull(), // Key for object identification
-  data: sql`bytea`, // Binary data stored in database (optional for direct DB storage)
+  data: text("data"), // Binary data stored as base64 string (optional for direct DB storage)
   alt: text("alt"),
   description: text("description"),
   uploadedBy: varchar("uploaded_by").references(() => users.id),
