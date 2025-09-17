@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import { InlineEditor } from "@/components/inline-editor/InlineEditor";
 import { useTheme } from "@/hooks/use-theme";
+import { Theme2025Provider } from "@/components/theme-provider";
 import { ModuleRoute } from "@/components/module-route";
 import { LoadingPage } from "@/components/loading-page";
 import type { SiteConfig } from "@shared/schema";
@@ -176,6 +177,7 @@ function Router() {
           <Route path="/admin/modules" component={AdminModules} />
           <Route path="/admin/appearance" component={AdminAppearance} />
           <Route path="/admin/themes" component={AdminThemes} />
+          <Route path="/admin/themes-2025" component={createLazyComponent(() => import("./pages/admin/themes-2025"))} />
           <Route path="/admin/users" component={AdminUsers} />
           <Route path="/admin/sections" component={AdminSections} />
           <Route path="/admin/servicios-sections" component={AdminServiciosSections} />
@@ -208,12 +210,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <ErrorBoundary>
-          <Router />
-          <InlineEditor value="" onSave={async () => {}} />
-          <WhatsAppWidget />
-          <Toaster />
-        </ErrorBoundary>
+        <Theme2025Provider>
+          <ErrorBoundary>
+            <Router />
+            <InlineEditor value="" onSave={async () => {}} />
+            <WhatsAppWidget />
+            <Toaster />
+          </ErrorBoundary>
+        </Theme2025Provider>
       </TooltipProvider>
     </QueryClientProvider>
   );
