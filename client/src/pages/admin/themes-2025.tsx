@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/layout/admin-layout";
@@ -26,11 +27,11 @@ import {
 import type { SiteConfig } from "@shared/schema";
 
 const themesByCategory = {
-  'Trending': ['glassmorphic', 'aurora'],
-  'Bold & Dramatic': ['brutal', 'cyberpunk', 'retro80s'],
-  'Clean & Minimal': ['minimal2025', 'neumorphic'],
-  'Premium & Elegant': ['luxury', 'organic'],
-  'Tech & Developer': ['monospace']
+  'Trending': ['astra', 'divi'],
+  'Bold & Dramatic': ['betheme', 'avada', 'sydney'],
+  'Clean & Minimal': ['kadence', 'hello'],
+  'Premium & Elegant': ['hestia', 'oceanwp'],
+  'Tech & Developer': ['storefront']
 };
 
 export default function Themes2025() {
@@ -94,9 +95,15 @@ export default function Themes2025() {
     });
   };
 
+  const handleApplyPreview = () => {
+    if (previewTheme) {
+      saveThemeMutation.mutate(previewTheme);
+    }
+  };
+
   const handleResetPreview = () => {
     if (previewTheme) {
-      const originalTheme = (config?.config as any)?.theme2025?.currentTheme || 'glassmorphic';
+      const originalTheme = (config?.config as any)?.theme2025?.currentTheme || 'astra';
       setTheme(originalTheme);
       setPreviewTheme(null);
       toast({
@@ -138,6 +145,14 @@ export default function Themes2025() {
                 <Eye className="h-3 w-3 mr-1" />
                 Vista Previa: {availableThemes.find(t => t.id === previewTheme)?.name}
               </Badge>
+              <Button 
+                onClick={handleApplyPreview}
+                disabled={saveThemeMutation.isPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Save className="h-4 w-4 mr-1" />
+                {saveThemeMutation.isPending ? "Aplicando..." : "Aplicar"}
+              </Button>
               <Button variant="outline" size="sm" onClick={handleResetPreview}>
                 <RefreshCw className="h-4 w-4 mr-1" />
                 Cancelar
@@ -169,9 +184,15 @@ export default function Themes2025() {
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">{currentTheme.description}</p>
                 <div className="flex flex-wrap gap-1">
-                  <Badge variant="outline" className="text-xs">Ancho: {currentTheme.layout.containerWidth}</Badge>
-                  <Badge variant="outline" className="text-xs">Font: {currentTheme.typography.fontFamily}</Badge>
-                  <Badge variant="outline" className="text-xs">Cards: {currentTheme.components.card.borderRadius}</Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Ancho: {currentTheme.layout?.containerWidth || '1200px'}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Font: {currentTheme.typography?.fontFamily || 'Inter'}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Cards: {currentTheme.components?.card?.borderRadius || '8px'}
+                  </Badge>
                 </div>
               </div>
 
@@ -223,16 +244,26 @@ export default function Themes2025() {
                       onSelect={handleThemeSelect}
                     />
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-xs"
-                      onClick={() => handlePreview(themeId)}
-                      disabled={currentTheme.id === themeId}
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Vista Previa
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => handlePreview(themeId)}
+                        disabled={currentTheme.id === themeId && !previewTheme}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Vista Previa
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1 text-xs"
+                        onClick={() => handleThemeSelect(themeId)}
+                        disabled={currentTheme.id === themeId && !previewTheme}
+                      >
+                        Aplicar
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
