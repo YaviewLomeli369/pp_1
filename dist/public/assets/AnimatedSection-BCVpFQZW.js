@@ -1,0 +1,1 @@
+import{j as e}from"./index-68JtM4Cd.js";import{m as n}from"./proxy-CmXc19OU.js";function m({children:t,className:i="",delay:o=0}){return e.jsx(n.div,{initial:{opacity:0,y:40},whileInView:{opacity:1,y:0},transition:{duration:.6,ease:"easeOut",delay:o},viewport:{once:!0,amount:.1},className:i,children:t})}export{m as A};
