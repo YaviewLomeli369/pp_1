@@ -287,17 +287,17 @@ export function Navbar() {
   const navItems = useMemo(() => {
     const navbarConfig = configData?.navbar || {};
 
-    // Default navigation items - matching exactly with App.tsx routes
+    // Default navigation items - matching EXACTLY with App.tsx routes
     const defaultItems = [
       { href: "/", label: "Inicio", moduleKey: "home", always: true, order: 0 },
       { href: "/testimonials", label: "Testimonios", moduleKey: "testimonials", order: 1 },
       { href: "/faqs", label: "FAQs", moduleKey: "faqs", order: 2 },
-      { href: "/contacto", label: "Contacto", moduleKey: "contact", order: 3 },
+      { href: "/contacto", label: "Contacto", moduleKey: "contacto", order: 3 }, // Changed moduleKey to match
       { href: "/store", label: "Tienda", moduleKey: "store", order: 4 },
       { href: "/blog", label: "Blog", moduleKey: "blog", order: 5 },
-      { href: "/reservaciones", label: "Reservas", moduleKey: "reservations", order: 6 },
-      { href: "/conocenos", label: "Conócenos", moduleKey: "about", always: true, order: 7 },
-      { href: "/servicios", label: "Servicios", moduleKey: "services", always: true, order: 8 }
+      { href: "/reservaciones", label: "Reservas", moduleKey: "reservaciones", order: 6 }, // Changed moduleKey to match
+      { href: "/conocenos", label: "Conócenos", moduleKey: "conocenos", always: true, order: 7 }, // Changed moduleKey to match
+      { href: "/servicios", label: "Servicios", moduleKey: "servicios", always: true, order: 8 } // Changed moduleKey to match
     ];
 
     // Build navigation items from config or defaults
