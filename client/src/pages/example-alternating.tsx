@@ -4,9 +4,9 @@
 import React from "react";
 import { Rocket, Users, CheckCircle } from "lucide-react";
 import AlternatingSection from "@/components/AlternatingSection";
-import SEOHead from "@/components/SEOHead";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { SEOHead } from "@/components/seo-head";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 
 export default function ExampleAlternatingPage() {
   return (
