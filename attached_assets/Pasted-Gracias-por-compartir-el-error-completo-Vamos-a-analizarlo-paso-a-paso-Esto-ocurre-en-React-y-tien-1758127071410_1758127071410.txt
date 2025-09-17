@@ -1,0 +1,93 @@
+Gracias por compartir el error completo. Vamos a analizarlo paso a paso. Esto ocurre en React y tiene que ver con un componente que se suspende durante una actualización síncrona.
+
+1️⃣ Mensaje clave
+Uncaught Error: A component suspended while responding to synchronous input. 
+This will cause the UI to be replaced with a loading indicator. 
+To fix, updates that suspend should be wrapped with startTransition.
+
+
+Esto significa que un componente está usando Suspense o carga diferida (lazy), y mientras React intenta renderizar de forma sincrónica, ese componente "suspende" (por ejemplo, porque está esperando datos de una llamada fetch o import dinámico).
+
+React no permite que un Suspense se suspenda durante interacciones síncronas, como un clic o un input, sin usar startTransition.
+
+2️⃣ Puntos críticos en tu stack trace
+at Lazy
+at Route .../wouter.js
+at Switch .../wouter.js
+at Router src/App.tsx
+at ErrorBoundary src/components/ErrorBoundary.tsx
+
+
+Estás usando wouter como router.
+
+Tienes rutas con React.lazy.
+
+Error ocurre dentro del render de una ruta que se carga de forma diferida (Lazy).
+
+3️⃣ Causa probable
+
+Estás cargando un componente con React.lazy.
+
+Ese componente hace algo que suspende la renderización de manera síncrona, por ejemplo:
+
+Llamadas a fetch directamente en el render.
+
+Hooks como useQuery de React Query sin un wrapper de Suspense adecuado.
+
+React espera que la suspensión ocurra en un contexto de Suspense, pero la interacción que dispara el render (input/click) no permite la suspensión sin usar startTransition.
+
+4️⃣ Cómo solucionarlo
+Opción A: Usar startTransition para actualizaciones que pueden suspender
+
+Si tienes algo así:
+
+const handleClick = () => {
+  setState(someValueThatSuspends);
+};
+
+
+Debes envolverlo:
+
+import { startTransition } from 'react';
+
+const handleClick = () => {
+  startTransition(() => {
+    setState(someValueThatSuspends);
+  });
+};
+
+Opción B: Asegurarte que Suspense envuelve correctamente tus rutas lazy
+
+En tu App.tsx:
+
+import { Suspense } from 'react';
+import { Route, Switch } from 'wouter';
+import Loading from './components/Loading';
+
+<Suspense fallback={<Loading />}>
+  <Switch>
+    <Route path="/" component={Home} />
+    <Route path="/about" component={About} />
+  </Switch>
+</Suspense>
+
+
+⚠️ Si un componente lazy hace fetch dentro del render, asegúrate de no ejecutarlo directamente, usa React Query con Suspense o useEffect.
+
+Opción C: Revisar librerías de datos
+
+Si usas React Query con Suspense activado, puede lanzar este error.
+
+Solución: envolver llamadas en startTransition o deshabilitar suspense: true en useQuery.
+
+✅ Resumen
+
+El error es por suspense en actualización síncrona.
+
+React recomienda:
+
+Envolver actualizaciones que puedan suspender en startTransition.
+
+Asegurar que todos los lazy components estén dentro de un Suspense fallback.
+
+Revisar hooks que hagan fetch directo en render.

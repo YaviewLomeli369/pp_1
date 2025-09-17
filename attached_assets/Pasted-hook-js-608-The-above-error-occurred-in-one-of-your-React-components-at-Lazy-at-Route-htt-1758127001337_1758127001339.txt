@@ -1,0 +1,36 @@
+hook.js:608 The above error occurred in one of your React components:
+
+    at Lazy
+    at Route (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1d2fd48f:264:16)
+    at Switch (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1d2fd48f:320:17)
+    at Router (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/App.tsx:75:3)
+    at ErrorBoundary (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/components/ErrorBoundary.tsx:7:5)
+    at Provider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-FEZRLPPG.js?v=1d2fd48f:37:15)
+    at TooltipProvider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=1d2fd48f:61:5)
+    at QueryClientProvider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=1d2fd48f:2747:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+logCapturedError @ chunk-NXESFFTV.js?v=1d2fd48f:14080
+update.callback @ chunk-NXESFFTV.js?v=1d2fd48f:14100
+callCallback @ chunk-NXESFFTV.js?v=1d2fd48f:11296
+commitUpdateQueue @ chunk-NXESFFTV.js?v=1d2fd48f:11313
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=1d2fd48f:17141
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=1d2fd48f:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=1d2fd48f:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=1d2fd48f:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=1d2fd48f:19406
+commitRoot @ chunk-NXESFFTV.js?v=1d2fd48f:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=1d2fd48f:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=1d2fd48f:9166
+(anonymous) @ chunk-NXESFFTV.js?v=1d2fd48f:18677Understand this error
+chunk-NXESFFTV.js?v=1d2fd48f:14261 Uncaught Error: A component suspended while responding to synchronous input. This will cause the UI to be replaced with a loading indicator. To fix, updates that suspend should be wrapped with startTransition.
+    at throwException (chunk-NXESFFTV.js?v=1d2fd48f:14261:43)
+    at handleError (chunk-NXESFFTV.js?v=1d2fd48f:19087:15)
+    at renderRootSync (chunk-NXESFFTV.js?v=1d2fd48f:19172:15)
+    at recoverFromConcurrentError (chunk-NXESFFTV.js?v=1d2fd48f:18786:28)
+    at performSyncWorkOnRoot (chunk-NXESFFTV.js?v=1d2fd48f:18932:28)
+    at flushSyncCallbacks (chunk-NXESFFTV.js?v=1d2fd48f:9166:30)
+    at chunk-NXESFFTV.js?v=1d2fd48f:18677:21
