@@ -182,22 +182,29 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1200px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 0 1.5rem !important;
+  padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-astra .navbar-nav {
   display: flex !important;
-  gap: 2rem !important;
+  gap: 2.5rem !important;
   align-items: center !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin: 0 2rem !important;
 }
 
 .theme-astra .navbar-link {
   position: relative !important;
-  padding: 0.5rem 0 !important;
+  padding: 0.75rem 1rem !important;
   font-weight: 500 !important;
+  font-size: 16px !important;
+  color: #374151 !important;
   transition: color 0.3s ease !important;
+  white-space: nowrap !important;
 }
 
 .theme-astra .navbar-link::after {
@@ -209,6 +216,11 @@
   height: 2px !important;
   background: #0073aa !important;
   transition: width 0.3s ease !important;
+}
+
+.theme-astra .navbar-link:hover,
+.theme-astra .navbar-link.active {
+  color: #0073aa !important;
 }
 
 .theme-astra .navbar-link:hover::after,
@@ -246,24 +258,31 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1280px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
   padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-divi .navbar-nav {
   display: flex !important;
-  gap: 2.5rem !important;
+  gap: 2rem !important;
   align-items: center !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin: 0 2rem !important;
 }
 
 .theme-divi .navbar-link {
   position: relative !important;
-  padding: 0.75rem 1.5rem !important;
-  border-radius: 25px !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 20px !important;
   font-weight: 500 !important;
+  font-size: 15px !important;
+  color: #374151 !important;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
   background: transparent !important;
+  white-space: nowrap !important;
 }
 
 .theme-divi .navbar-link:hover {
@@ -325,20 +344,22 @@
 }
 
 .theme-oceanwp .navbar-container {
-  display: grid !important;
-  grid-template-columns: auto 1fr auto !important;
+  display: flex !important;
+  justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1300px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 0 1.5rem !important;
-  gap: 2rem !important;
+  padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-oceanwp .navbar-nav {
   display: flex !important;
   justify-content: center !important;
-  gap: 3rem !important;
+  gap: 2.5rem !important;
   align-items: center !important;
+  flex: 1 !important;
+  margin: 0 2rem !important;
 }
 
 .theme-oceanwp .navbar-link {
@@ -404,7 +425,7 @@
 
 /* KADENCE Theme - Minimal Centered Navigation */
 .theme-kadence .navbar-custom {
-  height: 60px !important;
+  height: 70px !important;
   background: #ffffff !important;
   backdrop-filter: none !important;
   border: none !important;
@@ -414,28 +435,31 @@
 
 .theme-kadence .navbar-container {
   display: flex !important;
-  flex-direction: column !important;
+  justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1100px !important;
+  max-width: 1300px !important;
   margin: 0 auto !important;
-  padding: 0.75rem !important;
+  padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-kadence .navbar-nav {
   display: flex !important;
   justify-content: center !important;
-  gap: 3rem !important;
+  gap: 2.5rem !important;
   align-items: center !important;
-  width: 100% !important;
+  flex: 1 !important;
+  margin: 0 2rem !important;
 }
 
 .theme-kadence .navbar-link {
-  padding: 0.5rem 0 !important;
-  font-weight: 400 !important;
-  font-size: 15px !important;
-  color: #64748b !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  color: #374151 !important;
   transition: color 0.2s ease !important;
   text-decoration: none !important;
+  white-space: nowrap !important;
 }
 
 .theme-kadence .navbar-link:hover {
@@ -444,7 +468,7 @@
 
 .theme-kadence .navbar-link.active {
   color: #2563eb !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 .theme-kadence .navbar-logo {
@@ -479,7 +503,7 @@
 
 /* STOREFRONT Theme - Classic eCommerce Header */
 .theme-storefront .navbar-custom {
-  height: 70px !important;
+  height: 75px !important;
   background: #ffffff !important;
   border-bottom: 1px solid #dddddd !important;
   box-shadow: none !important;
@@ -489,24 +513,29 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1170px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 0 1rem !important;
+  padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-storefront .navbar-nav {
   display: flex !important;
-  gap: 2rem !important;
+  gap: 2.5rem !important;
   align-items: center !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin: 0 2rem !important;
 }
 
 .theme-storefront .navbar-link {
-  padding: 0.75rem 0 !important;
-  font-weight: 400 !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 500 !important;
   font-size: 16px !important;
   color: #43454b !important;
   transition: color 0.3s ease !important;
   text-decoration: none !important;
+  white-space: nowrap !important;
 }
 
 .theme-storefront .navbar-link:hover {
@@ -550,9 +579,10 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1300px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
   padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-betheme .navbar-nav {
@@ -563,10 +593,13 @@
   padding: 0.5rem !important;
   border-radius: 50px !important;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.06) !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin: 0 2rem !important;
 }
 
 .theme-betheme .navbar-link {
-  padding: 0.75rem 1.5rem !important;
+  padding: 0.75rem 1.25rem !important;
   border-radius: 25px !important;
   font-weight: 500 !important;
   font-size: 15px !important;
@@ -574,6 +607,7 @@
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1) !important;
   text-decoration: none !important;
   position: relative !important;
+  white-space: nowrap !important;
 }
 
 .theme-betheme .navbar-link:hover {
@@ -627,15 +661,19 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1250px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
   padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-avada .navbar-nav {
   display: flex !important;
-  gap: 1rem !important;
+  gap: 1.5rem !important;
   align-items: center !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin: 0 2rem !important;
 }
 
 .theme-avada .navbar-link {
@@ -648,6 +686,7 @@
   text-decoration: none !important;
   position: relative !important;
   overflow: hidden !important;
+  white-space: nowrap !important;
 }
 
 .theme-avada .navbar-link::before {
@@ -696,7 +735,7 @@
 
 /* HESTIA Theme - Material Design Tabs Navigation */
 .theme-hestia .navbar-custom {
-  height: 70px !important;
+  height: 75px !important;
   background: #ffffff !important;
   border-bottom: 1px solid #e5e5e5 !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
@@ -706,20 +745,24 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1200px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 0 1.5rem !important;
+  padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-hestia .navbar-nav {
   display: flex !important;
-  gap: 0 !important;
+  gap: 0.5rem !important;
   align-items: center !important;
   border-bottom: 2px solid #e5e5e5 !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin: 0 2rem !important;
 }
 
 .theme-hestia .navbar-link {
-  padding: 1rem 2rem !important;
+  padding: 1rem 1.5rem !important;
   font-weight: 500 !important;
   font-size: 15px !important;
   color: #3c4858 !important;
@@ -727,6 +770,7 @@
   border-bottom: 3px solid transparent !important;
   transition: all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1) !important;
   position: relative !important;
+  white-space: nowrap !important;
 }
 
 .theme-hestia .navbar-link:hover {
@@ -786,13 +830,13 @@
 }
 
 .theme-sydney .navbar-container {
-  display: grid !important;
-  grid-template-columns: auto 1fr auto !important;
+  display: flex !important;
+  justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1170px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 0 1rem !important;
-  gap: 2rem !important;
+  padding: 0 2rem !important;
+  width: 100% !important;
 }
 
 .theme-sydney .navbar-nav {
@@ -800,18 +844,21 @@
   justify-content: center !important;
   gap: 2.5rem !important;
   align-items: center !important;
+  flex: 1 !important;
+  margin: 0 2rem !important;
 }
 
 .theme-sydney .navbar-link {
-  padding: 1rem 0 !important;
+  padding: 1rem 0.75rem !important;
   font-weight: 600 !important;
-  font-size: 14px !important;
+  font-size: 15px !important;
   color: #1e3a5f !important;
   text-transform: uppercase !important;
-  letter-spacing: 1px !important;
+  letter-spacing: 0.5px !important;
   text-decoration: none !important;
   position: relative !important;
   transition: color 0.3s ease !important;
+  white-space: nowrap !important;
 }
 
 .theme-sydney .navbar-link::after {
@@ -883,7 +930,7 @@
 
 /* HELLO Theme - Invisible Minimal Navigation */
 .theme-hello .navbar-custom {
-  height: 50px !important;
+  height: 60px !important;
   background: transparent !important;
   box-shadow: none !important;
   border: none !important;
@@ -892,27 +939,32 @@
 
 .theme-hello .navbar-container {
   display: flex !important;
-  justify-content: center !important;
+  justify-content: space-between !important;
   align-items: center !important;
-  max-width: 1140px !important;
+  max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 1rem 0.5rem !important;
+  padding: 1rem 2rem !important;
+  width: 100% !important;
 }
 
 .theme-hello .navbar-nav {
   display: flex !important;
-  gap: 4rem !important;
+  gap: 3rem !important;
   align-items: center !important;
+  flex: 1 !important;
+  justify-content: center !important;
+  margin: 0 2rem !important;
 }
 
 .theme-hello .navbar-link {
-  padding: 0.25rem 0 !important;
-  font-weight: 400 !important;
+  padding: 0.5rem 0.75rem !important;
+  font-weight: 500 !important;
   font-size: 16px !important;
-  color: #000000 !important;
+  color: #374151 !important;
   text-decoration: none !important;
   transition: opacity 0.2s ease !important;
   position: relative !important;
+  white-space: nowrap !important;
 }
 
 .theme-hello .navbar-link:hover {
