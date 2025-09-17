@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, startTransition, Suspense } from "react";
+import { useState, useEffect, useMemo, startTransition } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -52,7 +52,6 @@ function FaqsContent() {
     queryKey: ["/api/faqs"],
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    suspense: false,
     retry: 1,
   });
   const { data: categories, isLoading: categoriesLoading } =
@@ -60,7 +59,6 @@ function FaqsContent() {
       queryKey: ["/api/faq-categories"],
       staleTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
-      suspense: false,
       retry: 1,
     });
 
@@ -68,7 +66,6 @@ function FaqsContent() {
     queryKey: ["/api/config"],
     staleTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    suspense: false,
     retry: 1,
   });
 
@@ -186,22 +183,14 @@ function FaqsContent() {
                     <Input
                     placeholder="Buscar en las preguntas y respuestas..."
                     value={searchTerm}
-                    onChange={(e) => {
-                      startTransition(() => {
-                        setSearchTerm(e.target.value);
-                      });
-                    }}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300"
                   />
                   </div>
                   <div className="sm:w-64">
                     <Select
                       value={selectedCategory}
-                      onValueChange={(value) => {
-                        startTransition(() => {
-                          setSelectedCategory(value);
-                        });
-                      }}
+                      onValueChange={setSelectedCategory}
                     >
                       <SelectTrigger className="border-blue-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition-all duration-300">
                         <SelectValue placeholder="Filtrar por categoría" />
@@ -234,11 +223,7 @@ function FaqsContent() {
                     <div
                       key={cat.id}
                       className="p-5 border rounded-2xl shadow hover:shadow-xl hover:bg-blue-50 cursor-pointer transition-all duration-300"
-                      onClick={() => {
-                        startTransition(() => {
-                          setSelectedCategory(cat.id);
-                        });
-                      }}
+                      onClick={() => setSelectedCategory(cat.id)}
                     >
                       <h3 className="font-bold text-lg text-gray-900 mb-1">
                         {cat.name}
@@ -361,11 +346,7 @@ function FaqsContent() {
                     </div>
                     <Button
                       variant="outline"
-                      onClick={() => {
-                        startTransition(() => {
-                          setSelectedCategory("all");
-                        });
-                      }}
+                      onClick={() => setSelectedCategory("all")}
                       style={{
                         borderColor: appearance.primaryColor || "#000000",
                         color: appearance.primaryColor || "#000000",
@@ -417,10 +398,8 @@ function FaqsContent() {
                     {(searchTerm || selectedCategory !== "all") && (
                       <Button
                         onClick={() => {
-                          startTransition(() => {
-                            setSearchTerm("");
-                            setSelectedCategory("all");
-                          });
+                          setSearchTerm("");
+                          setSelectedCategory("all");
                         }}
                         className="bg-blue-600 text-white hover:bg-blue-700"
                         style={{ backgroundColor: appearance.primaryColor || "#000000" }}
@@ -442,9 +421,5 @@ function FaqsContent() {
 }
 
 export default function Faqs() {
-  return (
-    <Suspense fallback={<LoadingPage />}>
-      <FaqsContent />
-    </Suspense>
-  );
+  return <FaqsContent />;
 }
