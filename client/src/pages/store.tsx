@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ShoppingCart, Heart, Search, Plus, Minus, X } from "lucide-react";
+import { ShoppingCart, Heart, Search, Plus, Minus, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { SiteConfig, Product, ProductCategory } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -158,6 +158,7 @@ export default function Store() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productQuantity, setProductQuantity] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [cart, setCart] = useState<Array<{ product: Product; quantity: number }>>([]);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -382,6 +383,7 @@ export default function Store() {
 
     setSelectedProduct(product);
     setProductQuantity(1);
+    setCurrentImageIndex(0);
   }, [isNavigating]);
 
   const addToCartFromModal = useCallback(() => {
@@ -951,82 +953,230 @@ export default function Store() {
             }
           }}
         >
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             {selectedProduct && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col gap-4">
-                  {selectedProduct.images?.map((img, idx) => (
-                    <ImageWithRetry
-                      key={idx}
-                      src={img}
-                      alt={`${selectedProduct.name} ${idx + 1}`}
-                      className="w-full h-64 object-cover rounded-lg"
-                    />
-                  ))}
-                </div>
-                <div className="flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <h2 className="text-3xl font-bold text-primary">{selectedProduct.name}</h2>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-primary">${(selectedProduct.price / 100).toFixed(2)}</span>
-                      {selectedProduct.comparePrice && selectedProduct.comparePrice > selectedProduct.price && (
-                        <span className="text-lg text-muted-foreground line-through">${(selectedProduct.comparePrice / 100).toFixed(2)}</span>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Carousel de imágenes */}
+                <div className="relative">
+                  {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                    <div className="w-full">
+                      {selectedProduct.images.length === 1 ? (
+                        <div className="aspect-square w-full">
+                          <ImageWithRetry
+                            src={selectedProduct.images[0]}
+                            alt={selectedProduct.name}
+                            className="w-full h-full object-cover rounded-lg shadow-lg"
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          {/* Imagen principal */}
+                          <div className="aspect-square w-full overflow-hidden rounded-lg shadow-lg relative group">
+                            <ImageWithRetry
+                              src={selectedProduct.images[currentImageIndex]}
+                              alt={`${selectedProduct.name} ${currentImageIndex + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            
+                            {/* Navegación de imágenes */}
+                            {selectedProduct.images.length > 1 && (
+                              <>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white shadow-lg"
+                                  onClick={() => {
+                                    setCurrentImageIndex(prev => 
+                                      prev === 0 ? selectedProduct.images!.length - 1 : prev - 1
+                                    );
+                                  }}
+                                  disabled={isNavigating}
+                                >
+                                  <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white shadow-lg"
+                                  onClick={() => {
+                                    setCurrentImageIndex(prev => 
+                                      prev === selectedProduct.images!.length - 1 ? 0 : prev + 1
+                                    );
+                                  }}
+                                  disabled={isNavigating}
+                                >
+                                  <ChevronRight className="h-4 w-4" />
+                                </Button>
+                                
+                                {/* Indicadores de puntos */}
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                  {selectedProduct.images.map((_, idx) => (
+                                    <button
+                                      key={idx}
+                                      className={`w-2 h-2 rounded-full transition-all ${
+                                        idx === currentImageIndex 
+                                          ? 'bg-white scale-125' 
+                                          : 'bg-white/50 hover:bg-white/75'
+                                      }`}
+                                      onClick={() => setCurrentImageIndex(idx)}
+                                    />
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                          
+                          {/* Thumbnails para navegación */}
+                          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                            {selectedProduct.images.map((img, idx) => (
+                              <div key={idx} className="flex-shrink-0">
+                                <ImageWithRetry
+                                  src={img}
+                                  alt={`Thumbnail ${idx + 1}`}
+                                  className={`w-16 h-16 object-cover rounded-md border-2 cursor-pointer transition-all ${
+                                    idx === currentImageIndex
+                                      ? 'border-primary opacity-100 ring-2 ring-primary/30'
+                                      : 'border-transparent opacity-70 hover:opacity-100 hover:border-primary/50'
+                                  }`}
+                                  onClick={() => setCurrentImageIndex(idx)}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
-                    {selectedProduct.categoryId && <Badge variant="outline">{getCategoryName(selectedProduct.categoryId)}</Badge>}
-                    {selectedProduct.tags?.length > 0 && <div className="flex flex-wrap gap-1">{selectedProduct.tags.map((tag, idx) => <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>)}</div>}
-                    <p className="text-muted-foreground">{selectedProduct.description}</p>
-                    {selectedProduct.stock !== null && <p className="text-sm"><span className="font-medium">Stock disponible:</span> {selectedProduct.stock}</p>}
+                  ) : (
+                    <div className="aspect-square w-full bg-gray-100 rounded-lg flex items-center justify-center">
+                      <div className="text-center text-gray-400">
+                        <div className="text-4xl mb-2">📷</div>
+                        <p>Sin imagen disponible</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Información del producto */}
+                <div className="flex flex-col justify-between space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h2 className="text-3xl font-bold text-primary mb-2">{selectedProduct.name}</h2>
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-3xl font-bold text-primary">${(selectedProduct.price / 100).toFixed(2)}</span>
+                        {selectedProduct.comparePrice && selectedProduct.comparePrice > selectedProduct.price && (
+                          <span className="text-xl text-muted-foreground line-through">${(selectedProduct.comparePrice / 100).toFixed(2)}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Badges */}
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProduct.categoryId && (
+                        <Badge variant="outline" className="text-sm">{getCategoryName(selectedProduct.categoryId)}</Badge>
+                      )}
+                      {selectedProduct.stock !== null && selectedProduct.stock <= 5 && selectedProduct.stock > 0 && (
+                        <Badge variant="destructive">¡Pocas unidades!</Badge>
+                      )}
+                      {selectedProduct.stock === 0 && (
+                        <Badge variant="secondary">Agotado</Badge>
+                      )}
+                    </div>
+
+                    {/* Tags */}
+                    {selectedProduct.tags?.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {selectedProduct.tags.map((tag, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Descripción */}
+                    {selectedProduct.description && (
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-lg">Descripción</h4>
+                        <p className="text-muted-foreground leading-relaxed">{selectedProduct.description}</p>
+                      </div>
+                    )}
+
+                    {/* Stock */}
+                    {selectedProduct.stock !== null && (
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Stock disponible:</span>
+                          <span className={`font-bold ${selectedProduct.stock <= 5 ? 'text-red-600' : 'text-green-600'}`}>
+                            {selectedProduct.stock} unidades
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Cantidad y agregar */}
-                  <div className="flex items-center gap-4 mt-4">
-                    <div className="flex items-center border rounded-md">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => !isNavigating && setProductQuantity(Math.max(1, productQuantity - 1))}
-                        disabled={isNavigating}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="px-4 py-2 border-x">{productQuantity}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          if (!isNavigating && selectedProduct.stock !== null) {
+                  {/* Cantidad y agregar al carrito */}
+                  <div className="space-y-4 border-t pt-6">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center border rounded-lg">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => !isNavigating && setProductQuantity(Math.max(1, productQuantity - 1))}
+                          disabled={isNavigating}
+                          className="h-12 px-4"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="px-6 py-3 border-x font-semibold text-lg">{productQuantity}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (!isNavigating && selectedProduct.stock !== null) {
+                              const currentInCart = cart.find(item => item.product.id === selectedProduct.id)?.quantity || 0;
+                              const maxCanAdd = Math.max(0, selectedProduct.stock - currentInCart);
+                              if (productQuantity < maxCanAdd) {
+                                setProductQuantity(productQuantity + 1);
+                              } else {
+                                toast({
+                                  title: "Límite alcanzado",
+                                  description: `Ya tienes ${currentInCart} en el carrito. Stock total: ${selectedProduct.stock}`,
+                                  variant: "destructive"
+                                });
+                              }
+                            } else if (!isNavigating && selectedProduct.stock === null) {
+                              setProductQuantity(productQuantity + 1);
+                            }
+                          }}
+                          disabled={isNavigating || (selectedProduct.stock !== null && (() => {
                             const currentInCart = cart.find(item => item.product.id === selectedProduct.id)?.quantity || 0;
                             const maxCanAdd = Math.max(0, selectedProduct.stock - currentInCart);
-                            if (productQuantity < maxCanAdd) {
-                              setProductQuantity(productQuantity + 1);
-                            } else {
-                              toast({
-                                title: "Límite alcanzado",
-                                description: `Ya tienes ${currentInCart} en el carrito. Stock total: ${selectedProduct.stock}`,
-                                variant: "destructive"
-                              });
-                            }
-                          } else if (!isNavigating && selectedProduct.stock === null) {
-                            setProductQuantity(productQuantity + 1);
-                          }
-                        }}
-                        disabled={isNavigating || (selectedProduct.stock !== null && (() => {
-                          const currentInCart = cart.find(item => item.product.id === selectedProduct.id)?.quantity || 0;
-                          const maxCanAdd = Math.max(0, selectedProduct.stock - currentInCart);
-                          return productQuantity >= maxCanAdd;
-                        })())}
+                            return productQuantity >= maxCanAdd;
+                          })())}
+                          className="h-12 px-4"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <Button 
+                        onClick={addToCartFromModal} 
+                        className="flex-1 h-12 text-lg font-semibold" 
+                        disabled={(selectedProduct.stock !== null && selectedProduct.stock === 0) || addToCartMutation.isPending || isNavigating}
+                        size="lg"
                       >
-                        <Plus className="h-4 w-4" />
+                        <ShoppingCart className="h-5 w-5 mr-2" /> 
+                        Agregar al carrito
                       </Button>
                     </div>
-                    <Button 
-                      onClick={addToCartFromModal} 
-                      className="flex-1" 
-                      disabled={(selectedProduct.stock !== null && selectedProduct.stock === 0) || addToCartMutation.isPending || isNavigating}
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" /> Agregar al carrito
-                    </Button>
+
+                    {/* Precio total */}
+                    <div className="bg-primary/10 p-4 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-medium">Total:</span>
+                        <span className="text-2xl font-bold text-primary">
+                          ${((selectedProduct.price / 100) * productQuantity).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
