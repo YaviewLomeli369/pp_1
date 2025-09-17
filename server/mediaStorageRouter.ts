@@ -47,6 +47,10 @@ router.post("/api/media/upload", upload.single('file'), async (req, res) => {
       }
     }
 
+    // Generate URL and object key for database storage
+    const url = `/api/media/${fileId}`;
+    const objectKey = `media/${fileId}-${originalname}`;
+
     // Save to database
     const [savedFile] = await db.insert(mediaFiles).values({
       id: fileId,
@@ -54,6 +58,8 @@ router.post("/api/media/upload", upload.single('file'), async (req, res) => {
       originalName: originalname,
       mimeType: mimetype,
       size: processedBuffer.length,
+      url: url,
+      objectKey: objectKey,
       data: processedBuffer,
     }).returning();
 
@@ -62,7 +68,8 @@ router.post("/api/media/upload", upload.single('file'), async (req, res) => {
     res.json({
       success: true,
       id: savedFile.id,
-      url: `/api/media/${savedFile.id}`,
+      url: savedFile.url,
+      location: savedFile.url,
       filename: savedFile.filename,
       size: savedFile.size,
       mimeType: savedFile.mimeType
