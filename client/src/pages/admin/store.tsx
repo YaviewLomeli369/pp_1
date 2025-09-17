@@ -517,15 +517,20 @@ function AdminStoreContent() {
     // Guardar según el caso (producto existente o nuevo)
     if (selectedProduct?.id) {
       console.log("COMPLETE-FINAL. Updating product with images:", newImageUrls);
-      
+
       // Combinar imágenes existentes con las nuevas (máximo 5)
       const existingImages = selectedProduct.images || [];
       const allImages = [...existingImages, ...newImageUrls].slice(0, 5);
-      
+
       updateProductImageMutation.mutate({
         id: selectedProduct.id,
         imageURL: allImages,
       });
+
+      // Force refresh of the modal data immediately
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ["/api/store/products"] });
+      }, 500);
     } else {
       console.log("COMPLETE-FINAL. Setting tempImageUrls:", newImageUrls);
       setTempImageUrls(prev => [...prev, ...newImageUrls].slice(0, 5));
@@ -581,8 +586,8 @@ function AdminStoreContent() {
       seoTitle: formData.get("seoTitle"),
       seoDescription: formData.get("seoDescription"),
       // For new products: include all temp images if they exist
-      ...(!selectedProduct && (tempImageUrl || tempImageUrls.length > 0) 
-          ? { images: tempImageUrl ? [tempImageUrl, ...tempImageUrls] : tempImageUrls } 
+      ...(!selectedProduct && (tempImageUrl || tempImageUrls.length > 0)
+          ? { images: tempImageUrl ? [tempImageUrl, ...tempImageUrls] : tempImageUrls }
           : {}),
     };
 
@@ -1120,7 +1125,7 @@ function AdminStoreContent() {
             {/* Sección de subida de múltiples imágenes */}
             <div className="space-y-2">
               <Label>Imágenes del Producto (máximo 5)</Label>
-              
+
               {/* Preview de imágenes existentes */}
               {(selectedProduct?.images && selectedProduct.images.length > 0) && (
                 <div className="mb-4">
@@ -1643,7 +1648,7 @@ function AdminStoreContent() {
               Selecciona una nueva imagen para el producto
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             {uploadingImage && (() => {
               const product = products?.find(p => p.id === uploadingImage);
