@@ -100,22 +100,7 @@ export default function Contact() {
     );
   }
 
-  if (!isContactEnabled) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <AnimatedSection>
-          <div className="container mx-auto px-4 py-16 text-center navbar-fixed-body">
-            <h1 className="text-4xl font-bold mb-4">Contacto</h1>
-            <p className="text-xl text-muted-foreground">
-              El módulo de contacto no está disponible en este momento.
-            </p>
-          </div>
-        </AnimatedSection>
-        <Footer />
-      </div>
-    );
-  }
+  
 
   return (
     <div 
