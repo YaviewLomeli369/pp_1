@@ -81,8 +81,17 @@ export function useTheme() {
           root.style.setProperty('--header-height', currentTheme.components.navbar.height);
         }
 
-        // Apply theme 2025 specific CSS classes
-        document.body.className = `theme-${currentTheme.id} ${document.body.className.replace(/theme-\w+/g, '')}`;
+        // Apply theme 2025 specific CSS classes and force updates
+        const bodyClasses = document.body.className.replace(/theme-\w+/g, '').trim();
+        document.body.className = `theme-${currentTheme.id} theme-2025-active ${bodyClasses}`;
+        
+        // Force immediate recalculation of all styles
+        document.body.offsetHeight;
+        
+        // Force navbar re-render by triggering a resize event
+        setTimeout(() => {
+          window.dispatchEvent(new Event('resize'));
+        }, 10);
 
         return; // Exit early if theme 2025 is active
       }

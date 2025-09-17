@@ -1146,10 +1146,11 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Apply theme CSS class to body
+  // Apply theme CSS class to body and force re-render
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const body = document.body;
+      const root = document.documentElement;
 
       // Remove all existing theme classes
       body.classList.forEach(className => {
@@ -1162,8 +1163,21 @@ export function Theme2025Provider({ children }: { children: React.ReactNode }) {
       if (currentTheme && isActive) {
         body.classList.add(`theme-${currentTheme.id}`);
         body.classList.add('theme-2025-active');
+        
+        // Force immediate style recalculation
+        body.offsetHeight;
+        
+        // Apply theme-specific overrides to root
+        root.style.setProperty('--current-theme', currentTheme.id);
+        
+        // Trigger a custom event for components to react to theme changes
+        window.dispatchEvent(new CustomEvent('themeChanged', { 
+          detail: { theme: currentTheme.id } 
+        }));
+        
       } else {
         body.classList.remove('theme-2025-active');
+        root.style.removeProperty('--current-theme');
       }
     }
   }, [currentTheme, isActive]);
