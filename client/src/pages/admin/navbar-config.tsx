@@ -88,26 +88,26 @@ type NavbarStyles = {
 
 const iconMap: { [key: string]: React.ReactNode } = {
   home: <Home className="h-4 w-4" />,
-  store: <ShoppingCart className="h-4 w-4" />,
-  contacto: <MessageSquare className="h-4 w-4" />, // Updated key to match moduleKey
-  reservaciones: <Calendar className="h-4 w-4" />, // Updated key to match moduleKey
+  tienda: <ShoppingCart className="h-4 w-4" />,
+  contacto: <MessageSquare className="h-4 w-4" />,
+  reservas: <Calendar className="h-4 w-4" />,
   blog: <FileText className="h-4 w-4" />,
-  testimonials: <Quote className="h-4 w-4" />,
+  testimonios: <Quote className="h-4 w-4" />,
   faqs: <HelpCircle className="h-4 w-4" />,
-  conocenos: <Users className="h-4 w-4" />, // Updated key to match moduleKey
-  servicios: <Package className="h-4 w-4" />, // Updated key to match moduleKey
+  conocenos: <Users className="h-4 w-4" />,
+  servicios: <Package className="h-4 w-4" />,
 };
 
 const defaultNavItems = [
   { moduleKey: "home", label: "Inicio", href: "/", isRequired: true, order: 0 },
-  { moduleKey: "testimonials", label: "Testimonios", href: "/testimonials", isRequired: false, order: 1 },
+  { moduleKey: "testimonios", label: "Testimonios", href: "/testimonials", isRequired: false, order: 1 },
   { moduleKey: "faqs", label: "FAQs", href: "/faqs", isRequired: false, order: 2 },
-  { moduleKey: "contacto", label: "Contacto", href: "/contacto", isRequired: false, order: 3 }, // Updated moduleKey
-  { moduleKey: "store", label: "Tienda", href: "/store", isRequired: false, order: 4 },
+  { moduleKey: "contacto", label: "Contacto", href: "/contact", isRequired: false, order: 3 },
+  { moduleKey: "tienda", label: "Tienda", href: "/store", isRequired: false, order: 4 },
   { moduleKey: "blog", label: "Blog", href: "/blog", isRequired: false, order: 5 },
-  { moduleKey: "reservaciones", label: "Reservas", href: "/reservaciones", isRequired: false, order: 6 }, // Updated moduleKey
-  { moduleKey: "conocenos", label: "Conócenos", href: "/conocenos", isRequired: true, order: 7 }, // Updated moduleKey
-  { moduleKey: "servicios", label: "Servicios", href: "/servicios", isRequired: true, order: 8 }, // Updated moduleKey
+  { moduleKey: "reservas", label: "Reservas", href: "/reservations", isRequired: false, order: 6 },
+  { moduleKey: "conocenos", label: "Conócenos", href: "/conocenos", isRequired: true, order: 7 },
+  { moduleKey: "servicios", label: "Servicios", href: "/servicios", isRequired: true, order: 8 },
 ];
 
 const defaultNavbarStyles: NavbarStyles = {
