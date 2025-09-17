@@ -339,9 +339,29 @@ export default function AdminNavbarConfig() {
     }));
 
     setItems(resetItems);
+
+    // Also immediately save the correct configuration
+    const navbarConfig: { [key: string]: any } = {};
+    resetItems.forEach(item => {
+      navbarConfig[item.moduleKey] = {
+        isVisible: item.isVisible,
+        order: item.order,
+        label: item.label,
+        href: item.href,
+        isRequired: item.isRequired
+      };
+    });
+
+    const updatedConfig = {
+      ...(config as any).config,
+      navbar: navbarConfig
+    };
+
+    updateConfigMutation.mutate(updatedConfig);
+
     toast({ 
-      title: "Configuración restablecida", 
-      description: "Se han restaurado los valores por defecto" 
+      title: "Configuración restablecida y guardada", 
+      description: "Se han restaurado las rutas correctas: /contacto y /reservaciones" 
     });
   };
 
