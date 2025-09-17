@@ -132,19 +132,19 @@ function Router() {
           {/* Public Routes */}
           <Route path="/" component={Home} />
 
-          {/* Module-based routes */}
-          <ModuleRoute path="/servicios" component={Servicios} moduleName="services" />
-          <ModuleRoute path="/conocenos" component={Conocenos} moduleName="about" />
-          <ModuleRoute path="/tienda" component={Store} moduleName="store" />
-          <ModuleRoute path="/store" component={Store} moduleName="store" />
+          {/* Module-based routes - using exact module names from config */}
+          <ModuleRoute path="/servicios" component={Servicios} moduleName="servicios" />
+          <ModuleRoute path="/conocenos" component={Conocenos} moduleName="conocenos" />
+          <ModuleRoute path="/tienda" component={Store} moduleName="tienda" />
+          <ModuleRoute path="/store" component={Store} moduleName="tienda" />
           <ModuleRoute path="/blog" component={Blog} moduleName="blog" />
           <ModuleRoute path="/blog/:slug" component={BlogPost} moduleName="blog" />
-          <ModuleRoute path="/contacto" component={Contact} moduleName="contact" />
-          <ModuleRoute path="/testimonios" component={Testimonials} moduleName="testimonials" />
-          <ModuleRoute path="/testimonials" component={Testimonials} moduleName="testimonials" />
+          <ModuleRoute path="/contacto" component={Contact} moduleName="contacto" />
+          <ModuleRoute path="/testimonios" component={Testimonials} moduleName="testimonios" />
+          <ModuleRoute path="/testimonials" component={Testimonials} moduleName="testimonios" />
           <ModuleRoute path="/preguntas-frecuentes" component={Faqs} moduleName="faqs" />
           <ModuleRoute path="/faqs" component={Faqs} moduleName="faqs" />
-          <ModuleRoute path="/reservaciones" component={Reservations} moduleName="reservations" />
+          <ModuleRoute path="/reservaciones" component={Reservations} moduleName="reservas" />
 
           {/* Store & Checkout */}
           <Route path="/checkout" component={Checkout} />

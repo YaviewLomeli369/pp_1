@@ -1,4 +1,3 @@
-
 import React, { useMemo, useEffect, useRef, startTransition } from "react";
 import { Route } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +14,7 @@ interface ModuleRouteProps {
 export function ModuleRoute({ path, component: Component, moduleName }: ModuleRouteProps) {
   const routeInstanceRef = useRef(`module-route-${moduleName}-${Date.now()}`);
   const isMountedRef = useRef(true);
-  
+
   const { data: config, isLoading } = useQuery<SiteConfig>({
     queryKey: ["/api/config"],
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -28,7 +27,7 @@ export function ModuleRoute({ path, component: Component, moduleName }: ModuleRo
     if (!config || !isMountedRef.current) return false;
     const configData = config.config as any;
     const modules = configData?.frontpage?.modulos || {};
-    
+
     // Map module names to their config keys
     const moduleKeyMap: Record<string, string> = {
       'store': 'tienda',
@@ -40,15 +39,15 @@ export function ModuleRoute({ path, component: Component, moduleName }: ModuleRo
       'services': 'servicios',
       'about': 'conocenos'
     };
-    
+
     const configKey = moduleKeyMap[moduleName] || moduleName;
-    return modules[configKey]?.activo;
+    return modules[configKey]?.activo !== false;
   }, [config, moduleName]);
 
   // Component lifecycle management
   useEffect(() => {
     isMountedRef.current = true;
-    
+
     return () => {
       isMountedRef.current = false;
     };
@@ -64,7 +63,7 @@ export function ModuleRoute({ path, component: Component, moduleName }: ModuleRo
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -76,7 +75,7 @@ export function ModuleRoute({ path, component: Component, moduleName }: ModuleRo
         if (!isMountedRef.current) {
           return null;
         }
-        
+
         if (isLoading) {
           return <LoadingPage key={`${routeInstanceRef.current}-loading`} />;
         }

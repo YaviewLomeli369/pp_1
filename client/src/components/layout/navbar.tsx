@@ -287,15 +287,15 @@ export function Navbar() {
   const navItems = useMemo(() => {
     const navbarConfig = configData?.navbar || {};
 
-    // Default navigation items
+    // Default navigation items - matching exactly with module keys from config
     const defaultItems = [
       { href: "/", label: "Inicio", moduleKey: "home", always: true, order: 0 },
       { href: "/testimonials", label: "Testimonios", moduleKey: "testimonios", order: 1 },
       { href: "/faqs", label: "FAQs", moduleKey: "faqs", order: 2 },
-      { href: "/contact", label: "Contacto", moduleKey: "contacto", order: 3 },
+      { href: "/contacto", label: "Contacto", moduleKey: "contacto", order: 3 },
       { href: "/store", label: "Tienda", moduleKey: "tienda", order: 4 },
       { href: "/blog", label: "Blog", moduleKey: "blog", order: 5 },
-      { href: "/reservations", label: "Reservas", moduleKey: "reservas", order: 6 },
+      { href: "/reservaciones", label: "Reservas", moduleKey: "reservas", order: 6 },
       { href: "/conocenos", label: "Conócenos", moduleKey: "conocenos", always: true, order: 7 },
       { href: "/servicios", label: "Servicios", moduleKey: "servicios", always: true, order: 8 }
     ];
