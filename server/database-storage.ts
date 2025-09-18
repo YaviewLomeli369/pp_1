@@ -234,6 +234,14 @@ export interface IStorage {
   updateNavbarConfig(id: string, data: Partial<InsertNavbarConfig>): Promise<NavbarConfig | undefined>;
   deleteNavbarConfig(id: string): Promise<boolean>;
   updateNavbarOrder(items: { id: string; order: number }[]): Promise<boolean>;
+
+  // Button Configuration
+  getAllButtonConfigs(): Promise<any[]>;
+  getButtonConfig(variant: string, size: string): Promise<any | undefined>;
+  createButtonConfig(config: any): Promise<any>;
+  updateButtonConfig(id: string, config: any): Promise<any | undefined>;
+  deleteButtonConfig(id: string): Promise<boolean>;
+  initializeDefaultButtonConfigs(userId: string): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1896,6 +1904,250 @@ export class DatabaseStorage implements IStorage {
       }
     } catch (error) {
       console.error('Error updating payment config:', error);
+      throw error;
+    }
+  }
+
+  // Button Configuration
+  async getAllButtonConfigs(): Promise<any[]> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('getAllButtonConfigs');
+    }
+    try {
+      return await db!.select().from(schema.buttonConfig)
+        .where(eq(schema.buttonConfig.isActive, true))
+        .orderBy(asc(schema.buttonConfig.variant), asc(schema.buttonConfig.size));
+    } catch (error) {
+      console.error('Error getting button configs:', error);
+      return [];
+    }
+  }
+
+  async getButtonConfig(variant: string, size: string): Promise<any | undefined> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('getButtonConfig');
+    }
+    try {
+      const [config] = await db!.select().from(schema.buttonConfig)
+        .where(and(
+          eq(schema.buttonConfig.variant, variant),
+          eq(schema.buttonConfig.size, size),
+          eq(schema.buttonConfig.isActive, true)
+        ))
+        .limit(1);
+      return config;
+    } catch (error) {
+      console.error('Error getting button config:', error);
+      return undefined;
+    }
+  }
+
+  async createButtonConfig(config: any): Promise<any> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('createButtonConfig');
+    }
+    try {
+      const id = randomUUID();
+      const now = new Date();
+      const [newConfig] = await db!.insert(schema.buttonConfig).values({
+        id,
+        ...config,
+        createdAt: now,
+        updatedAt: now
+      }).returning();
+      return newConfig;
+    } catch (error) {
+      console.error('Error creating button config:', error);
+      throw error;
+    }
+  }
+
+  async updateButtonConfig(id: string, config: any): Promise<any | undefined> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('updateButtonConfig');
+    }
+    try {
+      const [updated] = await db!.update(schema.buttonConfig)
+        .set({ ...config, updatedAt: new Date() })
+        .where(eq(schema.buttonConfig.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('Error updating button config:', error);
+      throw error;
+    }
+  }
+
+  async deleteButtonConfig(id: string): Promise<boolean> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('deleteButtonConfig');
+    }
+    try {
+      const result = await db!.delete(schema.buttonConfig)
+        .where(eq(schema.buttonConfig.id, id));
+      return (result.rowCount ?? 0) > 0;
+    } catch (error) {
+      console.error('Error deleting button config:', error);
+      return false;
+    }
+  }
+
+  async initializeDefaultButtonConfigs(userId: string): Promise<any[]> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('initializeDefaultButtonConfigs');
+    }
+    try {
+      const defaultConfigs = [
+        {
+          variant: 'default',
+          size: 'default',
+          colors: {
+            background: '#3B82F6',
+            foreground: '#FFFFFF',
+            border: '#3B82F6',
+            hoverBackground: '#2563EB',
+            hoverForeground: '#FFFFFF',
+            hoverBorder: '#2563EB',
+            focusBackground: '#1D4ED8',
+            focusForeground: '#FFFFFF',
+            focusBorder: '#1D4ED8',
+            activeBackground: '#1E40AF',
+            activeForeground: '#FFFFFF',
+            activeBorder: '#1E40AF'
+          },
+          typography: {
+            fontFamily: 'Inter',
+            fontSize: '14px',
+            fontWeight: '500',
+            lineHeight: '1.4',
+            letterSpacing: '0px'
+          },
+          spacing: {
+            paddingX: '16px',
+            paddingY: '8px',
+            margin: '0px'
+          },
+          borders: {
+            radius: '6px',
+            width: '1px',
+            style: 'solid'
+          },
+          effects: {
+            shadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            hoverShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s ease-in-out',
+            transform: 'none',
+            hoverTransform: 'translateY(-1px)'
+          },
+          isActive: true,
+          isDefault: true,
+          updatedBy: userId
+        },
+        {
+          variant: 'destructive',
+          size: 'default',
+          colors: {
+            background: '#EF4444',
+            foreground: '#FFFFFF',
+            border: '#EF4444',
+            hoverBackground: '#DC2626',
+            hoverForeground: '#FFFFFF',
+            hoverBorder: '#DC2626',
+            focusBackground: '#B91C1C',
+            focusForeground: '#FFFFFF',
+            focusBorder: '#B91C1C',
+            activeBackground: '#991B1B',
+            activeForeground: '#FFFFFF',
+            activeBorder: '#991B1B'
+          },
+          typography: {
+            fontFamily: 'Inter',
+            fontSize: '14px',
+            fontWeight: '500',
+            lineHeight: '1.4',
+            letterSpacing: '0px'
+          },
+          spacing: {
+            paddingX: '16px',
+            paddingY: '8px',
+            margin: '0px'
+          },
+          borders: {
+            radius: '6px',
+            width: '1px',
+            style: 'solid'
+          },
+          effects: {
+            shadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            hoverShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s ease-in-out',
+            transform: 'none',
+            hoverTransform: 'translateY(-1px)'
+          },
+          isActive: true,
+          isDefault: true,
+          updatedBy: userId
+        },
+        {
+          variant: 'outline',
+          size: 'default',
+          colors: {
+            background: 'transparent',
+            foreground: '#3B82F6',
+            border: '#3B82F6',
+            hoverBackground: '#3B82F6',
+            hoverForeground: '#FFFFFF',
+            hoverBorder: '#3B82F6',
+            focusBackground: '#2563EB',
+            focusForeground: '#FFFFFF',
+            focusBorder: '#2563EB',
+            activeBackground: '#1D4ED8',
+            activeForeground: '#FFFFFF',
+            activeBorder: '#1D4ED8'
+          },
+          typography: {
+            fontFamily: 'Inter',
+            fontSize: '14px',
+            fontWeight: '500',
+            lineHeight: '1.4',
+            letterSpacing: '0px'
+          },
+          spacing: {
+            paddingX: '16px',
+            paddingY: '8px',
+            margin: '0px'
+          },
+          borders: {
+            radius: '6px',
+            width: '1px',
+            style: 'solid'
+          },
+          effects: {
+            shadow: 'none',
+            hoverShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.2s ease-in-out',
+            transform: 'none',
+            hoverTransform: 'none'
+          },
+          isActive: true,
+          isDefault: true,
+          updatedBy: userId
+        }
+      ];
+
+      const results = [];
+      for (const config of defaultConfigs) {
+        // Check if config already exists
+        const existing = await this.getButtonConfig(config.variant, config.size);
+        if (!existing) {
+          const created = await this.createButtonConfig(config);
+          results.push(created);
+        }
+      }
+
+      return results;
+    } catch (error) {
+      console.error('Error initializing default button configs:', error);
       throw error;
     }
   }
