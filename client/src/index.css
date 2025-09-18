@@ -1382,38 +1382,38 @@ button[class*="bg-"], .btn[class*="bg-"], [role="button"][class*="bg-"] {
   color: #ffffff !important;
 }
 
-/* Force button text color for specific Tailwind classes with maximum specificity - ONLY FOR BUTTONS */
-button.bg-primary, button.bg-primary *, button.bg-primary span, button.bg-primary svg {
+/* Force button text color for specific Tailwind classes with maximum specificity */
+.bg-primary, .bg-primary *, .bg-primary span, .bg-primary svg {
   color: #ffffff !important;
 }
 
-button.bg-secondary, button.bg-secondary *, button.bg-secondary span, button.bg-secondary svg {
+.bg-secondary, .bg-secondary *, .bg-secondary span, .bg-secondary svg {
   color: var(--theme-color-primary, #1f2937) !important;
 }
 
-button.bg-destructive, button.bg-destructive *, button.bg-destructive span, button.bg-destructive svg {
+.bg-destructive, .bg-destructive *, .bg-destructive span, .bg-destructive svg {
   color: #ffffff !important;
 }
 
-button.bg-success, button.bg-success *, button.bg-success span, button.bg-success svg {
+.bg-success, .bg-success *, .bg-success span, .bg-success svg {
   color: #ffffff !important;
 }
 
-button.bg-warning, button.bg-warning *, button.bg-warning span, button.bg-warning svg {
+.bg-warning, .bg-warning *, .bg-warning span, .bg-warning svg {
   color: #000000 !important;
 }
 
-/* Override any Tailwind opacity and color classes on buttons ONLY */
+/* Override any Tailwind opacity and color classes on buttons */
 button[class*="text-"], .btn[class*="text-"], button *, .btn * {
   opacity: 1 !important;
 }
 
-/* Super specific button text visibility fixes - ONLY FOR BUTTONS */
-button.inline-flex {
+/* Super specific button text visibility fixes */
+button.inline-flex, .inline-flex.button, [role="button"].inline-flex {
   color: #ffffff !important;
 }
 
-button.inline-flex * {
+button.inline-flex *, .inline-flex.button *, [role="button"].inline-flex * {
   color: inherit !important;
 }
 
@@ -1425,16 +1425,16 @@ button.inline-flex.bg-primary *, button.inline-flex[class*="primary"] * {
   color: #ffffff !important;
 }
 
-/* Fix for buttons with specific class patterns - ONLY FOR BUTTONS */
-button[class*="bg-primary"], .btn[class*="bg-primary"] {
+/* Fix for buttons with specific class patterns */
+button[class*="bg-primary"], .btn[class*="bg-primary"], [class*="bg-primary"] button {
   color: #ffffff !important;
 }
 
-button[class*="bg-primary"] *, .btn[class*="bg-primary"] * {
+button[class*="bg-primary"] *, .btn[class*="bg-primary"] *, [class*="bg-primary"] button * {
   color: #ffffff !important;
 }
 
-/* Ensure all button children inherit the correct color - ONLY FOR BUTTONS */
+/* Ensure all button children inherit the correct color */
 button svg, .btn svg, [role="button"] svg {
   color: inherit !important;
   fill: currentColor !important;
@@ -1444,94 +1444,44 @@ button span, .btn span, [role="button"] span {
   color: inherit !important;
 }
 
-/* Enhanced button variants - ONLY FOR BUTTONS */
-button.bg-blue-600, button[class*="bg-blue-600"] {
+/* Enhanced button variants */
+.bg-blue-600, button[class*="bg-blue-600"] {
   background-color: #2563eb !important;
   color: white !important;
 }
 
-button.bg-green-600, button[class*="bg-green-600"] {
+.bg-green-600, button[class*="bg-green-600"] {
   background-color: #16a34a !important;
   color: white !important;
 }
 
-button.bg-red-600, button[class*="bg-red-600"] {
+.bg-red-600, button[class*="bg-red-600"] {
   background-color: #dc2626 !important;
   color: white !important;
 }
 
-button.bg-purple-600, button[class*="bg-purple-600"] {
+.bg-purple-600, button[class*="bg-purple-600"] {
   background-color: #9333ea !important;
   color: white !important;
 }
 
-/* Outline button fix - ONLY FOR BUTTONS */
-button.border-primary, button[class*="border-primary"] {
+/* Outline button fix */
+.border-primary, button[class*="border-primary"] {
   border-color: var(--theme-color-primary, #3b82f6) !important;
 }
 
-button.text-primary, button[class*="text-primary"] {
+.text-primary, button[class*="text-primary"] {
   color: var(--theme-color-primary, #3b82f6) !important;
 }
 
-/* Destructive buttons - ONLY FOR BUTTONS */
-button.bg-destructive, button[class*="bg-destructive"] {
+/* Destructive buttons */
+.bg-destructive, button[class*="bg-destructive"] {
   background-color: #ef4444 !important;
   color: white !important;
 }
 
-button.text-destructive-foreground, button[class*="text-destructive-foreground"] {
+.text-destructive-foreground, button[class*="text-destructive-foreground"] {
   color: white !important;
-}
-
-/* Switch component fixes */
-.peer[data-state="checked"] {
-  background-color: var(--theme-color-primary, #3b82f6) !important;
-}
-
-.peer[data-state="unchecked"] {
-  background-color: #e5e7eb !important;
-}
-
-/* Switch thumb (bolita blanca) fixes */
-[data-component-name="SwitchPrimitives.Thumb"], 
-.peer [data-component-name="SwitchPrimitives.Thumb"],
-button[role="switch"] span {
-  background-color: #ffffff !important;
-  border: 1px solid rgba(0,0,0,0.1) !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-  opacity: 1 !important;
-}
-
-/* Button outline variant fixes */
-button[class*="border"], .border {
-  border-color: var(--theme-color-primary, #3b82f6) !important;
-  color: var(--theme-color-primary, #3b82f6) !important;
-  background-color: white !important;
-}
-
-button[class*="border"]:hover, .border:hover {
-  background-color: var(--theme-color-primary, #3b82f6) !important;
-  color: white !important;
-}
-
-/* Vista Previa button specific fix */
-button[class*="outline"] {
-  border: 1px solid var(--theme-color-primary, #3b82f6) !important;
-  color: var(--theme-color-primary, #3b82f6) !important;
-  background-color: white !important;
-}
-
-button[class*="outline"]:hover {
-  background-color: var(--theme-color-primary, #3b82f6) !important;
-  color: white !important;
-}
-
-/* Ensure SVG icons are visible */
-button svg, .btn svg {
-  opacity: 1 !important;
-  color: inherit !important;
-  fill: currentColor !important;
 }
 
 /* Theme-aware cards */
