@@ -39,6 +39,7 @@ import AdminNavbarConfig from "@/pages/admin/navbar-config";
 import AdminSidebarConfig from "@/pages/admin/sidebar-config";
 import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminThemes from "@/pages/admin/themes";
+import AdminButtons from "@/pages/admin/buttons";
 
 // Lazy load components with enhanced error handling
 const createLazyComponent = (importFn: () => Promise<any>) => {
@@ -198,6 +199,7 @@ function Router() {
           <Route path="/admin/navbar-config" component={AdminNavbarConfig} />
           <Route path="/admin/sidebar-config" component={AdminSidebarConfig} />
           <Route path="/admin/email-config" component={AdminEmailConfig} />
+          <Route path="/admin/buttons" component={AdminButtons} />
 
           {/* 404 Route */}
           <Route component={NotFound} />

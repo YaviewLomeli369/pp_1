@@ -2752,13 +2752,8 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
   // Get all button configurations
   app.get("/api/button-config", async (req, res) => {
     try {
-      const result = await db
-        .select()
-        .from(schema.buttonConfig)
-        .where(eq(schema.buttonConfig.isActive, true))
-        .orderBy(asc(schema.buttonConfig.variant), asc(schema.buttonConfig.size));
-
-      res.json(result);
+      const configs = await storage.getAllButtonConfigs();
+      res.json(configs);
     } catch (error) {
       console.error("Error fetching button configurations:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -2792,16 +2787,11 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
   app.post("/api/button-config", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
       const configData = req.body;
-      
-      const result = await db
-        .insert(schema.buttonConfig)
-        .values({
-          ...configData,
-          updatedBy: req.userId
-        })
-        .returning();
-
-      res.json(result[0]);
+      const config = await storage.createButtonConfig({
+        ...configData,
+        updatedBy: (req as any).userId
+      });
+      res.json(config);
     } catch (error) {
       console.error("Error creating button configuration:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -2813,22 +2803,17 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
     try {
       const { id } = req.params;
       const configData = req.body;
+      
+      const updatedConfig = await storage.updateButtonConfig(id, {
+        ...configData,
+        updatedBy: (req as any).userId
+      });
 
-      const result = await db
-        .update(schema.buttonConfig)
-        .set({
-          ...configData,
-          updatedAt: new Date(),
-          updatedBy: req.userId
-        })
-        .where(eq(schema.buttonConfig.id, id))
-        .returning();
-
-      if (result.length === 0) {
+      if (!updatedConfig) {
         return res.status(404).json({ error: "Button configuration not found" });
       }
 
-      res.json(result[0]);
+      res.json(updatedConfig);
     } catch (error) {
       console.error("Error updating button configuration:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -2839,18 +2824,9 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
   app.delete("/api/button-config/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
       const { id } = req.params;
-
-      const result = await db
-        .update(schema.buttonConfig)
-        .set({
-          isActive: false,
-          updatedAt: new Date(),
-          updatedBy: req.userId
-        })
-        .where(eq(schema.buttonConfig.id, id))
-        .returning();
-
-      if (result.length === 0) {
+      
+      const deleted = await storage.deleteButtonConfig(id);
+      if (!deleted) {
         return res.status(404).json({ error: "Button configuration not found" });
       }
 
@@ -2864,58 +2840,7 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
   // Initialize default button configurations
   app.post("/api/button-config/initialize-defaults", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
-      const defaultConfigs = [
-        {
-          variant: 'default',
-          size: 'default',
-          colors: {
-            background: '#3B82F6',
-            foreground: '#FFFFFF',
-            border: '#3B82F6',
-            hoverBackground: '#2563EB',
-            hoverForeground: '#FFFFFF',
-            hoverBorder: '#2563EB'
-          },
-          isDefault: true
-        },
-        {
-          variant: 'outline',
-          size: 'default',
-          colors: {
-            background: 'transparent',
-            foreground: '#3B82F6',
-            border: '#E5E7EB',
-            hoverBackground: '#F3F4F6',
-            hoverForeground: '#1F2937',
-            hoverBorder: '#E5E7EB'
-          }
-        },
-        {
-          variant: 'destructive',
-          size: 'default',
-          colors: {
-            background: '#EF4444',
-            foreground: '#FFFFFF',
-            border: '#EF4444',
-            hoverBackground: '#DC2626',
-            hoverForeground: '#FFFFFF',
-            hoverBorder: '#DC2626'
-          }
-        }
-      ];
-
-      const results = [];
-      for (const config of defaultConfigs) {
-        const result = await db
-          .insert(schema.buttonConfig)
-          .values({
-            ...config,
-            updatedBy: req.userId
-          })
-          .returning();
-        results.push(result[0]);
-      }
-
+      const results = await storage.initializeDefaultButtonConfigs((req as any).userId);
       res.json({
         message: "Default button configurations initialized",
         configurations: results
