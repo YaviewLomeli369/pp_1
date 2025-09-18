@@ -1777,7 +1777,23 @@ button[role="switch"][data-state="checked"] span {
 }
 
 button[role="switch"][data-state="unchecked"] span {
-  transform: translateX(1px) !important;
+  transform: translateX(2px) !important;
+}
+
+/* Ensure proper switch sizing and positioning */
+button[role="switch"] {
+  width: 44px !important;
+  height: 24px !important;
+  padding: 0 !important;
+}
+
+button[role="switch"] span {
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  width: 20px !important;
+  height: 20px !important;
+  transition: transform 0.2s ease !important;
 }
 
 /* Button outline variant fixes - EXCLUDE switches */
