@@ -1,0 +1,32 @@
+buttons.tsx:257 Uncaught ReferenceError: Badge is not defined
+    at buttons.tsx:257:20
+    at Array.map (<anonymous>)
+    at AdminButtons (buttons.tsx:235:27)
+
+buttons.tsx:257 Uncaught ReferenceError: Badge is not defined
+    at buttons.tsx:257:20
+    at Array.map (<anonymous>)
+    at AdminButtons (buttons.tsx:235:27)
+chunk-NXESFFTV.js?v=1d2fd48f:14080 The above error occurred in the <AdminButtons> component:
+
+    at AdminButtons (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/pages/admin/buttons.tsx:40:23)
+    at Route (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1d2fd48f:264:16)
+    at Switch (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1d2fd48f:320:17)
+    at Suspense
+    at div
+    at Router (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/App.tsx:112:3)
+    at ErrorBoundary (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/components/ErrorBoundary.tsx:7:5)
+    at Theme2025Provider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/components/theme-provider.tsx:963:37)
+    at Provider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…unner/workspace/node_modules/.vite/deps/chunk-FEZRLPPG.js?v=1d2fd48f:37:15)
+    at TooltipProvider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=1d2fd48f:61:5)
+    at QueryClientProvider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=1d2fd48f:2747:3)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+ErrorBoundary.tsx:35 ErrorBoundary caught an error: ReferenceError: Badge is not defined
+    at buttons.tsx:257:20
+    at Array.map (<anonymous>)
+    at AdminButtons (buttons.tsx:235:27)
+ 
+{componentStack: '\n    at AdminButtons (https://54265a11-fa04-401e-9…tack_react-query.js?v=1d2fd48f:2747:3)\n    at App'}
+
