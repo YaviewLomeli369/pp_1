@@ -1734,12 +1734,39 @@ button[role="switch"] span[data-state="unchecked"] {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
   opacity: 1 !important;
   color: transparent !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
 }
 
-/* Ensure switch thumbs are always visible */
+/* Ensure switch thumbs are always visible and circular */
 .peer span[data-component-name="SwitchPrimitives.Thumb"] {
   background: #ffffff !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+}
+
+/* Force circular shape for all switch thumbs */
+button[role="switch"] span {
+  border-radius: 50% !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+}
+
+/* Additional specificity for switch thumb shape */
+.peer.inline-flex span[data-component-name="SwitchPrimitives.Thumb"] {
+  border-radius: 9999px !important;
+  aspect-ratio: 1 !important;
 }
 
 /* Button outline variant fixes - EXCLUDE switches */
