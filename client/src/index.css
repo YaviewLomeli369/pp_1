@@ -12,7 +12,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* Theme 2025 Styles */
 .theme-astra {
   --border-radius-sm: 8px;
@@ -397,107 +396,6 @@
   border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
   padding: 2rem !important;
-
-
-/* Desktop navbar layout fixes - prevent overlapping */
-@media (min-width: 1076px) {
-  .navbar-custom .navbar-container {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 0.5rem !important;
-    width: 100% !important;
-  }
-  
-  .navbar-custom .navbar-container > div:first-child {
-    flex-shrink: 0 !important;
-    min-width: 0 !important;
-    max-width: 200px !important;
-  }
-  
-  .navbar-custom .navbar-container > div:nth-child(2) {
-    flex: 1 !important;
-    display: flex !important;
-    justify-content: center !important;
-    padding: 0 1rem !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-  }
-  
-  .navbar-custom .navbar-container > div:last-child {
-    flex-shrink: 0 !important;
-    min-width: 0 !important;
-    max-width: 300px !important;
-  }
-}
-
-/* Responsive adjustments for medium screens */
-@media (min-width: 1076px) and (max-width: 1300px) {
-  .navbar-custom .navbar-container {
-    gap: 0.25rem !important;
-    padding: 0 1rem !important;
-  }
-  
-  .navbar-custom .navbar-container > div:nth-child(2) {
-    padding: 0 0.5rem !important;
-  }
-  
-  .navbar-custom .navbar-link {
-    font-size: 14px !important;
-    padding: 0.5rem 0.75rem !important;
-  }
-}
-
-/* Centered navbar items for all themes - only in flex layout */
-.theme-betheme .navbar-nav,
-.theme-storefront .navbar-nav,
-.theme-oceanwp .navbar-nav,
-.theme-kadence .navbar-nav,
-.theme-avada .navbar-nav,
-.theme-divi .navbar-nav,
-.theme-sydney .navbar-nav {
-  display: flex !important;
-  justify-content: center !important;
-  gap: 2rem !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-}
-
-/* Mobile adjustments for all themes */
-@media (max-width: 1075px) {
-  .theme-betheme .navbar-nav,
-  .theme-storefront .navbar-nav,
-  .theme-oceanwp .navbar-nav,
-  .theme-kadence .navbar-nav,
-  .theme-avada .navbar-nav,
-  .theme-divi .navbar-nav,
-  .theme-sydney .navbar-nav {
-    position: static !important;
-    transform: none !important;
-    margin: 0 1rem !important;
-  }
-  
-  .navbar-custom .navbar-container {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    gap: 1rem !important;
-    padding: 0 1rem !important;
-  }
-  
-  .navbar-custom .navbar-container > div:first-child {
-    flex: 1 !important;
-    min-width: 0 !important;
-  }
-  
-  .navbar-custom .navbar-container > div:last-child {
-    flex: 0 0 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-  }
-}
-
   margin-bottom: 1.5rem !important;
   position: relative !important;
   overflow: hidden !important;
@@ -1052,11 +950,9 @@
   display: flex !important;
   gap: 3rem !important;
   align-items: center !important;
-  position: absolute !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+  flex: 1 !important;
   justify-content: center !important;
-  margin: 0 !important;
+  margin: 0 2rem !important;
 }
 
 .theme-hello .navbar-link {
@@ -1159,58 +1055,11 @@
   /* Hello theme mobile adjustments */
   .theme-hello .navbar-nav {
     gap: 2rem !important;
-    position: static !important;
-    transform: none !important;
-    margin: 0 1rem !important;
   }
 
   .theme-hello .navbar-logo {
     position: static !important;
     transform: none !important;
-  }
-  
-  /* Hello theme desktop layout */
-  @media (min-width: 1076px) {
-    .theme-hello .navbar-container {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 2rem !important;
-      width: 100% !important;
-    }
-    
-    .theme-hello .navbar-container > div:first-child {
-      flex-shrink: 0 !important;
-    }
-    
-    .theme-hello .navbar-container > div:nth-child(2) {
-      flex: 1 !important;
-      display: flex !important;
-      justify-content: center !important;
-    }
-    
-    .theme-hello .navbar-container > div:last-child {
-      flex-shrink: 0 !important;
-    }
-  }
-
-  /* Mobile navbar container adjustments */
-  @media (max-width: 1075px) {
-    .navbar-container {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      padding: 0 1rem !important;
-    }
-    
-    .navbar-container > div:first-child {
-      flex: 1 !important;
-    }
-    
-    .navbar-container > div:last-child {
-      flex-shrink: 0 !important;
-      margin-left: auto !important;
-    }
   }
 
   /* Avada floating navbar on mobile */

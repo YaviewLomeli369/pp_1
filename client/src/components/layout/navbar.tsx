@@ -565,49 +565,45 @@ export function Navbar() {
         data-navbar="true"
       >
       <div className="navbar-container">
-        <div className="flex items-center h-full w-full">
+        <div className="flex items-center justify-between h-full">
           {/* Logo + Brand */}
-          <div className="flex items-center min-w-0 flex-shrink-0">
-            <NavLink href="/" className="flex items-center space-x-3">
-              <img
-                src={logoSvg}
-                alt="Logo"
-                className="navbar-logo object-contain"
-              />
-            </NavLink>
-          </div>
+          <NavLink href="/" className="flex items-center space-x-3">
+            <img
+              src={logoSvg}
+              alt="Logo"
+              className="navbar-logo object-contain"
+            />
+          </NavLink>
 
-          {/* Desktop Menu - Centered with proper spacing */}
-          <div className={`flex-1 flex justify-center min-w-0 ${isDesktop ? "block" : "hidden"}`}>
-            <div className="flex items-center space-x-4 xl:space-x-6 flex-wrap justify-center">
-              {navItems.slice(0, 6).map((item) => (
-                <NavLink
-                  key={`${item.href}-${navRef.current}`}
-                  href={item.href}
-                  className="navbar-link whitespace-nowrap text-sm xl:text-base"
-                >
-                  {item.label}
-                </NavLink>
-              ))}
-              {navItems.length > 6 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="text-sm xl:text-base font-medium whitespace-nowrap">
-                    Más
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {navItems.slice(6).map((item) => (
-                      <DropdownMenuItem key={item.href} onClick={() => handleNavigation(item.href)}>
-                        {item.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
+          {/* Desktop Menu */}
+          <div className={`items-center space-x-8 ${isDesktop ? "flex" : "hidden"}`}>
+            {navItems.slice(0, 6).map((item) => (
+              <NavLink
+                key={`${item.href}-${navRef.current}`}
+                href={item.href}
+                className="navbar-link"
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            {navItems.length > 6 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="text-base font-medium hover:text-primary">
+                  Más
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {navItems.slice(6).map((item) => (
+                    <DropdownMenuItem key={item.href} onClick={() => handleNavigation(item.href)}>
+                      {item.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center space-x-3 min-w-0 flex-shrink-0">
+          <div className="flex items-center space-x-3">
             {modules.tienda?.activo && (
               <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
                 <DialogTrigger asChild>
@@ -738,11 +734,11 @@ export function Navbar() {
             )}
 
             {/* Auth Desktop */}
-            <div className={`items-center space-x-2 lg:space-x-3 flex-shrink-0 ${isDesktop ? "flex" : "hidden"}`}>
+            <div className={`items-center space-x-3 ${isDesktop ? "flex" : "hidden"}`}>
               {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar className="h-8 w-8 lg:h-9 lg:w-9 cursor-pointer ring-2 ring-white/40">
+                    <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-white/40">
                       <AvatarFallback>
                         {user?.username?.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -764,12 +760,12 @@ export function Navbar() {
                 </DropdownMenu>
               ) : (
                 <>
-                  <NavLink href="/login" className="text-gray-700 hover:text-primary text-sm lg:text-base whitespace-nowrap">
+                  <NavLink href="/login" className="text-gray-700 hover:text-primary">
                     Iniciar Sesión
                   </NavLink>
                   <NavLink
                     href="/register"
-                    className="border border-primary text-primary rounded-md px-2 py-1 lg:px-4 lg:py-2 hover:bg-primary hover:text-white transition text-sm lg:text-base whitespace-nowrap"
+                    className="border border-primary text-primary rounded-md px-4 py-2 hover:bg-primary hover:text-white transition"
                   >
                     Registrarse
                   </NavLink>
