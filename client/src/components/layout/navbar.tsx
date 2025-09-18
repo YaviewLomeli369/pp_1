@@ -588,7 +588,7 @@ export function Navbar() {
             ))}
             {navItems.length > 6 && (
               <DropdownMenu>
-                <DropdownMenuTrigger className="text-base font-medium hover:text-primary">
+                <DropdownMenuTrigger className="text-base font-medium ">
                   Más
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
