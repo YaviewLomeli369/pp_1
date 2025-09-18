@@ -1382,30 +1382,66 @@ button[class*="bg-"], .btn[class*="bg-"], [role="button"][class*="bg-"] {
   color: #ffffff !important;
 }
 
-/* Force button text color for specific Tailwind classes */
-.bg-primary, .bg-primary * {
+/* Force button text color for specific Tailwind classes with maximum specificity */
+.bg-primary, .bg-primary *, .bg-primary span, .bg-primary svg {
   color: #ffffff !important;
 }
 
-.bg-secondary, .bg-secondary * {
+.bg-secondary, .bg-secondary *, .bg-secondary span, .bg-secondary svg {
   color: var(--theme-color-primary, #1f2937) !important;
 }
 
-.bg-destructive, .bg-destructive * {
+.bg-destructive, .bg-destructive *, .bg-destructive span, .bg-destructive svg {
   color: #ffffff !important;
 }
 
-.bg-success, .bg-success * {
+.bg-success, .bg-success *, .bg-success span, .bg-success svg {
   color: #ffffff !important;
 }
 
-.bg-warning, .bg-warning * {
+.bg-warning, .bg-warning *, .bg-warning span, .bg-warning svg {
   color: #000000 !important;
 }
 
-/* Override any Tailwind opacity classes on buttons */
-button[class*="text-"], .btn[class*="text-"] {
+/* Override any Tailwind opacity and color classes on buttons */
+button[class*="text-"], .btn[class*="text-"], button *, .btn * {
   opacity: 1 !important;
+}
+
+/* Super specific button text visibility fixes */
+button.inline-flex, .inline-flex.button, [role="button"].inline-flex {
+  color: #ffffff !important;
+}
+
+button.inline-flex *, .inline-flex.button *, [role="button"].inline-flex * {
+  color: inherit !important;
+}
+
+button.inline-flex.bg-primary, button.inline-flex[class*="primary"] {
+  color: #ffffff !important;
+}
+
+button.inline-flex.bg-primary *, button.inline-flex[class*="primary"] * {
+  color: #ffffff !important;
+}
+
+/* Fix for buttons with specific class patterns */
+button[class*="bg-primary"], .btn[class*="bg-primary"], [class*="bg-primary"] button {
+  color: #ffffff !important;
+}
+
+button[class*="bg-primary"] *, .btn[class*="bg-primary"] *, [class*="bg-primary"] button * {
+  color: #ffffff !important;
+}
+
+/* Ensure all button children inherit the correct color */
+button svg, .btn svg, [role="button"] svg {
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+button span, .btn span, [role="button"] span {
+  color: inherit !important;
 }
 
 /* Enhanced button variants */
