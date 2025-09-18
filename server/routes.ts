@@ -2747,6 +2747,360 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
     }
   });
 
+  // =================== BUTTON CONFIGURATION ROUTES ===================
+
+  // Get all button configurations
+  app.get("/api/button-config", async (req, res) => {
+    try {
+      const result = await db
+        .select()
+        .from(schema.buttonConfig)
+        .where(eq(schema.buttonConfig.isActive, true))
+        .orderBy(asc(schema.buttonConfig.variant), asc(schema.buttonConfig.size));
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching button configurations:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Get button configuration by variant and size
+  app.get("/api/button-config/:variant/:size", async (req, res) => {
+    try {
+      const { variant, size } = req.params;
+      const result = await db
+        .select()
+        .from(schema.buttonConfig)
+        .where(
+          and(
+            eq(schema.buttonConfig.variant, variant),
+            eq(schema.buttonConfig.size, size),
+            eq(schema.buttonConfig.isActive, true)
+          )
+        )
+        .limit(1);
+
+      res.json(result[0] || null);
+    } catch (error) {
+      console.error("Error fetching button configuration:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Create button configuration
+  app.post("/api/button-config", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const configData = req.body;
+      
+      const result = await db
+        .insert(schema.buttonConfig)
+        .values({
+          ...configData,
+          updatedBy: req.userId
+        })
+        .returning();
+
+      res.json(result[0]);
+    } catch (error) {
+      console.error("Error creating button configuration:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Update button configuration
+  app.put("/api/button-config/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const configData = req.body;
+
+      const result = await db
+        .update(schema.buttonConfig)
+        .set({
+          ...configData,
+          updatedAt: new Date(),
+          updatedBy: req.userId
+        })
+        .where(eq(schema.buttonConfig.id, id))
+        .returning();
+
+      if (result.length === 0) {
+        return res.status(404).json({ error: "Button configuration not found" });
+      }
+
+      res.json(result[0]);
+    } catch (error) {
+      console.error("Error updating button configuration:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Delete button configuration
+  app.delete("/api/button-config/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await db
+        .update(schema.buttonConfig)
+        .set({
+          isActive: false,
+          updatedAt: new Date(),
+          updatedBy: req.userId
+        })
+        .where(eq(schema.buttonConfig.id, id))
+        .returning();
+
+      if (result.length === 0) {
+        return res.status(404).json({ error: "Button configuration not found" });
+      }
+
+      res.json({ message: "Button configuration deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting button configuration:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Initialize default button configurations
+  app.post("/api/button-config/initialize-defaults", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const defaultConfigs = [
+        {
+          variant: 'default',
+          size: 'default',
+          colors: {
+            background: '#3B82F6',
+            foreground: '#FFFFFF',
+            border: '#3B82F6',
+            hoverBackground: '#2563EB',
+            hoverForeground: '#FFFFFF',
+            hoverBorder: '#2563EB'
+          },
+          isDefault: true
+        },
+        {
+          variant: 'outline',
+          size: 'default',
+          colors: {
+            background: 'transparent',
+            foreground: '#3B82F6',
+            border: '#E5E7EB',
+            hoverBackground: '#F3F4F6',
+            hoverForeground: '#1F2937',
+            hoverBorder: '#E5E7EB'
+          }
+        },
+        {
+          variant: 'destructive',
+          size: 'default',
+          colors: {
+            background: '#EF4444',
+            foreground: '#FFFFFF',
+            border: '#EF4444',
+            hoverBackground: '#DC2626',
+            hoverForeground: '#FFFFFF',
+            hoverBorder: '#DC2626'
+          }
+        }
+      ];
+
+      const results = [];
+      for (const config of defaultConfigs) {
+        const result = await db
+          .insert(schema.buttonConfig)
+          .values({
+            ...config,
+            updatedBy: req.userId
+          })
+          .returning();
+        results.push(result[0]);
+      }
+
+      res.json({
+        message: "Default button configurations initialized",
+        configurations: results
+      });
+    } catch (error) {
+      console.error("Error initializing default button configurations:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // =================== SECTION CONTENT CONFIG ROUTES ===================
+
+  // Get section content by page and section type
+  app.get("/api/section-content/:pageId/:sectionType", async (req, res) => {
+    try {
+      const { pageId, sectionType } = req.params;
+      const result = await db
+        .select()
+        .from(schema.sectionContentConfig)
+        .where(
+          and(
+            eq(schema.sectionContentConfig.pageId, pageId),
+            eq(schema.sectionContentConfig.sectionType, sectionType),
+            eq(schema.sectionContentConfig.isActive, true)
+          )
+        )
+        .orderBy(asc(schema.sectionContentConfig.order));
+
+      res.json(result[0] || null);
+    } catch (error) {
+      console.error("Error fetching section content:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Get all section content for a page
+  app.get("/api/section-content/:pageId", async (req, res) => {
+    try {
+      const { pageId } = req.params;
+      const result = await db
+        .select()
+        .from(schema.sectionContentConfig)
+        .where(
+          and(
+            eq(schema.sectionContentConfig.pageId, pageId),
+            eq(schema.sectionContentConfig.isActive, true)
+          )
+        )
+        .orderBy(asc(schema.sectionContentConfig.order));
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching section contents:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Create or update section content
+  app.put("/api/section-content/:pageId/:sectionType", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { pageId, sectionType } = req.params;
+      const contentData = req.body;
+
+      // Check if section content exists
+      const existing = await db
+        .select()
+        .from(schema.sectionContentConfig)
+        .where(
+          and(
+            eq(schema.sectionContentConfig.pageId, pageId),
+            eq(schema.sectionContentConfig.sectionType, sectionType)
+          )
+        )
+        .limit(1);
+
+      let result;
+      if (existing.length > 0) {
+        // Update existing
+        result = await db
+          .update(schema.sectionContentConfig)
+          .set({
+            ...contentData,
+            updatedAt: new Date()
+          })
+          .where(
+            and(
+              eq(schema.sectionContentConfig.pageId, pageId),
+              eq(schema.sectionContentConfig.sectionType, sectionType)
+            )
+          )
+          .returning();
+      } else {
+        // Create new
+        result = await db
+          .insert(schema.sectionContentConfig)
+          .values({
+            pageId,
+            sectionType,
+            ...contentData
+          })
+          .returning();
+      }
+
+      res.json(result[0]);
+    } catch (error) {
+      console.error("Error saving section content:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Update section content image
+  app.put("/api/section-content/:pageId/:sectionType/image", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      const { pageId, sectionType } = req.params;
+      const { imageURL, imageType = 'images' } = req.body; // imageType can be 'images' or 'backgroundImage'
+
+      if (!imageURL) {
+        return res.status(400).json({ error: "imageURL is required" });
+      }
+
+      // Normalize the object URL to internal path
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = objectStorageService.normalizeObjectEntityPath(imageURL);
+
+      // Get existing section content
+      const existing = await db
+        .select()
+        .from(schema.sectionContentConfig)
+        .where(
+          and(
+            eq(schema.sectionContentConfig.pageId, pageId),
+            eq(schema.sectionContentConfig.sectionType, sectionType)
+          )
+        )
+        .limit(1);
+
+      let updateData: any = { updatedAt: new Date() };
+
+      if (imageType === 'backgroundImage') {
+        updateData.backgroundImage = normalizedPath;
+      } else {
+        // Add to images array
+        const currentImages = existing[0]?.images || [];
+        const newImages = Array.isArray(currentImages) ? [...currentImages, normalizedPath] : [normalizedPath];
+        updateData.images = newImages.slice(0, 10); // Limit to 10 images
+      }
+
+      let result;
+      if (existing.length > 0) {
+        // Update existing
+        result = await db
+          .update(schema.sectionContentConfig)
+          .set(updateData)
+          .where(
+            and(
+              eq(schema.sectionContentConfig.pageId, pageId),
+              eq(schema.sectionContentConfig.sectionType, sectionType)
+            )
+          )
+          .returning();
+      } else {
+        // Create new with image
+        result = await db
+          .insert(schema.sectionContentConfig)
+          .values({
+            pageId,
+            sectionType,
+            ...updateData,
+            isActive: true,
+            order: 0
+          })
+          .returning();
+      }
+
+      res.json({
+        message: "Section content image updated successfully",
+        sectionContent: result[0],
+        imagePath: normalizedPath
+      });
+    } catch (error) {
+      console.error("Error updating section content image:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // =================== OBJECT STORAGE ROUTES ===================
 
   // =================== STRIPE PAYMENT API ROUTES ===================

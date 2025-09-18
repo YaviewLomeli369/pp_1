@@ -357,6 +357,23 @@ export const sections = pgTable("sections", {
   config: jsonb("config"), // additional configuration for the section
 });
 
+// Section Content Configuration (for public sections with images)
+export const sectionContentConfig = pgTable("section_content_config", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  pageId: varchar("page_id").notNull(), // 'home', 'services', 'conocenos', etc.
+  sectionType: varchar("section_type").notNull(), // 'hero', 'about', 'services', etc.
+  title: text("title"),
+  subtitle: text("subtitle"),
+  content: text("content"),
+  images: jsonb("images").default(sql`'[]'::jsonb`), // Array of image URLs
+  backgroundImage: text("background_image"),
+  config: jsonb("config").default(sql`'{}'::jsonb`), // Additional configuration
+  isActive: boolean("is_active").default(true),
+  order: integer("order").default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // Media Storage - Referencias a imágenes en Object Storage
 export const mediaFiles = pgTable("media_files", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -603,6 +620,15 @@ export type BlogCategory = typeof blogCategories.$inferSelect;
 export type InsertBlogCategory = z.infer<typeof insertBlogCategorySchema>;
 export type Section = typeof sections.$inferSelect;
 export type InsertSection = z.infer<typeof insertSectionSchema>;
+
+export const insertSectionContentConfigSchema = createInsertSchema(sectionContentConfig).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type SectionContentConfig = typeof sectionContentConfig.$inferSelect;
+export type InsertSectionContentConfig = z.infer<typeof insertSectionContentConfigSchema>;
 export type PaymentConfig = typeof paymentConfig.$inferSelect;
 export type InsertPaymentConfig = typeof paymentConfig.$inferInsert;
 export type MediaFile = typeof mediaFiles.$inferSelect;
@@ -624,6 +650,56 @@ export const navbarConfig = pgTable("navbar_config", {
   updatedBy: varchar("updated_by").references(() => users.id),
 });
 
+// Button Configuration System
+export const buttonConfig = pgTable("button_config", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  variant: text("variant").notNull(), // 'primary', 'secondary', 'outline', 'destructive', 'ghost', 'link'
+  size: text("size").notNull().default('default'), // 'sm', 'default', 'lg', 'icon'
+  colors: jsonb("colors").notNull().default({
+    background: '#3B82F6',
+    foreground: '#FFFFFF',
+    border: '#3B82F6',
+    hoverBackground: '#2563EB',
+    hoverForeground: '#FFFFFF',
+    hoverBorder: '#2563EB',
+    focusBackground: '#1D4ED8',
+    focusForeground: '#FFFFFF',
+    focusBorder: '#1D4ED8',
+    activeBackground: '#1E40AF',
+    activeForeground: '#FFFFFF',
+    activeBorder: '#1E40AF'
+  }),
+  typography: jsonb("typography").notNull().default({
+    fontFamily: 'Inter',
+    fontSize: '14px',
+    fontWeight: '500',
+    lineHeight: '1.4',
+    letterSpacing: '0px'
+  }),
+  spacing: jsonb("spacing").notNull().default({
+    paddingX: '16px',
+    paddingY: '8px',
+    margin: '0px'
+  }),
+  borders: jsonb("borders").notNull().default({
+    radius: '6px',
+    width: '1px',
+    style: 'solid'
+  }),
+  effects: jsonb("effects").notNull().default({
+    shadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    hoverShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.2s ease-in-out',
+    transform: 'none',
+    hoverTransform: 'translateY(-1px)'
+  }),
+  isActive: boolean("is_active").default(true),
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedBy: varchar("updated_by").references(() => users.id),
+});
+
 export const insertNavbarConfigSchema = createInsertSchema(navbarConfig).omit({
   id: true,
   updatedAt: true,
@@ -631,3 +707,12 @@ export const insertNavbarConfigSchema = createInsertSchema(navbarConfig).omit({
 
 export type NavbarConfig = typeof navbarConfig.$inferSelect;
 export type InsertNavbarConfig = z.infer<typeof insertNavbarConfigSchema>;
+
+export const insertButtonConfigSchema = createInsertSchema(buttonConfig).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ButtonConfig = typeof buttonConfig.$inferSelect;
+export type InsertButtonConfig = z.infer<typeof insertButtonConfigSchema>;

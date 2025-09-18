@@ -24,7 +24,9 @@ import {
   MapPin,
   MessageCircle, // Added for WhatsApp configuration
   Navigation, // Added for Navbar configuration
-  Sparkles // Added for Themes 2025
+  Sparkles, // Added for Themes 2025
+  Brush, // Added for Appearance
+  Mouse // Added for Buttons
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -45,7 +47,7 @@ interface SidebarItem {
 const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/modules", label: "Módulos", icon: Puzzle, section: "Configuración", superuserOnly: true },
-  { href: "/admin/appearance", label: "Apariencia", icon: Palette, section: "Configuración" },
+  { href: "/admin/appearance", label: "Apariencia", icon: Brush, section: "Configuración" },
   { href: "/admin/themes", label: "Temas y Plantillas", icon: Palette, section: "Configuración" },
   { href: "/admin/themes-2025", label: "Temas 2025", icon: Sparkles, section: "Configuración", order: 2.5 },
   { href: "/admin/users", label: "Usuarios", icon: Users, section: "Configuración" },
@@ -62,6 +64,7 @@ const getAllSidebarItems = (): SidebarItem[] => [
   { href: "/admin/reservations", label: "Reservas", icon: Calendar, section: "Módulos de Negocio", moduleRequired: "reservas" },
   { href: "/admin/reservation-settings", label: "Config. Reservas", icon: Settings, section: "Módulos de Negocio", moduleRequired: "reservas" },
   { href: "/admin/contact", label: "Contacto", icon: MessageSquare, section: "Módulos de Negocio", moduleRequired: "contacto" },
+  { href: "/admin/buttons", label: "Botones", icon: Mouse, section: "Configuración" },
 
   { href: "/admin/contact-info", label: "Información de Contacto", icon: MapPin, section: "Módulos de Negocio", moduleRequired: "contacto" },
   { href: "/admin/whatsapp-config", label: "WhatsApp", icon: MessageCircle, section: "Configuración General", order: 16 },
