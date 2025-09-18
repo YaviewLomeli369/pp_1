@@ -397,6 +397,56 @@
   border: 1px solid #e2e8f0 !important;
   border-radius: 12px !important;
   padding: 2rem !important;
+
+
+/* Centered navbar items for all themes */
+.theme-betheme .navbar-nav,
+.theme-storefront .navbar-nav,
+.theme-oceanwp .navbar-nav,
+.theme-kadence .navbar-nav,
+.theme-avada .navbar-nav,
+.theme-divi .navbar-nav,
+.theme-sydney .navbar-nav {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  justify-content: center !important;
+}
+
+/* Mobile adjustments for all themes */
+@media (max-width: 1075px) {
+  .theme-betheme .navbar-nav,
+  .theme-storefront .navbar-nav,
+  .theme-oceanwp .navbar-nav,
+  .theme-kadence .navbar-nav,
+  .theme-avada .navbar-nav,
+  .theme-divi .navbar-nav,
+  .theme-sydney .navbar-nav {
+    position: static !important;
+    transform: none !important;
+    margin: 0 1rem !important;
+  }
+}
+
+/* Ensure mobile navbar layout doesn't cluster items */
+@media (max-width: 1075px) {
+  .navbar-custom .navbar-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
+  
+  .navbar-custom .navbar-container > div:first-child {
+    flex: 0 0 auto !important;
+  }
+  
+  .navbar-custom .navbar-container > div:last-child {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+}
+
   margin-bottom: 1.5rem !important;
   position: relative !important;
   overflow: hidden !important;
@@ -951,9 +1001,11 @@
   display: flex !important;
   gap: 3rem !important;
   align-items: center !important;
-  flex: 1 !important;
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
   justify-content: center !important;
-  margin: 0 2rem !important;
+  margin: 0 !important;
 }
 
 .theme-hello .navbar-link {
@@ -1056,11 +1108,33 @@
   /* Hello theme mobile adjustments */
   .theme-hello .navbar-nav {
     gap: 2rem !important;
+    position: static !important;
+    transform: none !important;
+    margin: 0 1rem !important;
   }
 
   .theme-hello .navbar-logo {
     position: static !important;
     transform: none !important;
+  }
+
+  /* Mobile navbar container adjustments */
+  @media (max-width: 1075px) {
+    .navbar-container {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 0 1rem !important;
+    }
+    
+    .navbar-container > div:first-child {
+      flex: 1 !important;
+    }
+    
+    .navbar-container > div:last-child {
+      flex-shrink: 0 !important;
+      margin-left: auto !important;
+    }
   }
 
   /* Avada floating navbar on mobile */

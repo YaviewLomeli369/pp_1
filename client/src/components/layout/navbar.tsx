@@ -567,16 +567,18 @@ export function Navbar() {
       <div className="navbar-container">
         <div className="flex items-center justify-between h-full">
           {/* Logo + Brand */}
-          <NavLink href="/" className="flex items-center space-x-3">
-            <img
-              src={logoSvg}
-              alt="Logo"
-              className="navbar-logo object-contain"
-            />
-          </NavLink>
+          <div className="flex items-center flex-1">
+            <NavLink href="/" className="flex items-center space-x-3">
+              <img
+                src={logoSvg}
+                alt="Logo"
+                className="navbar-logo object-contain"
+              />
+            </NavLink>
+          </div>
 
           {/* Desktop Menu */}
-          <div className={`items-center space-x-8 ${isDesktop ? "flex" : "hidden"}`}>
+          <div className={`items-center space-x-8 absolute left-1/2 transform -translate-x-1/2 ${isDesktop ? "flex" : "hidden"}`}>
             {navItems.slice(0, 6).map((item) => (
               <NavLink
                 key={`${item.href}-${navRef.current}`}
@@ -603,7 +605,7 @@ export function Navbar() {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 flex-shrink-0">
             {modules.tienda?.activo && (
               <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
                 <DialogTrigger asChild>
