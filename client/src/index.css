@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
@@ -1035,7 +1034,7 @@
     border-radius: 0 !important;
     margin: 0 !important;
   }
-  
+
   /* Hide complex navigation patterns on mobile */
   .theme-betheme .navbar-nav,
   .theme-oceanwp .navbar-nav,
@@ -1043,26 +1042,26 @@
   .theme-hestia .navbar-nav {
     display: none !important;
   }
-  
+
   /* Kadence theme mobile - stack logo and nav */
   .theme-kadence .navbar-container {
     padding: 0.5rem !important;
   }
-  
+
   .theme-kadence .navbar-nav {
     gap: 1.5rem !important;
   }
-  
+
   /* Hello theme mobile adjustments */
   .theme-hello .navbar-nav {
     gap: 2rem !important;
   }
-  
+
   .theme-hello .navbar-logo {
     position: static !important;
     transform: none !important;
   }
-  
+
   /* Avada floating navbar on mobile */
   .theme-avada .navbar-custom {
     position: fixed !important;
@@ -1070,17 +1069,17 @@
     border-radius: 0 !important;
     top: 0 !important;
   }
-  
+
   /* Sydney search integration on mobile */
   .theme-sydney .navbar-container {
     grid-template-columns: auto 1fr !important;
     gap: 1rem !important;
   }
-  
+
   .theme-sydney .navbar-search {
     min-width: 150px !important;
   }
-  
+
   /* Card adjustments */
   .theme-divi .card,
   .theme-betheme .card,
@@ -1088,7 +1087,7 @@
     padding: 1.5rem !important;
     border-radius: 12px !important;
   }
-  
+
   /* Hero section adjustments */
   .theme-divi .hero-section,
   .theme-betheme .hero-section {
@@ -1137,7 +1136,7 @@
   --sidebar-border: hsl(214.3 31.8% 91.4%);
   --sidebar-ring: hsl(214.3 83.2% 57.8%);
   --font-sans: 'Inter', sans-serif;
-  
+
   /* Theme-specific variables with enhanced fallbacks */
   --theme-color-primary: #3b82f6;
   --theme-color-secondary: #6366f1;
@@ -1152,7 +1151,7 @@
   --theme-color-success: #10b981;
   --theme-color-warning: #f59e0b;
   --theme-color-error: #ef4444;
-  
+
   /* Button specific variables */
   --theme-button-primary-background: var(--theme-color-primary, #3b82f6);
   --theme-button-primary-color: #ffffff;
@@ -1161,26 +1160,26 @@
   --theme-button-secondary-background: transparent;
   --theme-button-secondary-color: var(--theme-color-primary, #3b82f6);
   --theme-button-secondary-border: 1px solid var(--theme-color-primary, #3b82f6);
-  
+
   --theme-typography-font-family: 'Inter';
   --theme-typography-heading-font: 'Inter';
   --theme-typography-font-size: 16px;
   --theme-typography-line-height: 1.6;
   --theme-typography-heading-weight: 600;
   --theme-typography-body-weight: 400;
-  
+
   --theme-container-width: 1200px;
   --theme-spacing-xs: 0.25rem;
   --theme-spacing-sm: 0.5rem;
   --theme-spacing-md: 1rem;
   --theme-spacing-lg: 1.5rem;
   --theme-spacing-xl: 3rem;
-  
+
   --theme-radius-sm: 4px;
   --theme-radius-md: 8px;
   --theme-radius-lg: 12px;
   --theme-radius-xl: 16px;
-  
+
   --theme-animation-transition: all 0.3s ease;
   --theme-animation-hover: all 0.2s ease;
   --theme-animation-focus: all 0.15s ease;
@@ -1616,11 +1615,11 @@ input:focus, textarea:focus, select:focus {
     padding-left: var(--theme-spacing-sm, 0.5rem);
     padding-right: var(--theme-spacing-sm, 0.5rem);
   }
-  
+
   .hero-section {
     padding: var(--theme-spacing-lg, 2rem) 0;
   }
-  
+
   .navbar-nav {
     flex-direction: column;
     gap: var(--theme-spacing-sm, 0.5rem);
@@ -1715,4 +1714,61 @@ input:focus, textarea:focus, select:focus {
   .no-print { display: none !important; }
   body { background: white !important; color: black !important; }
   .card { border: 1px solid #ccc !important; box-shadow: none !important; }
+}
+
+/* Switch component fixes - ONLY for actual switches */
+button[role="switch"].peer[data-state="checked"] {
+  background-color: var(--theme-color-primary, #3b82f6) !important;
+}
+
+button[role="switch"].peer[data-state="unchecked"] {
+  background-color: #e5e7eb !important;
+}
+
+/* Switch thumb (bolita blanca) fixes - ONLY for switches */
+button[role="switch"] [data-component-name="SwitchPrimitives.Thumb"],
+button[role="switch"] span[data-state="checked"],
+button[role="switch"] span[data-state="unchecked"] {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  opacity: 1 !important;
+  color: transparent !important;
+}
+
+/* Ensure switch thumbs are always visible */
+.peer span[data-component-name="SwitchPrimitives.Thumb"] {
+  background: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+/* Button outline variant fixes - EXCLUDE switches */
+button[class*="border"]:not([role="switch"]) {
+  border-color: var(--theme-color-primary, #3b82f6) !important;
+  color: var(--theme-color-primary, #3b82f6) !important;
+  background-color: white !important;
+}
+
+button[class*="border"]:not([role="switch"]):hover {
+  background-color: var(--theme-color-primary, #3b82f6) !important;
+  color: white !important;
+}
+
+/* Vista Previa button specific fix - EXCLUDE switches */
+button[class*="outline"]:not([role="switch"]) {
+  border: 1px solid var(--theme-color-primary, #3b82f6) !important;
+  color: var(--theme-color-primary, #3b82f6) !important;
+  background-color: white !important;
+}
+
+button[class*="outline"]:not([role="switch"]):hover {
+  background-color: var(--theme-color-primary, #3b82f6) !important;
+  color: white !important;
+}
+
+/* Ensure SVG icons are visible - EXCLUDE switches */
+button:not([role="switch"]) svg, .btn svg {
+  opacity: 1 !important;
+  color: inherit !important;
+  fill: currentColor !important;
 }
