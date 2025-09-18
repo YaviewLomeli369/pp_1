@@ -405,26 +405,46 @@
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 1rem !important;
+    gap: 0.5rem !important;
     width: 100% !important;
   }
   
   .navbar-custom .navbar-container > div:first-child {
     flex-shrink: 0 !important;
     min-width: 0 !important;
+    max-width: 200px !important;
   }
   
   .navbar-custom .navbar-container > div:nth-child(2) {
     flex: 1 !important;
     display: flex !important;
     justify-content: center !important;
-    padding: 0 2rem !important;
+    padding: 0 1rem !important;
     min-width: 0 !important;
+    overflow: hidden !important;
   }
   
   .navbar-custom .navbar-container > div:last-child {
     flex-shrink: 0 !important;
     min-width: 0 !important;
+    max-width: 300px !important;
+  }
+}
+
+/* Responsive adjustments for medium screens */
+@media (min-width: 1076px) and (max-width: 1300px) {
+  .navbar-custom .navbar-container {
+    gap: 0.25rem !important;
+    padding: 0 1rem !important;
+  }
+  
+  .navbar-custom .navbar-container > div:nth-child(2) {
+    padding: 0 0.5rem !important;
+  }
+  
+  .navbar-custom .navbar-link {
+    font-size: 14px !important;
+    padding: 0.5rem 0.75rem !important;
   }
 }
 
@@ -462,15 +482,19 @@
     justify-content: space-between !important;
     align-items: center !important;
     gap: 1rem !important;
+    padding: 0 1rem !important;
   }
   
   .navbar-custom .navbar-container > div:first-child {
-    flex: 0 0 auto !important;
+    flex: 1 !important;
+    min-width: 0 !important;
   }
   
   .navbar-custom .navbar-container > div:last-child {
     flex: 0 0 auto !important;
-    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
   }
 }
 
