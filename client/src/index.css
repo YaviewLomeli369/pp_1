@@ -1484,6 +1484,56 @@ button span, .btn span, [role="button"] span {
   color: white !important;
 }
 
+/* Switch component fixes */
+.peer[data-state="checked"] {
+  background-color: var(--theme-color-primary, #3b82f6) !important;
+}
+
+.peer[data-state="unchecked"] {
+  background-color: #e5e7eb !important;
+}
+
+/* Switch thumb (bolita blanca) fixes */
+[data-component-name="SwitchPrimitives.Thumb"], 
+.peer [data-component-name="SwitchPrimitives.Thumb"],
+button[role="switch"] span {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  opacity: 1 !important;
+}
+
+/* Button outline variant fixes */
+button[class*="border"], .border {
+  border-color: var(--theme-color-primary, #3b82f6) !important;
+  color: var(--theme-color-primary, #3b82f6) !important;
+  background-color: white !important;
+}
+
+button[class*="border"]:hover, .border:hover {
+  background-color: var(--theme-color-primary, #3b82f6) !important;
+  color: white !important;
+}
+
+/* Vista Previa button specific fix */
+button[class*="outline"] {
+  border: 1px solid var(--theme-color-primary, #3b82f6) !important;
+  color: var(--theme-color-primary, #3b82f6) !important;
+  background-color: white !important;
+}
+
+button[class*="outline"]:hover {
+  background-color: var(--theme-color-primary, #3b82f6) !important;
+  color: white !important;
+}
+
+/* Ensure SVG icons are visible */
+button svg, .btn svg {
+  opacity: 1 !important;
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
 /* Theme-aware cards */
 .card {
   background: var(--theme-card-background, var(--theme-color-background));
