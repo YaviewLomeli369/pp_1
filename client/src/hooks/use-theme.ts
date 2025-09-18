@@ -100,12 +100,15 @@ export function useTheme() {
       if (appearance.primaryColor) {
         const hsl = hexToHsl(appearance.primaryColor);
         root.style.setProperty('--primary', hsl);
-        root.style.setProperty('--color-primary', appearance.primaryColor);
+        root.style.setProperty('--theme-color-primary', appearance.primaryColor);
+        root.style.setProperty('--theme-button-primary-background', appearance.primaryColor);
+        root.style.setProperty('--theme-button-secondary-color', appearance.primaryColor);
+        root.style.setProperty('--theme-button-secondary-border', `1px solid ${appearance.primaryColor}`);
       }
       if (appearance.secondaryColor) {
         const hsl = hexToHsl(appearance.secondaryColor);
         root.style.setProperty('--secondary', hsl);
-        root.style.setProperty('--color-secondary', appearance.secondaryColor);
+        root.style.setProperty('--theme-color-secondary', appearance.secondaryColor);
       }
       if (appearance.accentColor) {
         const hsl = hexToHsl(appearance.accentColor);

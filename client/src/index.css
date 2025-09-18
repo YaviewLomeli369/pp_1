@@ -1105,8 +1105,8 @@
   --popover-foreground: hsl(222.2 84% 4.9%);
   --primary: hsl(214.3 83.2% 57.8%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(262.1 83.3% 57.8%);
-  --secondary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 40% 98%);
+  --secondary-foreground: hsl(222.2 84% 4.9%);
   --success: hsl(142.1 76.2% 36.3%);
   --success-foreground: hsl(0 0% 100%);
   --warning: hsl(32.2 95% 44.1%);
@@ -1138,20 +1138,29 @@
   --sidebar-ring: hsl(214.3 83.2% 57.8%);
   --font-sans: 'Inter', sans-serif;
   
-  /* Theme-specific variables */
-  --theme-color-primary: #0073aa;
-  --theme-color-secondary: #005177;
-  --theme-color-accent: #00a0d2;
+  /* Theme-specific variables with enhanced fallbacks */
+  --theme-color-primary: #3b82f6;
+  --theme-color-secondary: #6366f1;
+  --theme-color-accent: #8b5cf6;
   --theme-color-background: #ffffff;
-  --theme-color-surface: #f8f9fa;
-  --theme-color-text: #333333;
-  --theme-color-text-secondary: #666666;
-  --theme-color-link: #0073aa;
-  --theme-color-link-hover: #005177;
-  --theme-color-border: #e0e0e0;
-  --theme-color-success: #28a745;
-  --theme-color-warning: #ffc107;
-  --theme-color-error: #dc3545;
+  --theme-color-surface: #f8fafc;
+  --theme-color-text: #1e293b;
+  --theme-color-text-secondary: #64748b;
+  --theme-color-link: #3b82f6;
+  --theme-color-link-hover: #2563eb;
+  --theme-color-border: #e2e8f0;
+  --theme-color-success: #10b981;
+  --theme-color-warning: #f59e0b;
+  --theme-color-error: #ef4444;
+  
+  /* Button specific variables */
+  --theme-button-primary-background: var(--theme-color-primary, #3b82f6);
+  --theme-button-primary-color: #ffffff;
+  --theme-button-primary-border: 1px solid var(--theme-color-primary, #3b82f6);
+  --theme-button-primary-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --theme-button-secondary-background: transparent;
+  --theme-button-secondary-color: var(--theme-color-primary, #3b82f6);
+  --theme-button-secondary-border: 1px solid var(--theme-color-primary, #3b82f6);
   
   --theme-typography-font-family: 'Inter';
   --theme-typography-heading-font: 'Inter';
@@ -1306,7 +1315,7 @@ nav, .navbar {
   z-index: 2;
 }
 
-/* Theme-aware buttons */
+/* Enhanced button visibility and styling */
 .btn, button {
   padding: var(--theme-button-primary-padding, 0.75rem 1.5rem);
   border-radius: var(--theme-button-primary-border-radius, var(--theme-radius-md));
@@ -1318,30 +1327,88 @@ nav, .navbar {
   text-decoration: none;
   display: inline-block;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-primary, .button-primary {
-  background: var(--theme-button-primary-background, var(--theme-color-primary));
-  color: var(--theme-button-primary-color, #ffffff);
-  box-shadow: var(--theme-button-primary-shadow, none);
+.btn-primary, .button-primary, button[class*="bg-primary"] {
+  background: var(--theme-button-primary-background, var(--theme-color-primary)) !important;
+  color: var(--theme-button-primary-color, #ffffff) !important;
+  box-shadow: var(--theme-button-primary-shadow, 0 2px 4px rgba(0,0,0,0.1)) !important;
+  border: 1px solid var(--theme-color-primary, #3b82f6) !important;
 }
 
-.btn-primary:hover, .button-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: var(--theme-button-primary-shadow, 0 4px 12px rgba(0,0,0,0.15));
+.btn-primary:hover, .button-primary:hover, button[class*="bg-primary"]:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--theme-button-primary-shadow, 0 4px 12px rgba(0,0,0,0.15)) !important;
+  background: color-mix(in srgb, var(--theme-color-primary, #3b82f6) 85%, black) !important;
 }
 
-.btn-secondary, .button-secondary {
-  background: var(--theme-button-secondary-background, transparent);
-  color: var(--theme-button-secondary-color, var(--theme-color-primary));
-  border: var(--theme-button-secondary-border, 2px solid var(--theme-color-primary));
-  box-shadow: var(--theme-button-secondary-shadow, none);
+.btn-secondary, .button-secondary, button[class*="bg-secondary"] {
+  background: var(--theme-button-secondary-background, transparent) !important;
+  color: var(--theme-button-secondary-color, var(--theme-color-primary)) !important;
+  border: var(--theme-button-secondary-border, 2px solid var(--theme-color-primary)) !important;
+  box-shadow: var(--theme-button-secondary-shadow, none) !important;
 }
 
-.btn-secondary:hover, .button-secondary:hover {
-  background: var(--theme-color-primary);
-  color: #ffffff;
+.btn-secondary:hover, .button-secondary:hover, button[class*="bg-secondary"]:hover {
+  background: var(--theme-color-primary) !important;
+  color: #ffffff !important;
+}
+
+/* Fix for Tailwind button classes specifically */
+button.bg-primary, .bg-primary {
+  background-color: var(--theme-color-primary, #3b82f6) !important;
+  color: white !important;
+}
+
+button.text-primary-foreground, .text-primary-foreground {
+  color: white !important;
+}
+
+button.hover\:bg-primary\/90:hover {
+  background-color: color-mix(in srgb, var(--theme-color-primary, #3b82f6) 90%, black) !important;
+}
+
+/* Enhanced button variants */
+.bg-blue-600, button[class*="bg-blue-600"] {
+  background-color: #2563eb !important;
+  color: white !important;
+}
+
+.bg-green-600, button[class*="bg-green-600"] {
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+.bg-red-600, button[class*="bg-red-600"] {
+  background-color: #dc2626 !important;
+  color: white !important;
+}
+
+.bg-purple-600, button[class*="bg-purple-600"] {
+  background-color: #9333ea !important;
+  color: white !important;
+}
+
+/* Outline button fix */
+.border-primary, button[class*="border-primary"] {
+  border-color: var(--theme-color-primary, #3b82f6) !important;
+}
+
+.text-primary, button[class*="text-primary"] {
+  color: var(--theme-color-primary, #3b82f6) !important;
+}
+
+/* Destructive buttons */
+.bg-destructive, button[class*="bg-destructive"] {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+.text-destructive-foreground, button[class*="text-destructive-foreground"] {
+  color: white !important;
 }
 
 /* Theme-aware cards */
