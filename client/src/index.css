@@ -1343,6 +1343,7 @@ nav, .navbar {
   transform: translateY(-1px) !important;
   box-shadow: var(--theme-button-primary-shadow, 0 4px 12px rgba(0,0,0,0.15)) !important;
   background: color-mix(in srgb, var(--theme-color-primary, #3b82f6) 85%, black) !important;
+  color: #ffffff !important;
 }
 
 .btn-secondary, .button-secondary, button[class*="bg-secondary"] {
@@ -1357,18 +1358,54 @@ nav, .navbar {
   color: #ffffff !important;
 }
 
-/* Fix for Tailwind button classes specifically */
-button.bg-primary, .bg-primary {
+/* Fix for Tailwind button classes specifically with higher specificity */
+button.bg-primary, .bg-primary, button[class*="primary"] {
   background-color: var(--theme-color-primary, #3b82f6) !important;
-  color: white !important;
+  color: #ffffff !important;
 }
 
-button.text-primary-foreground, .text-primary-foreground {
-  color: white !important;
+button.text-primary-foreground, .text-primary-foreground, button[class*="primary"] * {
+  color: #ffffff !important;
 }
 
-button.hover\:bg-primary\/90:hover {
+button.hover\:bg-primary\/90:hover, button[class*="primary"]:hover {
   background-color: color-mix(in srgb, var(--theme-color-primary, #3b82f6) 90%, black) !important;
+  color: #ffffff !important;
+}
+
+/* Ensure all button text is visible */
+button, .btn, [role="button"] {
+  color: inherit !important;
+}
+
+button[class*="bg-"], .btn[class*="bg-"], [role="button"][class*="bg-"] {
+  color: #ffffff !important;
+}
+
+/* Force button text color for specific Tailwind classes */
+.bg-primary, .bg-primary * {
+  color: #ffffff !important;
+}
+
+.bg-secondary, .bg-secondary * {
+  color: var(--theme-color-primary, #1f2937) !important;
+}
+
+.bg-destructive, .bg-destructive * {
+  color: #ffffff !important;
+}
+
+.bg-success, .bg-success * {
+  color: #ffffff !important;
+}
+
+.bg-warning, .bg-warning * {
+  color: #000000 !important;
+}
+
+/* Override any Tailwind opacity classes on buttons */
+button[class*="text-"], .btn[class*="text-"] {
+  opacity: 1 !important;
 }
 
 /* Enhanced button variants */
