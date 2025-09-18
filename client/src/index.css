@@ -1734,39 +1734,50 @@ button[role="switch"] span[data-state="unchecked"] {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
   opacity: 1 !important;
   color: transparent !important;
-  width: 20px !important;
-  height: 20px !important;
+  width: 18px !important;
+  height: 18px !important;
   border-radius: 50% !important;
   display: block !important;
   flex-shrink: 0 !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
 }
 
 /* Ensure switch thumbs are always visible and circular */
 .peer span[data-component-name="SwitchPrimitives.Thumb"] {
   background: #ffffff !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
-  width: 20px !important;
-  height: 20px !important;
+  width: 18px !important;
+  height: 18px !important;
   border-radius: 50% !important;
   display: block !important;
   flex-shrink: 0 !important;
 }
 
-/* Force circular shape for all switch thumbs */
+/* Force circular shape for all switch thumbs with proper positioning */
 button[role="switch"] span {
   border-radius: 50% !important;
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  margin: 1px !important;
 }
 
-/* Additional specificity for switch thumb shape */
+/* Additional specificity for switch thumb shape and positioning */
 .peer.inline-flex span[data-component-name="SwitchPrimitives.Thumb"] {
   border-radius: 9999px !important;
   aspect-ratio: 1 !important;
+  margin: 1px !important;
+}
+
+/* Fix translation positioning for checked state */
+button[role="switch"][data-state="checked"] span {
+  transform: translateX(20px) !important;
+}
+
+button[role="switch"][data-state="unchecked"] span {
+  transform: translateX(1px) !important;
 }
 
 /* Button outline variant fixes - EXCLUDE switches */
