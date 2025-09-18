@@ -12,6 +12,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 /* Theme 2025 Styles */
 .theme-astra {
   --border-radius-sm: 8px;
