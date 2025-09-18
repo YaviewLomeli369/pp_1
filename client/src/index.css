@@ -399,7 +399,36 @@
   padding: 2rem !important;
 
 
-/* Centered navbar items for all themes */
+/* Desktop navbar layout fixes - prevent overlapping */
+@media (min-width: 1076px) {
+  .navbar-custom .navbar-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    width: 100% !important;
+  }
+  
+  .navbar-custom .navbar-container > div:first-child {
+    flex-shrink: 0 !important;
+    min-width: 0 !important;
+  }
+  
+  .navbar-custom .navbar-container > div:nth-child(2) {
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    padding: 0 2rem !important;
+    min-width: 0 !important;
+  }
+  
+  .navbar-custom .navbar-container > div:last-child {
+    flex-shrink: 0 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Centered navbar items for all themes - only in flex layout */
 .theme-betheme .navbar-nav,
 .theme-storefront .navbar-nav,
 .theme-oceanwp .navbar-nav,
@@ -407,10 +436,11 @@
 .theme-avada .navbar-nav,
 .theme-divi .navbar-nav,
 .theme-sydney .navbar-nav {
-  position: absolute !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+  display: flex !important;
   justify-content: center !important;
+  gap: 2rem !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
 }
 
 /* Mobile adjustments for all themes */
@@ -426,10 +456,7 @@
     transform: none !important;
     margin: 0 1rem !important;
   }
-}
-
-/* Ensure mobile navbar layout doesn't cluster items */
-@media (max-width: 1075px) {
+  
   .navbar-custom .navbar-container {
     display: flex !important;
     justify-content: space-between !important;
@@ -1116,6 +1143,31 @@
   .theme-hello .navbar-logo {
     position: static !important;
     transform: none !important;
+  }
+  
+  /* Hello theme desktop layout */
+  @media (min-width: 1076px) {
+    .theme-hello .navbar-container {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 2rem !important;
+      width: 100% !important;
+    }
+    
+    .theme-hello .navbar-container > div:first-child {
+      flex-shrink: 0 !important;
+    }
+    
+    .theme-hello .navbar-container > div:nth-child(2) {
+      flex: 1 !important;
+      display: flex !important;
+      justify-content: center !important;
+    }
+    
+    .theme-hello .navbar-container > div:last-child {
+      flex-shrink: 0 !important;
+    }
   }
 
   /* Mobile navbar container adjustments */

@@ -565,9 +565,9 @@ export function Navbar() {
         data-navbar="true"
       >
       <div className="navbar-container">
-        <div className="flex items-center justify-between h-full">
+        <div className="flex items-center h-full w-full">
           {/* Logo + Brand */}
-          <div className="flex items-center flex-1">
+          <div className="flex items-center min-w-0 flex-shrink-0">
             <NavLink href="/" className="flex items-center space-x-3">
               <img
                 src={logoSvg}
@@ -577,35 +577,37 @@ export function Navbar() {
             </NavLink>
           </div>
 
-          {/* Desktop Menu */}
-          <div className={`items-center space-x-8 absolute left-1/2 transform -translate-x-1/2 ${isDesktop ? "flex" : "hidden"}`}>
-            {navItems.slice(0, 6).map((item) => (
-              <NavLink
-                key={`${item.href}-${navRef.current}`}
-                href={item.href}
-                className="navbar-link"
-              >
-                {item.label}
-              </NavLink>
-            ))}
-            {navItems.length > 6 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="text-base font-medium ">
-                  Más
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {navItems.slice(6).map((item) => (
-                    <DropdownMenuItem key={item.href} onClick={() => handleNavigation(item.href)}>
-                      {item.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+          {/* Desktop Menu - Centered with proper spacing */}
+          <div className={`flex-1 flex justify-center px-8 ${isDesktop ? "block" : "hidden"}`}>
+            <div className="flex items-center space-x-6">
+              {navItems.slice(0, 6).map((item) => (
+                <NavLink
+                  key={`${item.href}-${navRef.current}`}
+                  href={item.href}
+                  className="navbar-link whitespace-nowrap"
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+              {navItems.length > 6 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="text-base font-medium whitespace-nowrap">
+                    Más
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {navItems.slice(6).map((item) => (
+                      <DropdownMenuItem key={item.href} onClick={() => handleNavigation(item.href)}>
+                        {item.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center space-x-3 flex-shrink-0">
+          <div className="flex items-center space-x-3 min-w-0 flex-shrink-0">
             {modules.tienda?.activo && (
               <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
                 <DialogTrigger asChild>
