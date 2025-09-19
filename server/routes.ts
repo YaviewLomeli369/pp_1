@@ -871,6 +871,28 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
     }
   });
 
+  app.put("/api/contact/info", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
+    try {
+      console.log('Received contact info update request:', JSON.stringify(req.body, null, 2));
+
+      // Check if contact info already exists
+      const existingInfo = await storage.getContactInfo();
+      
+      if (existingInfo) {
+        // Update existing contact info
+        const updatedInfo = await storage.updateContactInfo(existingInfo.id, req.body);
+        res.json(updatedInfo);
+      } else {
+        // Create new contact info
+        const newInfo = await storage.createContactInfo(req.body);
+        res.json(newInfo);
+      }
+    } catch (error) {
+      console.error("Error updating contact info:", error);
+      res.status(500).json({ message: "Error updating contact info" });
+    }
+  });
+
   // Sections routes
   app.get("/api/sections", async (req, res) => {
     const sections = await storage.getAllSections();
