@@ -34,10 +34,10 @@ export default function Contact() {
     retry: 1,
   });
 
-  const { data: contactInfo } = useQuery({
+  const { data: contactInfo, isLoading: contactInfoLoading } = useQuery({
     queryKey: ["/api/contact/info"],
-    staleTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 1 * 60 * 1000, // Reducir tiempo de cache
+    refetchOnWindowFocus: true,
     retry: 1,
   });
 
@@ -88,7 +88,7 @@ export default function Contact() {
   };
 
   // ✅ LOADING STATE - AFTER ALL HOOKS
-  if (configLoading) {
+  if (configLoading || contactInfoLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -245,7 +245,9 @@ export default function Contact() {
                       <MapPin className="h-5 w-5 text-primary" />
                       <div>
                         <p className="font-medium">Dirección</p>
-                        <p className="text-muted-foreground">{contactInfo.address}</p>
+                        <p className="text-muted-foreground" style={{ whiteSpace: 'pre-line' }}>
+                          {contactInfo.address}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -255,7 +257,9 @@ export default function Contact() {
                       <Clock className="h-5 w-5 text-primary" />
                       <div>
                         <p className="font-medium">Horarios</p>
-                        <p className="text-muted-foreground">{contactInfo.hours}</p>
+                        <p className="text-muted-foreground" style={{ whiteSpace: 'pre-line' }}>
+                          {contactInfo.hours}
+                        </p>
                       </div>
                     </div>
                   )}

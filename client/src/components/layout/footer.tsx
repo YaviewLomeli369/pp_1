@@ -5,6 +5,9 @@ import type { ContactInfo, SiteConfig } from "@shared/schema";
 export function Footer() {
   const { data: contactInfo } = useQuery<ContactInfo>({
     queryKey: ["/api/contact/info"],
+    staleTime: 1 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    retry: 1,
   });
 
   const { data: config } = useQuery<SiteConfig>({
@@ -31,23 +34,37 @@ export function Footer() {
             <h3 className={`${themeConfig.headingColor || "text-lg font-semibold mb-4"}`}>Contacto</h3>
             <div className="space-y-2 text-sm">
               {contactInfo?.email && (
-                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Email: {contactInfo.email}</p>
+                <p className={themeConfig.contactInfoColor || "text-gray-300"}>
+                  <strong>Email:</strong> {contactInfo.email}
+                </p>
               )}
               {contactInfo?.phone && (
-                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Teléfono: {contactInfo.phone}</p>
+                <p className={themeConfig.contactInfoColor || "text-gray-300"}>
+                  <strong>Teléfono:</strong> {contactInfo.phone}
+                </p>
               )}
               {contactInfo?.address && (
-                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Dirección: {contactInfo.address}</p>
+                <div className={themeConfig.contactInfoColor || "text-gray-300"}>
+                  <strong>Dirección:</strong>
+                  <div style={{ whiteSpace: 'pre-line', marginTop: '4px' }}>
+                    {contactInfo.address}
+                  </div>
+                </div>
               )}
               {contactInfo?.hours && (
-                <p className={themeConfig.contactInfoColor || "text-gray-300"}>Horarios: {contactInfo.hours}</p>
+                <div className={themeConfig.contactInfoColor || "text-gray-300"}>
+                  <strong>Horarios:</strong>
+                  <div style={{ whiteSpace: 'pre-line', marginTop: '4px' }}>
+                    {contactInfo.hours}
+                  </div>
+                </div>
               )}
             </div>
           </div>
 
           <div>
             <h3 className={`${themeConfig.headingColor || "text-lg font-semibold mb-4"}`}>Redes Sociales</h3>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-4">
               {contactInfo?.socialLinks && (contactInfo.socialLinks as any)?.facebook && (
                 <a
                   href={(contactInfo.socialLinks as any).facebook}
@@ -66,6 +83,46 @@ export function Footer() {
                   rel="noopener noreferrer"
                 >
                   Instagram
+                </a>
+              )}
+              {contactInfo?.socialLinks && (contactInfo.socialLinks as any)?.twitter && (
+                <a
+                  href={(contactInfo.socialLinks as any).twitter}
+                  className={`${themeConfig.socialLinkColor || "text-gray-300 hover:text-white transition-colors"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Twitter
+                </a>
+              )}
+              {contactInfo?.socialLinks && (contactInfo.socialLinks as any)?.linkedin && (
+                <a
+                  href={(contactInfo.socialLinks as any).linkedin}
+                  className={`${themeConfig.socialLinkColor || "text-gray-300 hover:text-white transition-colors"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  LinkedIn
+                </a>
+              )}
+              {contactInfo?.socialLinks && (contactInfo.socialLinks as any)?.youtube && (
+                <a
+                  href={(contactInfo.socialLinks as any).youtube}
+                  className={`${themeConfig.socialLinkColor || "text-gray-300 hover:text-white transition-colors"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  YouTube
+                </a>
+              )}
+              {contactInfo?.socialLinks && (contactInfo.socialLinks as any)?.tiktok && (
+                <a
+                  href={(contactInfo.socialLinks as any).tiktok}
+                  className={`${themeConfig.socialLinkColor || "text-gray-300 hover:text-white transition-colors"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  TikTok
                 </a>
               )}
             </div>

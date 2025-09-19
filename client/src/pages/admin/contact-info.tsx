@@ -86,6 +86,7 @@ export default function AdminContactInfo() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contact/info"] });
+      queryClient.refetchQueries({ queryKey: ["/api/contact/info"] });
       toast({
         title: "Información actualizada",
         description: "La información de contacto ha sido actualizada correctamente.",
