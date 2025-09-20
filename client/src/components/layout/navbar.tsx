@@ -415,6 +415,18 @@ export function Navbar() {
     </div>
   ), [handleNavigation, location]);
 
+  // Determine logo size and filter from navbar styles
+  const logoHeight = navbarStyles.logoSize || '40px';
+  const logoSrc = logoSvg; // Assuming logoSvg is imported correctly
+  const logoFilter = ''; // Placeholder for potential future filters
+
+  // Image error handler for the logo
+  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.error("Error loading logo:", e);
+    // Optionally replace with a fallback or default text
+    e.currentTarget.style.display = 'none'; // Hide broken image icon
+  }, []);
+
   // Update navbar styles and body padding on mount and config changes
   useEffect(() => {
     if (!navbarConfig) return;
@@ -427,12 +439,13 @@ export function Navbar() {
         backgroundColor: navbarStyles.backgroundColor || '#ffffff',
         backdropFilter: navbarStyles.backgroundBlur ? `blur(10px)` : 'none',
         borderBottom: navbarStyles.borderBottom || '1px solid #e5e7eb',
-        boxShadow: navbarStyles.boxShadow || '0 1px 3px rgba(0, 0, 0, 0.1)',
-        zIndex: navbarStyles.zIndex || '1000',
-        width: navbarStyles.width || '100%',
+        boxShadow: isScrolled ? navbarStyles.boxShadow : 'none',
+        borderRadius: navbarStyles.borderRadius || '0px',
+        transition: navbarStyles.transition || 'all 0.3s ease',
+        zIndex: '1000', // Ensure it's always on top
+        width: '100%',
         height: navbarStyles.height || 'auto',
         padding: navbarStyles.padding || '0.75rem 1rem',
-        transition: navbarStyles.transition || 'all 0.3s ease'
       });
 
       // Function to update body padding based on exact navbar height
@@ -489,7 +502,7 @@ export function Navbar() {
         }
       };
     }
-  }, [navbarConfig, navbarStyles]);
+  }, [navbarConfig, navbarStyles, isScrolled]); // Added isScrolled dependency
 
   // Additional effect to handle immediate updates when navbar styles change
   useEffect(() => {
@@ -572,6 +585,15 @@ export function Navbar() {
               src={logoSvg}
               alt="Logo"
               className="navbar-logo object-contain"
+              style={{
+                height: logoHeight,
+                maxHeight: logoHeight,
+                filter: logoFilter,
+                width: 'auto'
+              }}
+              width="120"
+              height="40"
+              onError={handleImageError}
             />
           </NavLink>
 

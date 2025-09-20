@@ -41,9 +41,9 @@ import AdminEmailConfig from "@/pages/admin/email-config";
 import AdminThemes from "@/pages/admin/themes";
 import AdminButtons from "@/pages/admin/buttons";
 
-// Lazy load components with enhanced error handling
-const createLazyComponent = (importFn: () => Promise<any>) => {
-  return lazy(() => {
+// Optimized lazy loading with better caching and preloading
+const createLazyComponent = (importFn: () => Promise<any>, preload: boolean = false) => {
+  const LazyComponent = lazy(() => {
     return importFn()
       .then((module) => ({ default: module.default }))
       .catch((error) => {
@@ -51,13 +51,22 @@ const createLazyComponent = (importFn: () => Promise<any>) => {
         return { default: () => <LoadingPage /> };
       });
   });
+
+  // Preload critical components
+  if (preload && typeof window !== 'undefined') {
+    requestIdleCallback(() => {
+      importFn().catch(() => {});
+    });
+  }
+
+  return LazyComponent;
 };
 
-// Public pages - lazy loaded for performance
-const Home = createLazyComponent(() => import("./pages/home"));
+// Public pages - lazy loaded for performance with preloading for critical pages
+const Home = createLazyComponent(() => import("./pages/home"), true); // Preload home
 const Testimonials = createLazyComponent(() => import("./pages/testimonials"));
 const Faqs = createLazyComponent(() => import("./pages/faqs"));
-const Contact = createLazyComponent(() => import("./pages/contact"));
+const Contact = createLazyComponent(() => import("./pages/contact"), true); // Preload contact
 const Store = createLazyComponent(() => import("./pages/store"));
 const Blog = createLazyComponent(() => import("./pages/blog"));
 const BlogPost = createLazyComponent(() => import("./pages/blog-post"));
