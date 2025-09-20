@@ -1,0 +1,33 @@
+2
+store.tsx:1152 Uncaught ReferenceError: X is not defined
+    at store.tsx:1152:28
+    at Array.map (<anonymous>)
+    at AdminStoreContent (store.tsx:1128:45)
+hook.js:608 The above error occurred in the <AdminStoreContent> component:
+
+    at AdminStoreContent (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/pages/admin/store.tsx:66:21)
+    at div
+    at main
+    at div
+    at div
+    at AdminLayout (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/components/layout/admin-layout.tsx:23:31)
+    at AdminStore
+    at Route (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1d2fd48f:264:16)
+    at Switch (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=1d2fd48f:320:17)
+    at Router (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/App.tsx:76:3)
+    at ErrorBoundary (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/src/components/ErrorBoundary.tsx:7:5)
+    at Provider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…unner/workspace/node_modules/.vite/deps/chunk-FEZRLPPG.js?v=1d2fd48f:37:15)
+    at TooltipProvider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=1d2fd48f:61:5)
+    at QueryClientProvider (https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=1d2fd48f:2747:3)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+
+hook.js:608 ErrorBoundary caught an error: ReferenceError: X is not defined
+    at store.tsx:1152:28
+    at Array.map (<anonymous>)
+    at AdminStoreContent (store.tsx:1128:45)
+ 
+Object
+ Error Component Stack
+    at ErrorBoundary (ErrorBoundary.tsx:15:5)

@@ -1,0 +1,316 @@
+GET https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/auth/me 401 (Unauthorized)
+queryFn @ use-auth.ts:16
+fetchFn @ @tanstack_react-query.js?v=30513cb9:812
+run @ @tanstack_react-query.js?v=30513cb9:477
+start @ @tanstack_react-query.js?v=30513cb9:518
+fetch @ @tanstack_react-query.js?v=30513cb9:893
+#executeFetch @ @tanstack_react-query.js?v=30513cb9:1963
+onSubscribe @ @tanstack_react-query.js?v=30513cb9:1840
+subscribe @ @tanstack_react-query.js?v=30513cb9:19
+(anonymous) @ @tanstack_react-query.js?v=30513cb9:2962
+subscribeToStore @ chunk-NXESFFTV.js?v=30513cb9:12032
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=30513cb9:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=30513cb9:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=30513cb9:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=30513cb9:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=30513cb9:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19469
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:18677
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=30513cb9:537
+flush @ @tanstack_react-query.js?v=30513cb9:551
+batch @ @tanstack_react-query.js?v=30513cb9:569
+#dispatch @ @tanstack_react-query.js?v=30513cb9:963
+setData @ @tanstack_react-query.js?v=30513cb9:672
+onSuccess @ @tanstack_react-query.js?v=30513cb9:865
+resolve @ @tanstack_react-query.js?v=30513cb9:442
+Promise.then
+run @ @tanstack_react-query.js?v=30513cb9:481
+start @ @tanstack_react-query.js?v=30513cb9:518
+fetch @ @tanstack_react-query.js?v=30513cb9:893
+#executeFetch @ @tanstack_react-query.js?v=30513cb9:1963
+onSubscribe @ @tanstack_react-query.js?v=30513cb9:1840
+subscribe @ @tanstack_react-query.js?v=30513cb9:19
+(anonymous) @ @tanstack_react-query.js?v=30513cb9:2962
+subscribeToStore @ chunk-NXESFFTV.js?v=30513cb9:12032
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=30513cb9:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=30513cb9:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=30513cb9:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=30513cb9:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=30513cb9:19500
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18921
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19485
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=30513cb9:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18768
+workLoop @ chunk-NXESFFTV.js?v=30513cb9:197
+flushWork @ chunk-NXESFFTV.js?v=30513cb9:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=30513cb9:384Understand this error
+queryClient.ts:37 Making API request: {url: '/api/auth/login', method: 'POST', headers: {…}, bodyType: 'string', body: '{"username":"yaview.lomeli@gmail.com","password":"Losy990209bn7**"}'}
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/categories', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/customers', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+6c2d68a1-47ed-4f67-99bb-9631212fd4a3-1757534923584:1  GET https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/objects/6c2d68a1-47ed-4f67-99bb-9631212fd4a3-1757534923584 404 (Not Found)
+Image
+commitMount @ chunk-NXESFFTV.js?v=30513cb9:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=30513cb9:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=30513cb9:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19406
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:18677Understand this error
+store.tsx:973 ❌ Image preview failed to load: /objects/6c2d68a1-47ed-4f67-99bb-9631212fd4a3-1757534923584
+overrideMethod @ hook.js:608
+onError @ store.tsx:973
+callCallback2 @ chunk-NXESFFTV.js?v=30513cb9:3680
+invokeGuardedCallbackDev @ chunk-NXESFFTV.js?v=30513cb9:3705
+invokeGuardedCallback @ chunk-NXESFFTV.js?v=30513cb9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-NXESFFTV.js?v=30513cb9:3742
+executeDispatch @ chunk-NXESFFTV.js?v=30513cb9:7046
+processDispatchQueueItemsInOrder @ chunk-NXESFFTV.js?v=30513cb9:7066
+processDispatchQueue @ chunk-NXESFFTV.js?v=30513cb9:7075
+dispatchEventsForPlugins @ chunk-NXESFFTV.js?v=30513cb9:7083
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:7206
+batchedUpdates$1 @ chunk-NXESFFTV.js?v=30513cb9:18966
+batchedUpdates @ chunk-NXESFFTV.js?v=30513cb9:3585
+dispatchEventForPluginEventSystem @ chunk-NXESFFTV.js?v=30513cb9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-NXESFFTV.js?v=30513cb9:5484
+dispatchEvent @ chunk-NXESFFTV.js?v=30513cb9:5478Understand this error
+ObjectUploader.tsx:63 🔍 Probando conexión con: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload
+ObjectUploader.tsx:83 ✅ Test de endpoint exitoso: {success: true, objectName: '209b378c-e9e2-4bc0-8329-12d96763fdbe-1757535732160.txt', url: '/objects/209b378c-e9e2-4bc0-8329-12d96763fdbe-1757535732160.txt', uploadURL: 'http://54265a11-fa04-401e-930c-217e73aeda9a-00-1ke…78c-e9e2-4bc0-8329-12d96763fdbe-1757535732160.txt', location: '/objects/209b378c-e9e2-4bc0-8329-12d96763fdbe-1757535732160.txt'}
+ObjectUploader.tsx:137 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:150 ✅ Dashboard ref is ready: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:152 🌐 Entorno detectado: Replit
+ObjectUploader.tsx:153 🌐 Protocol: https:
+ObjectUploader.tsx:154 🌐 Host: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:155 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:222 🎯 Initializing Dashboard with target: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:245 ✅ Dashboard initialized successfully
+ObjectUploader.tsx:169 📁 Files ready to upload: 1
+ObjectUploader.tsx:266 ✅ Upload successful: premium_photo-1727450578586-eefc750c8f6f.avif 200
+ObjectUploader.tsx:270 === 🏆 UPPY COMPLETE EVENT START ===
+ObjectUploader.tsx:271 COMPLETE-1. Complete result: {successful: Array(1), failed: Array(0), uploadID: 'j4w3dkg0p0Jy3_tFU0DDB'}
+ObjectUploader.tsx:272 COMPLETE-2. Result.successful length: 1
+ObjectUploader.tsx:273 COMPLETE-3. Result.failed length: 0
+ObjectUploader.tsx:283 COMPLETE-6. Successful files: [{…}]
+ObjectUploader.tsx:285 COMPLETE-7. ✅ Upload successful, file data: {source: 'Dashboard', id: 'uppy-premium/photo/1727450578586/eefc750c8f6f/avif-2v-1d-1d-1e-image/avif-137566-1757275769416', name: 'premium_photo-1727450578586-eefc750c8f6f.avif', extension: 'avif', meta: {…}, …}
+ObjectUploader.tsx:286 COMPLETE-8. ✅ Response body: {success: true, objectName: '0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705', url: '/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705', uploadURL: 'http://54265a11-fa04-401e-930c-217e73aeda9a-00-1ke…763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705', location: '/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705'}
+ObjectUploader.tsx:307 COMPLETE-9. ✅ Final URL a guardar: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705
+ObjectUploader.tsx:57 Mock setTempImageUrl called with: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705
+ObjectUploader.tsx:54 Toast: Imagen subida exitosamente - Se aplicará al guardar el producto (undefined)
+store.tsx:372 === 🏆 UPLOAD COMPLETE START ===
+store.tsx:397 COMPLETE-1. File name: premium_photo-1727450578586-eefc750c8f6f.avif
+store.tsx:398 COMPLETE-2. File.uploadURL: /objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705
+store.tsx:399 COMPLETE-3. File.response: {status: 200, body: {…}, uploadURL: '/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705'}
+store.tsx:433 COMPLETE-4. ✅ Final URL: /objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705
+store.tsx:449 COMPLETE-5. Updating product with image: /objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705
+store.tsx:463 === 🏁 UPLOAD COMPLETE END ===
+ObjectUploader.tsx:332 === 🏁 UPPY COMPLETE EVENT END ===
+queryClient.ts:37 Making API request: {url: '/api/store/products/8ca0bcfe-86e8-4d01-abe3-c129d92e8c2c', method: 'PUT', headers: {…}, bodyType: 'string', body: '{"images":["/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705"]}'}
+ObjectUploader.tsx:100 Uppy instance does not have destroy method, manual cleanup Error Component Stack
+    at ObjectUploader (ObjectUploader.tsx:24:3)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at form (<anonymous>)
+    at div (<anonymous>)
+    at chunk-XFKJLW6A.js?v=30513cb9:42:13
+    at chunk-2C5KMCTU.js?v=30513cb9:61:7
+    at chunk-BLFKFOSO.js?v=30513cb9:79:13
+    at chunk-BLFKFOSO.js?v=30513cb9:56:13
+    at chunk-XFKJLW6A.js?v=30513cb9:42:13
+    at chunk-H2QYN2IS.js?v=30513cb9:29:5
+    at @radix-ui_react-dialog.js?v=30513cb9:232:13
+    at @radix-ui_react-dialog.js?v=30513cb9:158:58
+    at Presence (chunk-AFBJUWC6.js?v=30513cb9:24:11)
+    at @radix-ui_react-dialog.js?v=30513cb9:149:64
+    at chunk-BLFKFOSO.js?v=30513cb9:79:13
+    at chunk-BLFKFOSO.js?v=30513cb9:56:13
+    at chunk-XFKJLW6A.js?v=30513cb9:42:13
+    at chunk-2C5KMCTU.js?v=30513cb9:259:22
+    at Presence (chunk-AFBJUWC6.js?v=30513cb9:24:11)
+    at Provider (chunk-FEZRLPPG.js?v=30513cb9:37:15)
+    at DialogPortal (@radix-ui_react-dialog.js?v=30513cb9:111:11)
+    at _c3 (dialog.tsx:35:6)
+    at Provider (chunk-FEZRLPPG.js?v=30513cb9:37:15)
+    at Dialog (@radix-ui_react-dialog.js?v=30513cb9:52:5)
+    at div (<anonymous>)
+    at AdminStoreContent (store.tsx:72:21)
+    at div (<anonymous>)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at AdminLayout (admin-layout.tsx:11:31)
+    at AdminStore (<anonymous>)
+    at Route (wouter.js?v=30513cb9:322:16)
+    at Switch (wouter.js?v=30513cb9:378:17)
+    at Router (App.tsx:63:3)
+    at Provider (chunk-FEZRLPPG.js?v=30513cb9:37:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=30513cb9:61:5)
+    at QueryClientProvider (@tanstack_react-query.js?v=30513cb9:2747:3)
+    at App (<anonymous>)
+overrideMethod @ hook.js:608
+cleanupUppy @ ObjectUploader.tsx:100
+safelyCallDestroy @ chunk-NXESFFTV.js?v=30513cb9:16796
+commitHookEffectListUnmount @ chunk-NXESFFTV.js?v=30513cb9:16923
+commitPassiveUnmountOnFiber @ chunk-NXESFFTV.js?v=30513cb9:18282
+commitPassiveUnmountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18263
+commitPassiveUnmountEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18254
+commitPassiveUnmountEffects @ chunk-NXESFFTV.js?v=30513cb9:18219
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=30513cb9:19542
+flushPassiveEffects @ chunk-NXESFFTV.js?v=30513cb9:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19469
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:18677
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=30513cb9:537
+flush @ @tanstack_react-query.js?v=30513cb9:551
+batch @ @tanstack_react-query.js?v=30513cb9:569
+#dispatch @ @tanstack_react-query.js?v=30513cb9:1294
+execute @ @tanstack_react-query.js?v=30513cb9:1172
+mutate @ @tanstack_react-query.js?v=30513cb9:2578
+(anonymous) @ @tanstack_react-query.js?v=30513cb9:3234
+handleUploadComplete @ store.tsx:450
+(anonymous) @ ObjectUploader.tsx:326
+emitAll @ chunk-4WERLP6U.js?v=30513cb9:80
+emit @ chunk-4WERLP6U.js?v=30513cb9:25
+emit @ chunk-4WERLP6U.js?v=30513cb9:1089
+_runUpload2 @ chunk-4WERLP6U.js?v=30513cb9:2408
+await in _runUpload2
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:1932
+Promise.then
+upload @ chunk-4WERLP6U.js?v=30513cb9:1919
+StatusBar2.startUpload @ @uppy_dashboard.js?v=30513cb9:1036
+(anonymous) @ chunk-4WERLP6U.js?v=30513cb9:2548Understand this warning
+ObjectUploader.tsx:63 🔍 Probando conexión con: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+ObjectUploader.tsx:63 🔍 Probando conexión con: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload
+ObjectUploader.tsx:83 ✅ Test de endpoint exitoso: {success: true, objectName: '30282d4e-c8f9-42c2-a3af-e93d67991a5d-1757535741054.txt', url: '/objects/30282d4e-c8f9-42c2-a3af-e93d67991a5d-1757535741054.txt', uploadURL: 'http://54265a11-fa04-401e-930c-217e73aeda9a-00-1ke…d4e-c8f9-42c2-a3af-e93d67991a5d-1757535741054.txt', location: '/objects/30282d4e-c8f9-42c2-a3af-e93d67991a5d-1757535741054.txt'}
+ObjectUploader.tsx:137 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:63 🔍 Probando conexión con: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/upload
+ObjectUploader.tsx:137 Waiting for dashboard ref... attempt 2/20
+ObjectUploader.tsx:83 ✅ Test de endpoint exitoso: {success: true, objectName: 'b31584e7-f0eb-4967-8575-6cde517d7c6d-1757535741211.txt', url: '/objects/b31584e7-f0eb-4967-8575-6cde517d7c6d-1757535741211.txt', uploadURL: 'http://54265a11-fa04-401e-930c-217e73aeda9a-00-1ke…4e7-f0eb-4967-8575-6cde517d7c6d-1757535741211.txt', location: '/objects/b31584e7-f0eb-4967-8575-6cde517d7c6d-1757535741211.txt'}
+ObjectUploader.tsx:137 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:150 ✅ Dashboard ref is ready: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:152 🌐 Entorno detectado: Replit
+ObjectUploader.tsx:153 🌐 Protocol: https:
+ObjectUploader.tsx:154 🌐 Host: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:155 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:222 🎯 Initializing Dashboard with target: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:245 ✅ Dashboard initialized successfully
+ObjectUploader.tsx:83 ✅ Test de endpoint exitoso: {success: true, objectName: '484c72f1-8b5d-42b3-9fe0-e29e99d4b57c-1757535741287.txt', url: '/objects/484c72f1-8b5d-42b3-9fe0-e29e99d4b57c-1757535741287.txt', uploadURL: 'http://54265a11-fa04-401e-930c-217e73aeda9a-00-1ke…2f1-8b5d-42b3-9fe0-e29e99d4b57c-1757535741287.txt', location: '/objects/484c72f1-8b5d-42b3-9fe0-e29e99d4b57c-1757535741287.txt'}
+ObjectUploader.tsx:150 ✅ Dashboard ref is ready: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:152 🌐 Entorno detectado: Replit
+ObjectUploader.tsx:153 🌐 Protocol: https:
+ObjectUploader.tsx:154 🌐 Host: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:155 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:222 🎯 Initializing Dashboard with target: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:245 ✅ Dashboard initialized successfully
+ObjectUploader.tsx:150 ✅ Dashboard ref is ready: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:152 🌐 Entorno detectado: Replit
+ObjectUploader.tsx:153 🌐 Protocol: https:
+ObjectUploader.tsx:154 🌐 Host: 54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:155 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:222 🎯 Initializing Dashboard with target: <div data-replit-metadata=​"client/​src/​components/​ObjectUploader.tsx:​435:​14" data-component-name=​"div" id=​"uppy-dashboard-container" class=​"min-h-[350px]​ w-full border border-gray-200 rounded-lg">​…​</div>​
+ObjectUploader.tsx:245 ✅ Dashboard initialized successfully
+ObjectUploader.tsx:100 Uppy instance does not have destroy method, manual cleanup Error Component Stack
+    at ObjectUploader (ObjectUploader.tsx:24:3)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at form (<anonymous>)
+    at div (<anonymous>)
+    at chunk-XFKJLW6A.js?v=30513cb9:42:13
+    at chunk-2C5KMCTU.js?v=30513cb9:61:7
+    at chunk-BLFKFOSO.js?v=30513cb9:79:13
+    at chunk-BLFKFOSO.js?v=30513cb9:56:13
+    at chunk-XFKJLW6A.js?v=30513cb9:42:13
+    at chunk-H2QYN2IS.js?v=30513cb9:29:5
+    at @radix-ui_react-dialog.js?v=30513cb9:232:13
+    at @radix-ui_react-dialog.js?v=30513cb9:158:58
+    at Presence (chunk-AFBJUWC6.js?v=30513cb9:24:11)
+    at @radix-ui_react-dialog.js?v=30513cb9:149:64
+    at chunk-BLFKFOSO.js?v=30513cb9:79:13
+    at chunk-BLFKFOSO.js?v=30513cb9:56:13
+    at chunk-XFKJLW6A.js?v=30513cb9:42:13
+    at chunk-2C5KMCTU.js?v=30513cb9:259:22
+    at Presence (chunk-AFBJUWC6.js?v=30513cb9:24:11)
+    at Provider (chunk-FEZRLPPG.js?v=30513cb9:37:15)
+    at DialogPortal (@radix-ui_react-dialog.js?v=30513cb9:111:11)
+    at _c3 (dialog.tsx:35:6)
+    at Provider (chunk-FEZRLPPG.js?v=30513cb9:37:15)
+    at Dialog (@radix-ui_react-dialog.js?v=30513cb9:52:5)
+    at div (<anonymous>)
+    at AdminStoreContent (store.tsx:72:21)
+    at div (<anonymous>)
+    at main (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at AdminLayout (admin-layout.tsx:11:31)
+    at AdminStore (<anonymous>)
+    at Route (wouter.js?v=30513cb9:322:16)
+    at Switch (wouter.js?v=30513cb9:378:17)
+    at Router (App.tsx:63:3)
+    at Provider (chunk-FEZRLPPG.js?v=30513cb9:37:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=30513cb9:61:5)
+    at QueryClientProvider (@tanstack_react-query.js?v=30513cb9:2747:3)
+    at App (<anonymous>)
+overrideMethod @ hook.js:608
+cleanupUppy @ ObjectUploader.tsx:100
+safelyCallDestroy @ chunk-NXESFFTV.js?v=30513cb9:16796
+commitHookEffectListUnmount @ chunk-NXESFFTV.js?v=30513cb9:16923
+commitPassiveUnmountOnFiber @ chunk-NXESFFTV.js?v=30513cb9:18282
+commitPassiveUnmountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18263
+commitPassiveUnmountEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18254
+commitPassiveUnmountEffects @ chunk-NXESFFTV.js?v=30513cb9:18219
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=30513cb9:19542
+flushPassiveEffects @ chunk-NXESFFTV.js?v=30513cb9:19500
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:19381
+workLoop @ chunk-NXESFFTV.js?v=30513cb9:197
+flushWork @ chunk-NXESFFTV.js?v=30513cb9:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=30513cb9:384Understand this warning
+0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705:1  GET https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705 404 (Not Found)
+Image
+commitMount @ chunk-NXESFFTV.js?v=30513cb9:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=30513cb9:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=30513cb9:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=30513cb9:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=30513cb9:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=30513cb9:19406
+commitRoot @ chunk-NXESFFTV.js?v=30513cb9:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=30513cb9:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=30513cb9:9166
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:18677Understand this error
+store.tsx:973 ❌ Image preview failed to load: /objects/0763d8a8-7b0b-4014-be73-e1cce1bff27c-1757535740705
+overrideMethod @ hook.js:608
+onError @ store.tsx:973
+callCallback2 @ chunk-NXESFFTV.js?v=30513cb9:3680
+invokeGuardedCallbackDev @ chunk-NXESFFTV.js?v=30513cb9:3705
+invokeGuardedCallback @ chunk-NXESFFTV.js?v=30513cb9:3739
+invokeGuardedCallbackAndCatchFirstError @ chunk-NXESFFTV.js?v=30513cb9:3742
+executeDispatch @ chunk-NXESFFTV.js?v=30513cb9:7046
+processDispatchQueueItemsInOrder @ chunk-NXESFFTV.js?v=30513cb9:7066
+processDispatchQueue @ chunk-NXESFFTV.js?v=30513cb9:7075
+dispatchEventsForPlugins @ chunk-NXESFFTV.js?v=30513cb9:7083
+(anonymous) @ chunk-NXESFFTV.js?v=30513cb9:7206
+batchedUpdates$1 @ chunk-NXESFFTV.js?v=30513cb9:18966
+batchedUpdates @ chunk-NXESFFTV.js?v=30513cb9:3585
+dispatchEventForPluginEventSystem @ chunk-NXESFFTV.js?v=30513cb9:7205
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-NXESFFTV.js?v=30513cb9:5484
+dispatchEvent @ chunk-NXESFFTV.js?v=30513cb9:5478Understand this error
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}

@@ -1,0 +1,202 @@
+✅ Image preview loaded: /objects/db544e11-4b1a-40f0-9abf-f7c799d0bb48-1757783783418.png
+ObjectUploader.tsx:53 🔍 Testing connection and auth
+ObjectUploader.tsx:76 ✅ Connection and auth successful
+ObjectUploader.tsx:129 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:141 🌐 Environment: Replit
+ObjectUploader.tsx:142 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:278 ✅ Uppy initialized successfully
+ObjectUploader.tsx:216 🚀 Upload started
+ObjectUploader.tsx:223 📊 Upload progress: 79%
+ObjectUploader.tsx:223 📊 Upload progress: 100%
+@uppy_xhr-upload.js?v=1d2fd48f:831  POST https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/media/upload 500 (Internal Server Error)
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:831
+_call2 @ @uppy_xhr-upload.js?v=1d2fd48f:395
+run @ @uppy_xhr-upload.js?v=1d2fd48f:277
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=1d2fd48f:751
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=1d2fd48f:951
+value @ @uppy_xhr-upload.js?v=1d2fd48f:585
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2399
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+hook.js:608 [Uppy] [09:32:48] Upload error
+overrideMethod @ hook.js:608
+error @ chunk-77BHBA4S.js?v=1d2fd48f:646
+log @ chunk-77BHBA4S.js?v=1d2fd48f:1840
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2162
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:806
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:831
+_call2 @ @uppy_xhr-upload.js?v=1d2fd48f:395
+run @ @uppy_xhr-upload.js?v=1d2fd48f:277
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=1d2fd48f:751
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=1d2fd48f:951
+value @ @uppy_xhr-upload.js?v=1d2fd48f:585
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2399
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+ObjectUploader.tsx:209 ❌ Uppy general error: Error: Failed to upload redd-francisco-5U_28ojjgms-unsplash-compressed.jpg
+    at Function.<anonymous> (chunk-77BHBA4S.js?v=1d2fd48f:2163:24)
+    at emitAll (chunk-77BHBA4S.js?v=1d2fd48f:80:19)
+    at Object.emit (chunk-77BHBA4S.js?v=1d2fd48f:25:11)
+    at Uppy.emit (chunk-77BHBA4S.js?v=1d2fd48f:1080:60)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=1d2fd48f:806:17)
+overrideMethod @ hook.js:608
+(anonymous) @ ObjectUploader.tsx:209
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+_informAndEmit2 @ chunk-77BHBA4S.js?v=1d2fd48f:1964
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2171
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:806
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:831
+_call2 @ @uppy_xhr-upload.js?v=1d2fd48f:395
+run @ @uppy_xhr-upload.js?v=1d2fd48f:277
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=1d2fd48f:751
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=1d2fd48f:951
+value @ @uppy_xhr-upload.js?v=1d2fd48f:585
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2399
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+store.tsx:1154 Upload error: Error: Failed to upload redd-francisco-5U_28ojjgms-unsplash-compressed.jpg
+    at Function.<anonymous> (chunk-77BHBA4S.js?v=1d2fd48f:2163:24)
+    at emitAll (chunk-77BHBA4S.js?v=1d2fd48f:80:19)
+    at Object.emit (chunk-77BHBA4S.js?v=1d2fd48f:25:11)
+    at Uppy.emit (chunk-77BHBA4S.js?v=1d2fd48f:1080:60)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=1d2fd48f:806:17)
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1154
+(anonymous) @ ObjectUploader.tsx:212
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+_informAndEmit2 @ chunk-77BHBA4S.js?v=1d2fd48f:1964
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2171
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:806
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:831
+_call2 @ @uppy_xhr-upload.js?v=1d2fd48f:395
+run @ @uppy_xhr-upload.js?v=1d2fd48f:277
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=1d2fd48f:751
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=1d2fd48f:951
+value @ @uppy_xhr-upload.js?v=1d2fd48f:585
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2399
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+ObjectUploader.tsx:227 ❌ Upload error: {file: 'redd-francisco-5U_28ojjgms-unsplash-compressed.jpg', error: 'Upload error', response: {…}}
+overrideMethod @ hook.js:608
+(anonymous) @ ObjectUploader.tsx:227
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:806
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:831
+_call2 @ @uppy_xhr-upload.js?v=1d2fd48f:395
+run @ @uppy_xhr-upload.js?v=1d2fd48f:277
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=1d2fd48f:751
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=1d2fd48f:951
+value @ @uppy_xhr-upload.js?v=1d2fd48f:585
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2399
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+store.tsx:1154 Upload error: Error: Upload error
+    at Object.getResponseError (@uppy_xhr-upload.js?v=1d2fd48f:623:21)
+    at XMLHttpRequest.<anonymous> (@uppy_xhr-upload.js?v=1d2fd48f:801:50)
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1154
+(anonymous) @ ObjectUploader.tsx:234
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:806
+XMLHttpRequest.send
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:831
+_call2 @ @uppy_xhr-upload.js?v=1d2fd48f:395
+run @ @uppy_xhr-upload.js?v=1d2fd48f:277
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:826
+_uploadLocalFile2 @ @uppy_xhr-upload.js?v=1d2fd48f:751
+(anonymous) @ @uppy_xhr-upload.js?v=1d2fd48f:972
+_uploadFiles2 @ @uppy_xhr-upload.js?v=1d2fd48f:951
+value @ @uppy_xhr-upload.js?v=1d2fd48f:585
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2399
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+ObjectUploader.tsx:242 🏆 Upload complete: {successful: Array(0), failed: Array(1), uploadID: 'b88jXcQw4cIg-h0Z7nVfC'}
+ObjectUploader.tsx:245 ❌ Failed uploads: [{…}]
+overrideMethod @ hook.js:608
+(anonymous) @ ObjectUploader.tsx:245
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2426
+await in _runUpload2
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+store.tsx:1154 Upload error: Error: Some uploads failed
+    at Function.<anonymous> (ObjectUploader.tsx:248:29)
+    at emitAll (chunk-77BHBA4S.js?v=1d2fd48f:80:19)
+    at Object.emit (chunk-77BHBA4S.js?v=1d2fd48f:25:11)
+    at Uppy.emit (chunk-77BHBA4S.js?v=1d2fd48f:1080:60)
+    at Uppy._runUpload2 (chunk-77BHBA4S.js?v=1d2fd48f:2426:10)
+overrideMethod @ hook.js:608
+onUploadError @ store.tsx:1154
+(anonymous) @ ObjectUploader.tsx:248
+emitAll @ chunk-77BHBA4S.js?v=1d2fd48f:80
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:25
+emit @ chunk-77BHBA4S.js?v=1d2fd48f:1080
+_runUpload2 @ chunk-77BHBA4S.js?v=1d2fd48f:2426
+await in _runUpload2
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:1947
+Promise.then
+upload @ chunk-77BHBA4S.js?v=1d2fd48f:1934
+StatusBar2.startUpload @ @uppy_dashboard.js?v=1d2fd48f:1087
+(anonymous) @ chunk-77BHBA4S.js?v=1d2fd48f:2566Understand this error
+ObjectUploader.tsx:223 📊 Upload progress: 0%
+ObjectUploader.tsx:94 🧹 Uppy instance cleaned up
+ObjectUploader.tsx:53 🔍 Testing connection and auth
+ObjectUploader.tsx:76 ✅ Connection and auth successful
+ObjectUploader.tsx:129 Waiting for dashboard ref... attempt 1/20
+ObjectUploader.tsx:141 🌐 Environment: Replit
+ObjectUploader.tsx:142 🌐 Base URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev
+ObjectUploader.tsx:278 ✅ Uppy initialized successfully

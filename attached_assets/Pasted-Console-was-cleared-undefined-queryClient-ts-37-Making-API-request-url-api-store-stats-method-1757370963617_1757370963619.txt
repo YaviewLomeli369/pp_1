@@ -1,0 +1,203 @@
+Console was cleared
+undefined
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}body: undefinedbodyType: "undefined"headers: {Authorization: 'Bearer o77izf52yya4vg5lhebrh'}method: "GET"url: "/api/store/stats"[[Prototype]]: Object
+queryClient.ts:37 Making API request: {url: '/api/store/categories', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/customers', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+ObjectUploader.tsx:53 Getting upload parameters for file: photo-1618761714954-0b8cd0026356.avif
+queryClient.ts:37 Making API request: {url: '/api/objects/upload', method: 'POST', headers: {…}, bodyType: 'undefined', body: undefined}
+store.tsx:292 Upload parameters response: {uploadURL: 'https://54265a11-fa04-401e-930c-217e73aeda9a-00-1k…irect-upload/10961b32-7bcf-4279-879f-20b365595bdd', method: 'PUT'}
+ObjectUploader.tsx:55 Upload parameters received: {method: 'PUT', url: 'https://54265a11-fa04-401e-930c-217e73aeda9a-00-1k…irect-upload/10961b32-7bcf-4279-879f-20b365595bdd'}
+ObjectUploader.tsx:142 === 🎉 UPPY UPLOAD SUCCESS EVENT START ===
+ObjectUploader.tsx:143 SUCCESS-1. File name: photo-1618761714954-0b8cd0026356.avif
+ObjectUploader.tsx:144 SUCCESS-2. File object keys: (14) ['source', 'id', 'name', 'extension', 'meta', 'type', 'data', 'progress', 'size', 'isGhost', 'isRemote', 'remote', 'preview', 's3Multipart']
+ObjectUploader.tsx:145 SUCCESS-3. Response object: {
+  "body": {
+    "content-length": "666",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 08 Sep 2025 22:38:35 GMT",
+    "etag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "replit-cluster": "worf",
+    "x-powered-by": "Express",
+    "x-robots-tag": "none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex",
+    "ETag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "location": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+  },
+  "status": 200,
+  "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+}
+ObjectUploader.tsx:146 SUCCESS-4. Response type: object
+ObjectUploader.tsx:147 SUCCESS-5. Response keys: (3) ['body', 'status', 'uploadURL']
+ObjectUploader.tsx:152 SUCCESS-6. Processing response for file...
+ObjectUploader.tsx:153 SUCCESS-7. Original file.response: undefined
+ObjectUploader.tsx:154 SUCCESS-8. Original file.uploadURL: undefined
+ObjectUploader.tsx:158 SUCCESS-9. ✅ Stored response in file.response
+ObjectUploader.tsx:161 SUCCESS-10. Checking response.location: undefined
+ObjectUploader.tsx:162 SUCCESS-11. Checking response.url: undefined
+ObjectUploader.tsx:171 SUCCESS-14. ⚠️ No location or url found in response
+ObjectUploader.tsx:174 SUCCESS-15. 🎯 FINAL file.uploadURL set to: undefined
+ObjectUploader.tsx:175 SUCCESS-16. 🎯 FINAL file.response: {
+  "body": {
+    "content-length": "666",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 08 Sep 2025 22:38:35 GMT",
+    "etag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "replit-cluster": "worf",
+    "x-powered-by": "Express",
+    "x-robots-tag": "none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex",
+    "ETag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "location": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+  },
+  "status": 200,
+  "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+}
+ObjectUploader.tsx:185 === 🏁 UPPY UPLOAD SUCCESS EVENT END ===
+ObjectUploader.tsx:188 === 🏆 UPPY COMPLETE EVENT START ===
+ObjectUploader.tsx:189 COMPLETE-1. Complete result: {
+  "successful": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-photo/1618761714954/0b8cd0026356/avif-1d-1d-1e-image/avif-46888-1757275836899",
+      "name": "photo-1618761714954-0b8cd0026356.avif",
+      "extension": "avif",
+      "meta": {
+        "relativePath": null,
+        "name": "photo-1618761714954-0b8cd0026356.avif",
+        "type": "image/avif"
+      },
+      "type": "image/avif",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757370867346,
+        "uploadComplete": true,
+        "bytesUploaded": 46888,
+        "bytesTotal": 46888,
+        "percentage": 100
+      },
+      "size": 46888,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/330f2bff-7530-41be-8f64-4b4298960356",
+      "s3Multipart": {},
+      "response": {
+        "body": {
+          "content-length": "666",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Mon, 08 Sep 2025 22:38:35 GMT",
+          "etag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+          "replit-cluster": "worf",
+          "x-powered-by": "Express",
+          "x-robots-tag": "none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex",
+          "ETag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+          "location": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+        },
+        "status": 200,
+        "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+      },
+      "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd",
+      "isPaused": false
+    }
+  ],
+  "failed": [],
+  "uploadID": "lx0u_t5Cde2UVqltVmM6q"
+}
+ObjectUploader.tsx:190 COMPLETE-2. Result.successful length: 1
+ObjectUploader.tsx:191 COMPLETE-3. Result.failed length: 0
+ObjectUploader.tsx:195 COMPLETE-4. First successful file: photo-1618761714954-0b8cd0026356.avif
+ObjectUploader.tsx:196 COMPLETE-5. File.uploadURL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd
+ObjectUploader.tsx:197 COMPLETE-6. File.response: {
+  "body": {
+    "content-length": "666",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 08 Sep 2025 22:38:35 GMT",
+    "etag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "replit-cluster": "worf",
+    "x-powered-by": "Express",
+    "x-robots-tag": "none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex",
+    "ETag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "location": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+  },
+  "status": 200,
+  "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+}
+ObjectUploader.tsx:198 COMPLETE-7. File.response.url: undefined
+ObjectUploader.tsx:199 COMPLETE-8. File.response.location: undefined
+ObjectUploader.tsx:202 COMPLETE-9. Calling onComplete callback...
+store.tsx:308 === 🏆 UPLOAD COMPLETE START ===
+store.tsx:309 COMPLETE-1. Complete result: {
+  "successful": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-photo/1618761714954/0b8cd0026356/avif-1d-1d-1e-image/avif-46888-1757275836899",
+      "name": "photo-1618761714954-0b8cd0026356.avif",
+      "extension": "avif",
+      "meta": {
+        "relativePath": null,
+        "name": "photo-1618761714954-0b8cd0026356.avif",
+        "type": "image/avif"
+      },
+      "type": "image/avif",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757370867346,
+        "uploadComplete": true,
+        "bytesUploaded": 46888,
+        "bytesTotal": 46888,
+        "percentage": 100
+      },
+      "size": 46888,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/330f2bff-7530-41be-8f64-4b4298960356",
+      "s3Multipart": {},
+      "response": {
+        "body": {
+          "content-length": "666",
+          "content-type": "application/json; charset=utf-8",
+          "date": "Mon, 08 Sep 2025 22:38:35 GMT",
+          "etag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+          "replit-cluster": "worf",
+          "x-powered-by": "Express",
+          "x-robots-tag": "none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex",
+          "ETag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+          "location": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+        },
+        "status": 200,
+        "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+      },
+      "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd",
+      "isPaused": false
+    }
+  ],
+  "failed": [],
+  "uploadID": "lx0u_t5Cde2UVqltVmM6q"
+}
+store.tsx:313 COMPLETE-2. First successful file: photo-1618761714954-0b8cd0026356.avif
+store.tsx:314 COMPLETE-3. File.uploadURL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd
+store.tsx:315 COMPLETE-4. File.response: {
+  "body": {
+    "content-length": "666",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 08 Sep 2025 22:38:35 GMT",
+    "etag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "replit-cluster": "worf",
+    "x-powered-by": "Express",
+    "x-robots-tag": "none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex",
+    "ETag": "W/\"29a-2hFibbXc5gHKWoZlKMWo8SF9dCQ\"",
+    "location": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+  },
+  "status": 200,
+  "uploadURL": "https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd"
+}
+store.tsx:344 COMPLETE-6C. Using file.uploadURL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd
+store.tsx:352 COMPLETE-7. Final extracted URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd
+store.tsx:357 COMPLETE-8. Trimmed URL: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd
+store.tsx:383 COMPLETE-9. ✅ URL validation passed: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd
+store.tsx:387 COMPLETE-10. Updating existing product with image: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd
+store.tsx:447 === 🏁 UPLOAD COMPLETE END ===
+ObjectUploader.tsx:204 COMPLETE-10. Closing modal...
+ObjectUploader.tsx:206 === 🏁 UPPY COMPLETE EVENT END ===
+queryClient.ts:37 Making API request: {url: '/api/store/products/8ca0bcfe-86e8-4d01-abe3-c129d92e8c2c', method: 'PUT', headers: {…}, bodyType: 'string', body: '{"images":["https://54265a11-fa04-401e-930c-217e73…ct-upload/10961b32-7bcf-4279-879f-20b365595bdd"]}'}
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/products', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+2store.tsx:956 ❌ Image preview failed to load: https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/objects/direct-upload/10961b32-7bcf-4279-879f-20b365595bdd

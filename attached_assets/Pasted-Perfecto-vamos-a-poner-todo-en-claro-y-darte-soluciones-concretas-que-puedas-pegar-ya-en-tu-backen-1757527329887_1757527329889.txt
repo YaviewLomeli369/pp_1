@@ -1,0 +1,189 @@
+Perfecto — vamos a poner todo en claro y darte soluciones concretas que puedas pegar ya en tu backend. Primero el diagnóstico corto y preciso, luego dos arreglos (rápido y definitivo) + cómo probar.
+
+Diagnóstico (en una frase)
+
+Tu backend guarda los archivos correctamente, pero a veces los almacena con nombres internos que no incluyen la extensión (ej. ...-1757523824031.upload-1757523824031). Cuando el navegador pide la URL pública (/objects/<nombre>), no encuentra el archivo con la extensión/Content-Type esperado → 404 o preview roto.
+
+Hay dos causas típicas que explican por qué ves ambos tipos de archivo en uploads/:
+
+a) Diferentes flujos de subida (uno preserva originalname, otro usa un nombre generado único), o
+
+b) Código del servidor que renombra/guarda sin preservar la extensión.
+
+Opciones de arreglo (elige una)
+Opción A — Arreglo rápido (no tocar nombres, servir exactamente lo que está en uploads/)
+
+Si quieres arreglar la preview ahora, sirve uploads/ públicamente y expone exactamente la URL que te da el uploadURL (sin intentar reconstruir con bg.png):
+
+En tu server/index.ts (o donde inicializas Express):
+
+import express from "express";
+import path from "path";
+
+const app = express();
+
+// servir archivos estáticos
+app.use("/objects", express.static(path.join(__dirname, "../uploads"), {
+  dotfiles: "allow", // si hay nombres con puntos
+  index: false,
+}));
+
+
+En frontend, usa la URL completa que te devuelve el server (o window.location.origin + uploadURL) como src.
+Ejemplo:
+
+const publicUrl = `${window.location.origin}${file.uploadURL}`;
+setTempImageUrl(publicUrl);
+
+
+Pros: rápido; preview debería cargar si el archivo existe tal cual.
+Contras: si el archivo interno no tiene extensión, el navegador puede no identificar el tipo correctamente (algunos servidores/browsers intentarán sniffear, pero no es robusto).
+
+Opción B — Arreglo definitivo (mejor) — guardar/servir con tipo y/o extensión real
+
+Recomendado: preservar la extensión al guardar o servir por ID y forzar Content-Type. Te doy dos sub-opciones:
+
+B1 — Renombrar el archivo al subir para que incluya la extensión real
+
+En tu handler de subida (ej. donde procesas multipart o el stream), renombra el archivo usando path.extname(originalname):
+
+// ejemplo usando fs y multer-like flow
+import fs from "fs";
+import path from "path";
+
+const uploadsDir = path.join(__dirname, "../uploads");
+
+async function saveUploadedFile(tempPath: string, originalName: string) {
+  const ext = path.extname(originalName) || "";
+  const finalName = `${generateUuid()}-${Date.now()}${ext}`; // o la convención que quieras
+  const finalPath = path.join(uploadsDir, finalName);
+  await fs.promises.rename(tempPath, finalPath);
+  return finalName; // devolver objectName que usarás en URL
+}
+
+
+El backend responde con objectName: finalName y el frontend puede usar /objects/${finalName}. Express.static servirá con el MIME correcto porque el archivo tiene extensión.
+
+Pros: limpio, URLs bonitas, navegador renderiza sin problemas.
+Contras: necesitas cambiar la parte de upload/almacenamiento.
+
+B2 — Servir archivos por ID y fijar Content-Type dinámicamente (si no quieres renombrar)
+
+Si ya hay archivos sin extensión y no quieres renombrar ahora, añade una ruta que busque el archivo real en uploads/ y lo streame estableciendo el tipo MIME (detectándolo por contenido o por una búsqueda):
+
+import express from "express";
+import fs from "fs";
+import path from "path";
+import mime from "mime"; // npm i mime
+
+const router = express.Router();
+const UPLOADS = path.join(__dirname, "../uploads");
+
+router.get("/objects/:name", (req, res) => {
+  const name = req.params.name; // lo que el frontend pide
+  const candidatePath = path.join(UPLOADS, name);
+
+  if (fs.existsSync(candidatePath)) {
+    // si existe exactamente, enviar archivo
+    const type = mime.getType(candidatePath) || "application/octet-stream";
+    res.setHeader("Content-Type", type);
+    return res.sendFile(candidatePath);
+  }
+
+  // si no existe exactamente, intentar buscar archivos que comiencen con el id
+  // ejemplo: name = "8f02f0d0-b443-4e52-b7af-0de94b4083ce-1757520464994.upload-1757520464994"
+  // o si frontend pide "8f02f0d0-b443-4e52-b7af-0de94b4083ce" buscar ficheros que comiencen con ese prefix
+  const idPrefix = name.split(".")[0]; // heurística: parte antes del primer '.'
+  const files = fs.readdirSync(UPLOADS).filter(f => f.startsWith(idPrefix));
+  if (files.length > 0) {
+    const filePath = path.join(UPLOADS, files[0]);
+    const type = mime.getType(filePath) || "application/octet-stream";
+    res.setHeader("Content-Type", type);
+    return res.sendFile(filePath);
+  }
+
+  return res.status(404).send("Not found");
+});
+
+export default router;
+
+
+Mount en server/index.ts:
+
+app.use("/", router);
+
+
+Pros: no necesitas renombrar archivos existentes; puedes servirlos aunque no tengan extensión.
+Contras: requiere buscar en disco (aceptable para volumes pequeños), y la heurística de startsWith debe ajustarse a tu convención.
+
+Cómo diagnosticar y probar (comandos y checks rápidos)
+
+Desde el servidor (SSH), verifica el archivo físico:
+
+ls -l uploads | grep 21c75d47
+file uploads/21c75d47-51f9-4b24-b405-b7c56e5b8be5-1757527438041.upload-1757527438040
+
+
+Probar URL desde servidor y desde cliente:
+
+# desde servidor, curl directo
+curl -I http://localhost:3000/objects/21c75d47-51f9-4b24-b405-b7c56e5b8be5-1757527438041.upload-1757527438040
+# desde tu máquina (o navegador) usa:
+https://yourdomain/objects/<objectName>
+
+
+Observa el HTTP/1.1 200 y Content-Type. Si 404, el server no está sirviendo la ruta.
+
+Si implementas la ruta dinámica (B2), prueba:
+
+curl -I https://yourdomain/objects/21c75d47-51f9-4b24-b405-b7c56e5b8be5-1757527438041.upload-1757527438040
+curl -I https://yourdomain/objects/21c75d47-51f9-4b24-b405-b7c56e5b8be5  # probar prefix match
+
+Recomendación práctica (qué hacer ahora)
+
+Si puedes modificar backend ahora → implementa B1 (renombrar con extensión). Es la solución limpia y evita problemas futuros.
+
+Si no puedes tocar la lógica de upload pero sí el servidor → monta uploads con express.static y además añade la ruta dinámica (B2) para asegurar que aunque el nombre no tenga extensión, el servidor lo entregue con Content-Type.
+
+En frontend, no reconstruyas URLs con bg.png a menos que tu backend garantice que renombró el archivo así. Usa siempre la uploadURL / objectName que te regresa el backend (o la URL completa devuelta en response.body.url).
+
+Fragmento final para pegar (combina express.static + ruta de fallback)
+
+Pega esto en tu server/index.ts (o routes.ts) para cubrir ambos casos:
+
+import express from "express";
+import path from "path";
+import fs from "fs";
+import mime from "mime";
+
+const app = express();
+const UPLOADS = path.join(__dirname, "../uploads");
+
+// 1) servir estático (rápido)
+app.use("/objects", express.static(UPLOADS, {
+  dotfiles: "allow",
+  index: false,
+}));
+
+// 2) fallback inteligente: si no responde el estático, intentar buscar por prefijo y servir con MIME
+app.get("/objects/:name", (req, res) => {
+  const name = req.params.name;
+  const candidate = path.join(UPLOADS, name);
+
+  if (fs.existsSync(candidate)) {
+    const type = mime.getType(candidate) || "application/octet-stream";
+    res.setHeader("Content-Type", type);
+    return res.sendFile(candidate);
+  }
+
+  const idPrefix = name.split(/[\.-]/)[0]; // tomar la parte inicial del id
+  const matches = fs.readdirSync(UPLOADS).filter(f => f.startsWith(idPrefix));
+  if (matches.length > 0) {
+    const filePath = path.join(UPLOADS, matches[0]);
+    const type = mime.getType(filePath) || "application/octet-stream";
+    res.setHeader("Content-Type", type);
+    return res.sendFile(filePath);
+  }
+
+  return res.status(404).send("Not found");
+});

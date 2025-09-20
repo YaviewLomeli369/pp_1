@@ -1,0 +1,77 @@
+{/* Botón Carrito */}
+            <Dialog open={isCartOpen && !isNavigating} onOpenChange={(open) => {
+              if (!isNavigating) setIsCartOpen(open);
+            }}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2" disabled={isNavigating}>
+                  <ShoppingCart className="h-4 w-4" /> Carrito ({cart.length})
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader><DialogTitle>Carrito de compras</DialogTitle></DialogHeader>
+                <div className="space-y-4">
+                  {cart.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">Tu carrito está vacío</p>
+                  ) : (
+                    <>
+                      {cart.map(item => (
+                        <div key={item.product.id} className="flex items-center justify-between space-x-4">
+                          <div className="flex-1">
+                            <h4 className="font-medium line-clamp-1">{item.product.name}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              ${(item.product.price / 100).toFixed(2)} x {item.quantity}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)} disabled={isNavigating}>
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-8 text-center">{item.quantity}</span>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => {
+                                if (!isNavigating) {
+                                  const product = products?.find(p => p.id === item.product.id);
+                                  if (product?.stock !== null && item.quantity >= product.stock) {
+                                    toast({
+                                      title: "Stock insuficiente",
+                                      description: `Solo hay ${product.stock} unidades disponibles`,
+                                      variant: "destructive"
+                                    });
+                                    return;
+                                  }
+                                  updateCartQuantity(item.product.id, item.quantity + 1);
+                                }
+                              }} 
+                              disabled={isNavigating || (() => {
+                                const product = products?.find(p => p.id === item.product.id);
+                                return product?.stock !== null && item.quantity >= product.stock;
+                              })()}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => removeFromCart(item.product.id)} disabled={isNavigating}>
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <p className="font-semibold">
+                            ${((item.product.price / 100) * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
+                      ))}
+                      <div className="border-t pt-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="font-semibold">Total:</span>
+                          <span className="font-bold text-lg">${cartTotal.toFixed(2)}</span>
+                        </div>
+                        <Button className="w-full" onClick={handleCheckout} disabled={isNavigating}>
+                          Proceder al Checkout
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>

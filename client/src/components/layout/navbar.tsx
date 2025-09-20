@@ -56,36 +56,31 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
-  // Get navbar styles from config - ensure it updates when config changes
+  // Get navbar styles from config
   const navbarStyles = useMemo(() => {
     const configData = config?.config as any;
     const styles = configData?.navbarStyles || {};
 
-    const defaultStyles = {
-      height: '64px',
-      backgroundColor: '#ffffff',
-      backgroundBlur: false,
-      backgroundOpacity: '0.95',
-      borderBottom: '1px solid rgba(229, 231, 235, 0.8)',
-      fontSize: '16px',
-      fontWeight: '500',
-      fontFamily: 'inherit',
-      textColor: '#374151',
-      textHoverColor: '#059669',
-      activeTextColor: '#059669',
-      logoSize: '40px',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      borderRadius: '0px',
-      transition: 'all 0.3s ease',
-      maxWidth: '1280px',
-      padding: '0 16px',
-      position: 'fixed',
-      customCSS: ''
-    };
-
     return {
-      ...defaultStyles,
-      ...styles
+      height: styles.height || '64px',
+      backgroundColor: styles.backgroundColor || '#ffffff',
+      backgroundBlur: styles.backgroundBlur !== false,
+      backgroundOpacity: styles.backgroundOpacity || '0.95',
+      borderBottom: styles.borderBottom || '1px solid rgba(229, 231, 235, 0.8)',
+      fontSize: styles.fontSize || '16px',
+      fontWeight: styles.fontWeight || '500',
+      fontFamily: styles.fontFamily || 'inherit',
+      textColor: styles.textColor || '#374151',
+      textHoverColor: styles.textHoverColor || '#059669',
+      activeTextColor: styles.activeTextColor || '#059669',
+      logoSize: styles.logoSize || '40px',
+      boxShadow: styles.boxShadow || '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      borderRadius: styles.borderRadius || '0px',
+      transition: styles.transition || 'all 0.3s ease',
+      maxWidth: styles.maxWidth || '1280px',
+      padding: styles.padding || '0 16px',
+      position: styles.position || 'fixed',
+      customCSS: styles.customCSS || ''
     };
   }, [config]);
 
@@ -420,133 +415,81 @@ export function Navbar() {
     </div>
   ), [handleNavigation, location]);
 
-  // Determine logo size and filter from navbar styles
-  const logoHeight = navbarStyles.logoSize || '40px';
-  const logoSrc = logoSvg; // Assuming logoSvg is imported correctly
-  const logoFilter = ''; // Placeholder for potential future filters
-
-  // Image error handler for the logo
-  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    console.error("Error loading logo:", e);
-    // Optionally replace with a fallback or default text
-    e.currentTarget.style.display = 'none'; // Hide broken image icon
-  }, []);
-
-  // Apply navbar styles immediately when component mounts and when styles change
+  // Update navbar styles and body padding on mount and config changes
   useEffect(() => {
-    const applyNavbarStyles = () => {
-      const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
-      if (!navElement) return;
+    if (!navbarConfig) return;
 
-      // Apply navbar container styles with fallbacks
+    // Apply navbar styles
+    const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
+    if (navElement && navbarStyles) {
       Object.assign(navElement.style, {
         position: navbarStyles.position || 'fixed',
         backgroundColor: navbarStyles.backgroundColor || '#ffffff',
         backdropFilter: navbarStyles.backgroundBlur ? `blur(10px)` : 'none',
         borderBottom: navbarStyles.borderBottom || '1px solid #e5e7eb',
-        boxShadow: isScrolled ? (navbarStyles.boxShadow || '0 2px 4px rgba(0,0,0,0.1)') : 'none',
-        borderRadius: navbarStyles.borderRadius || '0px',
-        transition: navbarStyles.transition || 'all 0.3s ease',
-        zIndex: '1000',
-        width: '100%',
-        height: navbarStyles.height || '64px',
+        boxShadow: navbarStyles.boxShadow || '0 1px 3px rgba(0, 0, 0, 0.1)',
+        zIndex: navbarStyles.zIndex || '1000',
+        width: navbarStyles.width || '100%',
+        height: navbarStyles.height || 'auto',
         padding: navbarStyles.padding || '0.75rem 1rem',
-        fontFamily: navbarStyles.fontFamily || 'Inter, sans-serif',
-      });
-
-      // Apply text styles to navbar links with stronger selectors
-      const linkElements = navElement.querySelectorAll('.navbar-link, .navbar-nav a, [class*="navbar-link"]');
-      linkElements.forEach((link) => {
-        if (link instanceof HTMLElement) {
-          link.style.fontSize = navbarStyles.fontSize || '16px';
-          link.style.fontWeight = navbarStyles.fontWeight || '500';
-          link.style.fontFamily = navbarStyles.fontFamily || 'Inter, sans-serif';
-          link.style.color = navbarStyles.textColor || '#374151';
-          link.style.transition = navbarStyles.transition || 'all 0.3s ease';
-        }
-      });
-
-      // Apply logo styles
-      const logoElements = navElement.querySelectorAll('.navbar-logo, [class*="navbar-logo"]');
-      logoElements.forEach((logo) => {
-        if (logo instanceof HTMLElement) {
-          logo.style.height = navbarStyles.logoSize || '40px';
-          logo.style.width = 'auto';
-        }
+        transition: navbarStyles.transition || 'all 0.3s ease'
       });
 
       // Function to update body padding based on exact navbar height
       const updateBodyPadding = () => {
-        requestAnimationFrame(() => {
-          if (navbarStyles.position === 'fixed') {
-            const navRect = navElement.getBoundingClientRect();
-            const navHeight = Math.max(navRect.height, 64); // Minimum 64px
-            document.body.style.paddingTop = `${navHeight}px`;
-            document.body.style.transition = 'padding-top 0.3s ease';
-          } else {
-            document.body.style.paddingTop = '0px';
-            document.body.style.transition = 'padding-top 0.3s ease';
-          }
-        });
+        // Force a reflow to ensure accurate measurements
+        navElement.offsetHeight;
+
+        if (navbarStyles.position === 'fixed') {
+          // Get the actual computed height of the navbar
+          const navRect = navElement.getBoundingClientRect();
+          const navHeight = navRect.height;
+
+          // Apply the exact height as padding
+          document.body.style.paddingTop = `${navHeight}px`;
+          document.body.style.transition = 'padding-top 0.3s ease';
+        } else {
+          document.body.style.paddingTop = '0px';
+          document.body.style.transition = 'padding-top 0.3s ease';
+        }
       };
 
-      // Update padding immediately and after a short delay
-      updateBodyPadding();
-      setTimeout(updateBodyPadding, 100);
+      // Initial padding update with a small delay to ensure styles are applied
+      setTimeout(updateBodyPadding, 10);
 
-      return updateBodyPadding;
-    };
-
-    // Apply styles immediately
-    const updatePadding = applyNavbarStyles();
-
-    // Set up observers for dynamic updates
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(() => {
-        applyNavbarStyles();
+      // Set up ResizeObserver to watch for navbar size changes
+      const resizeObserver = new ResizeObserver((entries) => {
+        // Use requestAnimationFrame for smooth updates
+        requestAnimationFrame(updateBodyPadding);
       });
-    });
 
-    const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
-    if (navElement) {
       resizeObserver.observe(navElement);
+
+      // Also listen for window resize events
+      const handleResize = () => {
+        requestAnimationFrame(updateBodyPadding);
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      // Listen for font load events that might change navbar height
+      const handleFontLoad = () => {
+        setTimeout(updateBodyPadding, 100);
+      };
+
+      document.fonts.addEventListener('loadingdone', handleFontLoad);
+
+      // Cleanup function
+      return () => {
+        resizeObserver.disconnect();
+        window.removeEventListener('resize', handleResize);
+        document.fonts.removeEventListener('loadingdone', handleFontLoad);
+        if (navbarStyles?.position !== 'fixed') {
+          document.body.style.paddingTop = '0px';
+        }
+      };
     }
-
-    const handleResize = () => {
-      requestAnimationFrame(() => {
-        applyNavbarStyles();
-      });
-    };
-
-    const handleFontLoad = () => {
-      setTimeout(() => {
-        applyNavbarStyles();
-      }, 100);
-    };
-
-    window.addEventListener('resize', handleResize);
-    document.fonts.addEventListener('loadingdone', handleFontLoad);
-
-    // Re-apply styles when navigation changes
-    const handleRouteChange = () => {
-      setTimeout(() => {
-        applyNavbarStyles();
-      }, 50);
-    };
-
-    window.addEventListener('popstate', handleRouteChange);
-
-    // Add class to body to indicate navbar is loaded
-    document.body.classList.add('navbar-loaded');
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', handleResize);
-      document.fonts.removeEventListener('loadingdone', handleFontLoad);
-      window.removeEventListener('popstate', handleRouteChange);
-      document.body.classList.remove('navbar-loaded');
-    };
-  }, [navbarStyles, isScrolled, location]); // Include location to re-apply on route change
+  }, [navbarConfig, navbarStyles]);
 
   // Additional effect to handle immediate updates when navbar styles change
   useEffect(() => {
@@ -629,15 +572,6 @@ export function Navbar() {
               src={logoSvg}
               alt="Logo"
               className="navbar-logo object-contain"
-              style={{
-                height: logoHeight,
-                maxHeight: logoHeight,
-                filter: logoFilter,
-                width: 'auto'
-              }}
-              width="120"
-              height="40"
-              onError={handleImageError}
             />
           </NavLink>
 

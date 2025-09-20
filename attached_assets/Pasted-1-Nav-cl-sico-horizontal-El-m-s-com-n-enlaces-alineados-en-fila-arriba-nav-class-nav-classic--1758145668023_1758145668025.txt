@@ -1,0 +1,268 @@
+1. Nav clásico horizontal
+
+El más común, enlaces alineados en fila arriba.
+
+<nav class="nav-classic">
+  <ul>
+    <li><a href="#">Inicio</a></li>
+    <li><a href="#">Servicios</a></li>
+    <li><a href="#">Productos</a></li>
+    <li><a href="#">Contacto</a></li>
+  </ul>
+</nav>
+
+<style>
+.nav-classic ul {
+  display: flex;
+  list-style: none;
+  background: #333;
+  padding: 10px;
+}
+.nav-classic a {
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+.nav-classic a:hover {
+  background: #555;
+}
+</style>
+
+2. Nav con logo al lado
+
+Muy usado en webs corporativas.
+
+<nav class="nav-logo">
+  <div class="logo">🌐 LOGO</div>
+  <ul>
+    <li><a href="#">Inicio</a></li>
+    <li><a href="#">Nosotros</a></li>
+    <li><a href="#">Blog</a></li>
+  </ul>
+</nav>
+
+<style>
+.nav-logo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0044cc;
+  padding: 10px 20px;
+}
+.nav-logo ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+.nav-logo a { color: white; text-decoration: none; }
+</style>
+
+3. Nav vertical (sidebar)
+
+Típico en dashboards y apps.
+
+<nav class="nav-vertical">
+  <ul>
+    <li><a href="#">🏠 Dashboard</a></li>
+    <li><a href="#">📦 Inventario</a></li>
+    <li><a href="#">💰 Ventas</a></li>
+    <li><a href="#">⚙ Configuración</a></li>
+  </ul>
+</nav>
+
+<style>
+.nav-vertical {
+  width: 200px;
+  height: 100vh;
+  background: #222;
+}
+.nav-vertical ul { list-style: none; padding: 0; }
+.nav-vertical a {
+  display: block;
+  padding: 15px;
+  color: white;
+  text-decoration: none;
+}
+.nav-vertical a:hover { background: #444; }
+</style>
+
+4. Nav con submenús desplegables
+
+Muy usado en webs con secciones grandes.
+
+<nav class="nav-dropdown">
+  <ul>
+    <li><a href="#">Inicio</a></li>
+    <li>
+      <a href="#">Servicios ▾</a>
+      <ul class="submenu">
+        <li><a href="#">Diseño</a></li>
+        <li><a href="#">Marketing</a></li>
+        <li><a href="#">Consultoría</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+<style>
+.nav-dropdown ul { list-style: none; display: flex; gap: 20px; background: #333; }
+.nav-dropdown a { color: white; text-decoration: none; padding: 10px; }
+.submenu { display: none; position: absolute; background: #444; }
+.nav-dropdown li:hover .submenu { display: block; }
+.submenu li { padding: 10px; }
+</style>
+
+5. Nav tipo pestañas (tabs)
+
+Más minimalista, como en aplicaciones.
+
+<nav class="nav-tabs">
+  <a href="#" class="active">Inicio</a>
+  <a href="#">Perfil</a>
+  <a href="#">Mensajes</a>
+</nav>
+
+<style>
+.nav-tabs {
+  display: flex;
+  border-bottom: 2px solid #ddd;
+}
+.nav-tabs a {
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #555;
+}
+.nav-tabs a.active {
+  border-bottom: 3px solid #007BFF;
+  color: #007BFF;
+}
+</style>
+
+6. Nav minimalista centrado
+
+Para webs limpias y modernas.
+
+<nav class="nav-center">
+  <ul>
+    <li><a href="#">Inicio</a></li>
+    <li><a href="#">Proyectos</a></li>
+    <li><a href="#">Equipo</a></li>
+  </ul>
+</nav>
+
+<style>
+.nav-center ul {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 40px;
+  background: #f8f8f8;
+  padding: 15px;
+}
+.nav-center a { text-decoration: none; color: #333; }
+</style>
+
+7. Nav con buscador integrado
+
+Combinando navegación con búsqueda.
+
+<nav class="nav-search">
+  <ul>
+    <li><a href="#">Inicio</a></li>
+    <li><a href="#">Noticias</a></li>
+  </ul>
+  <input type="text" placeholder="Buscar...">
+</nav>
+
+<style>
+.nav-search {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #00695c;
+  padding: 10px 20px;
+}
+.nav-search ul { list-style: none; display: flex; gap: 20px; }
+.nav-search a { color: white; text-decoration: none; }
+.nav-search input {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+}
+</style>
+
+8. Nav tipo “hamburguesa” responsive
+
+Clásico en móviles.
+
+<nav class="nav-hamburger">
+  <div class="logo">LOGO</div>
+  <div class="menu">☰</div>
+</nav>
+
+<style>
+.nav-hamburger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111;
+  padding: 10px 20px;
+  color: white;
+}
+.menu { font-size: 24px; cursor: pointer; }
+</style>
+
+9. Nav sticky (fijo al hacer scroll)
+
+Permanece visible.
+
+<nav class="nav-sticky">
+  <a href="#">Inicio</a>
+  <a href="#">Servicios</a>
+  <a href="#">Contacto</a>
+</nav>
+
+<style>
+.nav-sticky {
+  position: sticky;
+  top: 0;
+  background: #ff5722;
+  display: flex;
+  gap: 20px;
+  padding: 10px;
+}
+.nav-sticky a { color: white; text-decoration: none; }
+</style>
+
+10. Nav tipo mega menú
+
+Más avanzado, ideal para ecommerce.
+
+<nav class="nav-mega">
+  <ul>
+    <li>
+      <a href="#">Productos ▾</a>
+      <div class="mega-menu">
+        <div><h4>Electrónica</h4><a href="#">TV</a><a href="#">Laptops</a></div>
+        <div><h4>Ropa</h4><a href="#">Hombre</a><a href="#">Mujer</a></div>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<style>
+.nav-mega ul { list-style: none; background: #222; display: flex; }
+.nav-mega a { color: white; padding: 10px; text-decoration: none; }
+.mega-menu {
+  display: none;
+  position: absolute;
+  background: #444;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 150px);
+  gap: 20px;
+}
+.nav-mega li:hover .mega-menu { display: grid; }
+.mega-menu h4 { margin: 0; color: #ddd; }
+.mega-menu a { display: block; margin-top: 5px; }
+</style>

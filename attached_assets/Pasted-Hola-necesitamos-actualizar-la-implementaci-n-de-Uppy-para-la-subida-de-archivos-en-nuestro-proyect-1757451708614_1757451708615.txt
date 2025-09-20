@@ -1,0 +1,94 @@
+Hola, necesitamos actualizar la implementación de Uppy para la subida de archivos en nuestro proyecto, asegurando compatibilidad total en desarrollo (HTTP) y producción (HTTPS). Queremos que maneje errores, previews y evite contenido mixto.
+
+Objetivos clave:
+
+Detectar automáticamente si la página se carga en HTTP o HTTPS y ajustar el endpoint.
+
+Soportar subidas de archivos, previews y manejo de errores.
+
+Funcionar en localhost, Replit y VPS/producción sin cambiar código entre entornos.
+
+Implementación sugerida:
+
+import Uppy from '@uppy/core';
+import XHRUpload from '@uppy/xhr-upload';
+import Dashboard from '@uppy/dashboard';
+
+// Inicializar Uppy
+const uppy = new Uppy({
+  autoProceed: true,
+  restrictions: {
+    maxFileSize: 10485760, // 10 MB
+    allowedFileTypes: ['image/*', 'video/*', 'application/pdf']
+  },
+  onBeforeUpload: (files) => {
+    console.log('Archivos listos para subir:', files);
+  }
+});
+
+// Detectar protocolo y host dinámicamente
+const protocol = window.location.protocol; // 'http:' o 'https:'
+const host = window.location.host;         // 'www.nyuxo.com' o 'localhost:3000'
+const endpoint = `${protocol}//${host}/api/objects/direct-upload/`;
+
+// Configurar XHRUpload
+uppy.use(XHRUpload, {
+  endpoint: endpoint,
+  fieldName: 'file',
+  headers: {
+    'X-CSRFToken': getCookie('csrftoken') // si aplica Django/CSRF
+  }
+});
+
+// Opcional: Dashboard para previews y arrastrar-soltar
+uppy.use(Dashboard, {
+  inline: true,
+  target: '#drag-drop-area',
+  showProgressDetails: true,
+  proudlyDisplayPoweredByUppy: false
+});
+
+// Manejo de eventos de error
+uppy.on('error', (error) => {
+  console.error('Uppy error:', error);
+  alert('Error al subir el archivo: ' + error.message);
+});
+
+uppy.on('upload-success', (file, response) => {
+  console.log('Archivo subido correctamente:', file.name, response);
+});
+
+uppy.on('upload-error', (file, error, response) => {
+  console.error('Error en archivo:', file.name, error, response);
+  alert(`Error al subir ${file.name}: ${error}`);
+});
+
+// Función auxiliar si usamos Django CSRF
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+{
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
+Beneficios de esta configuración:
+
+Funciona automáticamente en HTTP (desarrollo) y HTTPS (producción).
+
+Evita errores de contenido mixto y bloqueos del navegador.
+
+Maneja previews, errores y logs de subida de archivos.
+
+No requiere cambios manuales al hacer git pull / git push entre entornos.
+
+Por favor, implementa esta versión completa para asegurar que las subidas funcionen sin fallas en todos los entornos.

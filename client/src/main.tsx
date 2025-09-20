@@ -3,41 +3,59 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Performance optimizations
-const rootElement = document.getElementById('root')!;
+// Theme initialization
+import { apiRequest } from './lib/queryClient';
 
-// Add loading indicator while app initializes
-rootElement.innerHTML = `
-  <div style="
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    font-family: Inter, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-  ">
-    <div style="text-align: center;">
-      <div style="
-        width: 40px;
-        height: 40px;
-        border: 3px solid rgba(255,255,255,0.3);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 16px;
-      "></div>
-      <p>Cargando...</p>
-    </div>
-    <style>
-      @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
-  </div>
-`;
+// Load and apply theme on startup
+const initializeTheme = async () => {
+  try {
+    const config = await apiRequest('/api/config');
+    if (config?.config?.appearance) {
+      const appearance = config.config.appearance;
+      const root = document.documentElement;
 
-// Render app with performance optimizations
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+      // Apply theme variables
+      Object.entries(appearance).forEach(([key, value]) => {
+        if (typeof value === 'string') {
+          switch (key) {
+            case 'primaryColor':
+              root.style.setProperty('--color-primary', value);
+              break;
+            case 'secondaryColor':
+              root.style.setProperty('--color-secondary', value);
+              break;
+            case 'accentColor':
+              root.style.setProperty('--color-accent', value);
+              break;
+            case 'backgroundColor':
+              root.style.setProperty('--color-background', value);
+              break;
+            case 'textColor':
+              root.style.setProperty('--color-text', value);
+              break;
+            case 'linkColor':
+              root.style.setProperty('--color-link', value);
+              break;
+            case 'fontFamily':
+              root.style.setProperty('--font-family', value);
+              break;
+            case 'headingFont':
+              root.style.setProperty('--font-heading', value);
+              break;
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.warn('Could not load theme configuration:', error);
+  }
+};
+
+// Initialize theme then render app
+initializeTheme().then(() => {
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
+});

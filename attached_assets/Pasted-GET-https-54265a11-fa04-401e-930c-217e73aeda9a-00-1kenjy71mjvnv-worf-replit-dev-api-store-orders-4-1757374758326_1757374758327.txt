@@ -1,0 +1,74 @@
+GET https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/api/store/orders 401 (Unauthorized)
+(anonymous) @ queryClient.ts:71
+fetchFn @ @tanstack_react-query.js?v=7d937461:812
+run @ @tanstack_react-query.js?v=7d937461:477
+start @ @tanstack_react-query.js?v=7d937461:518
+fetch @ @tanstack_react-query.js?v=7d937461:893
+#executeFetch @ @tanstack_react-query.js?v=7d937461:1963
+onSubscribe @ @tanstack_react-query.js?v=7d937461:1840
+subscribe @ @tanstack_react-query.js?v=7d937461:19
+(anonymous) @ @tanstack_react-query.js?v=7d937461:2962
+subscribeToStore @ chunk-NXESFFTV.js?v=7d937461:12032
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=7d937461:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=7d937461:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=7d937461:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=7d937461:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=7d937461:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=7d937461:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=7d937461:19500
+commitRootImpl @ chunk-NXESFFTV.js?v=7d937461:19469
+commitRoot @ chunk-NXESFFTV.js?v=7d937461:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=7d937461:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=7d937461:9166
+(anonymous) @ chunk-NXESFFTV.js?v=7d937461:18677
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=7d937461:537
+flush @ @tanstack_react-query.js?v=7d937461:551
+batch @ @tanstack_react-query.js?v=7d937461:569
+#dispatch @ @tanstack_react-query.js?v=7d937461:963
+setData @ @tanstack_react-query.js?v=7d937461:672
+onSuccess @ @tanstack_react-query.js?v=7d937461:865
+resolve @ @tanstack_react-query.js?v=7d937461:442
+Promise.then
+run @ @tanstack_react-query.js?v=7d937461:481
+start @ @tanstack_react-query.js?v=7d937461:518
+fetch @ @tanstack_react-query.js?v=7d937461:893
+#executeFetch @ @tanstack_react-query.js?v=7d937461:1963
+onSubscribe @ @tanstack_react-query.js?v=7d937461:1840
+subscribe @ @tanstack_react-query.js?v=7d937461:19
+(anonymous) @ @tanstack_react-query.js?v=7d937461:2962
+subscribeToStore @ chunk-NXESFFTV.js?v=7d937461:12032
+commitHookEffectListMount @ chunk-NXESFFTV.js?v=7d937461:16963
+commitPassiveMountOnFiber @ chunk-NXESFFTV.js?v=7d937461:18206
+commitPassiveMountEffects_complete @ chunk-NXESFFTV.js?v=7d937461:18179
+commitPassiveMountEffects_begin @ chunk-NXESFFTV.js?v=7d937461:18169
+commitPassiveMountEffects @ chunk-NXESFFTV.js?v=7d937461:18159
+flushPassiveEffectsImpl @ chunk-NXESFFTV.js?v=7d937461:19543
+flushPassiveEffects @ chunk-NXESFFTV.js?v=7d937461:19500
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=7d937461:18921
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=7d937461:9166
+commitRootImpl @ chunk-NXESFFTV.js?v=7d937461:19485
+commitRoot @ chunk-NXESFFTV.js?v=7d937461:19330
+finishConcurrentRender @ chunk-NXESFFTV.js?v=7d937461:18858
+performConcurrentWorkOnRoot @ chunk-NXESFFTV.js?v=7d937461:18768
+workLoop @ chunk-NXESFFTV.js?v=7d937461:197
+flushWork @ chunk-NXESFFTV.js?v=7d937461:176
+performWorkUntilDeadline @ chunk-NXESFFTV.js?v=7d937461:384Understand this error
+queryClient.ts:37 Making API request: {url: '/api/auth/login', method: 'POST', headers: {…}, bodyType: 'string', body: '{"username":"yaview.lomeli@gmail.com","password":"Losy990209bn7**"}'}
+queryClient.ts:37 Making API request: {url: '/api/payment-config', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/categories', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+queryClient.ts:37 Making API request: {url: '/api/store/customers', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
+d65decdc-f9c5-4789-86f7-569b85a0984a:1  GET https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/objects/d65decdc-f9c5-4789-86f7-569b85a0984a 404 (Not Found)
+Image
+commitMount @ chunk-NXESFFTV.js?v=7d937461:8459
+commitLayoutEffectOnFiber @ chunk-NXESFFTV.js?v=7d937461:17150
+commitLayoutMountEffects_complete @ chunk-NXESFFTV.js?v=7d937461:18030
+commitLayoutEffects_begin @ chunk-NXESFFTV.js?v=7d937461:18019
+commitLayoutEffects @ chunk-NXESFFTV.js?v=7d937461:17970
+commitRootImpl @ chunk-NXESFFTV.js?v=7d937461:19406
+commitRoot @ chunk-NXESFFTV.js?v=7d937461:19330
+performSyncWorkOnRoot @ chunk-NXESFFTV.js?v=7d937461:18948
+flushSyncCallbacks @ chunk-NXESFFTV.js?v=7d937461:9166
+(anonymous) @ chunk-NXESFFTV.js?v=7d937461:18677Understand this error
+store.tsx:1017 ❌ Image preview failed to load: /objects/d65decdc-f9c5-4789-86f7-569b85a0984a

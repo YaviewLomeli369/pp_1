@@ -1,0 +1,148 @@
+1️⃣ Problemas de backend (Express / Node.js)
+
+Endpoint de subida
+
+Debe recibir correctamente el archivo (normalmente con multer).
+
+Guardar el archivo en la carpeta correcta (/uploads o /public/uploads) con nombre único.
+
+Retornar la URL relativa o absoluta para el frontend.
+
+Ruta estática
+
+Si tus imágenes están en /uploads, debes exponer la carpeta:
+
+app.use('/uploads', express.static('uploads'));
+
+
+Sin esto, el navegador no puede acceder a los archivos y dará 404.
+
+Respuesta del endpoint
+
+Debe incluir la URL que luego usarás en React:
+
+{
+  "url": "/uploads/mi-imagen.png"
+}
+
+
+Problemas de CORS
+
+Si frontend y backend están en diferentes dominios o puertos:
+
+const cors = require('cors');
+app.use(cors({
+  origin: '*', // o tu dominio exacto
+  methods: ['GET','POST']
+}));
+
+
+Si no está, la imagen puede no cargarse por políticas del navegador.
+
+Autenticación
+
+Si tu endpoint requiere token (401 Unauthorized), la subida falla.
+
+Debes enviar siempre Authorization: Bearer <token> en XHRUpload.
+
+2️⃣ Problemas de frontend (React / Uppy)
+
+URL incorrecta
+
+Si solo guardas /uploads/imagen.png, al desplegar en Replit necesitas el host:
+
+const finalUrl = `${window.location.origin}${relativeUrl}`;
+
+
+Si lo pones tal cual (/uploads/imagen.png) sin el host, a veces en Replit no se resuelve bien.
+
+XSS / Mixed Content
+
+Si tu Replit corre en https:// y el backend en http://, el navegador bloquea las imágenes.
+
+Solución: usar siempre el mismo protocolo (https en VPS o localhost http).
+
+Uppy / Dashboard
+
+autoProceed puede enviar el archivo antes de que el token esté listo.
+
+onComplete debe leer result.successful[0].response.body.url y actualizar el estado de React.
+
+Si result.successful está vacío, no se guardó nada.
+
+Estado React
+
+Asegúrate de guardar la URL de la imagen en el estado antes de enviar el producto:
+
+const [imageUrl, setImageUrl] = useState('');
+
+
+Cache del navegador
+
+Si reemplazas la imagen pero no cambias el nombre, el navegador puede mostrar la anterior.
+
+Solución: generar un nombre único con timestamp:
+
+const filename = `${Date.now()}-${file.originalname}`;
+
+3️⃣ Problemas de almacenamiento y paths
+
+Nombre duplicado
+
+Si subes varias imágenes con el mismo nombre, se sobreescribe.
+
+Carpeta no existente
+
+Si uploads/ no existe, Node no puede guardar la imagen.
+
+Permisos de escritura
+
+En Replit, asegúrate que la carpeta tenga permisos de escritura (chmod 755 uploads).
+
+4️⃣ Problemas de renderizado en React
+
+No usar <img src={url}> correcto
+
+Debe apuntar a la URL absoluta que funcione en el navegador.
+
+Estado React no actualizado
+
+Si guardas url en variable local y no en useState, React no re-renderiza.
+
+Responsive / CSS
+
+La imagen podría estar ahí pero con width: 0 o display: none.
+
+5️⃣ Problemas de producción vs desarrollo
+
+En Replit la URL puede cambiar según el deploy.
+
+Siempre genera la URL usando window.location.origin.
+
+En VPS:
+
+Debes asegurarte de que la carpeta de imágenes sea accesible públicamente (/var/www/...).
+
+Configura Nginx / Apache para servir /uploads.
+
+✅ Checklist para corregirlo todo
+
+ Endpoint /api/objects/upload funciona y devuelve { url }.
+
+ Carpeta de uploads existe y tiene permisos correctos.
+
+ express.static('/uploads') expone la carpeta.
+
+ CORS configurado si frontend y backend son distintos.
+
+ React recibe la URL y la guarda en estado.
+
+ window.location.origin + url para que sea absoluta.
+
+ Token incluido en todas las requests protegidas.
+
+ Nombre de imagen único para evitar cache o sobreescritura.
+
+ CSS asegura que <img> se vea y no tenga tamaño 0.
+
+ Probar tanto en Replit (http) como en VPS (https) y ajustar URL si es necesario.

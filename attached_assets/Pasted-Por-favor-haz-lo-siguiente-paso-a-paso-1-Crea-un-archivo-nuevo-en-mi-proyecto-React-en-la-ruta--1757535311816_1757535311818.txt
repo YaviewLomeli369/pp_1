@@ -1,0 +1,125 @@
+Por favor haz lo siguiente paso a paso:
+
+1. Crea un archivo nuevo en mi proyecto React en la ruta:
+   src/components/ImageWithRetry.tsx
+
+2. Dentro de ese archivo pega exactamente este código completo:
+
+------------------------------------------------------
+import React, { useState } from "react";
+
+/**
+ * Normaliza y resuelve correctamente la URL de la imagen.
+ * Soporta:
+ *  - URLs absolutas (http/https)
+ *  - Rutas de backend (/objects/, /api/objects/direct-upload/...)
+ *  - Nombres simples de archivo
+ *  - Soporte para thumbnails (si thumbnail=true)
+ */
+function resolveImageUrl(
+  src?: string | null,
+  thumbnail: boolean = false
+): string {
+  if (!src) return "/placeholder.svg";
+
+  // Si ya es URL absoluta
+  if (/^https?:\/\//.test(src)) return src;
+
+  let basePath = src;
+
+  // Normalizar direct-upload → objects
+  if (src.includes("/api/objects/direct-upload/")) {
+    basePath = src.replace("/api/objects/direct-upload", "/objects");
+  }
+
+  // Si empieza con /objects ya está bien
+  if (basePath.startsWith("/objects")) {
+    return thumbnail
+      ? basePath.replace("/objects/", "/objects/thumbs/")
+      : basePath;
+  }
+
+  // Caso simple: nombre de archivo
+  return thumbnail ? `/objects/thumbs/${basePath}` : `/objects/${basePath}`;
+}
+
+/**
+ * Imagen con reintentos de carga y fallback a placeholder.
+ * Intenta cargar un thumbnail primero si está habilitado.
+ */
+export function ImageWithRetry({
+  src,
+  alt,
+  className,
+  useThumbnail = true,
+}: {
+  src?: string | null;
+  alt: string;
+  className?: string;
+  useThumbnail?: boolean;
+}) {
+  const [errorCount, setErrorCount] = useState(0);
+
+  let finalSrc = "/placeholder.svg";
+
+  if (src) {
+    if (useThumbnail && errorCount === 0) {
+      // Primer intento → thumbnail
+      finalSrc = resolveImageUrl(src, true);
+    } else if (errorCount <= 1) {
+      // Segundo intento → original
+      finalSrc = resolveImageUrl(src, false);
+    }
+  }
+
+  return (
+    <img
+      src={finalSrc}
+      alt={alt}
+      className={className}
+      onError={() => setErrorCount((prev) => prev + 1)}
+    />
+  );
+}
+
+/**
+ * Ejemplo de uso dentro de un producto.
+ * Lo puedes reusar en tu catálogo, carrito, etc.
+ */
+export function ProductCard({
+  product,
+}: {
+  product: { name: string; image?: string | null; price: number };
+}) {
+  return (
+    <div className="border rounded-xl p-3 shadow-sm">
+      <div className="w-full h-40 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+        <ImageWithRetry
+          src={product.image}
+          alt={product.name}
+          className="object-contain w-full h-full"
+          useThumbnail={true}
+        />
+      </div>
+      <h3 className="mt-2 font-semibold">{product.name}</h3>
+      <p className="text-gray-500">${product.price.toFixed(2)}</p>
+    </div>
+  );
+}
+------------------------------------------------------
+
+3. Guarda el archivo.
+
+4. Ahora en cualquier componente donde muestre imágenes de productos 
+   (por ejemplo en src/pages/store.tsx o en ObjectUploader.tsx),
+   importa y usa el nuevo componente así:
+
+   import { ImageWithRetry } from "@/components/ImageWithRetry";
+
+   Y úsalo en lugar de <img>:
+   <ImageWithRetry src={product.image} alt={product.name} className="w-32 h-32 object-contain rounded" />
+
+Esto permitirá que todas las imágenes:
+ - Usen thumbnails si están disponibles.
+ - Caigan al original si falla el thumbnail.
+ - Usen /placeholder.svg si no se puede cargar ninguna.

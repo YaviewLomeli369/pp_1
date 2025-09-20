@@ -1,0 +1,105 @@
+index-ByyMZ-Ax.js:626 Mixed Content: The page at 'https://www.nyuxo.com/admin/store#products' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint 'http://www.nyuxo.com/api/objects/direct-upload/9b8ce96a-0a3c-4c83-add1-a988fbdd6b5e'. This request has been blocked; the content must be served over HTTPS.
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:602 [Uppy] [14:57:18] Unknown error
+error @ index-ByyMZ-Ax.js:602Understand this error
+index-ByyMZ-Ax.js:602 [Uppy] [14:57:18] Error: Failed to upload Gemini_Generated_Image_aarl0qaarl0qaarl.png
+    at Function.<anonymous> (index-ByyMZ-Ax.js:606:4139)
+    at i (index-ByyMZ-Ax.js:602:30895)
+    at Ry.e.emit (index-ByyMZ-Ax.js:602:30263)
+    at M1.emit (index-ByyMZ-Ax.js:602:38673)
+    at qte.a (index-ByyMZ-Ax.js:626:14155)
+    at #u (index-ByyMZ-Ax.js:626:584)
+warn @ index-ByyMZ-Ax.js:602Understand this warning
+index-ByyMZ-Ax.js:626 === ❌ UPPY UPLOAD ERROR EVENT START ===
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-1. File name: Gemini_Generated_Image_aarl0qaarl0qaarl.png
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-2. Error object: Error: Unknown error
+    at XMLHttpRequest.<anonymous> (index-ByyMZ-Ax.js:626:13685)
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-3. Error type: object
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-4. Response object: undefined
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-5. Response type: undefined
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-6. Response status: undefined
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-7. Response statusText: undefined
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 ERROR-8. Response responseText: undefined
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 === 🏁 UPPY UPLOAD ERROR EVENT END ===
+(anonymous) @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 === 🏆 UPPY COMPLETE EVENT START ===
+index-ByyMZ-Ax.js:626 COMPLETE-1. Complete result: {
+  "successful": [],
+  "failed": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-gemini/generated/image/aarl0qaarl0qaarl/png-2v-2v-2v-1e-image/png-653200-1756943529649",
+      "name": "Gemini_Generated_Image_aarl0qaarl0qaarl.png",
+      "extension": "png",
+      "meta": {
+        "relativePath": null,
+        "name": "Gemini_Generated_Image_aarl0qaarl0qaarl.png",
+        "type": "image/png"
+      },
+      "type": "image/png",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757451438095,
+        "uploadComplete": false,
+        "bytesUploaded": 0,
+        "bytesTotal": 653200
+      },
+      "size": 653200,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://www.nyuxo.com/746b726c-ccf9-4da4-a417-9dc175e1a60c",
+      "error": "Unknown error"
+    }
+  ],
+  "uploadID": "1PEUP-jcydwhn_PcfX3n0"
+}
+index-ByyMZ-Ax.js:626 COMPLETE-2. Result.successful length: 0
+index-ByyMZ-Ax.js:626 COMPLETE-3. Result.failed length: 1
+index-ByyMZ-Ax.js:626 COMPLETE-9. Calling onComplete callback...
+index-ByyMZ-Ax.js:626 === 🏆 UPLOAD COMPLETE START ===
+index-ByyMZ-Ax.js:626 COMPLETE-1. Complete result: {
+  "successful": [],
+  "failed": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-gemini/generated/image/aarl0qaarl0qaarl/png-2v-2v-2v-1e-image/png-653200-1756943529649",
+      "name": "Gemini_Generated_Image_aarl0qaarl0qaarl.png",
+      "extension": "png",
+      "meta": {
+        "relativePath": null,
+        "name": "Gemini_Generated_Image_aarl0qaarl0qaarl.png",
+        "type": "image/png"
+      },
+      "type": "image/png",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757451438095,
+        "uploadComplete": false,
+        "bytesUploaded": 0,
+        "bytesTotal": 653200
+      },
+      "size": 653200,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://www.nyuxo.com/746b726c-ccf9-4da4-a417-9dc175e1a60c",
+      "error": "Unknown error"
+    }
+  ],
+  "uploadID": "1PEUP-jcydwhn_PcfX3n0"
+}
+index-ByyMZ-Ax.js:626 ❌ Upload failed: Objectfailed: [{…}]successful: []uploadID: "1PEUP-jcydwhn_PcfX3n0"[[Prototype]]: Object
+q @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 Failed file details: Objectdata: File {name: 'Gemini_Generated_Image_aarl0qaarl0qaarl.png', lastModified: 1756943529649, lastModifiedDate: Wed Sep 03 2025 17:52:09 GMT-0600 (hora estándar central), webkitRelativePath: '', size: 653200, …}error: "Unknown error"extension: "png"id: "uppy-gemini/generated/image/aarl0qaarl0qaarl/png-2v-2v-2v-1e-image/png-653200-1756943529649"isGhost: falseisRemote: falsemeta: {relativePath: null, name: 'Gemini_Generated_Image_aarl0qaarl0qaarl.png', type: 'image/png'}name: "Gemini_Generated_Image_aarl0qaarl0qaarl.png"preview: "blob:https://www.nyuxo.com/746b726c-ccf9-4da4-a417-9dc175e1a60c"progress: {uploadStarted: 1757451438095, uploadComplete: false, bytesUploaded: 0, bytesTotal: 653200}remote: undefinedresponse: undefinedsize: 653200source: "DashboardModal"type: "image/png"[[Prototype]]: Object
+q @ index-ByyMZ-Ax.js:626Understand this error
+index-ByyMZ-Ax.js:626 === 🏁 UPLOAD COMPLETE END ===
+index-ByyMZ-Ax.js:626 COMPLETE-10. Closing modal...
+index-ByyMZ-Ax.js:626 === 🏁 UPPY COMPLETE EVENT END ===

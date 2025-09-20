@@ -1,0 +1,231 @@
+/api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+ Making API request: Object
+ Making API request: Object
+ Making API request: Object
+ Making API request: Object
+ Getting upload parameters for file: 17744129 FORMATO.jpg
+ Making API request: Object
+ Upload parameters response: Object
+ Upload parameters received: Object
+ [Uppy] [16:25:12] Failed to construct 'URL': Invalid URL
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ [Uppy] [16:25:12] Error: Failed to upload 17744129 FORMATO.jpg
+    at Function.<anonymous> (chunk-DVVCPWS7.js:2666:26)
+    at emitAll (chunk-DVVCPWS7.js:278:19)
+    at Object.emit (chunk-DVVCPWS7.js:223:11)
+    at _Uppy.emit (chunk-DVVCPWS7.js:1894:19)
+    at MultipartUploader.onError (@uppy_aws-s3.js:2120:19)
+    at #onReject (@uppy_aws-s3.js:1367:81)
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this warning
+ === ❌ UPPY UPLOAD ERROR EVENT START ===
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-1. File name: 17744129 FORMATO.jpg
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-2. Error object: TypeError: Failed to construct 'URL': Invalid URL
+    at removeMetadataFromURL (@uppy_aws-s3.js:1506:21)
+    at #nonMultipartUpload (@uppy_aws-s3.js:1672:36)
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-3. Error type: object
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-4. Response object: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-5. Response type: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-6. Response status: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-7. Response statusText: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-8. Response responseText: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ === 🏁 UPPY UPLOAD ERROR EVENT END ===
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ === 🏆 UPPY COMPLETE EVENT START ===
+ COMPLETE-1. Complete result: {
+  "successful": [],
+  "failed": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-17744129/formato/jpg-10-1e-image/jpeg-48491-1757368825004",
+      "name": "17744129 FORMATO.jpg",
+      "extension": "jpg",
+      "meta": {
+        "relativePath": null,
+        "name": "17744129 FORMATO.jpg",
+        "type": "image/jpeg"
+      },
+      "type": "image/jpeg",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757370312406,
+        "uploadComplete": false,
+        "bytesUploaded": 48491,
+        "bytesTotal": 48491,
+        "percentage": 100
+      },
+      "size": 48491,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/fc147ae7-62e3-4a90-acb1-8a1991a43968",
+      "s3Multipart": {},
+      "error": "Failed to construct 'URL': Invalid URL"
+    }
+  ],
+  "uploadID": "xuy5BGfhXIKd3pjdhJ_V5"
+}
+ COMPLETE-2. Result.successful length: 0
+ COMPLETE-3. Result.failed length: 1
+ COMPLETE-9. Calling onComplete callback...
+ === 🏆 UPLOAD COMPLETE START ===
+ COMPLETE-1. Complete result: {
+  "successful": [],
+  "failed": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-17744129/formato/jpg-10-1e-image/jpeg-48491-1757368825004",
+      "name": "17744129 FORMATO.jpg",
+      "extension": "jpg",
+      "meta": {
+        "relativePath": null,
+        "name": "17744129 FORMATO.jpg",
+        "type": "image/jpeg"
+      },
+      "type": "image/jpeg",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757370312406,
+        "uploadComplete": false,
+        "bytesUploaded": 48491,
+        "bytesTotal": 48491,
+        "percentage": 100
+      },
+      "size": 48491,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/fc147ae7-62e3-4a90-acb1-8a1991a43968",
+      "s3Multipart": {},
+      "error": "Failed to construct 'URL': Invalid URL"
+    }
+  ],
+  "uploadID": "xuy5BGfhXIKd3pjdhJ_V5"
+}
+ ❌ Upload failed: Object
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ Failed file details: Object
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ === 🏁 UPLOAD COMPLETE END ===
+ COMPLETE-10. Closing modal...
+ === 🏁 UPPY COMPLETE EVENT END ===
+ Getting upload parameters for file: 17744129 FORMATO.jpg
+ Making API request: Object
+ Upload parameters response: Object
+ Upload parameters received: Object
+ [Uppy] [16:25:20] Failed to construct 'URL': Invalid URL
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ [Uppy] [16:25:20] Error: Failed to upload 17744129 FORMATO.jpg
+    at Function.<anonymous> (chunk-DVVCPWS7.js:2666:26)
+    at emitAll (chunk-DVVCPWS7.js:278:19)
+    at Object.emit (chunk-DVVCPWS7.js:223:11)
+    at _Uppy.emit (chunk-DVVCPWS7.js:1894:19)
+    at MultipartUploader.onError (@uppy_aws-s3.js:2120:19)
+    at #onReject (@uppy_aws-s3.js:1367:81)
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this warning
+ === ❌ UPPY UPLOAD ERROR EVENT START ===
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-1. File name: 17744129 FORMATO.jpg
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-2. Error object: TypeError: Failed to construct 'URL': Invalid URL
+    at removeMetadataFromURL (@uppy_aws-s3.js:1506:21)
+    at #nonMultipartUpload (@uppy_aws-s3.js:1672:36)
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-3. Error type: object
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-4. Response object: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-5. Response type: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-6. Response status: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-7. Response statusText: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ ERROR-8. Response responseText: undefined
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ === 🏁 UPPY UPLOAD ERROR EVENT END ===
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ === 🏆 UPPY COMPLETE EVENT START ===
+ COMPLETE-1. Complete result: {
+  "successful": [],
+  "failed": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-17744129/formato/jpg-10-1e-image/jpeg-48491-1757368825004",
+      "name": "17744129 FORMATO.jpg",
+      "extension": "jpg",
+      "meta": {
+        "relativePath": null,
+        "name": "17744129 FORMATO.jpg",
+        "type": "image/jpeg"
+      },
+      "type": "image/jpeg",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757370319934,
+        "uploadComplete": false,
+        "bytesUploaded": 48491,
+        "bytesTotal": 48491,
+        "percentage": 100
+      },
+      "size": 48491,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/ef15eea5-ec6c-4ac5-a7d1-684b4bd3199e",
+      "s3Multipart": {},
+      "error": "Failed to construct 'URL': Invalid URL"
+    }
+  ],
+  "uploadID": "gk6v4DSR_MGNC40reJlTB"
+}
+ COMPLETE-2. Result.successful length: 0
+ COMPLETE-3. Result.failed length: 1
+ COMPLETE-9. Calling onComplete callback...
+ === 🏆 UPLOAD COMPLETE START ===
+ COMPLETE-1. Complete result: {
+  "successful": [],
+  "failed": [
+    {
+      "source": "DashboardModal",
+      "id": "uppy-17744129/formato/jpg-10-1e-image/jpeg-48491-1757368825004",
+      "name": "17744129 FORMATO.jpg",
+      "extension": "jpg",
+      "meta": {
+        "relativePath": null,
+        "name": "17744129 FORMATO.jpg",
+        "type": "image/jpeg"
+      },
+      "type": "image/jpeg",
+      "data": {},
+      "progress": {
+        "uploadStarted": 1757370319934,
+        "uploadComplete": false,
+        "bytesUploaded": 48491,
+        "bytesTotal": 48491,
+        "percentage": 100
+      },
+      "size": 48491,
+      "isGhost": false,
+      "isRemote": false,
+      "preview": "blob:https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/ef15eea5-ec6c-4ac5-a7d1-684b4bd3199e",
+      "s3Multipart": {},
+      "error": "Failed to construct 'URL': Invalid URL"
+    }
+  ],
+  "uploadID": "gk6v4DSR_MGNC40reJlTB"
+}
+ ❌ Upload failed: Objectfailed: [{…}]successful: []uploadID: "gk6v4DSR_MGNC40reJlTB"[[Prototype]]: Object
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ Failed file details: Objectdata: File {name: '17744129 FORMATO.jpg', lastModified: 1757368825004, lastModifiedDate: Mon Sep 08 2025 16:00:25 GMT-0600 (GMT-06:00), webkitRelativePath: '', size: 48491, …}error: "Failed to construct 'URL': Invalid URL"extension: "jpg"id: "uppy-17744129/formato/jpg-10-1e-image/jpeg-48491-1757368825004"isGhost: falseisRemote: falsemeta: {relativePath: null, name: '17744129 FORMATO.jpg', type: 'image/jpeg'}name: "17744129 FORMATO.jpg"preview: "blob:https://54265a11-fa04-401e-930c-217e73aeda9a-00-1kenjy71mjvnv.worf.replit.dev/ef15eea5-ec6c-4ac5-a7d1-684b4bd3199e"progress: {uploadStarted: 1757370319934, uploadComplete: false, bytesUploaded: 48491, bytesTotal: 48491, percentage: 100}remote: undefinedresponse: undefineds3Multipart: {key: undefined, uploadId: undefined}size: 48491source: "DashboardModal"type: "image/jpeg"[[Prototype]]: Object
+overrideMethod @ chrome-extension://f…ld/installHook.js:1Understand this error
+ === 🏁 UPLOAD COMPLETE END ===
+ COMPLETE-10. Closing modal...
+ === 🏁 UPPY COMPLETE EVENT END ===
+ Making API request: Object
+ Making API request: {url: '/api/store/stats', method: 'GET', headers: {…}, bodyType: 'undefined', body: undefined}
