@@ -1,0 +1,111 @@
+Insights
+Solicitudes que bloquean el renderizado Ahorro potencial de 560 ms
+Las solicitudes están bloqueando el renderizado inicial de la página, lo que puede retrasar el LCP. Si se posponen o se insertan, estas solicitudes de red pueden salir de la ruta crítica.LCPFCP
+URL
+Tamaño de la transferencia
+Duración
+nyuxo.com Propio
+236,5 KiB	590 ms
+/assets/index-mUeMs87F.css(nyuxo.com)
+236,5 KiB
+590 ms
+Google Fonts cdn 
+34,4 KiB	1300 ms
+/css2?family=…(fonts.googleapis.com)
+19,5 KiB
+270 ms
+/css2?family=…(fonts.googleapis.com)
+1,4 KiB
+150 ms
+/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap(fonts.googleapis.com)
+2,7 KiB
+150 ms
+/css2?family=PT+Sans:wght@400;700&display=swap(fonts.googleapis.com)
+1,2 KiB
+70 ms
+/css2?family=Roboto+Slab:wght@300;400;500;700&display=swap(fonts.googleapis.com)
+1,5 KiB
+70 ms
+/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap(fonts.googleapis.com)
+1,5 KiB
+150 ms
+/css2?family=Raleway:wght@300;400;500;600;700&display=swap(fonts.googleapis.com)
+1,4 KiB
+70 ms
+/css2?family=Roboto:wght@300;400;500;700&display=swap(fonts.googleapis.com)
+2,5 KiB
+150 ms
+/css2?family=Lato:wght@300;400;700&display=swap(fonts.googleapis.com)
+1,2 KiB
+70 ms
+/css2?family=Inter:wght@300;400;500;600;700;800&display=swap(fonts.googleapis.com)
+1,5 KiB
+150 ms
+replit.com
+2,6 KiB	230 ms
+…js/replit-dev-banner.js(replit.com)
+2,6 KiB
+230 ms
+Mejorar la entrega de imágenes Ahorro potencial de 783 KiB
+Si se reduce el tiempo de descarga de las imágenes, se puede mejorar el tiempo de carga percibido de la página y el LCP. Más información sobre la optimización del tamaño de las imágenesLCPFCP
+URL
+Tamaño del recurso
+Ahorro potencial
+nyuxo.com Propio
+4942,4 KiB	783,0 KiB
+/imgs/bg.jpg(nyuxo.com)
+4942,4 KiB
+783,0 KiB
+Usar un formato de imagen moderno (WebP, AVIF) o aumentar la compresión de la imagen podría mejorar el tamaño de descarga de esta imagen.
+783,0 KiB
+Redistribución forzada
+Muchas APIs, que suelen leer la geometría del diseño, obligan al motor de renderizado a pausar la ejecución de la secuencia de comandos para calcular el estilo y el diseño. Consulta más información sobre la redistribución forzada y sus medidas de mitigación.
+Llamada a función principal
+Tiempo total de redistribución
+/assets/footer-CQbSgtYO.js:7:9721(nyuxo.com)
+31 ms
+Fuente
+Tiempo total de redistribución
+/assets/footer-CQbSgtYO.js:6:9735(nyuxo.com)
+31 ms
+[sin asignación]
+19 ms
+Descubrimiento de solicitudes de LCP
+Optimiza el LCP haciendo descubrible la imagen de LCP desde el HTML directamente y evita la carga en diferidoLCP
+carga en diferido no aplicada
+Se debe aplicar fetchpriority=high
+La solicitud es visible en el documento inicial
+NYUXO Tu sitio web profesional, a un click de distancia. Contáctanos Ver Tien…
+<section class="relative py-20 text-white text-center navbar-fixed-body " style="background: url(&quot;/imgs/bg.jpg&quot;) center center / cover no-repeat;">
+Árbol de dependencia de red
+Evita encadenar solicitudes críticas reduciendo la longitud de las cadenas, disminuyendo el tamaño de los recursos o posponiendo la descarga de recursos innecesarios para mejorar la carga de la página.LCP
+Latencia de ruta crítica máxima: 2745 ms
+Navegación inicial
+https://nyuxo.com - 327 ms, 1,74 KiB
+/css2?family=…(fonts.googleapis.com) - 604 ms, 19,49 KiB
+…v17/rP2Hp2ywx….woff2(fonts.gstatic.com) - 2561 ms, 61,88 KiB
+/assets/index-BFqxIdLw.js(nyuxo.com) - 1051 ms, 1438,20 KiB
+/api/config(nyuxo.com) - 1477 ms, 10,73 KiB
+/api/config(nyuxo.com) - 1747 ms, 10,73 KiB
+/assets/home-BEXE4PDq.js(nyuxo.com) - 2087 ms, 10,37 KiB
+/api/sections(nyuxo.com) - 2472 ms, 1,47 KiB
+/api/testimonials(nyuxo.com) - 2383 ms, 1,24 KiB
+/assets/footer-CQbSgtYO.js(nyuxo.com) - 1967 ms, 22,52 KiB
+/assets/seo-head--pexiqnz.js(nyuxo.com) - 1967 ms, 1,78 KiB
+/assets/loader-YPCoXtXs.js(nyuxo.com) - 2062 ms, 0,95 KiB
+/assets/InlineTex….js(nyuxo.com) - 2101 ms, 2,57 KiB
+/assets/AnimatedSection-BmtrMqrB.js(nyuxo.com) - 1979 ms, 0,64 KiB
+/assets/proxy-BtUmnj2a.js(nyuxo.com) - 2239 ms, 109,10 KiB
+/api/navbar-config(nyuxo.com) - 2726 ms, 0,97 KiB
+…store/products(nyuxo.com) - 2599 ms, 5,50 KiB
+…contact/info(nyuxo.com) - 2745 ms, 1,08 KiB
+/assets/AlternatingSection-ByDAgyeC.js(nyuxo.com) - 1978 ms, 1,69 KiB
+/assets/HeroSection-BvoKBNVa.js(nyuxo.com) - 2088 ms, 1,89 KiB
+/assets/index-mUeMs87F.css(nyuxo.com) - 769 ms, 236,54 KiB
+/css2?family=Inter:wght@300;400;500;600;700;800&display=swap(fonts.googleapis.com) - 772 ms, 1,54 KiB
+…v20/UcC73FwrK….woff2(fonts.gstatic.com) - 1585 ms, 48,09 KiB
+/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap(fonts.googleapis.com) - 777 ms, 2,72 KiB
+/css2?family=…(fonts.googleapis.com) - 851 ms, 1,42 KiB
+/css2?family=Source+Sans+Pro:wght@300;400;600;700&display=swap(fonts.googleapis.com) - 775 ms, 1,53 KiB
+/css2?family=Roboto:wght@300;400;500;700&display=swap(fonts.googleapis.com) - 774 ms, 2,47 KiB
+/css2?family=Lato:wght@300;400;700&d...
