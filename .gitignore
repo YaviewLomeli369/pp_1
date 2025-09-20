@@ -5,6 +5,7 @@ uploads/*.gif
 uploads/*.webp
 uploads/*.avif
 !uploads/.gitkeep
+git.sh
 
 # Public uploads directory - ignore files but keep structure  
 client/public/imgs/uploads/*.jpg
