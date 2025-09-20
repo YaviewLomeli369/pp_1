@@ -1,4 +1,5 @@
 import { Spinner } from "@/components/ui/spinner";
+import { Navbar } from "@/components/layout/navbar"
 
 export function LoadingPage({ message = "Cargando..." }: LoadingPageProps) {
   return (
