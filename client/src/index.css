@@ -1,11 +1,11 @@
-/* Optimización: Solo cargar las fuentes esenciales con preconnect para mejorar rendimiento */
+/* Critical CSS optimizations - load only essential styles first */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Theme 2025 Styles */
-.theme-astra {
+/* Critical theme variables only */
+:root {
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 16px;

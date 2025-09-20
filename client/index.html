@@ -5,15 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/imgs/NYUXO_LOGO_ICO.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Preconnect para mejorar rendimiento de fuentes -->
+    <!-- Critical resource hints for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 
-    <!-- Cargar solo fuentes esenciales -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load only critical font weights -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Preload imagen crítica del hero -->
-    <link rel="preload" as="image" href="/imgs/bg.jpg" fetchpriority="high">
+    <!-- Remove heavy background image preload - use gradient instead -->
+    <!-- <link rel="preload" as="image" href="/imgs/bg.jpg" fetchpriority="high"> -->
 
     <title>Cargando...</title>
   </head>

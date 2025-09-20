@@ -56,31 +56,36 @@ export function Navbar() {
     refetchOnWindowFocus: false,
   });
 
-  // Get navbar styles from config
+  // Get navbar styles from config - ensure it updates when config changes
   const navbarStyles = useMemo(() => {
     const configData = config?.config as any;
     const styles = configData?.navbarStyles || {};
 
+    const defaultStyles = {
+      height: '64px',
+      backgroundColor: '#ffffff',
+      backgroundBlur: false,
+      backgroundOpacity: '0.95',
+      borderBottom: '1px solid rgba(229, 231, 235, 0.8)',
+      fontSize: '16px',
+      fontWeight: '500',
+      fontFamily: 'inherit',
+      textColor: '#374151',
+      textHoverColor: '#059669',
+      activeTextColor: '#059669',
+      logoSize: '40px',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      borderRadius: '0px',
+      transition: 'all 0.3s ease',
+      maxWidth: '1280px',
+      padding: '0 16px',
+      position: 'fixed',
+      customCSS: ''
+    };
+
     return {
-      height: styles.height || '64px',
-      backgroundColor: styles.backgroundColor || '#ffffff',
-      backgroundBlur: styles.backgroundBlur !== false,
-      backgroundOpacity: styles.backgroundOpacity || '0.95',
-      borderBottom: styles.borderBottom || '1px solid rgba(229, 231, 235, 0.8)',
-      fontSize: styles.fontSize || '16px',
-      fontWeight: styles.fontWeight || '500',
-      fontFamily: styles.fontFamily || 'inherit',
-      textColor: styles.textColor || '#374151',
-      textHoverColor: styles.textHoverColor || '#059669',
-      activeTextColor: styles.activeTextColor || '#059669',
-      logoSize: styles.logoSize || '40px',
-      boxShadow: styles.boxShadow || '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-      borderRadius: styles.borderRadius || '0px',
-      transition: styles.transition || 'all 0.3s ease',
-      maxWidth: styles.maxWidth || '1280px',
-      padding: styles.padding || '0 16px',
-      position: styles.position || 'fixed',
-      customCSS: styles.customCSS || ''
+      ...defaultStyles,
+      ...styles
     };
   }, [config]);
 
@@ -429,9 +434,9 @@ export function Navbar() {
 
   // Update navbar styles and body padding on mount and config changes
   useEffect(() => {
-    if (!navbarConfig) return;
+    if (!config) return; // Wait for config to load
 
-    // Apply navbar styles
+    // Apply navbar styles immediately when config is available
     const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
     if (navElement && navbarStyles) {
       Object.assign(navElement.style, {
@@ -442,23 +447,30 @@ export function Navbar() {
         boxShadow: isScrolled ? navbarStyles.boxShadow : 'none',
         borderRadius: navbarStyles.borderRadius || '0px',
         transition: navbarStyles.transition || 'all 0.3s ease',
-        zIndex: '1000', // Ensure it's always on top
+        zIndex: '1000',
         width: '100%',
         height: navbarStyles.height || 'auto',
         padding: navbarStyles.padding || '0.75rem 1rem',
       });
 
+      // Apply text styles to navbar links
+      const linkElements = navElement.querySelectorAll('.navbar-link');
+      linkElements.forEach((link) => {
+        if (link instanceof HTMLElement) {
+          link.style.fontSize = navbarStyles.fontSize || '16px';
+          link.style.fontWeight = navbarStyles.fontWeight || '500';
+          link.style.fontFamily = navbarStyles.fontFamily || 'inherit';
+          link.style.color = navbarStyles.textColor || '#374151';
+        }
+      });
+
       // Function to update body padding based on exact navbar height
       const updateBodyPadding = () => {
-        // Force a reflow to ensure accurate measurements
-        navElement.offsetHeight;
+        navElement.offsetHeight; // Force reflow
 
         if (navbarStyles.position === 'fixed') {
-          // Get the actual computed height of the navbar
           const navRect = navElement.getBoundingClientRect();
           const navHeight = navRect.height;
-
-          // Apply the exact height as padding
           document.body.style.paddingTop = `${navHeight}px`;
           document.body.style.transition = 'padding-top 0.3s ease';
         } else {
@@ -467,32 +479,26 @@ export function Navbar() {
         }
       };
 
-      // Initial padding update with a small delay to ensure styles are applied
       setTimeout(updateBodyPadding, 10);
 
-      // Set up ResizeObserver to watch for navbar size changes
       const resizeObserver = new ResizeObserver((entries) => {
-        // Use requestAnimationFrame for smooth updates
         requestAnimationFrame(updateBodyPadding);
       });
 
       resizeObserver.observe(navElement);
 
-      // Also listen for window resize events
       const handleResize = () => {
         requestAnimationFrame(updateBodyPadding);
       };
 
       window.addEventListener('resize', handleResize);
 
-      // Listen for font load events that might change navbar height
       const handleFontLoad = () => {
         setTimeout(updateBodyPadding, 100);
       };
 
       document.fonts.addEventListener('loadingdone', handleFontLoad);
 
-      // Cleanup function
       return () => {
         resizeObserver.disconnect();
         window.removeEventListener('resize', handleResize);
@@ -502,7 +508,7 @@ export function Navbar() {
         }
       };
     }
-  }, [navbarConfig, navbarStyles, isScrolled]); // Added isScrolled dependency
+  }, [config, navbarStyles, isScrolled]); // Now depends on config instead of navbarConfig
 
   // Additional effect to handle immediate updates when navbar styles change
   useEffect(() => {
