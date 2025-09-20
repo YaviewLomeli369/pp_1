@@ -432,83 +432,121 @@ export function Navbar() {
     e.currentTarget.style.display = 'none'; // Hide broken image icon
   }, []);
 
-  // Update navbar styles and body padding on mount and config changes
+  // Apply navbar styles immediately when component mounts and when styles change
   useEffect(() => {
-    if (!config) return; // Wait for config to load
+    const applyNavbarStyles = () => {
+      const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
+      if (!navElement) return;
 
-    // Apply navbar styles immediately when config is available
-    const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
-    if (navElement && navbarStyles) {
+      // Apply navbar container styles with fallbacks
       Object.assign(navElement.style, {
         position: navbarStyles.position || 'fixed',
         backgroundColor: navbarStyles.backgroundColor || '#ffffff',
         backdropFilter: navbarStyles.backgroundBlur ? `blur(10px)` : 'none',
         borderBottom: navbarStyles.borderBottom || '1px solid #e5e7eb',
-        boxShadow: isScrolled ? navbarStyles.boxShadow : 'none',
+        boxShadow: isScrolled ? (navbarStyles.boxShadow || '0 2px 4px rgba(0,0,0,0.1)') : 'none',
         borderRadius: navbarStyles.borderRadius || '0px',
         transition: navbarStyles.transition || 'all 0.3s ease',
         zIndex: '1000',
         width: '100%',
-        height: navbarStyles.height || 'auto',
+        height: navbarStyles.height || '64px',
         padding: navbarStyles.padding || '0.75rem 1rem',
+        fontFamily: navbarStyles.fontFamily || 'Inter, sans-serif',
       });
 
-      // Apply text styles to navbar links
-      const linkElements = navElement.querySelectorAll('.navbar-link');
+      // Apply text styles to navbar links with stronger selectors
+      const linkElements = navElement.querySelectorAll('.navbar-link, .navbar-nav a, [class*="navbar-link"]');
       linkElements.forEach((link) => {
         if (link instanceof HTMLElement) {
           link.style.fontSize = navbarStyles.fontSize || '16px';
           link.style.fontWeight = navbarStyles.fontWeight || '500';
-          link.style.fontFamily = navbarStyles.fontFamily || 'inherit';
+          link.style.fontFamily = navbarStyles.fontFamily || 'Inter, sans-serif';
           link.style.color = navbarStyles.textColor || '#374151';
+          link.style.transition = navbarStyles.transition || 'all 0.3s ease';
+        }
+      });
+
+      // Apply logo styles
+      const logoElements = navElement.querySelectorAll('.navbar-logo, [class*="navbar-logo"]');
+      logoElements.forEach((logo) => {
+        if (logo instanceof HTMLElement) {
+          logo.style.height = navbarStyles.logoSize || '40px';
+          logo.style.width = 'auto';
         }
       });
 
       // Function to update body padding based on exact navbar height
       const updateBodyPadding = () => {
-        navElement.offsetHeight; // Force reflow
-
-        if (navbarStyles.position === 'fixed') {
-          const navRect = navElement.getBoundingClientRect();
-          const navHeight = navRect.height;
-          document.body.style.paddingTop = `${navHeight}px`;
-          document.body.style.transition = 'padding-top 0.3s ease';
-        } else {
-          document.body.style.paddingTop = '0px';
-          document.body.style.transition = 'padding-top 0.3s ease';
-        }
+        requestAnimationFrame(() => {
+          if (navbarStyles.position === 'fixed') {
+            const navRect = navElement.getBoundingClientRect();
+            const navHeight = Math.max(navRect.height, 64); // Minimum 64px
+            document.body.style.paddingTop = `${navHeight}px`;
+            document.body.style.transition = 'padding-top 0.3s ease';
+          } else {
+            document.body.style.paddingTop = '0px';
+            document.body.style.transition = 'padding-top 0.3s ease';
+          }
+        });
       };
 
-      setTimeout(updateBodyPadding, 10);
+      // Update padding immediately and after a short delay
+      updateBodyPadding();
+      setTimeout(updateBodyPadding, 100);
 
-      const resizeObserver = new ResizeObserver((entries) => {
-        requestAnimationFrame(updateBodyPadding);
+      return updateBodyPadding;
+    };
+
+    // Apply styles immediately
+    const updatePadding = applyNavbarStyles();
+
+    // Set up observers for dynamic updates
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(() => {
+        applyNavbarStyles();
       });
+    });
 
+    const navElement = document.querySelector('nav[data-navbar="true"]') as HTMLElement;
+    if (navElement) {
       resizeObserver.observe(navElement);
-
-      const handleResize = () => {
-        requestAnimationFrame(updateBodyPadding);
-      };
-
-      window.addEventListener('resize', handleResize);
-
-      const handleFontLoad = () => {
-        setTimeout(updateBodyPadding, 100);
-      };
-
-      document.fonts.addEventListener('loadingdone', handleFontLoad);
-
-      return () => {
-        resizeObserver.disconnect();
-        window.removeEventListener('resize', handleResize);
-        document.fonts.removeEventListener('loadingdone', handleFontLoad);
-        if (navbarStyles?.position !== 'fixed') {
-          document.body.style.paddingTop = '0px';
-        }
-      };
     }
-  }, [config, navbarStyles, isScrolled]); // Now depends on config instead of navbarConfig
+
+    const handleResize = () => {
+      requestAnimationFrame(() => {
+        applyNavbarStyles();
+      });
+    };
+
+    const handleFontLoad = () => {
+      setTimeout(() => {
+        applyNavbarStyles();
+      }, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    document.fonts.addEventListener('loadingdone', handleFontLoad);
+
+    // Re-apply styles when navigation changes
+    const handleRouteChange = () => {
+      setTimeout(() => {
+        applyNavbarStyles();
+      }, 50);
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+
+    // Add class to body to indicate navbar is loaded
+    document.body.classList.add('navbar-loaded');
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
+      document.fonts.removeEventListener('loadingdone', handleFontLoad);
+      window.removeEventListener('popstate', handleRouteChange);
+      document.body.classList.remove('navbar-loaded');
+    };
+  }, [navbarStyles, isScrolled, location]); // Include location to re-apply on route change
 
   // Additional effect to handle immediate updates when navbar styles change
   useEffect(() => {
