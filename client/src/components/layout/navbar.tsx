@@ -5,8 +5,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import type { SiteConfig } from "@shared/schema";
 
-import logoSvg from "/imgs/NYUXO_LOGO_CLARO.svg";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -568,11 +566,23 @@ export function Navbar() {
         <div className="flex items-center justify-between h-full">
           {/* Logo + Brand */}
           <NavLink href="/" className="flex items-center space-x-3">
-            <img
-              src={logoSvg}
-              alt="Logo"
-              className="navbar-logo object-contain"
-            />
+            {appearance.logoUrl ? (
+              <img
+                src={appearance.logoUrl}
+                alt={appearance.brandName || "Logo"}
+                className="navbar-logo object-contain"
+                onError={(e) => {
+                  // Fallback to default logo if dynamic logo fails
+                  e.currentTarget.src = "/imgs/NYUXO_LOGO_CLARO.svg";
+                }}
+              />
+            ) : (
+              <img
+                src="/imgs/NYUXO_LOGO_CLARO.svg"
+                alt={appearance.brandName || "Logo"}
+                className="navbar-logo object-contain"
+              />
+            )}
           </NavLink>
 
           {/* Desktop Menu */}
