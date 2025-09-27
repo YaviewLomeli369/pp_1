@@ -20,6 +20,9 @@ export const siteConfig = pgTable("site_config", {
   version: text("version").notNull().default("1.0.0"),
   lastUpdated: timestamp("last_updated").notNull().defaultNow(),
   updatedBy: varchar("updated_by").references(() => users.id),
+  logoData: text("logo_data"), // Base64 encoded logo data
+  logoMimeType: text("logo_mime_type"), // MIME type of the logo
+  logoFilename: text("logo_filename"), // Original filename
 });
 
 // Testimonials

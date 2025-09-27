@@ -29,6 +29,7 @@ export default function AdminAppearance() {
     queryKey: ["/api/config"],
   });
 
+  const [logoUploading, setLogoUploading] = useState(false);
   const [appearance, setAppearance] = useState({
     // Colores
     primaryColor: "#3B82F6",
@@ -156,6 +157,79 @@ export default function AdminAppearance() {
 
   const handleSave = () => {
     saveAppearanceMutation.mutate(appearance);
+  };
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Por favor selecciona un archivo de imagen válido"
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "El archivo es demasiado grande. Máximo 5MB permitido"
+      });
+      return;
+    }
+
+    setLogoUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('logo', file);
+
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch('/api/config/logo', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al subir el logo');
+      }
+
+      const result = await response.json();
+      
+      // Update appearance state with new logo URL
+      setAppearance(prev => ({
+        ...prev,
+        logoUrl: result.logoUrl
+      }));
+
+      // Invalidate queries to refresh config
+      queryClient.invalidateQueries({ queryKey: ["/api/config"] });
+
+      toast({
+        title: "Logo subido exitosamente",
+        description: "El logo se ha almacenado en la base de datos"
+      });
+
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast({
+        variant: "destructive",
+        title: "Error al subir logo",
+        description: "No se pudo subir el logo. Inténtalo de nuevo"
+      });
+    } finally {
+      setLogoUploading(false);
+      // Clear the file input
+      event.target.value = '';
+    }
   };
 
   const handleReset = () => {
@@ -824,6 +898,27 @@ export default function AdminAppearance() {
                         onChange={(e) => setAppearance({...appearance, logoUrl: e.target.value})}
                         placeholder="https://example.com/logo.png"
                       />
+                      <div className="mt-4">
+                        <Label htmlFor="logoUpload">O sube un archivo de logo</Label>
+                        <div className="mt-2 flex items-center space-x-4">
+                          <input
+                            id="logoUpload"
+                            type="file"
+                            accept="image/*"
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            onChange={handleLogoUpload}
+                          />
+                          {logoUploading && (
+                            <div className="flex items-center text-sm text-gray-500">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                              Subiendo...
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          El logo se almacenará directamente en la base de datos como datos binarios
+                        </p>
+                      </div>
                     </div>
 
                     <div className="space-y-2">

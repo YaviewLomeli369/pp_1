@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import express from "express";
+import multer from "multer";
 import {
   insertUserSchema,
   insertSiteConfigSchema,
@@ -38,6 +39,14 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-07-30.basil",
+});
+
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { 
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
 });
 
 // Simple session management for demo
@@ -335,6 +344,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedConfig);
     } catch (error) {
       res.status(400).json({ message: error instanceof Error ? error.message : "Invalid data" });
+    }
+  });
+
+  // Upload logo and store as bytea
+  app.post("/api/config/logo", requireAuth, requireRole(['superuser', 'admin']), upload.single('logo'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No logo file received" });
+      }
+
+      const config = await storage.getSiteConfig();
+      if (!config) {
+        return res.status(404).json({ message: "Config not found" });
+      }
+
+      const { buffer, originalname, mimetype } = req.file;
+      
+      // Convert buffer to base64 for storage in PostgreSQL
+      const logoBase64 = buffer.toString('base64');
+      
+      // Update config with logo data
+      const currentConfig = config.config as any;
+      const updatedConfigData = {
+        ...currentConfig,
+        appearance: {
+          ...currentConfig.appearance,
+          logoUrl: `/api/config/logo/${config.id}` // Internal URL to serve the logo
+        }
+      };
+
+      const updatedConfig = await storage.updateSiteConfigWithLogo(
+        config.id, 
+        {
+          config: updatedConfigData,
+          updatedBy: (req as any).userId,
+        },
+        {
+          data: logoBase64,
+          mimeType: mimetype,
+          filename: originalname
+        }
+      );
+
+      res.json({
+        success: true,
+        logoUrl: `/api/config/logo/${config.id}`,
+        message: "Logo uploaded and stored successfully",
+        config: updatedConfig
+      });
+
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      res.status(500).json({ error: "Failed to upload logo" });
+    }
+  });
+
+  // Serve logo from bytea data
+  app.get("/api/config/logo/:configId", async (req, res) => {
+    try {
+      const { configId } = req.params;
+      const logoData = await storage.getLogoData(configId);
+
+      if (!logoData || !logoData.logoData) {
+        return res.status(404).json({ error: "Logo not found" });
+      }
+
+      // Convert base64 back to buffer
+      const logoBuffer = Buffer.from(logoData.logoData, 'base64');
+      
+      // Set appropriate headers
+      res.setHeader('Content-Type', logoData.logoMimeType || 'image/png');
+      res.setHeader('Content-Length', logoBuffer.length);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      res.setHeader('Access-Control-Allow-Origin', '*');
+
+      res.send(logoBuffer);
+
+    } catch (error) {
+      console.error("Error serving logo:", error);
+      res.status(500).json({ error: "Failed to serve logo" });
     }
   });
 
