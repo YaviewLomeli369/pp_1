@@ -18,7 +18,7 @@ export const siteConfig = pgTable("site_config", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   config: jsonb("config").notNull(),
   version: text("version").notNull().default("1.0.0"),
-  lastUpdated: timestamp("last_updated").notNull().defaultNow(),
+  lastUpdated: timestamp("last_updated").notNull().default(sql`now()`),
   updatedBy: varchar("updated_by").references(() => users.id),
   logoData: text("logo_data"), // Base64 encoded logo data
   logoMimeType: text("logo_mime_type"), // MIME type of the logo
@@ -417,7 +417,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
 }).extend({
   securityCode: z.string().optional(),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
       "La contraseña debe contener al menos: 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (@$!%*?&)")
 });
 

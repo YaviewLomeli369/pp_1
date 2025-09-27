@@ -328,6 +328,48 @@ export class DatabaseStorage implements IStorage {
     return updatedConfig;
   }
 
+  async updateSiteConfigWithLogo(
+    id: string, 
+    updates: Partial<SiteConfig>,
+    logoData: { data: string; mimeType: string; filename: string }
+  ): Promise<SiteConfig | undefined> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('updateSiteConfigWithLogo');
+    }
+    const [updatedConfig] = await db!.update(schema.siteConfig)
+      .set({ 
+        ...updates, 
+        logoData: logoData.data,
+        logoMimeType: logoData.mimeType,
+        logoFilename: logoData.filename,
+        lastUpdated: new Date() 
+      })
+      .where(eq(schema.siteConfig.id, id))
+      .returning();
+    return updatedConfig;
+  }
+
+  async getLogoData(configId: string): Promise<{ logoData: string; logoMimeType: string; logoFilename: string } | undefined> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('getLogoData');
+    }
+    const [config] = await db!.select({
+      logoData: schema.siteConfig.logoData,
+      logoMimeType: schema.siteConfig.logoMimeType,
+      logoFilename: schema.siteConfig.logoFilename
+    }).from(schema.siteConfig).where(eq(schema.siteConfig.id, configId));
+    
+    if (!config || !config.logoData) {
+      return undefined;
+    }
+    
+    return {
+      logoData: config.logoData,
+      logoMimeType: config.logoMimeType || 'image/png',
+      logoFilename: config.logoFilename || 'logo'
+    };
+  }
+
   // Testimonials
   async getAllTestimonials(): Promise<Testimonial[]> {
     if (!isDatabaseAvailable()) {
