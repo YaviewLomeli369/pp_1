@@ -25,6 +25,7 @@ interface CarouselSectionProps {
   showArrows?: boolean;
   className?: string;
   appearance?: any;
+  height?: number;
 }
 
 export default function CarouselSection({
@@ -34,7 +35,8 @@ export default function CarouselSection({
   showDots = true,
   showArrows = true,
   className = "",
-  appearance = {}
+  appearance = {},
+  height = 600
 }: CarouselSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const visibleSlides = slides.filter(slide => slide.isVisible).sort((a, b) => a.order - b.order);
@@ -69,7 +71,10 @@ export default function CarouselSection({
 
   return (
     <AnimatedSection>
-      <section className={`relative w-full h-screen overflow-hidden ${className}`}>
+      <section 
+        className={`relative w-full overflow-hidden ${className}`}
+        style={{ height: `${height}px` }}
+      >
         {/* Slide Background */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000"

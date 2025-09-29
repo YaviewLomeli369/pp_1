@@ -87,7 +87,8 @@ export default function AdminAppearance() {
     carouselAutoPlay: true,
     carouselShowDots: true,
     carouselShowArrows: true,
-    carouselInterval: 5
+    carouselInterval: 5,
+    carouselHeight: 600
   });
 
   // Cargar configuración existente
@@ -138,6 +139,7 @@ export default function AdminAppearance() {
           carouselShowDots: configData.appearance.carouselShowDots !== undefined ? configData.appearance.carouselShowDots : prev.carouselShowDots,
           carouselShowArrows: configData.appearance.carouselShowArrows !== undefined ? configData.appearance.carouselShowArrows : prev.carouselShowArrows,
           carouselInterval: configData.appearance.carouselInterval || prev.carouselInterval,
+          carouselHeight: configData.appearance.carouselHeight || prev.carouselHeight,
         }));
       }
     }
@@ -289,7 +291,8 @@ export default function AdminAppearance() {
       carouselAutoPlay: true,
       carouselShowDots: true,
       carouselShowArrows: true,
-      carouselInterval: 5
+      carouselInterval: 5,
+      carouselHeight: 600
     });
   };
 
@@ -1050,6 +1053,26 @@ export default function AdminAppearance() {
                             }))}
                             className="mt-1"
                           />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="carouselHeight">Altura del Carrusel (px)</Label>
+                          <Input
+                            id="carouselHeight"
+                            type="number"
+                            min="400"
+                            max="1200"
+                            value={appearance.carouselHeight || 600}
+                            onChange={(e) => setAppearance(prev => ({
+                              ...prev,
+                              carouselHeight: parseInt(e.target.value) || 600
+                            }))}
+                            className="mt-1"
+                            placeholder="600"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Altura fija del carrusel en píxeles
+                          </p>
                         </div>
                       </div>
                     )}

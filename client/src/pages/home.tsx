@@ -22,7 +22,7 @@ const PlanCard = ({ plan }: { plan: any }) => {
   // Use plan-specific WhatsApp configuration or fallback to defaults
   const WHATSAPP_NUMBER = plan.whatsappPhone || "525512345678";
   const messageTemplate = plan.whatsappMessage || "Hola, me interesa más información sobre sus servicios.";
-  
+
   // Replace [PLAN_NAME] placeholder with actual plan name
   const personalizedMessage = messageTemplate.replace(/\[PLAN_NAME\]/g, plan.name);
   const message = encodeURIComponent(personalizedMessage);
@@ -241,12 +241,13 @@ function Home() {
       {/* Hero or Carousel */}
       {appearance.enableCarousel && appearance.carouselSlides && appearance.carouselSlides.length > 0 ? (
         <CarouselSection
-          slides={appearance.carouselSlides}
+          slides={appearance.carouselSlides || []}
           autoPlay={appearance.carouselAutoPlay !== false}
           autoPlayInterval={(appearance.carouselInterval || 5) * 1000}
           showDots={appearance.carouselShowDots !== false}
           showArrows={appearance.carouselShowArrows !== false}
           appearance={appearance}
+          height={appearance.carouselHeight || 600}
         />
       ) : (
         <HeroSection
@@ -397,4 +398,3 @@ function Home() {
 }
 
 export default Home;
-

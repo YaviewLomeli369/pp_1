@@ -284,11 +284,21 @@ function SlideForm({ slide, onSave, onCancel }: SlideFormProps) {
                 alt="Preview"
                 className="w-full max-w-md h-48 object-cover rounded"
               />
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm"
+                onClick={() => setFormData({ ...formData, image: "" })}
+                className="mt-2"
+              >
+                Quitar imagen
+              </Button>
             </div>
           )}
           <ObjectUploader
             onUploadSuccess={(result) => {
               if (result.successful && result.successful.length > 0) {
+                // Si se suben múltiples imágenes, tomar la primera
                 const imageURL = result.successful[0].response?.body?.url;
                 if (imageURL) {
                   setFormData({ ...formData, image: imageURL });
@@ -296,10 +306,13 @@ function SlideForm({ slide, onSave, onCancel }: SlideFormProps) {
               }
             }}
             acceptedFileTypes={['image/*']}
-            maxNumberOfFiles={1}
-            allowMultiple={false}
-            note="Recomendado: 1920x1080px para mejor calidad"
+            maxNumberOfFiles={5}
+            allowMultiple={true}
+            note="Recomendado: 1920x1080px para mejor calidad. Puedes subir hasta 5 imágenes (se usará la primera seleccionada)"
           />
+          <p className="text-xs text-gray-500 mt-2">
+            💡 Tip: Puedes subir varias imágenes de una vez y luego seleccionar cuál usar para este slide
+          </p>
         </div>
       </div>
 
