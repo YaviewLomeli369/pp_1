@@ -427,6 +427,134 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Upload page-specific hero image
+  app.post("/api/config/hero/:pageId", requireAuth, requireRole(['superuser', 'admin']), upload.single('heroImage'), async (req, res) => {
+    try {
+      const { pageId } = req.params;
+      
+      if (!req.file) {
+        return res.status(400).json({ error: "No hero image file received" });
+      }
+
+      // Validate pageId
+      const validPages = ['home', 'servicios', 'conocenos', 'faqs', 'blog'];
+      if (!validPages.includes(pageId)) {
+        return res.status(400).json({ error: "Invalid page ID" });
+      }
+
+      const config = await storage.getSiteConfig();
+      if (!config) {
+        return res.status(404).json({ message: "Config not found" });
+      }
+
+      const { buffer, originalname, mimetype } = req.file;
+      
+      // Convert buffer to base64 for storage in PostgreSQL
+      const heroImageBase64 = buffer.toString('base64');
+      
+      // Update config with hero image data
+      const currentConfig = config.config as any;
+      const updatedConfigData = {
+        ...currentConfig,
+        appearance: {
+          ...currentConfig.appearance,
+          [`hero${pageId.charAt(0).toUpperCase() + pageId.slice(1)}BackgroundImage`]: `/api/config/hero/${config.id}/${pageId}`
+        }
+      };
+
+      const updatedConfig = await storage.updateSiteConfigWithHeroImage(
+        config.id, 
+        {
+          config: updatedConfigData,
+          updatedBy: (req as any).userId,
+        },
+        {
+          data: heroImageBase64,
+          mimeType: mimetype,
+          filename: originalname,
+          pageId: pageId
+        }
+      );
+
+      res.json({
+        success: true,
+        heroImageUrl: `/api/config/hero/${config.id}/${pageId}`,
+        message: "Hero image uploaded and stored successfully",
+        config: updatedConfig
+      });
+
+    } catch (error) {
+      console.error("Error uploading hero image:", error);
+      res.status(500).json({ error: "Failed to upload hero image" });
+    }
+  });
+
+  // Serve page-specific hero image from bytea data
+  app.get("/api/config/hero/:configId/:pageId", async (req, res) => {
+    try {
+      const { configId, pageId } = req.params;
+      const heroImageData = await storage.getHeroImageData(configId, pageId);
+
+      if (!heroImageData || !heroImageData.logoData) {
+        return res.status(404).json({ error: "Hero image not found" });
+      }
+
+      // Convert base64 back to buffer
+      const heroImageBuffer = Buffer.from(heroImageData.logoData, 'base64');
+      
+      // Set appropriate headers
+      res.setHeader('Content-Type', heroImageData.logoMimeType || 'image/png');
+      res.setHeader('Content-Length', heroImageBuffer.length);
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      res.setHeader('Access-Control-Allow-Origin', '*');
+
+      res.send(heroImageBuffer);
+
+    } catch (error) {
+      console.error("Error serving hero image:", error);
+      res.status(500).json({ error: "Failed to serve hero image" });
+    }
+  });
+
+  // Delete page-specific hero image
+  app.delete("/api/config/hero/:pageId", requireAuth, requireRole(['superuser', 'admin']), async (req, res) => {
+    try {
+      const { pageId } = req.params;
+      
+      const config = await storage.getSiteConfig();
+      if (!config) {
+        return res.status(404).json({ message: "Config not found" });
+      }
+
+      const success = await storage.deleteHeroImage(config.id, pageId);
+      
+      if (success) {
+        // Also update the config to remove the specific URL
+        const currentConfig = config.config as any;
+        const updatedConfigData = {
+          ...currentConfig,
+          appearance: {
+            ...currentConfig.appearance,
+            [`hero${pageId.charAt(0).toUpperCase() + pageId.slice(1)}BackgroundImage`]: undefined
+          }
+        };
+
+        await storage.updateSiteConfig(config.id, {
+          config: updatedConfigData,
+          updatedBy: (req as any).userId,
+        });
+
+        res.json({ success: true, message: "Hero image deleted successfully" });
+      } else {
+        res.status(500).json({ error: "Failed to delete hero image" });
+      }
+
+    } catch (error) {
+      console.error("Error deleting hero image:", error);
+      res.status(500).json({ error: "Failed to delete hero image" });
+    }
+  });
+
   // Users routes - temporarily remove auth for development
   app.get("/api/users", async (req, res) => {
     const users = await storage.getAllUsers();

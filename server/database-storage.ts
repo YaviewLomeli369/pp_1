@@ -370,6 +370,96 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  async updateSiteConfigWithHeroImage(
+    id: string, 
+    updates: Partial<SiteConfig>,
+    heroImageData: { data: string; mimeType: string; filename: string; pageId: string }
+  ): Promise<SiteConfig | undefined> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('updateSiteConfigWithHeroImage');
+    }
+
+    // Get current config to preserve existing hero images
+    const currentConfig = await this.getSiteConfig();
+    const currentHeroImages = currentConfig?.heroImagesData as any || {};
+    const currentHeroMeta = currentConfig?.heroImagesMeta as any || {};
+
+    // Update the specific page's hero image
+    currentHeroImages[heroImageData.pageId] = heroImageData.data;
+    currentHeroMeta[heroImageData.pageId] = {
+      mimeType: heroImageData.mimeType,
+      filename: heroImageData.filename
+    };
+
+    const [updatedConfig] = await db!.update(schema.siteConfig)
+      .set({ 
+        ...updates, 
+        heroImagesData: currentHeroImages,
+        heroImagesMeta: currentHeroMeta,
+        lastUpdated: new Date() 
+      })
+      .where(eq(schema.siteConfig.id, id))
+      .returning();
+    return updatedConfig;
+  }
+
+  async getHeroImageData(configId: string, pageId: string): Promise<{ logoData: string; logoMimeType: string; logoFilename: string } | undefined> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('getHeroImageData');
+    }
+    const [config] = await db!.select({
+      heroImagesData: schema.siteConfig.heroImagesData,
+      heroImagesMeta: schema.siteConfig.heroImagesMeta
+    }).from(schema.siteConfig).where(eq(schema.siteConfig.id, configId));
+    
+    if (!config || !config.heroImagesData) {
+      return undefined;
+    }
+
+    const heroImages = config.heroImagesData as any || {};
+    const heroMeta = config.heroImagesMeta as any || {};
+
+    const imageData = heroImages[pageId];
+    const imageMeta = heroMeta[pageId];
+
+    if (!imageData) {
+      return undefined;
+    }
+    
+    return {
+      logoData: imageData,
+      logoMimeType: imageMeta?.mimeType || 'image/png',
+      logoFilename: imageMeta?.filename || `hero-${pageId}`
+    };
+  }
+
+  async deleteHeroImage(configId: string, pageId: string): Promise<boolean> {
+    if (!isDatabaseAvailable()) {
+      throwDatabaseError('deleteHeroImage');
+    }
+
+    const currentConfig = await this.getSiteConfig();
+    if (!currentConfig) return false;
+
+    const currentHeroImages = currentConfig.heroImagesData as any || {};
+    const currentHeroMeta = currentConfig.heroImagesMeta as any || {};
+
+    // Remove the specific page's hero image
+    delete currentHeroImages[pageId];
+    delete currentHeroMeta[pageId];
+
+    const [updatedConfig] = await db!.update(schema.siteConfig)
+      .set({ 
+        heroImagesData: currentHeroImages,
+        heroImagesMeta: currentHeroMeta,
+        lastUpdated: new Date() 
+      })
+      .where(eq(schema.siteConfig.id, configId))
+      .returning();
+
+    return !!updatedConfig;
+  }
+
   // Testimonials
   async getAllTestimonials(): Promise<Testimonial[]> {
     if (!isDatabaseAvailable()) {
