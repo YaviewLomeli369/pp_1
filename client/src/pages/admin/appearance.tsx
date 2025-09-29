@@ -20,6 +20,7 @@ import { apiRequest } from "@/lib/queryClient";
 import type { SiteConfig } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import ObjectUploader from "@/components/ObjectUploader";
+import CarouselManager from "@/components/HeroImagesManager";
 
 export default function AdminAppearance() {
   const queryClient = useQueryClient();
@@ -78,7 +79,15 @@ export default function AdminAppearance() {
     heroGradientColor4: "",
     heroOverlayColor: "#000000",
     heroOverlayOpacity: 50,
-    heroTextColor: "#ffffff"
+    heroTextColor: "#ffffff",
+    
+    // Carousel Configuration
+    enableCarousel: false,
+    carouselSlides: [],
+    carouselAutoPlay: true,
+    carouselShowDots: true,
+    carouselShowArrows: true,
+    carouselInterval: 5
   });
 
   // Cargar configuración existente
@@ -123,6 +132,12 @@ export default function AdminAppearance() {
           heroOverlayColor: configData.appearance.heroOverlayColor || prev.heroOverlayColor,
           heroOverlayOpacity: configData.appearance.heroOverlayOpacity !== undefined ? configData.appearance.heroOverlayOpacity : prev.heroOverlayOpacity,
           heroTextColor: configData.appearance.heroTextColor || prev.heroTextColor,
+          enableCarousel: configData.appearance.enableCarousel || prev.enableCarousel,
+          carouselSlides: configData.appearance.carouselSlides || prev.carouselSlides,
+          carouselAutoPlay: configData.appearance.carouselAutoPlay !== undefined ? configData.appearance.carouselAutoPlay : prev.carouselAutoPlay,
+          carouselShowDots: configData.appearance.carouselShowDots !== undefined ? configData.appearance.carouselShowDots : prev.carouselShowDots,
+          carouselShowArrows: configData.appearance.carouselShowArrows !== undefined ? configData.appearance.carouselShowArrows : prev.carouselShowArrows,
+          carouselInterval: configData.appearance.carouselInterval || prev.carouselInterval,
         }));
       }
     }
@@ -268,7 +283,13 @@ export default function AdminAppearance() {
       heroGradientColor4: "",
       heroOverlayColor: "#000000",
       heroOverlayOpacity: 50,
-      heroTextColor: "#ffffff"
+      heroTextColor: "#ffffff",
+      enableCarousel: false,
+      carouselSlides: [],
+      carouselAutoPlay: true,
+      carouselShowDots: true,
+      carouselShowArrows: true,
+      carouselInterval: 5
     });
   };
 
@@ -934,6 +955,108 @@ export default function AdminAppearance() {
                 </CardContent>
               </Card>
 
+              {/* Carousel Management Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Image className="h-5 w-5" />
+                    Carrusel de Inicio
+                  </CardTitle>
+                  <CardDescription>
+                    Gestiona el carrusel principal de la página de inicio. Si está activo, reemplaza al hero estático.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CarouselManager
+                    slides={appearance.carouselSlides || []}
+                    onSlidesChange={(slides) => {
+                      setAppearance(prev => ({
+                        ...prev,
+                        carouselSlides: slides
+                      }));
+                    }}
+                  />
+                  
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="enableCarousel"
+                        checked={appearance.enableCarousel || false}
+                        onChange={(e) => setAppearance(prev => ({
+                          ...prev,
+                          enableCarousel: e.target.checked
+                        }))}
+                        className="rounded"
+                      />
+                      <Label htmlFor="enableCarousel">Habilitar carrusel en página de inicio</Label>
+                    </div>
+                    
+                    {appearance.enableCarousel && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="carouselAutoPlay"
+                            checked={appearance.carouselAutoPlay !== false}
+                            onChange={(e) => setAppearance(prev => ({
+                              ...prev,
+                              carouselAutoPlay: e.target.checked
+                            }))}
+                            className="rounded"
+                          />
+                          <Label htmlFor="carouselAutoPlay">Reproducción automática</Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="carouselShowDots"
+                            checked={appearance.carouselShowDots !== false}
+                            onChange={(e) => setAppearance(prev => ({
+                              ...prev,
+                              carouselShowDots: e.target.checked
+                            }))}
+                            className="rounded"
+                          />
+                          <Label htmlFor="carouselShowDots">Mostrar indicadores</Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="carouselShowArrows"
+                            checked={appearance.carouselShowArrows !== false}
+                            onChange={(e) => setAppearance(prev => ({
+                              ...prev,
+                              carouselShowArrows: e.target.checked
+                            }))}
+                            className="rounded"
+                          />
+                          <Label htmlFor="carouselShowArrows">Mostrar flechas</Label>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="carouselInterval">Intervalo (segundos)</Label>
+                          <Input
+                            id="carouselInterval"
+                            type="number"
+                            min="2"
+                            max="15"
+                            value={appearance.carouselInterval || 5}
+                            onChange={(e) => setAppearance(prev => ({
+                              ...prev,
+                              carouselInterval: parseInt(e.target.value) || 5
+                            }))}
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Hero Background Card */}
               <Card>
                 <CardHeader>
@@ -942,7 +1065,7 @@ export default function AdminAppearance() {
                     Fondo del Hero (Todas las páginas)
                   </CardTitle>
                   <CardDescription>
-                    Configura el fondo principal que aparece en inicio, servicios, conocenos, blog, testimonios, reservas y FAQs
+                    Configura el fondo principal que aparece en inicio (cuando no hay carrusel), servicios, conocenos, blog, testimonios, reservas y FAQs
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">

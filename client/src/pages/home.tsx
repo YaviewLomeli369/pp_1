@@ -11,6 +11,7 @@ import { InlineTextarea } from "@/components/inline-editor/InlineTextarea";
 import AnimatedSection from "@/components/AnimatedSection";
 import AlternatingSection from "@/components/AlternatingSection";
 import HeroSection from "@/components/HeroSection";
+import CarouselSection from "@/components/CarouselSection";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
@@ -237,23 +238,34 @@ function Home() {
       />
       <Navbar />
 
-      {/* Hero */}
-      <HeroSection
-        title={frontpage?.contenidos?.titulo || appearance.brandName || "Bienvenido a Nuestro Sistema"}
-        subtitle={frontpage?.contenidos?.subtitulo || appearance.tagline || "Calidad y Servicio a tu Alcance"}
-        appearance={appearance}
-      >
-        <div className="space-x-4">
-          <Button size="lg" variant="secondary" asChild>
-            <Link href="/contact">Contáctanos</Link>
-          </Button>
-          {modules.tienda?.activo && (
-            <Button variant="ghost" className="text-white hover:bg-white hover:text-black border border-white">
-              <Link href="/store">Ver Tienda</Link>
+      {/* Hero or Carousel */}
+      {appearance.enableCarousel && appearance.carouselSlides && appearance.carouselSlides.length > 0 ? (
+        <CarouselSection
+          slides={appearance.carouselSlides}
+          autoPlay={appearance.carouselAutoPlay !== false}
+          autoPlayInterval={(appearance.carouselInterval || 5) * 1000}
+          showDots={appearance.carouselShowDots !== false}
+          showArrows={appearance.carouselShowArrows !== false}
+          appearance={appearance}
+        />
+      ) : (
+        <HeroSection
+          title={frontpage?.contenidos?.titulo || appearance.brandName || "Bienvenido a Nuestro Sistema"}
+          subtitle={frontpage?.contenidos?.subtitulo || appearance.tagline || "Calidad y Servicio a tu Alcance"}
+          appearance={appearance}
+        >
+          <div className="space-x-4">
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/contact">Contáctanos</Link>
             </Button>
-          )}
-        </div>
-      </HeroSection>
+            {modules.tienda?.activo && (
+              <Button variant="ghost" className="text-white hover:bg-white hover:text-black border border-white">
+                <Link href="/store">Ver Tienda</Link>
+              </Button>
+            )}
+          </div>
+        </HeroSection>
+      )}
 
 
       {/* Planes - Solo mostrar si el módulo está activo */}
