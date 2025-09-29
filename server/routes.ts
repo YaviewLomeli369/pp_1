@@ -360,10 +360,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { buffer, originalname, mimetype } = req.file;
-      
+
       // Convert buffer to base64 for storage in PostgreSQL
       const logoBase64 = buffer.toString('base64');
-      
+
       // Update config with logo data
       const currentConfig = config.config as any;
       const updatedConfigData = {
@@ -412,7 +412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Convert base64 back to buffer
       const logoBuffer = Buffer.from(logoData.logoData, 'base64');
-      
+
       // Set appropriate headers
       res.setHeader('Content-Type', logoData.logoMimeType || 'image/png');
       res.setHeader('Content-Length', logoBuffer.length);
@@ -431,7 +431,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/config/hero/:pageId", requireAuth, requireRole(['superuser', 'admin']), upload.single('heroImage'), async (req, res) => {
     try {
       const { pageId } = req.params;
-      
+
       if (!req.file) {
         return res.status(400).json({ error: "No hero image file received" });
       }
@@ -448,17 +448,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { buffer, originalname, mimetype } = req.file;
-      
+
       // Convert buffer to base64 for storage in PostgreSQL
       const heroImageBase64 = buffer.toString('base64');
-      
+
       // Update config with hero image data
       const currentConfig = config.config as any;
+
+      // Map pageId to correct property name
+      let pageKey: string;
+      switch(pageId) {
+        case 'home':
+          pageKey = 'heroHomeBackgroundImage';
+          break;
+        case 'servicios':
+          pageKey = 'heroServiciosBackgroundImage';
+          break;
+        case 'conocenos':
+          pageKey = 'heroConocenosBackgroundImage';
+          break;
+        case 'faqs':
+          pageKey = 'heroFaqsBackgroundImage';
+          break;
+        case 'blog':
+          pageKey = 'heroBlogBackgroundImage';
+          break;
+        default:
+          pageKey = `hero${pageId.charAt(0).toUpperCase() + pageId.slice(1)}BackgroundImage`;
+      }
+
       const updatedConfigData = {
         ...currentConfig,
         appearance: {
           ...currentConfig.appearance,
-          [`hero${pageId.charAt(0).toUpperCase() + pageId.slice(1)}BackgroundImage`]: `/api/config/hero/${config.id}/${pageId}`
+          [pageKey]: `/api/config/hero/${config.id}/${pageId}`
         }
       };
 
@@ -494,7 +517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { configId, pageId } = req.params;
       console.log(`Serving hero image for config ${configId}, page ${pageId}`);
-      
+
       const heroImageData = await storage.getHeroImageData(configId, pageId);
 
       if (!heroImageData || !heroImageData.logoData) {
@@ -504,9 +527,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Convert base64 back to buffer
       const heroImageBuffer = Buffer.from(heroImageData.logoData, 'base64');
-      
+
       console.log(`Serving hero image: ${heroImageData.logoFilename}, size: ${heroImageBuffer.length} bytes`);
-      
+
       // Set appropriate headers
       res.setHeader('Content-Type', heroImageData.logoMimeType || 'image/jpeg');
       res.setHeader('Content-Length', heroImageBuffer.length);
@@ -527,22 +550,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/config/hero/:pageId", requireAuth, requireRole(['superuser', 'admin']), async (req, res) => {
     try {
       const { pageId } = req.params;
-      
+
       const config = await storage.getSiteConfig();
       if (!config) {
         return res.status(404).json({ message: "Config not found" });
       }
 
       const success = await storage.deleteHeroImage(config.id, pageId);
-      
+
       if (success) {
         // Also update the config to remove the specific URL
         const currentConfig = config.config as any;
+
+        // Map pageId to correct property name
+        let pageKey: string;
+        switch(pageId) {
+          case 'home':
+            pageKey = 'heroHomeBackgroundImage';
+            break;
+          case 'servicios':
+            pageKey = 'heroServiciosBackgroundImage';
+            break;
+          case 'conocenos':
+            pageKey = 'heroConocenosBackgroundImage';
+            break;
+          case 'faqs':
+            pageKey = 'heroFaqsBackgroundImage';
+            break;
+          case 'blog':
+            pageKey = 'heroBlogBackgroundImage';
+            break;
+          default:
+            pageKey = `hero${pageId.charAt(0).toUpperCase() + pageId.slice(1)}BackgroundImage`;
+        }
+
         const updatedConfigData = {
           ...currentConfig,
           appearance: {
             ...currentConfig.appearance,
-            [`hero${pageId.charAt(0).toUpperCase() + pageId.slice(1)}BackgroundImage`]: undefined
+            [pageKey]: undefined
           }
         };
 
@@ -1101,7 +1147,7 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
 
       // Check if contact info already exists
       const existingInfo = await storage.getContactInfo();
-      
+
       if (existingInfo) {
         // Update existing contact info
         const updatedInfo = await storage.updateContactInfo(existingInfo.id, req.body);
@@ -3049,7 +3095,7 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
     try {
       const { id } = req.params;
       const configData = req.body;
-      
+
       const updatedConfig = await storage.updateButtonConfig(id, {
         ...configData,
         updatedBy: (req as any).userId
@@ -3070,7 +3116,7 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
   app.delete("/api/button-config/:id", requireAuth, requireRole(['admin', 'superuser']), async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       const deleted = await storage.deleteButtonConfig(id);
       if (!deleted) {
         return res.status(404).json({ error: "Button configuration not found" });
@@ -3271,8 +3317,6 @@ Puedes responder directamente a este email o gestionar el mensaje desde el panel
       res.status(500).json({ error: "Internal server error" });
     }
   });
-
-  // =================== OBJECT STORAGE ROUTES ===================
 
   // =================== STRIPE PAYMENT API ROUTES ===================
 

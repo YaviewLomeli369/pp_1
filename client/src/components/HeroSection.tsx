@@ -31,8 +31,6 @@ export default function HeroSection({
     return "home"; // fallback
   })();
 
-  console.log(`HeroSection: Current page ID is "${currentPageId}" for location "${location}"`);
-
   // Get page-specific background image or fallback to global
   const getBackgroundImage = () => {
     // Check for page-specific image first
