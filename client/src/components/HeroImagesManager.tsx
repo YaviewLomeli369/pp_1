@@ -232,6 +232,7 @@ function SlideForm({ slide, onSave, onCancel }: SlideFormProps) {
       order: 0
     }
   );
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,12 +278,14 @@ function SlideForm({ slide, onSave, onCancel }: SlideFormProps) {
       <div>
         <Label>Imagen del Slide</Label>
         <div className="mt-2">
+          {/* Imagen seleccionada actualmente */}
           {formData.image && (
             <div className="mb-4">
+              <p className="text-sm font-medium mb-2">Imagen seleccionada:</p>
               <img
                 src={formData.image}
                 alt="Preview"
-                className="w-full max-w-md h-48 object-cover rounded"
+                className="w-full max-w-md h-48 object-cover rounded border-2 border-blue-500"
               />
               <Button 
                 type="button" 
@@ -291,27 +294,77 @@ function SlideForm({ slide, onSave, onCancel }: SlideFormProps) {
                 onClick={() => setFormData({ ...formData, image: "" })}
                 className="mt-2"
               >
-                Quitar imagen
+                Quitar imagen seleccionada
               </Button>
             </div>
           )}
+
+          {/* Galería de imágenes subidas */}
+          {uploadedImages.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium">Imágenes disponibles (haz clic para seleccionar):</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setUploadedImages([]);
+                    setFormData({ ...formData, image: "" });
+                  }}
+                >
+                  Limpiar todas
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {uploadedImages.map((imageUrl, index) => (
+                  <div
+                    key={index}
+                    className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                      formData.image === imageUrl 
+                        ? 'border-blue-500 ring-2 ring-blue-200' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setFormData({ ...formData, image: imageUrl })}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`Opción ${index + 1}`}
+                      className="w-full h-24 object-cover"
+                    />
+                    {formData.image === imageUrl && (
+                      <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                        <div className="bg-blue-500 text-white rounded-full p-1">
+                          ✓
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Subir nuevas imágenes */}
           <ObjectUploader
             onUploadSuccess={(result) => {
               if (result.successful && result.successful.length > 0) {
-                // Si se suben múltiples imágenes, tomar la primera
-                const imageURL = result.successful[0].response?.body?.url;
-                if (imageURL) {
-                  setFormData({ ...formData, image: imageURL });
+                const newImages = result.successful.map(file => file.response?.body?.url).filter(Boolean);
+                setUploadedImages(prev => [...prev, ...newImages]);
+                
+                // Si no hay imagen seleccionada, seleccionar la primera automáticamente
+                if (!formData.image && newImages.length > 0) {
+                  setFormData({ ...formData, image: newImages[0] });
                 }
               }
             }}
             acceptedFileTypes={['image/*']}
-            maxNumberOfFiles={5}
+            maxNumberOfFiles={10}
             allowMultiple={true}
-            note="Recomendado: 1920x1080px para mejor calidad. Puedes subir hasta 5 imágenes (se usará la primera seleccionada)"
+            note="Sube hasta 10 imágenes. Recomendado: 1920x1080px para mejor calidad en el carrusel"
           />
           <p className="text-xs text-gray-500 mt-2">
-            💡 Tip: Puedes subir varias imágenes de una vez y luego seleccionar cuál usar para este slide
+            💡 Tip: Puedes subir múltiples imágenes y seleccionar cuál usar haciendo clic en ella
           </p>
         </div>
       </div>

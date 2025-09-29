@@ -21,6 +21,13 @@ import type { SiteConfig } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import ObjectUploader from "@/components/ObjectUploader";
 import CarouselManager from "@/components/HeroImagesManager";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function AdminAppearance() {
   const queryClient = useQueryClient();
@@ -39,33 +46,33 @@ export default function AdminAppearance() {
     backgroundColor: "#FFFFFF",
     textColor: "#111827",
     linkColor: "#3B82F6",
-    
+
     // Tipografía
     fontFamily: "Inter",
     fontSize: "16",
     lineHeight: "1.6",
     headingFont: "Inter",
-    
+
     // Layout
     containerWidth: "1200",
     headerHeight: "80",
     footerStyle: "standard",
-    
+
     // Logo y branding
     logoUrl: "",
     faviconUrl: "",
     brandName: "Mi Sitio Web",
     tagline: "Tu eslogan aquí",
-    
+
     // SEO
     metaTitle: "Mi Sitio Web",
     metaDescription: "Descripción de mi sitio web",
     ogImage: "",
-    
+
     // Responsive
     mobileBreakpoint: "768",
     tabletBreakpoint: "1024",
-    
+
     // Hero Background
     heroBackgroundType: "image",
     heroBackgroundImage: "",
@@ -80,7 +87,7 @@ export default function AdminAppearance() {
     heroOverlayColor: "#000000",
     heroOverlayOpacity: 50,
     heroTextColor: "#ffffff",
-    
+
     // Carousel Configuration
     enableCarousel: false,
     carouselSlides: [],
@@ -148,7 +155,7 @@ export default function AdminAppearance() {
   const saveAppearanceMutation = useMutation({
     mutationFn: async (appearanceData: typeof appearance) => {
       const currentConfig = config?.config || {};
-      
+
       const updatedConfig = {
         ...currentConfig,
         appearance: appearanceData
@@ -220,7 +227,7 @@ export default function AdminAppearance() {
       }
 
       const result = await response.json();
-      
+
       // Update appearance state with new logo URL
       setAppearance(prev => ({
         ...prev,
@@ -305,6 +312,14 @@ export default function AdminAppearance() {
       </AdminLayout>
     );
   }
+
+  // Helper function to handle carousel slides change
+  const handleCarouselSlidesChange = (slides) => {
+    setAppearance(prev => ({
+      ...prev,
+      carouselSlides: slides
+    }));
+  };
 
   return (
     <AdminLayout>
@@ -565,7 +580,7 @@ export default function AdminAppearance() {
                       <option value="Red Hat Display">Red Hat Display</option>
                       <option value="Lexend">Lexend</option>
                       <option value="Sora">Sora</option>
-                      
+
                       {/* Serif clásicas */}
                       <option value="Playfair Display">Playfair Display</option>
                       <option value="Lora">Lora</option>
@@ -581,7 +596,7 @@ export default function AdminAppearance() {
                       <option value="Rokkitt">Rokkitt</option>
                       <option value="Cardo">Cardo</option>
                       <option value="Crimson Pro">Crimson Pro</option>
-                      
+
                       {/* Display y decorativas */}
                       <option value="Bebas Neue">Bebas Neue</option>
                       <option value="Oswald">Oswald</option>
@@ -596,7 +611,7 @@ export default function AdminAppearance() {
                       <option value="Comfortaa">Comfortaa</option>
                       <option value="Caveat">Caveat</option>
                       <option value="Architects Daughter">Architects Daughter</option>
-                      
+
                       {/* Monoespaciadas */}
                       <option value="JetBrains Mono">JetBrains Mono</option>
                       <option value="Fira Code">Fira Code</option>
@@ -606,7 +621,7 @@ export default function AdminAppearance() {
                       <option value="Space Mono">Space Mono</option>
                       <option value="Inconsolata">Inconsolata</option>
                       <option value="Ubuntu Mono">Ubuntu Mono</option>
-                      
+
                       {/* Fuentes del sistema */}
                       <option value="system-ui">System UI</option>
                       <option value="-apple-system">Apple System</option>
@@ -662,7 +677,7 @@ export default function AdminAppearance() {
                       <option value="Red Hat Display">Red Hat Display</option>
                       <option value="Lexend">Lexend</option>
                       <option value="Sora">Sora</option>
-                      
+
                       {/* Serif clásicas */}
                       <option value="Playfair Display">Playfair Display</option>
                       <option value="Lora">Lora</option>
@@ -678,7 +693,7 @@ export default function AdminAppearance() {
                       <option value="Rokkitt">Rokkitt</option>
                       <option value="Cardo">Cardo</option>
                       <option value="Crimson Pro">Crimson Pro</option>
-                      
+
                       {/* Display y decorativas */}
                       <option value="Bebas Neue">Bebas Neue</option>
                       <option value="Oswald">Oswald</option>
@@ -693,7 +708,7 @@ export default function AdminAppearance() {
                       <option value="Comfortaa">Comfortaa</option>
                       <option value="Caveat">Caveat</option>
                       <option value="Architects Daughter">Architects Daughter</option>
-                      
+
                       {/* Monoespaciadas */}
                       <option value="JetBrains Mono">JetBrains Mono</option>
                       <option value="Fira Code">Fira Code</option>
@@ -703,7 +718,7 @@ export default function AdminAppearance() {
                       <option value="Space Mono">Space Mono</option>
                       <option value="Inconsolata">Inconsolata</option>
                       <option value="Ubuntu Mono">Ubuntu Mono</option>
-                      
+
                       {/* Fuentes del sistema */}
                       <option value="system-ui">System UI</option>
                       <option value="-apple-system">Apple System</option>
@@ -865,7 +880,7 @@ export default function AdminAppearance() {
                       <span className="text-sm">Desktop: {appearance.containerWidth}px</span>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-100 rounded p-4">
                     <div 
                       className="bg-white border rounded mx-auto"
@@ -969,17 +984,40 @@ export default function AdminAppearance() {
                     Gestiona el carrusel principal de la página de inicio. Si está activo, reemplaza al hero estático.
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
+                  {/* Control de altura del carrusel */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="carouselHeight">Altura del Carrusel</Label>
+                      <Select
+                        value={appearance.carouselHeight?.toString() || "600"}
+                        onValueChange={(value) =>
+                          setAppearance({
+                            ...appearance,
+                            carouselHeight: parseInt(value),
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona altura" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="400">Baja (400px)</SelectItem>
+                          <SelectItem value="500">Media (500px)</SelectItem>
+                          <SelectItem value="600">Alta (600px)</SelectItem>
+                          <SelectItem value="700">Muy Alta (700px)</SelectItem>
+                          <SelectItem value="80">80% de la pantalla</SelectItem>
+                          <SelectItem value="100">Pantalla completa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <CarouselManager
                     slides={appearance.carouselSlides || []}
-                    onSlidesChange={(slides) => {
-                      setAppearance(prev => ({
-                        ...prev,
-                        carouselSlides: slides
-                      }));
-                    }}
+                    onSlidesChange={handleCarouselSlidesChange}
                   />
-                  
+
                   <div className="mt-6 space-y-4">
                     <div className="flex items-center space-x-2">
                       <input
@@ -994,7 +1032,7 @@ export default function AdminAppearance() {
                       />
                       <Label htmlFor="enableCarousel">Habilitar carrusel en página de inicio</Label>
                     </div>
-                    
+
                     {appearance.enableCarousel && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded">
                         <div className="flex items-center space-x-2">
@@ -1010,7 +1048,7 @@ export default function AdminAppearance() {
                           />
                           <Label htmlFor="carouselAutoPlay">Reproducción automática</Label>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
                           <input
                             type="checkbox"
@@ -1024,7 +1062,7 @@ export default function AdminAppearance() {
                           />
                           <Label htmlFor="carouselShowDots">Mostrar indicadores</Label>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
                           <input
                             type="checkbox"
@@ -1038,7 +1076,7 @@ export default function AdminAppearance() {
                           />
                           <Label htmlFor="carouselShowArrows">Mostrar flechas</Label>
                         </div>
-                        
+
                         <div>
                           <Label htmlFor="carouselInterval">Intervalo (segundos)</Label>
                           <Input
@@ -1053,26 +1091,6 @@ export default function AdminAppearance() {
                             }))}
                             className="mt-1"
                           />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="carouselHeight">Altura del Carrusel (px)</Label>
-                          <Input
-                            id="carouselHeight"
-                            type="number"
-                            min="400"
-                            max="1200"
-                            value={appearance.carouselHeight || 600}
-                            onChange={(e) => setAppearance(prev => ({
-                              ...prev,
-                              carouselHeight: parseInt(e.target.value) || 600
-                            }))}
-                            className="mt-1"
-                            placeholder="600"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Altura fija del carrusel en píxeles
-                          </p>
                         </div>
                       </div>
                     )}
@@ -1131,7 +1149,7 @@ export default function AdminAppearance() {
                           placeholder="https://example.com/hero-background.jpg"
                         />
                       </div>
-                      
+
                       {/* Image Upload Component */}
                       <div className="space-y-2">
                         <Label>Subir Nueva Imagen</Label>
@@ -1401,11 +1419,11 @@ export default function AdminAppearance() {
                               const color4 = (appearance as any).heroGradientColor4;
                               const direction = (appearance as any).heroGradientDirection || "to right";
                               const type = (appearance as any).heroGradientType || "linear";
-                              
+
                               let colors = [color1, color2];
                               if (color3) colors.push(color3);
                               if (color4) colors.push(color4);
-                              
+
                               return type === "radial" 
                                 ? `radial-gradient(circle, ${colors.join(", ")})`
                                 : `linear-gradient(${direction}, ${colors.join(", ")})`;

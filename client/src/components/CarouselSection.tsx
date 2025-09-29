@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ interface CarouselSectionProps {
   showArrows?: boolean;
   className?: string;
   appearance?: any;
-  height?: number;
+  height?: string;
 }
 
 export default function CarouselSection({
@@ -36,7 +35,7 @@ export default function CarouselSection({
   showArrows = true,
   className = "",
   appearance = {},
-  height = 600
+  height = "500px"
 }: CarouselSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const visibleSlides = slides.filter(slide => slide.isVisible).sort((a, b) => a.order - b.order);
@@ -73,7 +72,7 @@ export default function CarouselSection({
     <AnimatedSection>
       <section 
         className={`relative w-full overflow-hidden ${className}`}
-        style={{ height: `${height}px` }}
+        style={{ height: `${height}` }}
       >
         {/* Slide Background */}
         <div
@@ -109,7 +108,7 @@ export default function CarouselSection({
             >
               {currentSlideData.title}
             </h1>
-            
+
             {currentSlideData.subtitle && (
               <h2 
                 className="text-xl md:text-2xl mb-6 opacity-90"
@@ -121,7 +120,7 @@ export default function CarouselSection({
                 {currentSlideData.subtitle}
               </h2>
             )}
-            
+
             {currentSlideData.description && (
               <p 
                 className="text-lg md:text-xl mb-8 opacity-80 max-w-2xl mx-auto"
@@ -133,7 +132,7 @@ export default function CarouselSection({
                 {currentSlideData.description}
               </p>
             )}
-            
+
             {currentSlideData.buttonText && currentSlideData.buttonLink && (
               <div className="space-x-4">
                 {currentSlideData.buttonLink.startsWith('http') ? (
