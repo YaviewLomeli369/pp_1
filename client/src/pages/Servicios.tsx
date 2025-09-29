@@ -252,7 +252,7 @@ function Servicios() {
         appearance={appearance}
       >
         <Button size="lg" variant="secondary" asChild>
-          <Link href="/contacto">Solicitar cotización</Link>
+          <Link href="/contact">Solicitar cotización</Link>
         </Button>
       </HeroSection>
 

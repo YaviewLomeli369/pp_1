@@ -23,8 +23,6 @@ export const siteConfig = pgTable("site_config", {
   logoData: text("logo_data"), // Base64 encoded logo data
   logoMimeType: text("logo_mime_type"), // MIME type of the logo
   logoFilename: text("logo_filename"), // Original filename
-  heroImagesData: jsonb("hero_images_data"), // Page-specific hero images stored as base64
-  heroImagesMeta: jsonb("hero_images_meta"), // Metadata for hero images (mimeType, filename, etc.)
 });
 
 // Testimonials

@@ -245,7 +245,7 @@ function Home() {
       >
         <div className="space-x-4">
           <Button size="lg" variant="secondary" asChild>
-            <Link href="/contacto">Contáctanos</Link>
+            <Link href="/contact">Contáctanos</Link>
           </Button>
           {modules.tienda?.activo && (
             <Button variant="ghost" className="text-white hover:bg-white hover:text-black border border-white">
