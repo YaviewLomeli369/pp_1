@@ -31,18 +31,34 @@ export default function HeroSection({
     return "home"; // fallback
   })();
 
+  console.log(`HeroSection: Current page ID is "${currentPageId}" for location "${location}"`);
+
   // Get page-specific background image or fallback to global
   const getBackgroundImage = () => {
     // Check for page-specific image first
     const pageSpecificKey = `hero${currentPageId.charAt(0).toUpperCase() + currentPageId.slice(1)}BackgroundImage`;
     const pageSpecificImage = appearance[pageSpecificKey];
 
-    if (pageSpecificImage) {
+    if (pageSpecificImage && pageSpecificImage.trim() !== '') {
+      // If it's a database-served URL (starts with /api/config/hero/), return as is
+      if (pageSpecificImage.startsWith('/api/config/hero/')) {
+        return pageSpecificImage;
+      }
+      // If it's an external URL, return as is
+      if (pageSpecificImage.startsWith('http')) {
+        return pageSpecificImage;
+      }
+      // Otherwise, assume it's a relative path
       return pageSpecificImage;
     }
 
     // Fallback to global hero background image
-    return appearance.heroBackgroundImage;
+    if (appearance.heroBackgroundImage && appearance.heroBackgroundImage.trim() !== '') {
+      return appearance.heroBackgroundImage;
+    }
+
+    // Ultimate fallback to default image
+    return "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=2000&q=80";
   };
 
   const backgroundImage = getBackgroundImage();

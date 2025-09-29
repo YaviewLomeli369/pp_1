@@ -80,6 +80,7 @@ export default function HeroImagesManager({ appearance, setAppearance }: HeroIma
       // Update appearance state with new hero image URL
       const pageConfig = pages.find(p => p.id === pageId);
       if (pageConfig) {
+        console.log(`Updating appearance for ${pageConfig.key} with URL: ${result.heroImageUrl}`);
         setAppearance(prev => ({
           ...prev,
           [pageConfig.key]: result.heroImageUrl

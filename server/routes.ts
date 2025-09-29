@@ -493,20 +493,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/config/hero/:configId/:pageId", async (req, res) => {
     try {
       const { configId, pageId } = req.params;
+      console.log(`Serving hero image for config ${configId}, page ${pageId}`);
+      
       const heroImageData = await storage.getHeroImageData(configId, pageId);
 
       if (!heroImageData || !heroImageData.logoData) {
+        console.log(`Hero image not found for config ${configId}, page ${pageId}`);
         return res.status(404).json({ error: "Hero image not found" });
       }
 
       // Convert base64 back to buffer
       const heroImageBuffer = Buffer.from(heroImageData.logoData, 'base64');
       
+      console.log(`Serving hero image: ${heroImageData.logoFilename}, size: ${heroImageBuffer.length} bytes`);
+      
       // Set appropriate headers
-      res.setHeader('Content-Type', heroImageData.logoMimeType || 'image/png');
+      res.setHeader('Content-Type', heroImageData.logoMimeType || 'image/jpeg');
       res.setHeader('Content-Length', heroImageBuffer.length);
       res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
       res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
       res.send(heroImageBuffer);
 
