@@ -247,7 +247,7 @@ function Home() {
           showDots={appearance.carouselShowDots !== false}
           showArrows={appearance.carouselShowArrows !== false}
           appearance={appearance}
-          height={appearance.carouselHeight || 600}
+          height={parseInt(appearance.carouselHeight?.toString() || '600') || 600}
         />
       ) : (
         <HeroSection
